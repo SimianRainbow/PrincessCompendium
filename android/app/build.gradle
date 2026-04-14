@@ -35,3 +35,12 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.7.0'
     implementation 'androidx.core:core:1.13.1'
 }
+
+// Force consistent Kotlin stdlib version across all transitive deps
+configurations.all {
+    resolutionStrategy {
+        force 'org.jetbrains.kotlin:kotlin-stdlib:1.9.23'
+        force 'org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.9.23'
+        force 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.23'
+    }
+}
