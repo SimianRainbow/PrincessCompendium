@@ -59,8 +59,8 @@ public class MainActivity extends AppCompatActivity {
         });
         webView.setWebChromeClient(new WebChromeClient());
 
-        // Lobby is bundled as an asset; games load from GitHub Pages
-        webView.loadUrl("file:///android_asset/lobby.html");
+        // Load lobby directly from GitHub Pages — no cross-origin issues
+        webView.loadUrl("https://simianrainbow.github.io/PrincessCompendium/lobby.html");
     }
 
     @Override

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Princess Compendium</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+    body {
+      background: linear-gradient(160deg, #3a0068 0%, #9c27b0 45%, #f48fb1 100%);
+      min-height: 100vh;
+      font-family: 'Georgia', serif;
+      user-select: none;
+      overflow-x: hidden;
+    }
+
+    header {
+      text-align: center;
+      padding: 32px 16px 16px;
+    }
+    header h1 {
+      font-size: clamp(28px, 7vw, 48px);
+      color: #fff;
+      text-shadow: 0 0 20px rgba(255,215,0,0.5), 0 2px 8px rgba(0,0,0,0.4);
+      letter-spacing: 2px;
+    }
+    header p {
+      font-size: clamp(16px, 4vw, 22px);
+      color: rgba(255,255,255,0.75);
+      margin-top: 6px;
+    }
+
+    #game-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: clamp(12px, 3vw, 20px);
+      padding: clamp(16px, 4vw, 28px);
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .game-card {
+      background: rgba(255,255,255,0.15);
+      border: 2px solid rgba(255,255,255,0.25);
+      border-radius: 24px;
+      padding: clamp(16px, 4vw, 24px) 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      transition: transform 0.12s, background 0.12s;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+      text-decoration: none;
+    }
+    .game-card:active {
+      transform: scale(0.94);
+      background: rgba(255,255,255,0.25);
+    }
+
+    .game-icon {
+      font-size: clamp(48px, 14vw, 80px);
+      line-height: 1;
+    }
+
+    .game-title {
+      font-size: clamp(15px, 4vw, 22px);
+      color: #fff;
+      text-align: center;
+      font-weight: bold;
+      text-shadow: 0 1px 4px rgba(0,0,0,0.3);
+    }
+
+    .game-skill {
+      font-size: clamp(11px, 2.8vw, 15px);
+      color: rgba(255,255,255,0.7);
+      background: rgba(0,0,0,0.2);
+      border-radius: 20px;
+      padding: 3px 10px;
+      text-align: center;
+    }
+
+    #loading {
+      text-align: center;
+      color: rgba(255,255,255,0.7);
+      font-size: 22px;
+      padding: 60px 20px;
+    }
+
+    #error-msg {
+      display: none;
+      text-align: center;
+      color: #ffcdd2;
+      font-size: 18px;
+      padding: 40px 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>👑 Princess Compendium</h1>
+    <p>Pick a game, Jet! ✨</p>
+  </header>
+
+  <div id="game-grid">
+    <div id="loading">Loading games... ✨</div>
+  </div>
+  <div id="error-msg">
+    Could not load games. Check your connection and try again! 🌸
+  </div>
+
+<script>
+  // IMPORTANT: Replace with your actual GitHub Pages URL
+  const GAMES_JSON_URL = 'https://simianrainbow.github.io/PrincessCompendium/games.json';
+  // Base URL for loading individual games
+  const GAMES_BASE_URL = 'https://simianrainbow.github.io/PrincessCompendium/';
+
+  async function loadGames() {
+    try {
+      const res = await fetch(GAMES_JSON_URL);
+      if (!res.ok) throw new Error('Network response not ok');
+      const games = await res.json();
+      renderGames(games);
+    } catch (err) {
+      console.error('Failed to load games:', err);
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('error-msg').style.display = 'block';
+    }
+  }
+
+  function renderGames(games) {
+    const grid = document.getElementById('game-grid');
+    grid.innerHTML = '';
+    games.forEach(game => {
+      const card = document.createElement('a');
+      card.className = 'game-card';
+      card.href = GAMES_BASE_URL + game.path;
+      card.innerHTML = `
+        <div class="game-icon">${game.icon}</div>
+        <div class="game-title">${game.title}</div>
+        <div class="game-skill">${game.skill}</div>
+      `;
+      grid.appendChild(card);
+    });
+  }
+
+  loadGames();
+</script>
+</body>
+</html>
