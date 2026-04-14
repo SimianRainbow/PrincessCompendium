@@ -1,0 +1,10 @@
+{
+  "id": "004-shape-castle",
+  "title": "Shape Castle",
+  "description": "Match the shape to build the princess's castle",
+  "icon": "🏰",
+  "ageMin": 2,
+  "ageMax": 4,
+  "skill": "shape recognition",
+  "version": "1.0.0"
+}

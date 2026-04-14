@@ -4,8 +4,7 @@
     "title": "Magic Gems",
     "description": "Tap the gem that matches the princess's crown",
     "icon": "💎",
-    "ageMin": 2,
-    "ageMax": 4,
+    "ageMin": 2, "ageMax": 4,
     "skill": "colour recognition",
     "version": "1.0.0",
     "path": "games/001-colour-match/index.html"
@@ -15,10 +14,49 @@
     "title": "Counting Crowns",
     "description": "Count the crowns and tap the right number",
     "icon": "👑",
-    "ageMin": 2,
-    "ageMax": 4,
+    "ageMin": 2, "ageMax": 4,
     "skill": "counting 1-5",
     "version": "1.0.0",
     "path": "games/002-counting-crowns/index.html"
+  },
+  {
+    "id": "003-animal-friends",
+    "title": "Animal Friends",
+    "description": "Find the matching animal for the princess",
+    "icon": "🦄",
+    "ageMin": 2, "ageMax": 4,
+    "skill": "animal recognition",
+    "version": "1.0.0",
+    "path": "games/003-animal-friends/index.html"
+  },
+  {
+    "id": "004-shape-castle",
+    "title": "Shape Castle",
+    "description": "Match the shape to build the princess's castle",
+    "icon": "🏰",
+    "ageMin": 2, "ageMax": 4,
+    "skill": "shape recognition",
+    "version": "1.0.0",
+    "path": "games/004-shape-castle/index.html"
+  },
+  {
+    "id": "005-princess-says",
+    "title": "Princess Says",
+    "description": "Listen to Princess and tap what she says",
+    "icon": "🎀",
+    "ageMin": 2, "ageMax": 4,
+    "skill": "listening & following instructions",
+    "version": "1.0.0",
+    "path": "games/005-princess-says/index.html"
+  },
+  {
+    "id": "006-fairy-tale-tap",
+    "title": "Fairy Tale Tap",
+    "description": "Tap through a princess story and make choices",
+    "icon": "📖",
+    "ageMin": 2, "ageMax": 5,
+    "skill": "story comprehension & choices",
+    "version": "1.0.0",
+    "path": "games/006-fairy-tale-tap/index.html"
   }
 ]

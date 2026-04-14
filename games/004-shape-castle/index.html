@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Shape Castle 🏰</title>
+  <style>
+    * { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+    body {
+      background: linear-gradient(160deg, #4a148c 0%, #7b1fa2 45%, #ce93d8 100%);
+      min-height:100vh; display:flex; flex-direction:column;
+      align-items:center; justify-content:center;
+      font-family:Georgia,serif; overflow:hidden; user-select:none;
+    }
+    #prompt { font-size:clamp(20px,5.5vw,32px); color:#fff; text-shadow:0 2px 8px rgba(0,0,0,.4); margin-bottom:16px; text-align:center; }
+
+    #target-stage {
+      background:rgba(255,255,255,.15); border-radius:28px;
+      border:3px solid rgba(255,255,255,.3);
+      padding:clamp(16px,4vw,28px);
+      display:flex; flex-direction:column; align-items:center; gap:10px;
+      margin-bottom:28px; min-width:clamp(160px,40vw,220px);
+      box-shadow:0 4px 24px rgba(0,0,0,.2);
+    }
+    #target-shape { width:clamp(90px,22vw,130px); height:clamp(90px,22vw,130px); }
+    #target-name { font-size:clamp(18px,5vw,28px); color:#fff; font-weight:bold; text-shadow:0 1px 4px rgba(0,0,0,.3); }
+
+    #shape-grid {
+      display:grid; grid-template-columns:repeat(2,1fr);
+      gap:clamp(12px,3vw,20px); padding:4px;
+    }
+    .shape-btn {
+      width:clamp(110px,27vw,148px); height:clamp(110px,27vw,148px);
+      border-radius:22px; border:none; cursor:pointer;
+      background:rgba(255,255,255,.18);
+      box-shadow:0 4px 16px rgba(0,0,0,.25), inset 0 2px 0 rgba(255,255,255,.2);
+      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px;
+      transition:transform .1s;
+    }
+    .shape-btn:active { transform:scale(.9); }
+    .shape-btn svg { width:clamp(54px,13vw,72px); height:clamp(54px,13vw,72px); }
+    .shape-btn .btn-label { font-size:clamp(13px,3.2vw,17px); color:#fff; font-weight:bold; text-shadow:0 1px 3px rgba(0,0,0,.4); }
+    .shape-btn.correct-flash { animation:correctPulse .5s ease-out; }
+    .shape-btn.wrong-flash { animation:wrongShake .4s ease-out; }
+    @keyframes correctPulse { 0%{transform:scale(1)} 40%{transform:scale(1.18);box-shadow:0 0 40px rgba(255,255,255,.7)} 100%{transform:scale(1)} }
+    @keyframes wrongShake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-10px)} 60%{transform:translateX(10px)} }
+
+    #celebrate-overlay {
+      position:fixed; inset:0; background:rgba(0,0,0,.55);
+      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:18px;
+      z-index:99; opacity:0; pointer-events:none; transition:opacity .3s;
+    }
+    #celebrate-overlay.show { opacity:1; pointer-events:all; }
+    #celebrate-text { font-size:clamp(30px,8vw,60px); color:#fff; text-shadow:0 0 20px #ffd700; text-align:center; padding:0 16px; }
+    #celebrate-shape-wrap { width:clamp(90px,22vw,130px); height:clamp(90px,22vw,130px); }
+    #next-btn { padding:clamp(14px,4vw,20px) clamp(32px,8vw,56px); font-size:clamp(20px,5vw,28px); border-radius:50px; border:none; background:linear-gradient(135deg,#ffd700,#ff9800); color:#5d2e00; font-weight:bold; cursor:pointer; font-family:inherit; box-shadow:0 4px 16px rgba(255,180,0,.5); }
+    #score-row { position:fixed; top:16px; right:20px; font-size:clamp(22px,6vw,32px); }
+    .confetti-piece { position:fixed; width:10px; height:10px; border-radius:50%; animation:confettiFall linear forwards; pointer-events:none; z-index:100; }
+    @keyframes confettiFall { 0%{top:-20px;opacity:1} 100%{top:110vh;opacity:.2} }
+  </style>
+</head>
+<body>
+  <div id="score-row"></div>
+  <div id="prompt">Find this shape! 🏰</div>
+  <div id="target-stage">
+    <div id="target-shape"></div>
+    <div id="target-name"></div>
+  </div>
+  <div id="shape-grid"></div>
+
+  <div id="celebrate-overlay">
+    <div id="celebrate-text">That's a...</div>
+    <div id="celebrate-shape-wrap"></div>
+    <button id="next-btn" onclick="nextRound()">Next ➡️</button>
+  </div>
+
+<script>
+  const SHAPES = [
+    {
+      name:'Circle',
+      color:'#e53935',
+      svg:`<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="44" fill="currentColor"/></svg>`
+    },
+    {
+      name:'Square',
+      color:'#1e88e5',
+      svg:`<svg viewBox="0 0 100 100"><rect x="8" y="8" width="84" height="84" rx="8" fill="currentColor"/></svg>`
+    },
+    {
+      name:'Triangle',
+      color:'#43a047',
+      svg:`<svg viewBox="0 0 100 100"><polygon points="50,6 96,94 4,94" fill="currentColor"/></svg>`
+    },
+    {
+      name:'Star',
+      color:'#fdd835',
+      svg:`<svg viewBox="0 0 100 100"><polygon points="50,5 61,35 95,35 68,57 79,91 50,70 21,91 32,57 5,35 39,35" fill="currentColor"/></svg>`
+    },
+    {
+      name:'Heart',
+      color:'#e91e8c',
+      svg:`<svg viewBox="0 0 100 100"><path d="M50 85 C50 85 10 58 10 32 C10 18 22 8 36 8 C42 8 48 11 50 15 C52 11 58 8 64 8 C78 8 90 18 90 32 C90 58 50 85 50 85Z" fill="currentColor"/></svg>`
+    },
+    {
+      name:'Diamond',
+      color:'#8e24aa',
+      svg:`<svg viewBox="0 0 100 100"><polygon points="50,4 96,50 50,96 4,50" fill="currentColor"/></svg>`
+    },
+  ];
+
+  let audioCtx=null;
+  function getAudio(){ if(!audioCtx) audioCtx=new(window.AudioContext||window.webkitAudioContext)(); return audioCtx; }
+  function tone(f,t,d,v=.15){ try{ const c=getAudio(),o=c.createOscillator(),g=c.createGain(); o.connect(g);g.connect(c.destination); o.type=t||'sine';o.frequency.value=f;g.gain.setValueAtTime(v,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+d);o.start();o.stop(c.currentTime+d); }catch(e){} }
+  function playCorrect(){ [523,659,784].forEach((f,i)=>setTimeout(()=>tone(f,'sine',.18),i*90)); }
+  function playWrong(){ tone(200,'sawtooth',.2,.09); }
+  function playCelebrate(){ [523,587,659,698,784,880,1047].forEach((f,i)=>setTimeout(()=>tone(f,'sine',.22),i*70)); }
+
+  function makeSvgEl(shape, size='100%'){
+    const wrap=document.createElement('div');
+    wrap.style.cssText=`width:${size};height:${size};color:${shape.color};filter:drop-shadow(0 3px 8px rgba(0,0,0,.3))`;
+    wrap.innerHTML=shape.svg;
+    return wrap;
+  }
+
+  let target,score=0,round=0;
+  const TOTAL=6;
+  function shuffle(a){ const b=[...a]; for(let i=b.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]]; } return b; }
+  function updateScore(){ document.getElementById('score-row').innerHTML=Array.from({length:score},()=>'⭐').join(''); }
+
+  function nextRound(){
+    document.getElementById('celebrate-overlay').classList.remove('show');
+    if(round>=TOTAL){ endGame(); return; }
+    round++;
+    const pool=shuffle(SHAPES);
+    target=pool[0];
+    const opts=shuffle(pool.slice(0,4));
+
+    const ts=document.getElementById('target-shape');
+    ts.innerHTML=''; ts.appendChild(makeSvgEl(target,'100%'));
+    document.getElementById('target-name').textContent=target.name;
+
+    const grid=document.getElementById('shape-grid');
+    grid.innerHTML='';
+    opts.forEach(s=>{
+      const btn=document.createElement('button');
+      btn.className='shape-btn';
+      const svgWrap=makeSvgEl(s);
+      const lbl=document.createElement('span');
+      lbl.className='btn-label'; lbl.textContent=s.name;
+      btn.appendChild(svgWrap); btn.appendChild(lbl);
+      btn.addEventListener('pointerdown',()=>handleTap(btn,s));
+      grid.appendChild(btn);
+    });
+  }
+
+  function handleTap(btn,s){
+    if(s.name===target.name){
+      btn.classList.add('correct-flash'); playCorrect(); score++; updateScore();
+      setTimeout(()=>{
+        btn.classList.remove('correct-flash');
+        const msgs=['That\'s a...','Yes! A...','Correct! ✨','You found it! 💖'];
+        document.getElementById('celebrate-text').textContent=msgs[Math.floor(Math.random()*msgs.length)]+' '+target.name+'!';
+        const cw=document.getElementById('celebrate-shape-wrap');
+        cw.innerHTML=''; cw.appendChild(makeSvgEl(target,'100%'));
+        document.getElementById('celebrate-overlay').classList.add('show');
+        playCelebrate(); confettiBurst();
+      },500);
+    } else {
+      btn.classList.add('wrong-flash'); playWrong();
+      setTimeout(()=>btn.classList.remove('wrong-flash'),400);
+    }
+  }
+
+  function endGame(){
+    document.getElementById('celebrate-text').textContent=`You got ${score} stars! 👑`;
+    const cw=document.getElementById('celebrate-shape-wrap');
+    cw.innerHTML=`<div style="font-size:clamp(40px,12vw,72px)">${Array.from({length:score},()=>'⭐').join('')||'🌸'}</div>`;
+    document.getElementById('next-btn').textContent='Play Again 🔄';
+    document.getElementById('next-btn').onclick=()=>{ score=0;round=0;updateScore();nextRound();document.getElementById('celebrate-overlay').classList.remove('show'); };
+    document.getElementById('celebrate-overlay').classList.add('show');
+    playCelebrate(); confettiBurst();
+  }
+
+  function confettiBurst(){
+    const cols=['#ffd700','#ff69b4','#00cfff','#7fff00','#ff6347','#da70d6'];
+    for(let i=0;i<30;i++){
+      const el=document.createElement('div'); el.className='confetti-piece';
+      el.style.left=Math.random()*100+'vw';
+      el.style.background=cols[Math.floor(Math.random()*cols.length)];
+      el.style.animationDuration=(1.2+Math.random()*1.6)+'s';
+      el.style.animationDelay=(Math.random()*.4)+'s';
+      document.body.appendChild(el); setTimeout(()=>el.remove(),2600);
+    }
+  }
+
+  nextRound();
+</script>
+</body>
+</html>

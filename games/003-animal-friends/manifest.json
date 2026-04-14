@@ -1,0 +1,10 @@
+{
+  "id": "003-animal-friends",
+  "title": "Animal Friends",
+  "description": "Find the matching animal for the princess",
+  "icon": "🦄",
+  "ageMin": 2,
+  "ageMax": 4,
+  "skill": "animal recognition",
+  "version": "1.0.0"
+}

@@ -1,0 +1,10 @@
+{
+  "id": "005-princess-says",
+  "title": "Princess Says",
+  "description": "Listen to Princess and tap what she says",
+  "icon": "🎀",
+  "ageMin": 2,
+  "ageMax": 4,
+  "skill": "listening & following instructions",
+  "version": "1.0.0"
+}
