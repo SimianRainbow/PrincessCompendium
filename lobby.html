@@ -112,10 +112,9 @@
   </div>
 
 <script>
-  // IMPORTANT: Replace with your actual GitHub Pages URL
-  const GAMES_JSON_URL = 'https://simianrainbow.github.io/PrincessCompendium/games.json';
-  // Base URL for loading individual games
-  const GAMES_BASE_URL = 'https://simianrainbow.github.io/PrincessCompendium/';
+  // Relative URLs — works from any origin (GitHub Pages, local, etc.)
+  const GAMES_JSON_URL = './games.json';
+  const GAMES_BASE_URL = './';
 
   async function loadGames() {
     try {
