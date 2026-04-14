@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Counting Crowns 👑</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+    body {
+      background: linear-gradient(160deg, #1a237e 0%, #5c6bc0 50%, #f8bbd0 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Georgia', serif;
+      overflow: hidden;
+      user-select: none;
+    }
+
+    #prompt {
+      font-size: clamp(22px, 6vw, 34px);
+      color: #fff;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.4);
+      margin-bottom: 20px;
+      text-align: center;
+      padding: 0 12px;
+    }
+
+    #crowns-stage {
+      background: rgba(255,255,255,0.12);
+      border-radius: 28px;
+      padding: clamp(16px, 4vw, 28px);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      gap: clamp(6px, 2vw, 12px);
+      max-width: 380px;
+      width: 90vw;
+      min-height: clamp(100px, 25vw, 160px);
+      margin-bottom: 28px;
+      border: 3px solid rgba(255,255,255,0.25);
+      box-shadow: 0 4px 24px rgba(0,0,0,0.2);
+    }
+
+    .crown-item {
+      font-size: clamp(40px, 11vw, 64px);
+      animation: popIn 0.3s cubic-bezier(0.34,1.56,0.64,1) both;
+    }
+    @keyframes popIn {
+      from { transform: scale(0); opacity: 0; }
+      to   { transform: scale(1); opacity: 1; }
+    }
+
+    #number-row {
+      display: flex;
+      gap: clamp(10px, 3vw, 18px);
+      flex-wrap: wrap;
+      justify-content: center;
+      padding: 0 8px;
+    }
+
+    .num-btn {
+      width: clamp(70px, 18vw, 100px);
+      height: clamp(70px, 18vw, 100px);
+      border-radius: 20px;
+      border: none;
+      cursor: pointer;
+      font-size: clamp(30px, 8vw, 48px);
+      font-weight: bold;
+      font-family: 'Georgia', serif;
+      color: #fff;
+      background: linear-gradient(135deg, rgba(255,255,255,0.25), rgba(255,255,255,0.08));
+      box-shadow: 0 4px 16px rgba(0,0,0,0.3), inset 0 2px 0 rgba(255,255,255,0.2);
+      transition: transform 0.1s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .num-btn:active { transform: scale(0.9); }
+
+    .num-btn.correct-flash { animation: numCorrect 0.5s ease-out; }
+    .num-btn.wrong-flash   { animation: numWrong 0.4s ease-out; }
+
+    @keyframes numCorrect {
+      0%   { transform: scale(1); background: linear-gradient(135deg, rgba(255,255,255,0.25), rgba(255,255,255,0.08)); }
+      40%  { transform: scale(1.22); background: linear-gradient(135deg, #ffd700, #ff9800); box-shadow: 0 0 32px rgba(255,200,0,0.6); }
+      100% { transform: scale(1); }
+    }
+    @keyframes numWrong {
+      0%,100% { transform: translateX(0); }
+      25% { transform: translateX(-10px); }
+      75% { transform: translateX(10px); }
+    }
+
+    #celebrate-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.55);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 20px;
+      z-index: 99; opacity: 0; pointer-events: none;
+      transition: opacity 0.35s;
+    }
+    #celebrate-overlay.show { opacity: 1; pointer-events: all; }
+
+    #celebrate-text {
+      font-size: clamp(32px, 9vw, 64px);
+      color: #fff;
+      text-shadow: 0 0 20px #ffd700, 0 2px 8px rgba(0,0,0,0.5);
+      text-align: center; padding: 0 16px;
+    }
+    #celebrate-big-num {
+      font-size: clamp(60px, 18vw, 110px);
+      color: #ffd700;
+      text-shadow: 0 0 30px rgba(255,215,0,0.8);
+    }
+    #next-btn {
+      margin-top: 8px;
+      padding: clamp(14px,4vw,20px) clamp(32px,8vw,56px);
+      font-size: clamp(20px,5vw,28px);
+      border-radius: 50px; border: none;
+      background: linear-gradient(135deg, #ffd700, #ff9800);
+      color: #5d2e00; font-weight: bold; cursor: pointer;
+      box-shadow: 0 4px 16px rgba(255,180,0,0.5);
+      font-family: inherit;
+    }
+
+    #score-row {
+      position: fixed; top: 16px; right: 20px;
+      display: flex; gap: 4px;
+      font-size: clamp(22px, 6vw, 32px);
+    }
+
+    .confetti-piece {
+      position: fixed; width: 10px; height: 10px; border-radius: 50%;
+      animation: confettiFall linear forwards;
+      pointer-events: none; z-index: 100;
+    }
+    @keyframes confettiFall {
+      0%   { top: -20px; opacity: 1; }
+      100% { top: 110vh; opacity: 0.2; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="score-row"></div>
+  <div id="prompt">How many crowns? 👑</div>
+  <div id="crowns-stage"></div>
+  <div id="number-row"></div>
+
+  <div id="celebrate-overlay">
+    <div id="celebrate-text">Yes! It's...</div>
+    <div id="celebrate-big-num">3</div>
+    <button id="next-btn" onclick="nextRound()">Next ➡️</button>
+  </div>
+
+<script>
+  // Audio
+  let audioCtx = null;
+  function getAudio() {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    return audioCtx;
+  }
+  function playTone(freq, type, dur, vol) {
+    try {
+      const ctx = getAudio();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.type = type || 'sine';
+      osc.frequency.setValueAtTime(freq, ctx.currentTime);
+      gain.gain.setValueAtTime(vol || 0.15, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
+      osc.start(); osc.stop(ctx.currentTime + dur);
+    } catch(e) {}
+  }
+  function playCorrect() {
+    [523,659,784].forEach((f,i) => setTimeout(() => playTone(f,'sine',0.18), i*90));
+  }
+  function playWrong() { playTone(200,'sawtooth',0.2,0.09); }
+  function playCelebrate() {
+    [523,587,659,698,784,880,1047].forEach((f,i) => setTimeout(() => playTone(f,'sine',0.22), i*70));
+  }
+  // Count tones: play one beep per crown
+  function playCount(n) {
+    for (let i = 0; i < n; i++) {
+      setTimeout(() => playTone(660 + i*40, 'sine', 0.15), i * 260);
+    }
+  }
+
+  let target = 0;
+  let score = 0;
+  let round = 0;
+  const TOTAL_ROUNDS = 6;
+
+  // Range grows with round: rounds 1-2 use 1-3, rounds 3-4 use 1-4, rounds 5-6 use 1-5
+  function getMaxForRound(r) {
+    if (r <= 2) return 3;
+    if (r <= 4) return 4;
+    return 5;
+  }
+
+  function updateScore() {
+    document.getElementById('score-row').innerHTML = Array.from({length: score}, () => '⭐').join('');
+  }
+
+  function buildNumbers(correctNum, maxNum) {
+    // Always include correct number, add 2 wrong distractors
+    const pool = [];
+    for (let i = 1; i <= maxNum; i++) if (i !== correctNum) pool.push(i);
+    const wrong = shuffle(pool).slice(0, 2);
+    return shuffle([correctNum, ...wrong]);
+  }
+
+  function shuffle(arr) {
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i],a[j]] = [a[j],a[i]];
+    }
+    return a;
+  }
+
+  function nextRound() {
+    document.getElementById('celebrate-overlay').classList.remove('show');
+    if (round >= TOTAL_ROUNDS) { endGame(); return; }
+    round++;
+
+    const maxN = getMaxForRound(round);
+    target = Math.ceil(Math.random() * maxN);
+
+    // Render crowns
+    const stage = document.getElementById('crowns-stage');
+    stage.innerHTML = '';
+    for (let i = 0; i < target; i++) {
+      const el = document.createElement('span');
+      el.className = 'crown-item';
+      el.textContent = '👑';
+      el.style.animationDelay = (i * 120) + 'ms';
+      stage.appendChild(el);
+    }
+
+    // Play count audio
+    setTimeout(() => playCount(target), 300);
+
+    // Render number buttons
+    const row = document.getElementById('number-row');
+    row.innerHTML = '';
+    const nums = buildNumbers(target, maxN);
+    nums.forEach(n => {
+      const btn = document.createElement('button');
+      btn.className = 'num-btn';
+      btn.textContent = n;
+      btn.addEventListener('pointerdown', () => handleTap(btn, n));
+      row.appendChild(btn);
+    });
+  }
+
+  function handleTap(btn, n) {
+    if (n === target) {
+      btn.classList.add('correct-flash');
+      playCorrect();
+      score++;
+      updateScore();
+      setTimeout(() => {
+        btn.classList.remove('correct-flash');
+        const msgs = ['Yes! It\'s...', 'Correct! 🎉', 'Brilliant! ✨', 'Amazing! 🌟', 'You got it! 💖'];
+        document.getElementById('celebrate-text').textContent = msgs[Math.floor(Math.random()*msgs.length)];
+        document.getElementById('celebrate-big-num').textContent = target;
+        document.getElementById('celebrate-overlay').classList.add('show');
+        playCelebrate();
+        confettiBurst();
+      }, 500);
+    } else {
+      btn.classList.add('wrong-flash');
+      playWrong();
+      setTimeout(() => btn.classList.remove('wrong-flash'), 400);
+    }
+  }
+
+  function endGame() {
+    document.getElementById('celebrate-text').textContent = `You got ${score} stars! 👑`;
+    document.getElementById('celebrate-big-num').textContent = Array.from({length: score}, () => '⭐').join('') || '🌸';
+    document.getElementById('next-btn').textContent = 'Play Again 🔄';
+    document.getElementById('next-btn').onclick = () => {
+      score = 0; round = 0; updateScore(); nextRound();
+      document.getElementById('celebrate-overlay').classList.remove('show');
+    };
+    document.getElementById('celebrate-overlay').classList.add('show');
+    playCelebrate(); confettiBurst();
+  }
+
+  function confettiBurst() {
+    const colours = ['#ffd700','#ff69b4','#00cfff','#7fff00','#ff6347','#da70d6'];
+    for (let i = 0; i < 30; i++) {
+      const el = document.createElement('div');
+      el.className = 'confetti-piece';
+      el.style.left = Math.random() * 100 + 'vw';
+      el.style.background = colours[Math.floor(Math.random()*colours.length)];
+      el.style.animationDuration = (1.2 + Math.random()*1.6) + 's';
+      el.style.animationDelay = (Math.random()*0.4) + 's';
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 2600);
+    }
+  }
+
+  nextRound();
+</script>
+</body>
+</html>

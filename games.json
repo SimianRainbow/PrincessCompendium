@@ -1,0 +1,24 @@
+[
+  {
+    "id": "001-colour-match",
+    "title": "Magic Gems",
+    "description": "Tap the gem that matches the princess's crown",
+    "icon": "💎",
+    "ageMin": 2,
+    "ageMax": 4,
+    "skill": "colour recognition",
+    "version": "1.0.0",
+    "path": "games/001-colour-match/index.html"
+  },
+  {
+    "id": "002-counting-crowns",
+    "title": "Counting Crowns",
+    "description": "Count the crowns and tap the right number",
+    "icon": "👑",
+    "ageMin": 2,
+    "ageMax": 4,
+    "skill": "counting 1-5",
+    "version": "1.0.0",
+    "path": "games/002-counting-crowns/index.html"
+  }
+]

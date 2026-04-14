@@ -1,0 +1,10 @@
+{
+  "id": "002-counting-crowns",
+  "title": "Counting Crowns",
+  "description": "Count the crowns and tap the right number",
+  "icon": "👑",
+  "ageMin": 2,
+  "ageMax": 4,
+  "skill": "counting 1-5",
+  "version": "1.0.0"
+}

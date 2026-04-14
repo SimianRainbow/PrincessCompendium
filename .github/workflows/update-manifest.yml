@@ -1,0 +1,46 @@
+name: Update Games Manifest
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'games/**/manifest.json'
+
+permissions:
+  contents: write
+
+jobs:
+  rebuild-manifest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Rebuild games.json from manifests
+        run: |
+          python3 - <<'EOF'
+          import json, os, pathlib
+
+          games = []
+          games_dir = pathlib.Path("games")
+          for manifest_path in sorted(games_dir.glob("*/manifest.json")):
+            with open(manifest_path) as f:
+              data = json.load(f)
+            game_dir = manifest_path.parent
+            data["path"] = f"games/{game_dir.name}/index.html"
+            games.append(data)
+
+          with open("games.json", "w") as f:
+            json.dump(games, f, indent=2, ensure_ascii=False)
+
+          print(f"Rebuilt games.json with {len(games)} games:")
+          for g in games:
+            print(f"  - {g['id']}: {g['title']}")
+          EOF
+
+      - name: Commit updated manifest
+        run: |
+          git config user.name "Princess Compendium Bot"
+          git config user.email "bot@princess-compendium"
+          git add games.json
+          git diff --staged --quiet || git commit -m "chore: rebuild games.json [skip ci]"
+          git push

@@ -1,0 +1,75 @@
+name: Build APK
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'android/**'
+      - 'games/**'
+      - '.github/workflows/build-apk.yml'
+  workflow_dispatch:   # allow manual trigger from the Actions tab
+
+permissions:
+  contents: write   # needed to create releases
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+
+      # Bootstrap Gradle without needing gradle-wrapper.jar in the repo
+      - name: Bootstrap Gradle wrapper
+        run: |
+          cd android
+          gradle wrapper --gradle-version=8.6 --distribution-type=bin
+          chmod +x gradlew
+
+      - name: Cache Gradle packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-${{ hashFiles('android/**/*.gradle') }}
+          restore-keys: gradle-
+
+      - name: Build debug APK
+        run: |
+          cd android
+          ./gradlew assembleDebug --no-daemon --stacktrace
+
+      - name: Rename APK with version
+        run: |
+          APK_PATH=$(find android -name "*.apk" | head -1)
+          echo "Found APK: $APK_PATH"
+          cp "$APK_PATH" princess-compendium.apk
+
+      - name: Upload APK as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: princess-compendium-apk
+          path: princess-compendium.apk
+          retention-days: 30
+
+      - name: Create or update GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: latest-build
+          name: "Princess Compendium — Latest Build"
+          body: |
+            ## Download
+            Tap **princess-compendium.apk** below on your Android phone to install.
+
+            > You may need to allow "Install from unknown sources" in Settings → Security.
+          files: princess-compendium.apk
+          make_latest: true

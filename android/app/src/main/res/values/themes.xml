@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.App" parent="Theme.AppCompat.NoActionBar">
+        <item name="colorPrimary">#9C27B0</item>
+        <item name="colorPrimaryDark">#6A1B9A</item>
+        <item name="colorAccent">#F48FB1</item>
+        <item name="android:windowBackground">@color/purple_dark</item>
+    </style>
+    <color name="purple_dark">#3a0068</color>
+</resources>
