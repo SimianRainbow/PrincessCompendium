@@ -6,5 +6,6 @@
   "ageMin": 2,
   "ageMax": 4,
   "skill": "counting 1-5",
-  "version": "1.0.0"
+  "version": "1.0.0",
+  "category": "numbers"
 }

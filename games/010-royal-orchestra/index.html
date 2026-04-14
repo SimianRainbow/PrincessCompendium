@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Royal Orchestra 🎵</title>
+  <style>
+    * { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+    body {
+      background: linear-gradient(160deg, #1a0533 0%, #4a148c 50%, #9c27b0 100%);
+      min-height:100vh; display:flex; flex-direction:column;
+      align-items:center; justify-content:center;
+      font-family:Georgia,serif; overflow:hidden; user-select:none;
+    }
+
+    #status-bar {
+      position:fixed; top:0; left:0; right:0; z-index:10;
+      padding:clamp(10px,2.5vw,16px) clamp(16px,4vw,24px);
+      display:flex; justify-content:space-between; align-items:center;
+    }
+    #mode-label { font-size:clamp(14px,3.5vw,20px); color:rgba(255,255,255,.8); }
+    #score-row  { font-size:clamp(20px,5vw,28px); }
+
+    #conductor {
+      font-size:clamp(52px,13vw,80px); margin-bottom:clamp(8px,2vw,16px);
+      filter:drop-shadow(0 4px 12px rgba(255,215,0,.3));
+      transition:transform .15s;
+    }
+    #conductor.beat { transform:scale(1.25) rotate(-5deg); }
+
+    #prompt-text {
+      font-size:clamp(16px,4.5vw,24px); color:#fff;
+      text-shadow:0 2px 6px rgba(0,0,0,.4); margin-bottom:clamp(16px,4vw,24px);
+      text-align:center; padding:0 12px; min-height:2em;
+    }
+
+    /* Sequence replay dots */
+    #seq-dots {
+      display:flex; gap:8px; margin-bottom:clamp(12px,3vw,20px); min-height:20px;
+    }
+    .seq-dot { width:14px; height:14px; border-radius:50%; background:rgba(255,255,255,.25); transition:background .2s; }
+    .seq-dot.lit { background:#ffd700; box-shadow:0 0 8px rgba(255,215,0,.8); }
+
+    /* Instrument grid */
+    #instrument-grid {
+      display:grid; grid-template-columns:repeat(2,1fr);
+      gap:clamp(14px,3.5vw,22px); padding:4px;
+    }
+    .instrument {
+      width:clamp(130px,31vw,175px); height:clamp(130px,31vw,175px);
+      border-radius:26px; border:none; cursor:pointer;
+      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px;
+      box-shadow:0 5px 20px rgba(0,0,0,.35), inset 0 2px 0 rgba(255,255,255,.2);
+      transition:transform .08s, filter .08s;
+      position:relative; overflow:hidden;
+    }
+    .instrument:active, .instrument.playing { transform:scale(.93); filter:brightness(1.4); }
+    .instrument .instr-emoji { font-size:clamp(48px,13vw,72px); line-height:1; pointer-events:none; }
+    .instrument .instr-name  { font-size:clamp(13px,3.2vw,17px); color:#fff; font-weight:bold; text-shadow:0 1px 3px rgba(0,0,0,.5); pointer-events:none; }
+
+    /* Ripple */
+    .ripple { position:absolute; border-radius:50%; background:rgba(255,255,255,.35); transform:scale(0); animation:rippleOut .5s ease-out forwards; pointer-events:none; }
+    @keyframes rippleOut { to{ transform:scale(4); opacity:0; } }
+
+    #mode-btns { display:flex; gap:12px; margin-top:clamp(16px,4vw,24px); }
+    .mode-btn { padding:clamp(10px,2.5vw,14px) clamp(18px,5vw,28px); font-size:clamp(14px,3.5vw,18px); border-radius:30px; border:2px solid rgba(255,255,255,.4); background:rgba(255,255,255,.12); color:#fff; cursor:pointer; font-family:inherit; transition:background .1s; }
+    .mode-btn.active { background:rgba(255,255,255,.3); border-color:#ffd700; color:#ffd700; }
+
+    #celebrate-overlay {
+      position:fixed; inset:0; background:rgba(0,0,0,.55);
+      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:18px;
+      z-index:99; opacity:0; pointer-events:none; transition:opacity .3s;
+    }
+    #celebrate-overlay.show { opacity:1; pointer-events:all; }
+    #celebrate-text { font-size:clamp(30px,8vw,56px); color:#fff; text-shadow:0 0 20px #ffd700; text-align:center; padding:0 16px; }
+    #celebrate-icon { font-size:clamp(60px,18vw,100px); }
+    #next-btn { padding:clamp(14px,4vw,20px) clamp(32px,8vw,56px); font-size:clamp(20px,5vw,28px); border-radius:50px; border:none; background:linear-gradient(135deg,#ffd700,#ff9800); color:#5d2e00; font-weight:bold; cursor:pointer; font-family:inherit; }
+    .confetti-piece { position:fixed; width:10px; height:10px; border-radius:50%; animation:confettiFall linear forwards; pointer-events:none; z-index:100; }
+    @keyframes confettiFall { 0%{top:-20px;opacity:1} 100%{top:110vh;opacity:.2} }
+  </style>
+</head>
+<body>
+
+  <div id="status-bar">
+    <div id="mode-label">Free Play 🎶</div>
+    <div id="score-row"></div>
+  </div>
+
+  <div id="conductor">🎼</div>
+  <div id="prompt-text">Tap any instrument!</div>
+  <div id="seq-dots"></div>
+
+  <div id="instrument-grid">
+    <button class="instrument" id="instr-0" style="background:linear-gradient(135deg,#e53935,#b71c1c)" data-name="Drum">
+      <span class="instr-emoji">🥁</span><span class="instr-name">Drum</span>
+    </button>
+    <button class="instrument" id="instr-1" style="background:linear-gradient(135deg,#1e88e5,#0d47a1)" data-name="Harp">
+      <span class="instr-emoji">🎸</span><span class="instr-name">Harp</span>
+    </button>
+    <button class="instrument" id="instr-2" style="background:linear-gradient(135deg,#43a047,#1b5e20)" data-name="Bell">
+      <span class="instr-emoji">🔔</span><span class="instr-name">Bell</span>
+    </button>
+    <button class="instrument" id="instr-3" style="background:linear-gradient(135deg,#fdd835,#f57f17)" data-name="Trumpet">
+      <span class="instr-emoji">🎺</span><span class="instr-name">Trumpet</span>
+    </button>
+  </div>
+
+  <div id="mode-btns">
+    <button class="mode-btn active" id="btn-freeplay" onclick="setMode('free')">Free Play</button>
+    <button class="mode-btn" id="btn-repeat" onclick="setMode('repeat')">Copy Me!</button>
+  </div>
+
+  <div id="celebrate-overlay">
+    <div id="celebrate-text">You copied it! 🎵</div>
+    <div id="celebrate-icon">🎼</div>
+    <button id="next-btn" onclick="nextSequence()">More! ➡️</button>
+  </div>
+
+<script>
+  let audioCtx=null;
+  function getAudio(){ if(!audioCtx) audioCtx=new(window.AudioContext||window.webkitAudioContext)(); return audioCtx; }
+
+  // Each instrument has a unique sound signature
+  const INSTRUMENTS = [
+    { id:0, name:'Drum',    notes:[[100,'sawtooth',.18,.2],[150,'sawtooth',.1,.15]] },
+    { id:1, name:'Harp',    notes:[[523,'sine',.5],[659,'sine',.4,.1],[784,'sine',.3,.08]] },
+    { id:2, name:'Bell',    notes:[[1047,'sine',.6,.12],[1319,'sine',.5,.1],[1568,'sine',.4,.08]] },
+    { id:3, name:'Trumpet', notes:[[392,'square',.3,.08],[494,'square',.25,.07],[587,'square',.2,.06]] },
+  ];
+
+  function playInstrumentSound(instrId){
+    const instr=INSTRUMENTS[instrId];
+    try{
+      const ctx=getAudio();
+      instr.notes.forEach(([freq,type,dur,vol=.14],i)=>{
+        setTimeout(()=>{
+          const o=ctx.createOscillator(),g=ctx.createGain();
+          o.connect(g); g.connect(ctx.destination);
+          o.type=type; o.frequency.value=freq;
+          g.gain.setValueAtTime(vol,ctx.currentTime);
+          g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+dur);
+          o.start(); o.stop(ctx.currentTime+dur);
+        },i*60);
+      });
+    }catch(e){}
+  }
+
+  function playTone(f,t,d,v=.15){ try{ const c=getAudio(),o=c.createOscillator(),g=c.createGain(); o.connect(g);g.connect(c.destination); o.type=t||'sine';o.frequency.value=f;g.gain.setValueAtTime(v,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+d);o.start();o.stop(c.currentTime+d); }catch(e){} }
+  function playCelebrate(){ [523,659,784,1047].forEach((f,i)=>setTimeout(()=>playTone(f,'sine',.22),i*80)); }
+
+  function flashInstrument(instrId){
+    const el=document.getElementById('instr-'+instrId);
+    if(!el) return;
+    el.classList.add('playing');
+    // Ripple
+    const r=document.createElement('div'); r.className='ripple';
+    const size=el.offsetWidth; r.style.cssText=`width:${size}px;height:${size}px;left:0;top:0`;
+    el.appendChild(r);
+    setTimeout(()=>{ el.classList.remove('playing'); r.remove(); }, 350);
+    // Conductor bounce
+    const c=document.getElementById('conductor');
+    c.classList.add('beat');
+    setTimeout(()=>c.classList.remove('beat'),150);
+  }
+
+  // ---- FREE PLAY MODE ----
+  let mode='free';
+  function setMode(m){
+    mode=m;
+    document.getElementById('btn-freeplay').classList.toggle('active',m==='free');
+    document.getElementById('btn-repeat').classList.toggle('active',m==='repeat');
+    document.getElementById('mode-label').textContent=m==='free'?'Free Play 🎶':'Copy Me! 🎵';
+    document.getElementById('seq-dots').innerHTML='';
+    if(m==='free'){
+      document.getElementById('prompt-text').textContent='Tap any instrument!';
+      score=0; updateScore();
+    } else {
+      startRepeatMode();
+    }
+  }
+
+  // Free play tap
+  document.querySelectorAll('.instrument').forEach(btn=>{
+    btn.addEventListener('pointerdown',e=>{
+      const id=parseInt(btn.id.split('-')[1]);
+      playInstrumentSound(id);
+      flashInstrument(id);
+    });
+  });
+
+  // ---- REPEAT MODE ----
+  let sequence=[], playerInput=[], score=0, seqLen=2, seqRound=0;
+  const MAX_SEQ=6;
+  let isPlaying=false;
+
+  function updateScore(){ document.getElementById('score-row').innerHTML=Array.from({length:score},()=>'⭐').join(''); }
+
+  function startRepeatMode(){
+    score=0; seqLen=2; updateScore();
+    nextSequence();
+  }
+
+  function nextSequence(){
+    document.getElementById('celebrate-overlay').classList.remove('show');
+    seqRound++;
+    if(seqRound>1) seqLen=Math.min(seqLen+1, MAX_SEQ);
+    sequence=[];
+    for(let i=0;i<seqLen;i++) sequence.push(Math.floor(Math.random()*4));
+    playerInput=[];
+    updateDots();
+    setTimeout(()=>playSequence(), 600);
+  }
+
+  function updateDots(){
+    const dots=document.getElementById('seq-dots');
+    dots.innerHTML='';
+    sequence.forEach((_,i)=>{
+      const d=document.createElement('div');
+      d.className='seq-dot'+(i<playerInput.length?' lit':'');
+      dots.appendChild(d);
+    });
+  }
+
+  function playSequence(){
+    if(isPlaying) return;
+    isPlaying=true;
+    document.getElementById('prompt-text').textContent='Watch carefully... 👀';
+    // Lock buttons during playback
+    document.querySelectorAll('.instrument').forEach(b=>b.style.pointerEvents='none');
+
+    sequence.forEach((instrId,i)=>{
+      setTimeout(()=>{
+        playInstrumentSound(instrId);
+        flashInstrument(instrId);
+        if(i===sequence.length-1){
+          setTimeout(()=>{
+            isPlaying=false;
+            document.querySelectorAll('.instrument').forEach(b=>b.style.pointerEvents='');
+            document.getElementById('prompt-text').textContent='Now you try! 🎵';
+            enablePlayerInput();
+          },700);
+        }
+      }, i*700);
+    });
+  }
+
+  function enablePlayerInput(){
+    document.querySelectorAll('.instrument').forEach(btn=>{
+      btn.addEventListener('pointerdown', onPlayerTap, { once:false });
+    });
+  }
+
+  function onPlayerTap(e){
+    if(isPlaying) return;
+    const btn=e.currentTarget;
+    const id=parseInt(btn.id.split('-')[1]);
+    playInstrumentSound(id);
+    flashInstrument(id);
+    playerInput.push(id);
+    updateDots();
+
+    const idx=playerInput.length-1;
+    if(playerInput[idx]!==sequence[idx]){
+      // Wrong — show correct briefly and restart sequence
+      playTone(200,'sawtooth',.25,.1);
+      document.getElementById('prompt-text').textContent='Oops! Watch again... 👀';
+      document.querySelectorAll('.instrument').forEach(b=>b.removeEventListener('pointerdown',onPlayerTap));
+      playerInput=[];
+      setTimeout(()=>playSequence(),900);
+      return;
+    }
+
+    if(playerInput.length===sequence.length){
+      // Correct!
+      document.querySelectorAll('.instrument').forEach(b=>b.removeEventListener('pointerdown',onPlayerTap));
+      score++; updateScore();
+      playCelebrate();
+      const msgs=['You copied it! 🎵','Perfect! 🌟','Amazing! 👑','Royal musician! 🎼'];
+      document.getElementById('celebrate-text').textContent=msgs[Math.floor(Math.random()*msgs.length)];
+      document.getElementById('celebrate-icon').textContent=seqLen>=4?'🎼👑':'🎵✨';
+      document.getElementById('celebrate-overlay').classList.add('show');
+      confettiBurst();
+    }
+  }
+
+  function confettiBurst(){
+    const cols=['#ffd700','#ff69b4','#00cfff','#7fff00','#ff6347'];
+    for(let i=0;i<25;i++){
+      const el=document.createElement('div'); el.className='confetti-piece';
+      el.style.left=Math.random()*100+'vw';
+      el.style.background=cols[Math.floor(Math.random()*cols.length)];
+      el.style.animationDuration=(1.2+Math.random()*1.6)+'s';
+      el.style.animationDelay=(Math.random()*.4)+'s';
+      document.body.appendChild(el); setTimeout(()=>el.remove(),2600);
+    }
+  }
+</script>
+</body>
+</html>

@@ -4,9 +4,11 @@
     "title": "Magic Gems",
     "description": "Tap the gem that matches the princess's crown",
     "icon": "💎",
-    "ageMin": 2, "ageMax": 4,
+    "ageMin": 2,
+    "ageMax": 4,
     "skill": "colour recognition",
     "version": "1.0.0",
+    "category": "colours-shapes",
     "path": "games/001-colour-match/index.html"
   },
   {
@@ -14,9 +16,11 @@
     "title": "Counting Crowns",
     "description": "Count the crowns and tap the right number",
     "icon": "👑",
-    "ageMin": 2, "ageMax": 4,
+    "ageMin": 2,
+    "ageMax": 4,
     "skill": "counting 1-5",
     "version": "1.0.0",
+    "category": "numbers",
     "path": "games/002-counting-crowns/index.html"
   },
   {
@@ -24,9 +28,11 @@
     "title": "Animal Friends",
     "description": "Find the matching animal for the princess",
     "icon": "🦄",
-    "ageMin": 2, "ageMax": 4,
+    "ageMin": 2,
+    "ageMax": 4,
     "skill": "animal recognition",
     "version": "1.0.0",
+    "category": "animals",
     "path": "games/003-animal-friends/index.html"
   },
   {
@@ -34,9 +40,11 @@
     "title": "Shape Castle",
     "description": "Match the shape to build the princess's castle",
     "icon": "🏰",
-    "ageMin": 2, "ageMax": 4,
+    "ageMin": 2,
+    "ageMax": 4,
     "skill": "shape recognition",
     "version": "1.0.0",
+    "category": "colours-shapes",
     "path": "games/004-shape-castle/index.html"
   },
   {
@@ -44,9 +52,11 @@
     "title": "Princess Says",
     "description": "Listen to Princess and tap what she says",
     "icon": "🎀",
-    "ageMin": 2, "ageMax": 4,
+    "ageMin": 2,
+    "ageMax": 4,
     "skill": "listening & following instructions",
     "version": "1.0.0",
+    "category": "listen",
     "path": "games/005-princess-says/index.html"
   },
   {
@@ -54,9 +64,59 @@
     "title": "Fairy Tale Tap",
     "description": "Tap through a princess story and make choices",
     "icon": "📖",
-    "ageMin": 2, "ageMax": 5,
+    "ageMin": 2,
+    "ageMax": 5,
     "skill": "story comprehension & choices",
     "version": "1.0.0",
+    "category": "stories",
     "path": "games/006-fairy-tale-tap/index.html"
+  },
+  {
+    "id": "007-letter-bubbles",
+    "title": "Letter Bubbles",
+    "description": "Pop the bubble with the matching letter",
+    "icon": "🔤",
+    "ageMin": 2,
+    "ageMax": 5,
+    "skill": "letter recognition A-Z",
+    "category": "letters",
+    "version": "1.0.0",
+    "path": "games/007-letter-bubbles/index.html"
+  },
+  {
+    "id": "008-more-or-less",
+    "title": "More or Less",
+    "description": "Tap the side with more objects",
+    "icon": "⚖️",
+    "ageMin": 2,
+    "ageMax": 4,
+    "skill": "number sense & comparing",
+    "category": "numbers",
+    "version": "1.0.0",
+    "path": "games/008-more-or-less/index.html"
+  },
+  {
+    "id": "009-star-catcher",
+    "title": "Star Catcher",
+    "description": "Tap the falling stars before they disappear",
+    "icon": "⭐",
+    "ageMin": 2,
+    "ageMax": 5,
+    "skill": "focus & reaction",
+    "category": "play",
+    "version": "1.0.0",
+    "path": "games/009-star-catcher/index.html"
+  },
+  {
+    "id": "010-royal-orchestra",
+    "title": "Royal Orchestra",
+    "description": "Tap instruments to play music, then copy the pattern",
+    "icon": "🎵",
+    "ageMin": 2,
+    "ageMax": 5,
+    "skill": "music & memory sequences",
+    "category": "music",
+    "version": "1.0.0",
+    "path": "games/010-royal-orchestra/index.html"
   }
 ]

@@ -1,0 +1,11 @@
+{
+  "id": "009-star-catcher",
+  "title": "Star Catcher",
+  "description": "Tap the falling stars before they disappear",
+  "icon": "⭐",
+  "ageMin": 2,
+  "ageMax": 5,
+  "skill": "focus & reaction",
+  "category": "play",
+  "version": "1.0.0"
+}

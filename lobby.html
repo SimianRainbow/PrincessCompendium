@@ -13,81 +13,103 @@
       font-family: 'Georgia', serif;
       user-select: none;
       overflow-x: hidden;
+      padding-bottom: 32px;
     }
 
     header {
       text-align: center;
-      padding: 32px 16px 16px;
+      padding: 32px 16px 8px;
     }
     header h1 {
-      font-size: clamp(28px, 7vw, 48px);
+      font-size: clamp(26px, 6.5vw, 46px);
       color: #fff;
-      text-shadow: 0 0 20px rgba(255,215,0,0.5), 0 2px 8px rgba(0,0,0,0.4);
+      text-shadow: 0 0 20px rgba(255,215,0,.5), 0 2px 8px rgba(0,0,0,.4);
       letter-spacing: 2px;
     }
     header p {
-      font-size: clamp(16px, 4vw, 22px);
-      color: rgba(255,255,255,0.75);
-      margin-top: 6px;
+      font-size: clamp(15px, 3.8vw, 20px);
+      color: rgba(255,255,255,.75);
+      margin-top: 5px;
     }
 
-    #game-grid {
+    /* Category section */
+    .category-section {
+      max-width: 620px;
+      margin: 0 auto;
+      padding: clamp(14px,3.5vw,22px) clamp(14px,4vw,24px) 4px;
+    }
+
+    .category-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: clamp(10px,2.5vw,16px);
+      padding-bottom: 8px;
+      border-bottom: 2px solid rgba(255,255,255,.2);
+    }
+    .category-icon { font-size: clamp(20px,5vw,28px); }
+    .category-title {
+      font-size: clamp(15px,4vw,21px);
+      color: rgba(255,255,255,.9);
+      font-weight: bold;
+      text-shadow: 0 1px 4px rgba(0,0,0,.3);
+      letter-spacing: .5px;
+    }
+    .category-count {
+      font-size: clamp(11px,2.8vw,14px);
+      color: rgba(255,255,255,.5);
+      margin-left: auto;
+    }
+
+    /* Game cards grid within a section */
+    .game-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: clamp(12px, 3vw, 20px);
-      padding: clamp(16px, 4vw, 28px);
-      max-width: 600px;
-      margin: 0 auto;
+      gap: clamp(10px,2.5vw,16px);
     }
 
     .game-card {
-      background: rgba(255,255,255,0.15);
-      border: 2px solid rgba(255,255,255,0.25);
-      border-radius: 24px;
-      padding: clamp(16px, 4vw, 24px) 12px;
+      background: rgba(255,255,255,.13);
+      border: 2px solid rgba(255,255,255,.2);
+      border-radius: 22px;
+      padding: clamp(14px,3.5vw,20px) 10px;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 10px;
+      gap: 7px;
       cursor: pointer;
-      transition: transform 0.12s, background 0.12s;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
       text-decoration: none;
+      transition: transform .12s, background .12s;
+      box-shadow: 0 3px 16px rgba(0,0,0,.18);
     }
     .game-card:active {
-      transform: scale(0.94);
-      background: rgba(255,255,255,0.25);
+      transform: scale(.93);
+      background: rgba(255,255,255,.24);
     }
 
-    .game-icon {
-      font-size: clamp(48px, 14vw, 80px);
-      line-height: 1;
-    }
-
+    .game-icon { font-size: clamp(44px,12vw,72px); line-height: 1; }
     .game-title {
-      font-size: clamp(15px, 4vw, 22px);
+      font-size: clamp(13px,3.5vw,18px);
       color: #fff;
       text-align: center;
       font-weight: bold;
-      text-shadow: 0 1px 4px rgba(0,0,0,0.3);
+      text-shadow: 0 1px 4px rgba(0,0,0,.3);
     }
-
     .game-skill {
-      font-size: clamp(11px, 2.8vw, 15px);
-      color: rgba(255,255,255,0.7);
-      background: rgba(0,0,0,0.2);
+      font-size: clamp(10px,2.5vw,13px);
+      color: rgba(255,255,255,.65);
+      background: rgba(0,0,0,.18);
       border-radius: 20px;
-      padding: 3px 10px;
+      padding: 2px 9px;
       text-align: center;
     }
 
     #loading {
       text-align: center;
-      color: rgba(255,255,255,0.7);
+      color: rgba(255,255,255,.7);
       font-size: 22px;
       padding: 60px 20px;
     }
-
     #error-msg {
       display: none;
       text-align: center;
@@ -104,17 +126,26 @@
     <p>Pick a game, Jet! ✨</p>
   </header>
 
-  <div id="game-grid">
+  <div id="lobby-content">
     <div id="loading">Loading games... ✨</div>
-  </div>
-  <div id="error-msg">
-    Could not load games. Check your connection and try again! 🌸
+    <div id="error-msg">Could not load games. Check your connection! 🌸</div>
   </div>
 
 <script>
-  // Relative URLs — works from any origin (GitHub Pages, local, etc.)
   const GAMES_JSON_URL = './games.json';
   const GAMES_BASE_URL = './';
+
+  // Category display order, labels and icons
+  const CATEGORIES = [
+    { id: 'numbers',       icon: '🔢', label: 'Numbers' },
+    { id: 'colours-shapes',icon: '🎨', label: 'Colours & Shapes' },
+    { id: 'letters',       icon: '🔤', label: 'Letters' },
+    { id: 'animals',       icon: '🐾', label: 'Animals' },
+    { id: 'listen',        icon: '👂', label: 'Listen & Follow' },
+    { id: 'music',         icon: '🎵', label: 'Music' },
+    { id: 'stories',       icon: '📖', label: 'Stories' },
+    { id: 'play',          icon: '⭐', label: 'Play' },
+  ];
 
   async function loadGames() {
     try {
@@ -130,8 +161,46 @@
   }
 
   function renderGames(games) {
-    const grid = document.getElementById('game-grid');
-    grid.innerHTML = '';
+    const content = document.getElementById('lobby-content');
+    content.innerHTML = '';
+
+    // Group games by category
+    const byCategory = {};
+    games.forEach(g => {
+      const cat = g.category || 'play';
+      if (!byCategory[cat]) byCategory[cat] = [];
+      byCategory[cat].push(g);
+    });
+
+    // Render in defined order, then any unknown categories at end
+    const rendered = new Set();
+    CATEGORIES.forEach(catDef => {
+      const list = byCategory[catDef.id];
+      if (!list || list.length === 0) return;
+      rendered.add(catDef.id);
+      content.appendChild(buildSection(catDef, list));
+    });
+    // Any uncategorised leftovers
+    Object.entries(byCategory).forEach(([catId, list]) => {
+      if (rendered.has(catId)) return;
+      content.appendChild(buildSection({ id: catId, icon: '🎮', label: catId }, list));
+    });
+  }
+
+  function buildSection(catDef, games) {
+    const section = document.createElement('div');
+    section.className = 'category-section';
+
+    section.innerHTML = `
+      <div class="category-header">
+        <span class="category-icon">${catDef.icon}</span>
+        <span class="category-title">${catDef.label}</span>
+        <span class="category-count">${games.length} game${games.length > 1 ? 's' : ''}</span>
+      </div>
+      <div class="game-grid" id="grid-${catDef.id}"></div>
+    `;
+
+    const grid = section.querySelector('.game-grid');
     games.forEach(game => {
       const card = document.createElement('a');
       card.className = 'game-card';
@@ -143,6 +212,8 @@
       `;
       grid.appendChild(card);
     });
+
+    return section;
   }
 
   loadGames();

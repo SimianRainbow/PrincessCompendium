@@ -1,0 +1,11 @@
+{
+  "id": "007-letter-bubbles",
+  "title": "Letter Bubbles",
+  "description": "Pop the bubble with the matching letter",
+  "icon": "🔤",
+  "ageMin": 2,
+  "ageMax": 5,
+  "skill": "letter recognition A-Z",
+  "category": "letters",
+  "version": "1.0.0"
+}

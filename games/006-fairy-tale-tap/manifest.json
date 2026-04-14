@@ -6,5 +6,6 @@
   "ageMin": 2,
   "ageMax": 5,
   "skill": "story comprehension & choices",
-  "version": "1.0.0"
+  "version": "1.0.0",
+  "category": "stories"
 }

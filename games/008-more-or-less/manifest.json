@@ -1,0 +1,11 @@
+{
+  "id": "008-more-or-less",
+  "title": "More or Less",
+  "description": "Tap the side with more objects",
+  "icon": "⚖️",
+  "ageMin": 2,
+  "ageMax": 4,
+  "skill": "number sense & comparing",
+  "category": "numbers",
+  "version": "1.0.0"
+}

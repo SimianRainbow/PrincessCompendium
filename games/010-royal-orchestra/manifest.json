@@ -1,0 +1,11 @@
+{
+  "id": "010-royal-orchestra",
+  "title": "Royal Orchestra",
+  "description": "Tap instruments to play music, then copy the pattern",
+  "icon": "🎵",
+  "ageMin": 2,
+  "ageMax": 5,
+  "skill": "music & memory sequences",
+  "category": "music",
+  "version": "1.0.0"
+}

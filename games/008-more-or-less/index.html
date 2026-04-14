@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>More or Less ⚖️</title>
+  <style>
+    * { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+    body {
+      background: linear-gradient(160deg, #e65100 0%, #f57c00 50%, #ffcc80 100%);
+      min-height:100vh; display:flex; flex-direction:column;
+      align-items:center; justify-content:center;
+      font-family:Georgia,serif; overflow:hidden; user-select:none;
+    }
+    #prompt { font-size:clamp(22px,6vw,36px); color:#fff; text-shadow:0 2px 8px rgba(0,0,0,.4); margin-bottom:clamp(16px,4vw,28px); text-align:center; }
+
+    #sides {
+      display:flex; gap:clamp(12px,3vw,20px); align-items:stretch;
+    }
+
+    .side {
+      width:clamp(140px,38vw,210px);
+      min-height:clamp(160px,38vw,220px);
+      background:rgba(255,255,255,.18);
+      border:4px solid rgba(255,255,255,.35);
+      border-radius:28px;
+      display:flex; flex-wrap:wrap;
+      align-content:center; justify-content:center;
+      gap:clamp(4px,1.5vw,8px);
+      padding:clamp(12px,3vw,20px);
+      cursor:pointer;
+      box-shadow:0 4px 20px rgba(0,0,0,.2), inset 0 2px 0 rgba(255,255,255,.2);
+      transition:transform .1s;
+    }
+    .side:active { transform:scale(.95); }
+    .side.correct-flash { animation:correctPulse .5s ease-out; }
+    .side.wrong-flash   { animation:wrongShake .4s ease-out; }
+    @keyframes correctPulse { 0%{transform:scale(1)} 40%{transform:scale(1.1);box-shadow:0 0 40px rgba(255,255,255,.7)} 100%{transform:scale(1)} }
+    @keyframes wrongShake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-10px)} 75%{transform:translateX(10px)} }
+
+    .item { font-size:clamp(26px,7vw,40px); line-height:1; animation:popIn .25s cubic-bezier(.34,1.56,.64,1) both; }
+    @keyframes popIn { from{transform:scale(0);opacity:0} to{transform:scale(1);opacity:1} }
+
+    #vs-badge {
+      display:flex; align-items:center; justify-content:center;
+      width:clamp(44px,10vw,60px); height:clamp(44px,10vw,60px);
+      background:rgba(255,255,255,.25); border-radius:50%;
+      font-size:clamp(18px,5vw,26px); color:#fff; font-weight:bold;
+      text-shadow:0 1px 4px rgba(0,0,0,.3); flex-shrink:0;
+      align-self:center;
+    }
+
+    #celebrate-overlay {
+      position:fixed; inset:0; background:rgba(0,0,0,.55);
+      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:18px;
+      z-index:99; opacity:0; pointer-events:none; transition:opacity .3s;
+    }
+    #celebrate-overlay.show { opacity:1; pointer-events:all; }
+    #celebrate-text { font-size:clamp(30px,8vw,60px); color:#fff; text-shadow:0 0 20px #ffd700; text-align:center; padding:0 16px; }
+    #celebrate-nums { font-size:clamp(36px,10vw,64px); color:#ffd700; }
+    #next-btn { padding:clamp(14px,4vw,20px) clamp(32px,8vw,56px); font-size:clamp(20px,5vw,28px); border-radius:50px; border:none; background:linear-gradient(135deg,#ffd700,#ff9800); color:#5d2e00; font-weight:bold; cursor:pointer; font-family:inherit; }
+    #score-row { position:fixed; top:16px; right:20px; font-size:clamp(22px,6vw,32px); }
+    .confetti-piece { position:fixed; width:10px; height:10px; border-radius:50%; animation:confettiFall linear forwards; pointer-events:none; z-index:100; }
+    @keyframes confettiFall { 0%{top:-20px;opacity:1} 100%{top:110vh;opacity:.2} }
+  </style>
+</head>
+<body>
+  <div id="score-row"></div>
+  <div id="prompt">Which side has MORE? 👀</div>
+  <div id="sides">
+    <div class="side" id="side-left"></div>
+    <div id="vs-badge">VS</div>
+    <div class="side" id="side-right"></div>
+  </div>
+
+  <div id="celebrate-overlay">
+    <div id="celebrate-text">More! 🎉</div>
+    <div id="celebrate-nums"></div>
+    <button id="next-btn" onclick="nextRound()">Next ➡️</button>
+  </div>
+
+<script>
+  // Items to display — princess themed
+  const ITEMS = ['👑','🌸','💎','⭐','🦋','🌈','🎀','🍭','🌟','🐝'];
+
+  let audioCtx=null;
+  function getAudio(){ if(!audioCtx) audioCtx=new(window.AudioContext||window.webkitAudioContext)(); return audioCtx; }
+  function tone(f,t,d,v=.15){ try{ const c=getAudio(),o=c.createOscillator(),g=c.createGain(); o.connect(g);g.connect(c.destination); o.type=t||'sine';o.frequency.value=f;g.gain.setValueAtTime(v,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+d);o.start();o.stop(c.currentTime+d); }catch(e){} }
+  function playCorrect(){ [523,659,784].forEach((f,i)=>setTimeout(()=>tone(f,'sine',.18),i*90)); }
+  function playWrong(){ tone(200,'sawtooth',.2,.09); }
+  function playCelebrate(){ [523,587,659,698,784,880,1047].forEach((f,i)=>setTimeout(()=>tone(f,'sine',.22),i*70)); }
+
+  let leftCount=0, rightCount=0, score=0, round=0;
+  const TOTAL=8;
+  function updateScore(){ document.getElementById('score-row').innerHTML=Array.from({length:score},()=>'⭐').join(''); }
+
+  // Difficulty scales: gap between the two numbers stays ≥1
+  function getCounts(){
+    const maxVal = round<=3 ? 4 : round<=6 ? 6 : 8;
+    let a,b;
+    do {
+      a=1+Math.floor(Math.random()*maxVal);
+      b=1+Math.floor(Math.random()*maxVal);
+    } while(a===b);
+    return [a,b];
+  }
+
+  function renderSide(el, count, emoji){
+    el.innerHTML='';
+    for(let i=0;i<count;i++){
+      const span=document.createElement('span');
+      span.className='item'; span.textContent=emoji;
+      span.style.animationDelay=(i*40)+'ms';
+      el.appendChild(span);
+    }
+  }
+
+  function nextRound(){
+    document.getElementById('celebrate-overlay').classList.remove('show');
+    if(round>=TOTAL){ endGame(); return; }
+    round++;
+
+    [leftCount,rightCount]=getCounts();
+    const emoji=ITEMS[Math.floor(Math.random()*ITEMS.length)];
+    const leftEl=document.getElementById('side-left');
+    const rightEl=document.getElementById('side-right');
+    renderSide(leftEl, leftCount, emoji);
+    renderSide(rightEl, rightCount, emoji);
+
+    leftEl.onclick=()=>handleTap(leftEl, leftCount, rightCount);
+    rightEl.onclick=()=>handleTap(rightEl, rightCount, leftCount);
+  }
+
+  function handleTap(el, myCount, otherCount){
+    if(myCount>otherCount){
+      el.classList.add('correct-flash'); playCorrect(); score++; updateScore();
+      setTimeout(()=>{
+        el.classList.remove('correct-flash');
+        const msgs=['More! 🎉','Yes! '+myCount+' is more! 🌟','Correct! ✨','You got it! 💖'];
+        document.getElementById('celebrate-text').textContent=msgs[Math.floor(Math.random()*msgs.length)];
+        document.getElementById('celebrate-nums').textContent=otherCount+' vs '+myCount;
+        document.getElementById('celebrate-overlay').classList.add('show');
+        playCelebrate(); confettiBurst();
+      },500);
+    } else {
+      el.classList.add('wrong-flash'); playWrong();
+      setTimeout(()=>el.classList.remove('wrong-flash'),400);
+    }
+  }
+
+  function endGame(){
+    document.getElementById('celebrate-text').textContent=`${score} stars! Great counting! 🔢`;
+    document.getElementById('celebrate-nums').textContent=Array.from({length:Math.min(score,8)},()=>'⭐').join('')||'🌸';
+    document.getElementById('next-btn').textContent='Play Again 🔄';
+    document.getElementById('next-btn').onclick=()=>{ score=0;round=0;updateScore();nextRound();document.getElementById('celebrate-overlay').classList.remove('show'); };
+    document.getElementById('celebrate-overlay').classList.add('show');
+    playCelebrate(); confettiBurst();
+  }
+
+  function confettiBurst(){
+    const cols=['#ffd700','#ff69b4','#00cfff','#7fff00','#ff6347','#da70d6'];
+    for(let i=0;i<30;i++){
+      const el=document.createElement('div'); el.className='confetti-piece';
+      el.style.left=Math.random()*100+'vw';
+      el.style.background=cols[Math.floor(Math.random()*cols.length)];
+      el.style.animationDuration=(1.2+Math.random()*1.6)+'s';
+      el.style.animationDelay=(Math.random()*.4)+'s';
+      document.body.appendChild(el); setTimeout(()=>el.remove(),2600);
+    }
+  }
+
+  nextRound();
+</script>
+</body>
+</html>
