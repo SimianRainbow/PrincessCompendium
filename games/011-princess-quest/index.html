@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Princess Quest 🏰</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+    body { background:#1a003a; overflow:hidden; touch-action:none; font-family:Georgia,serif; }
+    canvas { display:block; }
+
+    /* ── Screens ── */
+    .screen {
+      position:fixed; inset:0; display:flex; flex-direction:column;
+      align-items:center; justify-content:center; gap:clamp(12px,3vw,24px);
+      z-index:20; pointer-events:all;
+    }
+    .screen.hidden { display:none; }
+
+    /* Start */
+    #start-screen { background:radial-gradient(ellipse at 50% 40%, #5b1fa2 0%, #1a003a 100%); }
+    #start-title {
+      font-size:clamp(32px,9vw,68px); color:#ffd700;
+      text-shadow:0 0 30px rgba(255,215,0,.7), 0 3px 10px rgba(0,0,0,.6);
+      text-align:center; letter-spacing:2px; padding:0 16px;
+    }
+    #start-sub { font-size:clamp(16px,4vw,26px); color:rgba(255,255,255,.75); text-align:center; }
+    #start-princess { font-size:clamp(60px,18vw,110px); animation:float 2.5s ease-in-out infinite; }
+    @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-14px)} }
+
+    #start-btn {
+      padding:clamp(14px,4vw,22px) clamp(40px,10vw,72px);
+      font-size:clamp(20px,5.5vw,32px); border-radius:50px; border:none;
+      background:linear-gradient(135deg,#ffd700,#ff8c00); color:#5d2e00;
+      font-weight:bold; cursor:pointer; font-family:inherit;
+      box-shadow:0 6px 24px rgba(255,180,0,.5);
+      animation:btnPulse 1.8s ease-in-out infinite;
+    }
+    @keyframes btnPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.05)} }
+
+    /* HUD */
+    #hud {
+      position:fixed; top:0; left:0; right:0; z-index:10;
+      display:flex; justify-content:space-between; align-items:center;
+      padding:clamp(10px,2.5vw,18px) clamp(14px,4vw,24px);
+      pointer-events:none;
+    }
+    #star-counter {
+      font-size:clamp(22px,6vw,34px); color:#ffd700;
+      text-shadow:0 0 12px rgba(255,215,0,.6), 0 2px 6px rgba(0,0,0,.5);
+    }
+    #tap-hint {
+      font-size:clamp(14px,3.5vw,20px); color:rgba(255,255,255,.6);
+      animation:hintFade 2s ease-in-out 2s forwards;
+    }
+    @keyframes hintFade { to{opacity:0} }
+
+    /* Win screen */
+    #win-screen {
+      background:radial-gradient(ellipse at 50% 40%, #7b1fa2 0%, #1a003a 100%);
+    }
+    #win-title {
+      font-size:clamp(30px,8vw,60px); color:#ffd700;
+      text-shadow:0 0 30px rgba(255,215,0,.8); text-align:center; padding:0 16px;
+    }
+    #win-stars { font-size:clamp(40px,12vw,80px); letter-spacing:4px; }
+    #win-princess { font-size:clamp(60px,16vw,100px); }
+    #play-again-btn {
+      padding:clamp(14px,4vw,20px) clamp(36px,9vw,64px);
+      font-size:clamp(18px,5vw,28px); border-radius:50px; border:none;
+      background:linear-gradient(135deg,#ffd700,#ff8c00); color:#5d2e00;
+      font-weight:bold; cursor:pointer; font-family:inherit;
+    }
+
+    /* Collect flash */
+    #collect-flash {
+      position:fixed; inset:0; background:rgba(255,215,0,.18);
+      pointer-events:none; z-index:9; opacity:0;
+      transition:opacity 0.05s;
+    }
+    #collect-flash.flash { opacity:1; }
+
+    .confetti-piece {
+      position:fixed; border-radius:50%; pointer-events:none; z-index:25;
+      animation:confettiFall linear forwards;
+    }
+    @keyframes confettiFall { 0%{top:-20px;opacity:1} 100%{top:110vh;opacity:0} }
+  </style>
+</head>
+<body>
+
+  <!-- Start screen -->
+  <div id="start-screen" class="screen">
+    <div id="start-princess">👸</div>
+    <div id="start-title">Princess Quest</div>
+    <div id="start-sub">Collect all 6 stars and reach the castle!</div>
+    <button id="start-btn" onclick="startGame()">Play ▶</button>
+  </div>
+
+  <!-- HUD -->
+  <div id="hud" style="display:none">
+    <div id="star-counter">⭐ 0 / 6</div>
+    <div id="tap-hint">Tap to jump!</div>
+  </div>
+
+  <!-- Collect flash overlay -->
+  <div id="collect-flash"></div>
+
+  <!-- Win screen -->
+  <div id="win-screen" class="screen hidden">
+    <div id="win-princess">👸👑</div>
+    <div id="win-title">You reached the castle!</div>
+    <div id="win-stars">⭐⭐⭐⭐⭐⭐</div>
+    <button id="play-again-btn" onclick="restartGame()">Play Again 🔄</button>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script>
+  // ══════════════════════════════════════════════
+  //  CONFIG
+  // ══════════════════════════════════════════════
+  const CFG = {
+    speed:         7,      // units/sec forward
+    jumpVel:       13,     // initial upward velocity on jump
+    gravity:       30,     // downward acceleration
+    groundY:       0,      // world ground level
+    princessGY:    1.05,   // princess centre Y when standing
+    collectDist:   3.2,    // star collection radius
+    numStars:      6,
+    levelEnd:      -275,   // Z at which win triggers
+    starZ:         [-45, -90, -135, -175, -215, -255],
+    starY:         [1.2,  3.2,  1.2,  3.4,  1.5,  3.0],  // alternating low/high
+    castleZ:       -268,
+  };
+
+  // ══════════════════════════════════════════════
+  //  STATE
+  // ══════════════════════════════════════════════
+  let gameActive = false;
+  let starsCollected = 0;
+  let princY, princVY, jumping;
+  let stars = [];
+  let princess, princessParts;
+  let clock, scene, camera, renderer;
+  let runTime = 0;
+
+  // ══════════════════════════════════════════════
+  //  AUDIO
+  // ══════════════════════════════════════════════
+  let audioCtx = null;
+  function getAudio() {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    return audioCtx;
+  }
+  function tone(freq, type, dur, vol = 0.14) {
+    try {
+      const ctx = getAudio();
+      const o = ctx.createOscillator(), g = ctx.createGain();
+      o.connect(g); g.connect(ctx.destination);
+      o.type = type || 'sine'; o.frequency.value = freq;
+      g.gain.setValueAtTime(vol, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
+      o.start(); o.stop(ctx.currentTime + dur);
+    } catch(e) {}
+  }
+  function playJump()    { tone(440, 'sine', 0.12); setTimeout(() => tone(550, 'sine', 0.08), 60); }
+  function playLand()    { tone(200, 'sine', 0.1, 0.08); }
+  function playCollect() { [659, 784, 1047].forEach((f, i) => setTimeout(() => tone(f, 'sine', 0.2), i * 80)); }
+  function playWin()     { [523, 587, 659, 784, 1047, 1319].forEach((f, i) => setTimeout(() => tone(f, 'sine', 0.3), i * 100)); }
+
+  // ══════════════════════════════════════════════
+  //  THREE.JS SETUP
+  // ══════════════════════════════════════════════
+  function initThree() {
+    renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setClearColor(0x2d0060, 1);
+    document.body.appendChild(renderer.domElement);
+
+    scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x3a0080);
+    scene.fog = new THREE.Fog(0x3a0080, 60, 150);
+
+    camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 0.1, 400);
+
+    // Lights
+    scene.add(new THREE.AmbientLight(0xffe0ff, 0.7));
+    const sun = new THREE.DirectionalLight(0xfff0cc, 1.3);
+    sun.position.set(6, 12, 8);
+    scene.add(sun);
+    const fill = new THREE.DirectionalLight(0xcc88ff, 0.4);
+    fill.position.set(-4, 4, -4);
+    scene.add(fill);
+
+    clock = new THREE.Clock();
+    window.addEventListener('resize', onResize);
+  }
+
+  function onResize() {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  }
+
+  // ══════════════════════════════════════════════
+  //  WORLD BUILDING
+  // ══════════════════════════════════════════════
+  function buildWorld() {
+    // Ground lane
+    const groundMat = new THREE.MeshLambertMaterial({ color: 0x4caf50 });
+    const ground = new THREE.Mesh(new THREE.BoxGeometry(12, 0.6, 400), groundMat);
+    ground.position.set(0, -0.3, -150);
+    scene.add(ground);
+
+    // Path stripe
+    const pathMat = new THREE.MeshLambertMaterial({ color: 0x81c784 });
+    const path = new THREE.Mesh(new THREE.BoxGeometry(4, 0.65, 400), pathMat);
+    path.position.set(0, -0.28, -150);
+    scene.add(path);
+
+    // Edge strips (darker borders)
+    const edgeMat = new THREE.MeshLambertMaterial({ color: 0x388e3c });
+    [-6, 6].forEach(x => {
+      const edge = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.7, 400), edgeMat);
+      edge.position.set(x, -0.25, -150);
+      scene.add(edge);
+    });
+
+    // Decorations
+    const treePositions = [
+      [-5.5, -20],[-7, -50],[5.5, -30],[-6, -70],[7, -80],
+      [-5.5,-100],[6,-115],[-7,-140],[5.5,-155],[-6,-180],
+      [7,-195],[-5.5,-220],[6,-235],[-7,-250],[5.5,-260],
+    ];
+    treePositions.forEach(([x, z]) => buildTree(x, 0, z));
+
+    // Flowers scattered along sides
+    for (let i = 0; i < 40; i++) {
+      const side = Math.random() > 0.5 ? 1 : -1;
+      buildFlower(side * (3.5 + Math.random() * 3), 0, -10 - i * 7);
+    }
+
+    // Clouds (large floating spheres, far above)
+    buildClouds();
+
+    // Stars
+    stars = [];
+    CFG.starZ.forEach((z, i) => {
+      const star = buildStar(0, CFG.starY[i], z);
+      stars.push({ mesh: star, collected: false, z });
+      scene.add(star);
+    });
+
+    // Castle
+    buildCastle(0, 0, CFG.castleZ);
+
+    // Glowing ground markers at star positions (visual cue to look ahead)
+    CFG.starZ.forEach(z => {
+      const glow = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.5, 0.5, 0.05, 16),
+        new THREE.MeshLambertMaterial({ color: 0xffd700, emissive: 0xffd700, emissiveIntensity: 0.6 })
+      );
+      glow.position.set(0, 0.01, z);
+      scene.add(glow);
+    });
+
+    // Background mountains (distant silhouette)
+    buildMountains();
+  }
+
+  function buildTree(x, y, z) {
+    const group = new THREE.Group();
+    // Trunk
+    const trunk = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.18, 0.22, 1.4, 7),
+      new THREE.MeshLambertMaterial({ color: 0x795548 })
+    );
+    trunk.position.y = 0.7;
+    group.add(trunk);
+    // Foliage (2 stacked cones)
+    const foliageMat = new THREE.MeshLambertMaterial({ color: 0x2e7d32 });
+    [{ r: 0.9, h: 1.6, y: 1.6 }, { r: 0.65, h: 1.3, y: 2.5 }].forEach(({ r, h, y }) => {
+      const f = new THREE.Mesh(new THREE.ConeGeometry(r, h, 7), foliageMat);
+      f.position.y = y;
+      group.add(f);
+    });
+    group.position.set(x, y, z);
+    scene.add(group);
+  }
+
+  function buildFlower(x, y, z) {
+    const group = new THREE.Group();
+    const colors = [0xff69b4, 0xff4081, 0xce93d8, 0xfff176, 0xff8a65];
+    const col = colors[Math.floor(Math.random() * colors.length)];
+    // Stem
+    const stem = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.04, 0.04, 0.5, 5),
+      new THREE.MeshLambertMaterial({ color: 0x66bb6a })
+    );
+    stem.position.y = 0.25;
+    group.add(stem);
+    // Head
+    const head = new THREE.Mesh(
+      new THREE.SphereGeometry(0.12, 7, 7),
+      new THREE.MeshLambertMaterial({ color: col })
+    );
+    head.position.y = 0.55;
+    group.add(head);
+    group.position.set(x, y, z);
+    scene.add(group);
+  }
+
+  function buildClouds() {
+    const cloudMat = new THREE.MeshLambertMaterial({ color: 0xf8f0ff, emissive: 0xcc88ff, emissiveIntensity: 0.08 });
+    const positions = [
+      [6, 18, -40],[-8, 22, -80],[10, 20, -130],[-6, 19, -170],
+      [7, 21, -210],[-9, 18, -240],[5, 20, -265],
+    ];
+    positions.forEach(([x, y, z]) => {
+      const group = new THREE.Group();
+      [[0,0,0,1],[1.2,0.4,0,.7],[-1.1,0.3,0,.65],[0.6,0.7,0,.5]].forEach(([cx,cy,cz,r]) => {
+        const s = new THREE.Mesh(new THREE.SphereGeometry(r, 8, 7), cloudMat);
+        s.position.set(cx, cy, cz);
+        group.add(s);
+      });
+      group.position.set(x, y, z);
+      scene.add(group);
+    });
+  }
+
+  function buildStar(x, y, z) {
+    const group = new THREE.Group();
+    // Core crystal (octahedron)
+    const core = new THREE.Mesh(
+      new THREE.OctahedronGeometry(0.55, 0),
+      new THREE.MeshLambertMaterial({ color: 0xffd700, emissive: 0xffaa00, emissiveIntensity: 0.6 })
+    );
+    group.add(core);
+    // Outer glow ring
+    const ring = new THREE.Mesh(
+      new THREE.TorusGeometry(0.75, 0.06, 8, 24),
+      new THREE.MeshLambertMaterial({ color: 0xffffff, emissive: 0xffd700, emissiveIntensity: 0.8 })
+    );
+    ring.rotation.x = Math.PI / 2;
+    group.add(ring);
+    // Vertical ring
+    const ring2 = new THREE.Mesh(
+      new THREE.TorusGeometry(0.75, 0.06, 8, 24),
+      new THREE.MeshLambertMaterial({ color: 0xffffff, emissive: 0xffd700, emissiveIntensity: 0.8 })
+    );
+    group.add(ring2);
+    group.position.set(x, y, z);
+    group.userData = { baseY: y, time: Math.random() * Math.PI * 2 };
+    return group;
+  }
+
+  function buildCastle(x, y, z) {
+    const group = new THREE.Group();
+    const stoneMat  = new THREE.MeshLambertMaterial({ color: 0xce93d8 });
+    const darkMat   = new THREE.MeshLambertMaterial({ color: 0x9c27b0 });
+    const roofMat   = new THREE.MeshLambertMaterial({ color: 0xff4081 });
+    const doorMat   = new THREE.MeshLambertMaterial({ color: 0x4a148c });
+    const goldMat   = new THREE.MeshLambertMaterial({ color: 0xffd700, emissive: 0xffaa00, emissiveIntensity: 0.4 });
+
+    // Main keep
+    const keep = new THREE.Mesh(new THREE.BoxGeometry(6, 5, 4), stoneMat);
+    keep.position.y = 2.5;
+    group.add(keep);
+
+    // Battlements across top
+    for (let bx = -2.5; bx <= 2.5; bx += 1) {
+      const b = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.8, 0.6), darkMat);
+      b.position.set(bx, 5.4, -1.8);
+      group.add(b);
+    }
+
+    // Door arch
+    const door = new THREE.Mesh(new THREE.BoxGeometry(1.2, 2, 0.5), doorMat);
+    door.position.set(0, 1, -2.1);
+    group.add(door);
+
+    // Left tower
+    const buildTower = (tx) => {
+      const base = new THREE.Mesh(new THREE.CylinderGeometry(1.1, 1.2, 6, 8), stoneMat);
+      base.position.set(tx, 3, -0.5);
+      group.add(base);
+      const roof = new THREE.Mesh(new THREE.ConeGeometry(1.3, 2, 8), roofMat);
+      roof.position.set(tx, 7, -0.5);
+      group.add(roof);
+      // Tower flag
+      const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 1.2, 5), goldMat);
+      pole.position.set(tx, 8.2, -0.5);
+      group.add(pole);
+      const flag = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.45, 0.05), roofMat);
+      flag.position.set(tx + 0.35, 8.8, -0.5);
+      group.add(flag);
+    };
+    buildTower(-3.5);
+    buildTower(3.5);
+
+    // Crown on top of keep
+    const crown = new THREE.Mesh(new THREE.CylinderGeometry(1.2, 1.4, 0.6, 5), goldMat);
+    crown.position.set(0, 5.3, 0);
+    group.add(crown);
+
+    // Glowing star on top
+    const topStar = new THREE.Mesh(new THREE.OctahedronGeometry(0.4, 0),
+      new THREE.MeshLambertMaterial({ color: 0xffd700, emissive: 0xffd700, emissiveIntensity: 1 }));
+    topStar.position.set(0, 6.2, 0);
+    group.add(topStar);
+
+    group.position.set(x, y, z);
+    scene.add(group);
+  }
+
+  function buildMountains() {
+    const mat = new THREE.MeshLambertMaterial({ color: 0x6a1b9a });
+    const positions = [[-18,0,-120],[-20,0,-200],[18,0,-80],[20,0,-160],[-15,0,-260],[16,0,-240]];
+    positions.forEach(([x, y, z]) => {
+      const h = 18 + Math.random() * 12;
+      const m = new THREE.Mesh(new THREE.ConeGeometry(9 + Math.random() * 5, h, 5), mat);
+      m.position.set(x, h / 2 - 0.3, z);
+      scene.add(m);
+    });
+  }
+
+  // ══════════════════════════════════════════════
+  //  PRINCESS
+  // ══════════════════════════════════════════════
+  function buildPrincess() {
+    princess = new THREE.Group();
+    const parts = {};
+
+    const skinMat  = new THREE.MeshLambertMaterial({ color: 0xffccaa });
+    const dressMat = new THREE.MeshLambertMaterial({ color: 0xff4db8 });
+    const bodyMat  = new THREE.MeshLambertMaterial({ color: 0xff80cc });
+    const hairMat  = new THREE.MeshLambertMaterial({ color: 0x9c27b0 });
+    const crownMat = new THREE.MeshLambertMaterial({ color: 0xffd700, emissive: 0xffcc00, emissiveIntensity: 0.3 });
+    const eyeMat   = new THREE.MeshLambertMaterial({ color: 0x1a237e });
+
+    // Dress (wide cone at base)
+    parts.dress = new THREE.Mesh(new THREE.ConeGeometry(0.72, 1.1, 10), dressMat);
+    parts.dress.position.y = 0.55;
+    princess.add(parts.dress);
+
+    // Body
+    parts.body = new THREE.Mesh(new THREE.CylinderGeometry(0.32, 0.44, 0.9, 8), bodyMat);
+    parts.body.position.y = 1.45;
+    princess.add(parts.body);
+
+    // Head
+    parts.head = new THREE.Mesh(new THREE.SphereGeometry(0.38, 12, 10), skinMat);
+    parts.head.position.y = 2.2;
+    princess.add(parts.head);
+
+    // Hair (back)
+    parts.hair = new THREE.Mesh(new THREE.SphereGeometry(0.42, 10, 8), hairMat);
+    parts.hair.position.set(0, 2.22, 0.04);
+    parts.hair.scale.set(1, 0.9, 1);
+    princess.add(parts.hair);
+
+    // Hair side puffs
+    [-0.3, 0.3].forEach(hx => {
+      const puff = new THREE.Mesh(new THREE.SphereGeometry(0.2, 8, 8), hairMat);
+      puff.position.set(hx, 2.0, 0.05);
+      princess.add(puff);
+    });
+
+    // Eyes
+    [-0.13, 0.13].forEach(ex => {
+      const eye = new THREE.Mesh(new THREE.SphereGeometry(0.055, 7, 7), eyeMat);
+      eye.position.set(ex, 2.24, -0.34);
+      princess.add(eye);
+    });
+
+    // Crown
+    parts.crown = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.34, 0.22, 5), crownMat);
+    parts.crown.position.y = 2.65;
+    princess.add(parts.crown);
+    // Crown points
+    for (let i = 0; i < 5; i++) {
+      const angle = (i / 5) * Math.PI * 2;
+      const pt = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.06, 0.18, 5), crownMat);
+      pt.position.set(Math.sin(angle) * 0.26, 2.84, Math.cos(angle) * 0.26);
+      princess.add(pt);
+    }
+
+    // Arms
+    parts.leftArm  = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.7, 6), bodyMat);
+    parts.rightArm = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.7, 6), bodyMat);
+    parts.leftArm.position.set(-0.52, 1.5, 0);
+    parts.rightArm.position.set(0.52, 1.5, 0);
+    parts.leftArm.rotation.z  =  0.5;
+    parts.rightArm.rotation.z = -0.5;
+    princess.add(parts.leftArm);
+    princess.add(parts.rightArm);
+
+    princess.position.set(0, CFG.princessGY, 0);
+    scene.add(princess);
+    princessParts = parts;
+    return princess;
+  }
+
+  // ══════════════════════════════════════════════
+  //  GAME CONTROL
+  // ══════════════════════════════════════════════
+  function startGame() {
+    document.getElementById('start-screen').classList.add('hidden');
+    document.getElementById('hud').style.display = 'flex';
+
+    // Clear previous run
+    if (scene) {
+      // Dispose existing objects
+      while (scene.children.length) scene.remove(scene.children[0]);
+    } else {
+      initThree();
+    }
+
+    starsCollected = 0;
+    princY  = CFG.princessGY;
+    princVY = 0;
+    jumping = false;
+    runTime = 0;
+    updateStarCounter();
+
+    buildWorld();
+    buildPrincess();
+
+    // Input
+    renderer.domElement.addEventListener('pointerdown', onTap);
+
+    gameActive = true;
+    animate();
+  }
+
+  function restartGame() {
+    document.getElementById('win-screen').classList.add('hidden');
+    gameActive = false;
+    // Small delay so Three re-initialises cleanly
+    setTimeout(() => startGame(), 100);
+  }
+
+  function onTap() {
+    if (!gameActive) return;
+    if (!jumping) {
+      jumping = true;
+      princVY = CFG.jumpVel;
+      playJump();
+      // Stretch on takeoff
+      princess.scale.set(0.85, 1.25, 0.85);
+      setTimeout(() => { if (princess) princess.scale.set(1, 1, 1); }, 120);
+    }
+  }
+
+  // ══════════════════════════════════════════════
+  //  GAME LOOP
+  // ══════════════════════════════════════════════
+  function animate() {
+    if (!gameActive) return;
+    requestAnimationFrame(animate);
+
+    const dt = Math.min(clock.getDelta(), 0.05);
+    runTime += dt;
+
+    // ── Move princess forward ──
+    const prevZ = princess.position.z;
+    princess.position.z -= CFG.speed * dt;
+
+    // ── Vertical physics ──
+    if (jumping || princVY !== 0) {
+      princVY -= CFG.gravity * dt;
+      princY  += princVY * dt;
+      if (princY <= CFG.princessGY) {
+        princY  = CFG.princessGY;
+        princVY = 0;
+        jumping = false;
+        playLand();
+        // Squash on landing
+        princess.scale.set(1.2, 0.75, 1.2);
+        setTimeout(() => { if (princess) princess.scale.set(1, 1, 1); }, 100);
+      }
+      princess.position.y = princY;
+    }
+
+    // ── Running animations ──
+    const t = runTime;
+    if (!jumping) {
+      princess.position.y = CFG.princessGY + Math.abs(Math.sin(t * 9)) * 0.08;
+      if (princessParts) {
+        princessParts.leftArm.rotation.x  =  Math.sin(t * 9) * 0.55;
+        princessParts.rightArm.rotation.x = -Math.sin(t * 9) * 0.55;
+        princessParts.dress.rotation.y    =  Math.sin(t * 5) * 0.08;
+      }
+    }
+    // Gentle side sway always
+    princess.rotation.z = Math.sin(t * 4.5) * 0.04;
+
+    // ── Star animations & collection ──
+    stars.forEach((s, i) => {
+      if (s.collected) return;
+      s.mesh.userData.time += dt * 2.2;
+      s.mesh.position.y = CFG.starY[i] + Math.sin(s.mesh.userData.time) * 0.25;
+      s.mesh.rotation.y += dt * 1.8;
+      s.mesh.rotation.x += dt * 0.9;
+
+      // Collection distance check (3D)
+      const dx = princess.position.x - s.mesh.position.x;
+      const dy = princess.position.y - s.mesh.position.y;
+      const dz = princess.position.z - s.mesh.position.z;
+      if (Math.sqrt(dx*dx + dy*dy + dz*dz) < CFG.collectDist) {
+        collectStar(s);
+      }
+    });
+
+    // ── Camera follow ──
+    camera.position.set(
+      princess.position.x,
+      princess.position.y + 7,
+      princess.position.z + 13
+    );
+    camera.lookAt(
+      princess.position.x,
+      princess.position.y + 1.5,
+      princess.position.z - 8
+    );
+
+    // ── Win check ──
+    if (princess.position.z < CFG.levelEnd) {
+      triggerWin();
+      return;
+    }
+
+    renderer.render(scene, camera);
+  }
+
+  function collectStar(s) {
+    s.collected = true;
+    starsCollected++;
+    updateStarCounter();
+    playCollect();
+
+    // Pop animation
+    s.mesh.scale.set(1.8, 1.8, 1.8);
+    setTimeout(() => {
+      if (s.mesh.parent) scene.remove(s.mesh);
+    }, 250);
+
+    // Screen flash
+    const flash = document.getElementById('collect-flash');
+    flash.classList.add('flash');
+    setTimeout(() => flash.classList.remove('flash'), 100);
+
+    confettiBurst(6);
+  }
+
+  function triggerWin() {
+    gameActive = false;
+    renderer.domElement.removeEventListener('pointerdown', onTap);
+    document.getElementById('hud').style.display = 'none';
+    document.getElementById('win-stars').textContent =
+      Array.from({ length: starsCollected }, () => '⭐').join('') || '🌸';
+    document.getElementById('win-screen').classList.remove('hidden');
+    playWin();
+    confettiBurst(35);
+    renderer.render(scene, camera);
+  }
+
+  function updateStarCounter() {
+    document.getElementById('star-counter').textContent = `⭐ ${starsCollected} / ${CFG.numStars}`;
+  }
+
+  // ══════════════════════════════════════════════
+  //  CONFETTI
+  // ══════════════════════════════════════════════
+  function confettiBurst(n) {
+    const cols = ['#ffd700','#ff69b4','#00cfff','#7fff00','#ff6347','#da70d6','#fff'];
+    for (let i = 0; i < n; i++) {
+      const el = document.createElement('div');
+      el.className = 'confetti-piece';
+      el.style.width  = (8 + Math.random() * 8) + 'px';
+      el.style.height = (8 + Math.random() * 8) + 'px';
+      el.style.left   = Math.random() * 100 + 'vw';
+      el.style.background = cols[Math.floor(Math.random() * cols.length)];
+      el.style.animationDuration  = (1.2 + Math.random() * 1.8) + 's';
+      el.style.animationDelay     = (Math.random() * 0.5) + 's';
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 2800);
+    }
+  }
+  </script>
+</body>
+</html>

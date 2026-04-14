@@ -118,5 +118,17 @@
     "category": "music",
     "version": "1.0.0",
     "path": "games/010-royal-orchestra/index.html"
+  },
+  {
+    "id": "011-princess-quest",
+    "title": "Princess Quest",
+    "description": "Run through a magical 3D world, collect stars and reach the castle!",
+    "icon": "🏰",
+    "ageMin": 2,
+    "ageMax": 5,
+    "skill": "focus, reaction & adventure",
+    "category": "adventure",
+    "version": "1.0.0",
+    "path": "games/011-princess-quest/index.html"
   }
 ]
