@@ -19,7 +19,7 @@
     "ageMin": 2,
     "ageMax": 4,
     "skill": "counting 1-5",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "category": "numbers",
     "path": "games/002-counting-crowns/index.html"
   },
@@ -130,5 +130,17 @@
     "category": "adventure",
     "version": "1.0.0",
     "path": "games/011-princess-quest/index.html"
+  },
+  {
+    "id": "012-pattern-princess",
+    "title": "Pattern Princess",
+    "description": "Spot what comes next in the princess's magical pattern",
+    "icon": "🌸",
+    "ageMin": 3,
+    "ageMax": 5,
+    "skill": "pattern recognition",
+    "version": "1.0.0",
+    "category": "colours-shapes",
+    "path": "games/012-pattern-princess/index.html"
   }
 ]

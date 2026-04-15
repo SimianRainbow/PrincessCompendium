@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Pattern Princess 🌸</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+    body {
+      background: linear-gradient(155deg, #880e4f 0%, #c2185b 45%, #f8bbd0 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Georgia', serif;
+      overflow: hidden;
+      user-select: none;
+    }
+
+    /* Header */
+    #score-row {
+      position: fixed;
+      top: 14px;
+      right: 18px;
+      font-size: clamp(20px, 5vw, 28px);
+      z-index: 10;
+    }
+    #level-row {
+      position: fixed;
+      top: 14px;
+      left: 18px;
+      font-size: clamp(13px, 3.2vw, 18px);
+      color: rgba(255,255,255,0.9);
+      text-shadow: 0 1px 4px rgba(0,0,0,0.4);
+      z-index: 10;
+    }
+
+    /* Princess prompt */
+    #princess-area {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: clamp(10px, 2.5vw, 18px);
+      margin-top: 42px;
+    }
+    #princess-emoji {
+      font-size: clamp(48px, 13vw, 76px);
+      filter: drop-shadow(0 4px 12px rgba(255,150,200,0.5));
+      animation: princessFloat 3s ease-in-out infinite;
+    }
+    @keyframes princessFloat {
+      0%,100% { transform: translateY(0); }
+      50%      { transform: translateY(-8px); }
+    }
+    #prompt-text {
+      font-size: clamp(18px, 4.8vw, 28px);
+      color: #fff;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.4);
+      margin-top: 8px;
+      text-align: center;
+      padding: 0 12px;
+    }
+
+    /* Pattern track */
+    #pattern-track {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: nowrap;
+      gap: clamp(6px, 2vw, 14px);
+      background: rgba(255,255,255,0.15);
+      border-radius: 32px;
+      border: 3px solid rgba(255,255,255,0.3);
+      padding: clamp(12px, 3vw, 20px) clamp(14px, 4vw, 28px);
+      max-width: 95vw;
+      margin-bottom: clamp(16px, 4vw, 28px);
+      box-shadow: 0 4px 24px rgba(0,0,0,0.2);
+    }
+
+    .pattern-item {
+      font-size: clamp(38px, 10vw, 58px);
+      line-height: 1;
+      animation: popIn 0.35s cubic-bezier(0.34,1.56,0.64,1) both;
+    }
+    @keyframes popIn {
+      from { transform: scale(0) rotate(-20deg); opacity: 0; }
+      to   { transform: scale(1) rotate(0deg); opacity: 1; }
+    }
+
+    /* The missing piece slot */
+    .pattern-blank {
+      font-size: clamp(38px, 10vw, 58px);
+      width: clamp(54px, 14vw, 78px);
+      height: clamp(54px, 14vw, 78px);
+      border-radius: 16px;
+      border: 4px dashed rgba(255,255,255,0.7);
+      background: rgba(255,255,255,0.12);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: blankPulse 1.4s ease-in-out infinite;
+    }
+    @keyframes blankPulse {
+      0%,100% { border-color: rgba(255,255,255,0.7); }
+      50%      { border-color: #ffd700; box-shadow: 0 0 14px rgba(255,215,0,0.5); }
+    }
+
+    /* Answer choices */
+    #choices-row {
+      display: flex;
+      gap: clamp(14px, 4vw, 24px);
+      justify-content: center;
+      flex-wrap: wrap;
+      padding: 0 8px;
+    }
+
+    .choice-btn {
+      width: clamp(90px, 23vw, 130px);
+      height: clamp(90px, 23vw, 130px);
+      border-radius: 22px;
+      border: none;
+      cursor: pointer;
+      font-size: clamp(44px, 12vw, 68px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255,255,255,0.18);
+      box-shadow: 0 5px 18px rgba(0,0,0,0.3), inset 0 2px 0 rgba(255,255,255,0.25);
+      transition: transform 0.1s;
+      position: relative;
+      overflow: hidden;
+    }
+    .choice-btn:active { transform: scale(0.9); }
+    .choice-btn.correct-flash {
+      animation: choiceCorrect 0.5s ease-out forwards;
+    }
+    .choice-btn.wrong-flash {
+      animation: choiceWrong 0.4s ease-out;
+    }
+    @keyframes choiceCorrect {
+      0%   { transform: scale(1); }
+      35%  { transform: scale(1.25); background: rgba(255,215,0,0.5); box-shadow: 0 0 32px rgba(255,215,0,0.8); }
+      100% { transform: scale(1); }
+    }
+    @keyframes choiceWrong {
+      0%,100% { transform: translateX(0); }
+      25% { transform: translateX(-10px); }
+      75% { transform: translateX(10px); }
+    }
+
+    /* Sparkle */
+    .sparkle {
+      position: fixed;
+      font-size: clamp(12px, 3.5vw, 20px);
+      pointer-events: none;
+      z-index: 50;
+      animation: sparkleFly ease-out forwards;
+    }
+    @keyframes sparkleFly {
+      0%   { transform: translate(0,0) scale(1.2); opacity: 1; }
+      100% { transform: translate(var(--tx), var(--ty)) scale(0.1); opacity: 0; }
+    }
+
+    /* Celebration */
+    #celebrate-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.55);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 18px;
+      z-index: 99; opacity: 0; pointer-events: none;
+      transition: opacity 0.35s;
+    }
+    #celebrate-overlay.show { opacity: 1; pointer-events: all; }
+    #celebrate-emoji { font-size: clamp(64px,18vw,110px); }
+    #celebrate-text {
+      font-size: clamp(28px, 7.5vw, 54px);
+      color: #fff;
+      text-shadow: 0 0 20px #ffd700, 0 2px 8px rgba(0,0,0,0.5);
+      text-align: center; padding: 0 16px;
+    }
+    #next-btn {
+      margin-top: 6px;
+      padding: clamp(14px,4vw,20px) clamp(32px,8vw,56px);
+      font-size: clamp(20px,5vw,28px);
+      border-radius: 50px; border: none;
+      background: linear-gradient(135deg, #ffd700, #ff9800);
+      color: #5d2e00; font-weight: bold; cursor: pointer;
+      box-shadow: 0 4px 16px rgba(255,180,0,0.5);
+      font-family: inherit;
+    }
+
+    .confetti-piece {
+      position: fixed; border-radius: 50%;
+      animation: confettiFall linear forwards;
+      pointer-events: none; z-index: 100;
+    }
+    @keyframes confettiFall {
+      0% { top: -20px; opacity: 1; }
+      100% { top: 110vh; opacity: 0.2; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="level-row">Round <span id="round-num">1</span> of 8</div>
+  <div id="score-row"></div>
+
+  <div id="princess-area">
+    <div id="princess-emoji">👸</div>
+    <div id="prompt-text">What comes next? 🌸</div>
+  </div>
+
+  <div id="pattern-track"></div>
+  <div id="choices-row"></div>
+
+  <div id="celebrate-overlay">
+    <div id="celebrate-emoji">🌸</div>
+    <div id="celebrate-text">You found the pattern!</div>
+    <button id="next-btn" onclick="nextRound()">Next ➡️</button>
+  </div>
+
+<script>
+  // ── Audio ──────────────────────────────────────────────────────────────────
+  let audioCtx = null;
+  function getAudio() {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    return audioCtx;
+  }
+  function tone(f, t, d, v) {
+    try {
+      const ctx = getAudio();
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.connect(g); g.connect(ctx.destination);
+      o.type = t || 'sine';
+      o.frequency.value = f;
+      g.gain.setValueAtTime(v || 0.15, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + d);
+      o.start(); o.stop(ctx.currentTime + d);
+    } catch(e) {}
+  }
+  function playCorrect() {
+    tone(523,'sine',0.12);
+    setTimeout(() => tone(659,'sine',0.12), 100);
+    setTimeout(() => tone(784,'sine',0.22), 200);
+  }
+  function playWrong() { tone(220,'sawtooth',0.18,0.1); }
+  function playCelebrate() {
+    [523,659,784,880,1047,1175].forEach((f,i) => setTimeout(() => tone(f,'sine',0.2,0.17), i*70));
+  }
+  function playHintTone(idx) {
+    // Each element in the pattern plays a distinct pitch
+    const freqs = [440,554,659,784,880];
+    tone(freqs[idx % freqs.length], 'sine', 0.15, 0.12);
+  }
+
+  // ── Pattern definitions ────────────────────────────────────────────────────
+  // Each theme is a set of 2-3 emoji options for a given topic
+  const THEMES = [
+    ['🌸','🦋'],  // flowers and butterflies
+    ['⭐','🌙'],  // stars and moon
+    ['🍎','🍊'],  // apples and oranges
+    ['👑','💎'],  // crowns and gems
+    ['🐱','🐶'],  // cat and dog
+    ['🌈','☁️'],  // rainbow and cloud
+    ['🎀','💐'],  // bow and flowers
+    ['🦄','🌟'],  // unicorn and star
+    ['🍄','🌻'],  // mushroom and sunflower
+    ['❤️','💙'],  // red heart and blue heart
+    ['🐸','🌿'],  // frog and leaf
+    ['🎵','🎶'],  // musical notes
+  ];
+
+  // Pattern templates: arrays of indices into the emoji set
+  // Each entry: { sequence (shown), answer index into sequence, type label }
+  // The blank is always at the end of what we show
+  const AB_PATTERNS = [
+    [0,1,0,1,0],  // shows 5, blank is index 5 → answer = 1
+    [0,1,0,1],    // shows 4, blank is 4 → answer = 0
+    [1,0,1,0,1],  // shows 5, blank is 5 → answer = 0
+  ];
+  const AAB_PATTERNS = [
+    [0,0,1,0,0],  // shows 5, blank 5 → answer = 1
+    [0,0,1,0,0,1,0,0], // shows 8, blank 8 → answer = 1
+    [1,1,0,1,1],  // shows 5, blank 5 → answer = 0
+  ];
+  const ABB_PATTERNS = [
+    [0,1,1,0,1],  // shows 5, blank 5 → answer = 1
+    [0,1,1,0,1,1,0],  // shows 7, blank 7 → answer = 1
+    [1,0,0,1,0],  // shows 5, blank 5 → answer = 0
+  ];
+
+  // ── Game state ─────────────────────────────────────────────────────────────
+  let score = 0, round = 0;
+  const TOTAL_ROUNDS = 8;
+  let locked = false;
+
+  function updateScore() {
+    document.getElementById('score-row').innerHTML = Array.from({length: score}, () => '⭐').join('');
+  }
+
+  function shuffle(arr) {
+    const a = [...arr];
+    for (let i = a.length-1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i+1));
+      [a[i],a[j]] = [a[j],a[i]];
+    }
+    return a;
+  }
+
+  function nextRound() {
+    document.getElementById('celebrate-overlay').classList.remove('show');
+    if (round >= TOTAL_ROUNDS) { endGame(); return; }
+    round++;
+    locked = false;
+    document.getElementById('round-num').textContent = round;
+
+    // Choose difficulty based on round
+    // Rounds 1-3: AB only
+    // Rounds 4-6: AB + AAB
+    // Rounds 7-8: AB + AAB + ABB
+    let patternPool;
+    if (round <= 3) {
+      patternPool = AB_PATTERNS;
+    } else if (round <= 6) {
+      patternPool = [...AB_PATTERNS, ...AAB_PATTERNS];
+    } else {
+      patternPool = [...AB_PATTERNS, ...AAB_PATTERNS, ...ABB_PATTERNS];
+    }
+
+    const patternTemplate = patternPool[Math.floor(Math.random() * patternPool.length)];
+    const theme = THEMES[Math.floor(Math.random() * THEMES.length)];
+
+    // Build the sequence emojis; the answer is the next item in the cycle
+    const shown = patternTemplate.map(i => theme[i]);
+    // Determine what comes next by extending the pattern one step
+    // The pattern cycles, so next = patternTemplate[shown.length % patternTemplate.length]
+    const nextIdx = patternTemplate[shown.length % patternTemplate.length];
+    const correctEmoji = theme[nextIdx];
+
+    // Wrong choices: other emoji in the theme, or a random from a different theme
+    const wrongChoices = [];
+    // The other theme emoji (if theme has 2 elements)
+    theme.forEach((e,i) => { if (i !== nextIdx && !wrongChoices.includes(e)) wrongChoices.push(e); });
+    // Add one distractor from a random different theme if we need more
+    if (wrongChoices.length < 2) {
+      const otherTheme = THEMES.filter(t => t !== theme)[Math.floor(Math.random() * (THEMES.length-1))];
+      const candidate = otherTheme[Math.floor(Math.random() * otherTheme.length)];
+      if (!wrongChoices.includes(candidate) && candidate !== correctEmoji) {
+        wrongChoices.push(candidate);
+      }
+    }
+
+    const choices = shuffle([correctEmoji, ...wrongChoices.slice(0, 2)]);
+
+    // Render pattern track
+    const track = document.getElementById('pattern-track');
+    track.innerHTML = '';
+    shown.forEach((emoji, i) => {
+      const el = document.createElement('span');
+      el.className = 'pattern-item';
+      el.textContent = emoji;
+      el.style.animationDelay = (i * 100) + 'ms';
+      track.appendChild(el);
+
+      // Play a sound for each item appearing
+      setTimeout(() => playHintTone(patternTemplate[i]), 150 + i * 130);
+    });
+
+    // Blank slot at the end
+    const blank = document.createElement('div');
+    blank.className = 'pattern-blank';
+    blank.textContent = '?';
+    blank.style.color = 'rgba(255,255,255,0.6)';
+    blank.style.fontSize = 'clamp(24px,6vw,36px)';
+    track.appendChild(blank);
+
+    // Render choices
+    const choicesRow = document.getElementById('choices-row');
+    choicesRow.innerHTML = '';
+    choices.forEach(emoji => {
+      const btn = document.createElement('button');
+      btn.className = 'choice-btn';
+      btn.textContent = emoji;
+      btn.setAttribute('aria-label', 'Choose ' + emoji);
+      btn.addEventListener('pointerdown', () => handleTap(btn, emoji, correctEmoji, blank));
+      choicesRow.appendChild(btn);
+    });
+  }
+
+  function handleTap(btn, chosen, correct, blankEl) {
+    if (locked) return;
+    if (chosen === correct) {
+      locked = true;
+      btn.classList.add('correct-flash');
+      // Fill the blank
+      blankEl.style.animation = 'none';
+      blankEl.textContent = correct;
+      blankEl.style.color = '';
+      blankEl.style.fontSize = '';
+      blankEl.style.border = '4px solid #ffd700';
+      blankEl.style.background = 'rgba(255,215,0,0.25)';
+      playCorrect();
+      score++;
+      updateScore();
+
+      // Sparkle burst
+      const rect = btn.getBoundingClientRect();
+      sparkleBurst(rect.left + rect.width/2, rect.top + rect.height/2);
+
+      setTimeout(() => {
+        btn.classList.remove('correct-flash');
+        const celebs = [
+          { text: 'You found it! 🌟',  emoji: '🌸' },
+          { text: 'Pattern star! ✨',   emoji: '⭐' },
+          { text: 'Amazing! 👑',        emoji: '👑' },
+          { text: 'Brilliant! 💖',      emoji: '💎' },
+          { text: 'Perfect! 🦄',        emoji: '🦄' },
+        ];
+        const c = celebs[Math.floor(Math.random() * celebs.length)];
+        document.getElementById('celebrate-emoji').textContent = c.emoji;
+        document.getElementById('celebrate-text').textContent  = c.text;
+        document.getElementById('celebrate-overlay').classList.add('show');
+        playCelebrate();
+        confettiBurst();
+      }, 550);
+    } else {
+      btn.classList.add('wrong-flash');
+      playWrong();
+      setTimeout(() => btn.classList.remove('wrong-flash'), 400);
+    }
+  }
+
+  // ── Sparkle ────────────────────────────────────────────────────────────────
+  function sparkleBurst(cx, cy) {
+    const icons = ['✨','🌸','⭐','💫','💖'];
+    for (let i = 0; i < 12; i++) {
+      const el = document.createElement('div');
+      el.className = 'sparkle';
+      el.textContent = icons[Math.floor(Math.random() * icons.length)];
+      const angle = (i / 12) * Math.PI * 2;
+      const dist  = 55 + Math.random() * 75;
+      el.style.setProperty('--tx', Math.cos(angle) * dist + 'px');
+      el.style.setProperty('--ty', Math.sin(angle) * dist - 20 + 'px');
+      el.style.left = (cx - 10) + 'px';
+      el.style.top  = (cy - 10) + 'px';
+      el.style.animationDuration = (0.45 + Math.random() * 0.45) + 's';
+      el.style.animationDelay    = (Math.random() * 0.08) + 's';
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 1000);
+    }
+  }
+
+  // ── End game ───────────────────────────────────────────────────────────────
+  function endGame() {
+    document.getElementById('celebrate-emoji').textContent = score >= 7 ? '👑' : '🌸';
+    document.getElementById('celebrate-text').textContent  = score >= 7
+      ? `Pattern Princess! ${score}/${TOTAL_ROUNDS} 👑`
+      : `You got ${score} stars! 🌟`;
+    document.getElementById('next-btn').textContent = 'Play Again 🔄';
+    document.getElementById('next-btn').onclick = () => {
+      score = 0; round = 0; updateScore();
+      document.getElementById('celebrate-overlay').classList.remove('show');
+      nextRound();
+    };
+    document.getElementById('celebrate-overlay').classList.add('show');
+    playCelebrate(); confettiBurst();
+  }
+
+  // ── Confetti ───────────────────────────────────────────────────────────────
+  function confettiBurst() {
+    const cols = ['#ffd700','#ff69b4','#ff99cc','#c0a0ff','#7fff00','#00cfff','#ffffff'];
+    for (let i = 0; i < 34; i++) {
+      const el = document.createElement('div');
+      el.className = 'confetti-piece';
+      const sz = 8 + Math.random() * 8;
+      el.style.width  = sz + 'px';
+      el.style.height = sz + 'px';
+      el.style.left   = Math.random() * 100 + 'vw';
+      el.style.background = cols[Math.floor(Math.random() * cols.length)];
+      el.style.animationDuration = (1.2 + Math.random() * 1.6) + 's';
+      el.style.animationDelay    = (Math.random() * 0.4) + 's';
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 2800);
+    }
+  }
+
+  // ── Start ──────────────────────────────────────────────────────────────────
+  nextRound();
+</script>
+</body>
+</html>
