@@ -1,0 +1,1034 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Jasmine's Magic Leaf 🍃</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+    body { background:#1a0836; overflow:hidden; touch-action:none; font-family:Georgia,serif; }
+    canvas { display:block; }
+
+    .screen {
+      position:fixed; inset:0; display:flex; flex-direction:column;
+      align-items:center; justify-content:center; gap:clamp(12px,3vw,22px);
+      z-index:20;
+    }
+    .screen.hidden { display:none; }
+
+    #start-screen { background:radial-gradient(ellipse at 50% 40%, #7a4ab0 0%, #1a0836 100%); }
+    #start-leaf { font-size:clamp(72px,20vw,130px); animation:spin 4s linear infinite; filter:drop-shadow(0 6px 14px rgba(0,0,0,.5)); }
+    @keyframes spin { 0%{transform:rotate(-10deg)} 50%{transform:rotate(10deg)} 100%{transform:rotate(-10deg)} }
+    #start-title {
+      font-size:clamp(28px,7.5vw,60px); color:#ffd700;
+      text-shadow:0 0 30px rgba(255,215,0,.7), 0 3px 10px rgba(0,0,0,.6);
+      text-align:center; padding:0 16px;
+    }
+    #start-sub { font-size:clamp(14px,3.5vw,22px); color:rgba(255,255,255,.8); text-align:center; padding:0 16px; }
+    #start-btn {
+      padding:clamp(14px,4vw,22px) clamp(40px,10vw,72px);
+      font-size:clamp(20px,5.5vw,32px); border-radius:50px; border:none;
+      background:linear-gradient(135deg,#ffd700,#ff8c00); color:#5d2e00;
+      font-weight:bold; cursor:pointer; font-family:inherit;
+      box-shadow:0 6px 24px rgba(255,180,0,.5);
+      animation:btnPulse 1.8s ease-in-out infinite;
+    }
+    @keyframes btnPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.06)} }
+
+    #hud {
+      position:fixed; top:0; left:0; right:0; z-index:10;
+      display:flex; justify-content:center; align-items:center;
+      padding:clamp(8px,2vw,16px);
+      pointer-events:none; gap:clamp(8px,2vw,14px);
+    }
+    .friend-slot {
+      font-size:clamp(28px,7vw,40px);
+      filter:grayscale(1) brightness(.55);
+      transition:filter .25s ease, transform .3s ease;
+      text-shadow:0 2px 6px rgba(0,0,0,.5);
+    }
+    .friend-slot.got {
+      filter:none;
+      animation:pop .55s ease;
+    }
+    @keyframes pop { 0%{transform:scale(1)} 40%{transform:scale(1.6)} 100%{transform:scale(1)} }
+
+    #touch-zone {
+      position:fixed; inset:0; z-index:5;
+    }
+
+    #collect-flash {
+      position:fixed; inset:0; pointer-events:none; z-index:8;
+      background:radial-gradient(circle, rgba(255,215,0,.5) 0%, rgba(255,215,0,0) 60%);
+      opacity:0; transition:opacity .35s ease;
+    }
+    #collect-flash.show { opacity:1; }
+
+    #wobble-flash {
+      position:fixed; inset:0; pointer-events:none; z-index:8;
+      background:radial-gradient(circle, rgba(255,220,80,.45) 0%, rgba(255,220,80,0) 60%);
+      opacity:0; transition:opacity .25s ease;
+    }
+    #wobble-flash.show { opacity:1; }
+
+    #win-screen {
+      background:radial-gradient(ellipse at 50% 40%, #ffb74d 0%, #5d2e00 100%);
+    }
+    #win-title { font-size:clamp(26px,7vw,50px); color:#fff8dc; text-shadow:0 0 24px rgba(255,215,0,.8), 0 3px 10px rgba(0,0,0,.5); text-align:center; padding:0 16px; }
+    #win-friends { font-size:clamp(44px,11vw,80px); letter-spacing:8px; }
+    #play-again-btn {
+      padding:clamp(14px,4vw,22px) clamp(40px,10vw,72px);
+      font-size:clamp(18px,5vw,28px); border-radius:50px; border:none;
+      background:linear-gradient(135deg,#fff176,#ffa726); color:#4a2800;
+      font-weight:bold; cursor:pointer; font-family:inherit;
+      box-shadow:0 6px 24px rgba(255,180,0,.5);
+    }
+
+    #back-btn {
+      position:fixed; top:10px; left:10px; z-index:25;
+      background:rgba(0,0,0,.35); color:#fff; border:none; border-radius:50%;
+      width:44px; height:44px; font-size:22px; cursor:pointer;
+    }
+  </style>
+</head>
+<body>
+  <button id="back-btn" onclick="history.length>1?history.back():window.close()">←</button>
+
+  <div id="start-screen" class="screen">
+    <div id="start-leaf">🍃</div>
+    <div id="start-title">Jasmine's Magic Leaf</div>
+    <div id="start-sub">Drag to steer · Dodge bananas · Find all 3 friends!</div>
+    <button id="start-btn" onclick="startGame()">Fly ▶</button>
+  </div>
+
+  <div id="hud" style="display:none">
+    <div class="friend-slot" id="slot-monkey">🐵</div>
+    <div class="friend-slot" id="slot-eagle">🦅</div>
+    <div class="friend-slot" id="slot-mouse">🐭</div>
+  </div>
+
+  <div id="touch-zone" style="display:none"></div>
+  <div id="collect-flash"></div>
+  <div id="wobble-flash"></div>
+
+  <div id="win-screen" class="screen hidden">
+    <div id="win-title">You reached the Golden Palace!</div>
+    <div id="win-friends">🐵🦅🐭</div>
+    <button id="play-again-btn" onclick="restartGame()">Fly Again 🔄</button>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script>
+  // ═══════════════════════════════════════════
+  //  CONFIG
+  // ═══════════════════════════════════════════
+  const CFG = {
+    flySpeed:    9,      // forward units/sec
+    strafeSpeed: 7,      // lateral units/sec
+    strafeMax:   4.2,    // max X from centre
+    leafBaseY:   3.2,    // cruise altitude
+    collectDist: 2.4,
+    bananaHit:   1.8,
+    levelEnd:    -300,
+    palaceZ:     -290,
+
+    // Friends to collect  (kind, z, x, y)
+    friends: [
+      { kind:'monkey', z: -55,  x: -2.8, y: 3.3 },
+      { kind:'eagle',  z: -140, x:  3.0, y: 3.9 },
+      { kind:'mouse',  z: -225, x: -2.5, y: 2.9 },
+    ],
+
+    // Crazy monkey boys on side platforms (they throw bananas)
+    monkeyBoys: [
+      { z: -80,  side:-1 },
+      { z: -115, side: 1 },
+      { z: -175, side: 1 },
+      { z: -205, side:-1 },
+      { z: -255, side: 1 },
+    ],
+
+    // Bananas fly across the path at these z positions
+    bananas: [
+      { z: -38,  x: 4,   y: 3.1, vx:-3, vz: 0   },
+      { z: -72,  x:-4,   y: 3.4, vx: 3, vz: 0   },
+      { z: -108, x: 4,   y: 2.9, vx:-3, vz: 0   },
+      { z: -160, x:-4,   y: 3.3, vx: 3, vz: 0.4 },
+      { z: -190, x: 4,   y: 3.0, vx:-3, vz:-0.3 },
+      { z: -240, x:-4,   y: 3.5, vx: 3, vz: 0   },
+      { z: -268, x: 4,   y: 3.2, vx:-3, vz: 0   },
+    ],
+  };
+
+  // ═══════════════════════════════════════════
+  //  STATE
+  // ═══════════════════════════════════════════
+  let gameActive = false;
+  let leafZ = 0;                 // world Z of leaf (we move the world, but track z offset)
+  let targetX = 0;
+  let bobT = 0;
+  let tiltRoll = 0;
+  let wobbleT = 0;
+  let friendsCollected = 0;
+  let friendMeshes = [];
+  let bananaMeshes = [];
+  let monkeyBoyMeshes = [];
+  let princess, leaf, monkeyPet;
+  let scene, camera, renderer, clock;
+
+  // ═══════════════════════════════════════════
+  //  AUDIO
+  // ═══════════════════════════════════════════
+  let audioCtx = null;
+  function au() { if (!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)(); return audioCtx; }
+  function tone(f,t,d,v=0.14) {
+    try {
+      const c=au(), o=c.createOscillator(), g=c.createGain();
+      o.connect(g); g.connect(c.destination);
+      o.type=t||'sine'; o.frequency.value=f;
+      g.gain.setValueAtTime(v,c.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001,c.currentTime+d);
+      o.start(); o.stop(c.currentTime+d);
+    } catch(e) {}
+  }
+  function playCollect(kind) {
+    const notes = kind==='monkey' ? [523,659,784,1047]
+                : kind==='eagle'  ? [659,784,988,1319]
+                :                   [784,988,1175,1568];
+    notes.forEach((f,i)=>setTimeout(()=>tone(f,'sine',0.22),i*70));
+  }
+  function playBanana()  { tone(220,'square',0.18,0.09); setTimeout(()=>tone(170,'square',0.14,0.07),90); }
+  function playWin()     { [523,587,659,784,988,1047,1319,1568].forEach((f,i)=>setTimeout(()=>tone(f,'sine',0.3),i*95)); }
+  function playWhoosh()  { tone(300,'sine',0.12,0.06); }
+
+  // ═══════════════════════════════════════════
+  //  THREE.JS SETUP
+  // ═══════════════════════════════════════════
+  function initThree() {
+    renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setClearColor(0x1a0836, 1);
+    document.body.insertBefore(renderer.domElement, document.body.firstChild);
+
+    scene = new THREE.Scene();
+    scene.background = new THREE.Color(0xffb07a);
+    scene.fog = new THREE.Fog(0xffb07a, 45, 160);
+
+    camera = new THREE.PerspectiveCamera(65, window.innerWidth/window.innerHeight, 0.1, 400);
+
+    scene.add(new THREE.AmbientLight(0xfff2d0, 0.75));
+    const sun = new THREE.DirectionalLight(0xfff5cc, 1.35);
+    sun.position.set(5, 16, 8); scene.add(sun);
+    const fill = new THREE.DirectionalLight(0xff9966, 0.25);
+    fill.position.set(-5, 5, -4); scene.add(fill);
+
+    clock = new THREE.Clock();
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth/window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+  }
+
+  // ═══════════════════════════════════════════
+  //  WORLD
+  // ═══════════════════════════════════════════
+  function buildWorld() {
+    // Desert ground
+    const groundMat = new THREE.MeshLambertMaterial({ color: 0xe8a35a });
+    const ground = new THREE.Mesh(new THREE.BoxGeometry(60, 0.6, 420), groundMat);
+    ground.position.set(0, -0.3, -160); scene.add(ground);
+
+    // Sandy dunes (bumps)
+    const duneMat = new THREE.MeshLambertMaterial({ color: 0xd18a46 });
+    for (let i=0; i<28; i++) {
+      const r = 3 + Math.random()*3.5;
+      const d = new THREE.Mesh(new THREE.SphereGeometry(r, 7, 5, 0, Math.PI*2, 0, Math.PI/2), duneMat);
+      const side = Math.random() > 0.5 ? 1 : -1;
+      d.position.set(side * (9 + Math.random()*14), -0.2, -12 - i*12);
+      d.rotation.y = Math.random()*Math.PI;
+      scene.add(d);
+    }
+
+    // Palm trees scattered off-path
+    const palmXZ = [
+      [-8,-25],[9,-60],[-11,-90],[10,-120],[-9,-150],[12,-180],
+      [-10,-210],[11,-240],[-8,-270],
+    ];
+    palmXZ.forEach(([x,z]) => addPalm(x, 0, z));
+
+    // Mountains / distant mesas
+    const mMat = new THREE.MeshLambertMaterial({ color: 0xa04d20 });
+    [[-24,0,-130],[-28,0,-200],[26,0,-90],[28,0,-170],[-22,0,-260],[25,0,-245]].forEach(([x,y,z]) => {
+      const h = 14 + Math.random()*10;
+      const m = new THREE.Mesh(new THREE.ConeGeometry(7+Math.random()*4, h, 5), mMat);
+      m.position.set(x, h/2 - 0.3, z); scene.add(m);
+    });
+
+    // Clouds
+    addClouds();
+
+    // Friends
+    friendMeshes = [];
+    CFG.friends.forEach(cfg => {
+      const mesh = buildFriendMesh(cfg.kind);
+      mesh.position.set(cfg.x, cfg.y, cfg.z);
+      mesh.userData = { kind: cfg.kind, baseY: cfg.y, t: Math.random()*Math.PI*2, collected:false };
+      scene.add(mesh);
+      friendMeshes.push(mesh);
+    });
+
+    // Monkey boys on platforms
+    monkeyBoyMeshes = [];
+    CFG.monkeyBoys.forEach(cfg => {
+      const boy = buildMonkeyBoy();
+      boy.position.set(cfg.side * 6.2, 0, cfg.z);
+      boy.userData = { t: Math.random()*Math.PI*2, side: cfg.side };
+      scene.add(boy);
+      monkeyBoyMeshes.push(boy);
+    });
+
+    // Bananas
+    bananaMeshes = [];
+    CFG.bananas.forEach(cfg => {
+      const b = buildBananaMesh();
+      b.position.set(cfg.x, cfg.y, cfg.z);
+      b.userData = { ...cfg, baseX:cfg.x, baseZ:cfg.z, baseY:cfg.y, t:Math.random()*Math.PI*2, hit:false };
+      scene.add(b);
+      bananaMeshes.push(b);
+    });
+
+    buildPalace(0, 0, CFG.palaceZ);
+
+    // Leaf + Jasmine + pet monkey ride together
+    leaf = buildLeaf();
+    princess = buildPrincess();
+    princess.position.set(0, 0.55, 0.1);
+    leaf.add(princess);
+
+    monkeyPet = buildMonkey(0.55);
+    monkeyPet.position.set(0.95, 0.5, -0.5);
+    leaf.add(monkeyPet);
+
+    leaf.position.set(0, CFG.leafBaseY, 0);
+    scene.add(leaf);
+  }
+
+  function addPalm(x, y, z) {
+    const g = new THREE.Group();
+    const trunk = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.22, 0.3, 4.2, 7),
+      new THREE.MeshLambertMaterial({ color: 0x8d5524 })
+    );
+    trunk.position.set(0, 2.1, 0);
+    trunk.rotation.z = (Math.random()-0.5)*0.2;
+    g.add(trunk);
+    const fm = new THREE.MeshLambertMaterial({ color: 0x388e3c });
+    for (let i=0; i<7; i++) {
+      const frond = new THREE.Mesh(new THREE.ConeGeometry(0.35, 2.2, 5), fm);
+      frond.position.y = 4.0;
+      frond.rotation.z = (Math.PI/2) + Math.sin(i/7*Math.PI*2)*0.2;
+      frond.rotation.y = (i/7) * Math.PI*2;
+      frond.position.x = Math.cos(i/7*Math.PI*2)*0.9;
+      frond.position.z = Math.sin(i/7*Math.PI*2)*0.9;
+      g.add(frond);
+    }
+    // coconuts
+    const cm = new THREE.MeshLambertMaterial({ color: 0x4e342e });
+    for (let i=0; i<3; i++) {
+      const c = new THREE.Mesh(new THREE.SphereGeometry(0.22, 7, 6), cm);
+      c.position.set(Math.cos(i)*0.35, 3.9, Math.sin(i)*0.35);
+      g.add(c);
+    }
+    g.position.set(x, y, z); scene.add(g);
+  }
+
+  function addClouds() {
+    const cm = new THREE.MeshLambertMaterial({ color: 0xfff0e0, emissive: 0xffcc99, emissiveIntensity: 0.1 });
+    [[8,20,-40],[-10,24,-80],[11,22,-130],[-8,21,-170],[9,23,-210],[-11,20,-240],[7,22,-275]].forEach(([x,y,z]) => {
+      const g = new THREE.Group();
+      [[0,0,0,1.1],[1.4,0.4,0,.8],[-1.3,0.3,0,.75],[0.7,0.8,0,.55]].forEach(([cx,cy,cz,r]) => {
+        const s = new THREE.Mesh(new THREE.SphereGeometry(r,8,7), cm);
+        s.position.set(cx,cy,cz); g.add(s);
+      });
+      g.position.set(x,y,z); scene.add(g);
+    });
+  }
+
+  // ─── LEAF ────────────────────────────────────
+  function buildLeaf() {
+    const g = new THREE.Group();
+    // Flat leaf body — slightly curved using a shape
+    const leafMat = new THREE.MeshLambertMaterial({ color: 0x66bb6a, side: THREE.DoubleSide });
+    const leafShape = new THREE.Shape();
+    leafShape.moveTo(0, -1.4);
+    leafShape.bezierCurveTo( 1.2, -1.0,  1.5,  0.5,  0,  1.6);
+    leafShape.bezierCurveTo(-1.5,  0.5, -1.2, -1.0,  0, -1.4);
+    const geo = new THREE.ShapeGeometry(leafShape, 24);
+    const blade = new THREE.Mesh(geo, leafMat);
+    blade.rotation.x = -Math.PI/2;
+    blade.scale.set(1.6, 1.6, 1.6);
+    g.add(blade);
+
+    // Centre vein
+    const veinMat = new THREE.MeshLambertMaterial({ color: 0x2e7d32 });
+    const vein = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.08, 4.4), veinMat);
+    vein.position.y = 0.05; g.add(vein);
+
+    // Side ribs
+    for (let i=-2; i<=2; i++) {
+      if (i===0) continue;
+      const r = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.04, 0.07), veinMat);
+      r.position.set(0, 0.03, i*0.55);
+      r.rotation.y = i>0 ? -0.2 : 0.2;
+      g.add(r);
+    }
+
+    // Stem
+    const stem = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.08, 0.12, 0.8, 6),
+      new THREE.MeshLambertMaterial({ color: 0x33691e })
+    );
+    stem.position.set(0, 0.05, 2.4);
+    stem.rotation.x = Math.PI/2;
+    g.add(stem);
+
+    // Sparkles (little magic glow)
+    const sparkMat = new THREE.MeshLambertMaterial({ color: 0xffee88, emissive: 0xffcc00, emissiveIntensity: 0.85 });
+    for (let i=0; i<5; i++) {
+      const s = new THREE.Mesh(new THREE.SphereGeometry(0.08, 6, 5), sparkMat);
+      s.position.set((Math.random()-0.5)*2.4, 0.2+Math.random()*0.4, (Math.random()-0.5)*3.2);
+      g.add(s);
+    }
+    return g;
+  }
+
+  // ─── PRINCESS JASMINE ─────────────────────
+  function buildPrincess() {
+    const g = new THREE.Group();
+    // Skirt / bottom
+    const skirtMat = new THREE.MeshLambertMaterial({ color: 0x26c6da });
+    const skirt = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.45, 0.55, 10), skirtMat);
+    skirt.position.y = 0.3; g.add(skirt);
+
+    // Top
+    const topMat = new THREE.MeshLambertMaterial({ color: 0x00acc1 });
+    const top = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.28, 0.4, 10), topMat);
+    top.position.y = 0.75; g.add(top);
+
+    // Sash / belt
+    const sashMat = new THREE.MeshLambertMaterial({ color: 0xffd54f });
+    const sash = new THREE.Mesh(new THREE.TorusGeometry(0.3, 0.05, 6, 14), sashMat);
+    sash.rotation.x = Math.PI/2;
+    sash.position.y = 0.6;
+    g.add(sash);
+
+    // Head
+    const skin = new THREE.MeshLambertMaterial({ color: 0xf5c89e });
+    const head = new THREE.Mesh(new THREE.SphereGeometry(0.26, 12, 10), skin);
+    head.position.y = 1.15; g.add(head);
+
+    // Hair bun on top
+    const hairMat = new THREE.MeshLambertMaterial({ color: 0x1a1a1a });
+    const bun = new THREE.Mesh(new THREE.SphereGeometry(0.16, 10, 8), hairMat);
+    bun.position.y = 1.38; g.add(bun);
+
+    // Long ponytail down back
+    for (let i=0; i<5; i++) {
+      const seg = new THREE.Mesh(
+        new THREE.SphereGeometry(0.13 - i*0.012, 8, 7), hairMat
+      );
+      seg.position.set(0, 1.2 - i*0.12, -0.22 - i*0.05);
+      g.add(seg);
+    }
+
+    // Tiara
+    const tiaraMat = new THREE.MeshLambertMaterial({ color: 0xffd700, emissive: 0xffaa00, emissiveIntensity: 0.4 });
+    const tiara = new THREE.Mesh(new THREE.TorusGeometry(0.2, 0.035, 6, 14, Math.PI), tiaraMat);
+    tiara.position.y = 1.34;
+    tiara.rotation.x = -0.4;
+    g.add(tiara);
+    const gem = new THREE.Mesh(new THREE.OctahedronGeometry(0.07, 0),
+      new THREE.MeshLambertMaterial({ color: 0xe91e63, emissive: 0xff4081, emissiveIntensity: 0.6 }));
+    gem.position.set(0, 1.42, 0.19);
+    g.add(gem);
+
+    // Arms
+    const arm = new THREE.MeshLambertMaterial({ color: 0xf5c89e });
+    [-1,1].forEach(s => {
+      const a = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.07, 0.5, 7), arm);
+      a.position.set(s*0.24, 0.78, 0);
+      a.rotation.z = s*0.4;
+      g.add(a);
+    });
+
+    return g;
+  }
+
+  // ─── MONKEY (pet, riding) ────────────────
+  function buildMonkey(scale=1) {
+    const g = new THREE.Group();
+    const body = new THREE.MeshLambertMaterial({ color: 0x6d4c41 });
+    const face = new THREE.MeshLambertMaterial({ color: 0xd7a57a });
+    const eyem = new THREE.MeshLambertMaterial({ color: 0x1a1a1a });
+
+    const torso = new THREE.Mesh(new THREE.SphereGeometry(0.28, 10, 8), body);
+    torso.position.y = 0.28; g.add(torso);
+
+    const head = new THREE.Mesh(new THREE.SphereGeometry(0.26, 10, 8), body);
+    head.position.y = 0.65; g.add(head);
+
+    const faceP = new THREE.Mesh(new THREE.SphereGeometry(0.18, 9, 8), face);
+    faceP.position.set(0, 0.6, 0.12); g.add(faceP);
+
+    // Ears
+    [-1,1].forEach(s => {
+      const ear = new THREE.Mesh(new THREE.SphereGeometry(0.09, 8, 7), body);
+      ear.position.set(s*0.24, 0.7, 0);
+      g.add(ear);
+    });
+
+    // Eyes
+    [-1,1].forEach(s => {
+      const e = new THREE.Mesh(new THREE.SphereGeometry(0.04, 6, 6), eyem);
+      e.position.set(s*0.07, 0.66, 0.25);
+      g.add(e);
+    });
+
+    // Fez hat (little red cap)
+    const fez = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.17, 0.16, 10),
+      new THREE.MeshLambertMaterial({ color: 0xd32f2f }));
+    fez.position.y = 0.85; g.add(fez);
+    const tass = new THREE.Mesh(new THREE.SphereGeometry(0.04, 6, 5),
+      new THREE.MeshLambertMaterial({ color: 0xffd700 }));
+    tass.position.set(0.07, 0.92, 0); g.add(tass);
+
+    // Tail
+    const tail = new THREE.Mesh(new THREE.TorusGeometry(0.25, 0.045, 6, 12, Math.PI*1.2), body);
+    tail.rotation.x = Math.PI/2; tail.rotation.z = -0.5;
+    tail.position.set(-0.1, 0.25, -0.2);
+    g.add(tail);
+
+    g.scale.set(scale, scale, scale);
+    return g;
+  }
+
+  // ─── MONKEY BOY (thrower, standing) ───────
+  function buildMonkeyBoy() {
+    const g = new THREE.Group();
+    const body = new THREE.MeshLambertMaterial({ color: 0x5d4037 });
+    const face = new THREE.MeshLambertMaterial({ color: 0xcda47a });
+
+    // platform (rock)
+    const rock = new THREE.Mesh(
+      new THREE.CylinderGeometry(1.0, 1.2, 1.0, 8),
+      new THREE.MeshLambertMaterial({ color: 0x8d6e63 })
+    );
+    rock.position.y = 0.5; g.add(rock);
+
+    // body
+    const torso = new THREE.Mesh(new THREE.SphereGeometry(0.45, 10, 8), body);
+    torso.position.y = 1.35; g.add(torso);
+
+    // head
+    const head = new THREE.Mesh(new THREE.SphereGeometry(0.4, 10, 8), body);
+    head.position.y = 1.95; g.add(head);
+
+    const faceP = new THREE.Mesh(new THREE.SphereGeometry(0.28, 9, 8), face);
+    faceP.position.set(0, 1.9, 0.2); g.add(faceP);
+
+    // Big grinning mouth
+    const mouth = new THREE.Mesh(new THREE.TorusGeometry(0.12, 0.03, 6, 12, Math.PI),
+      new THREE.MeshLambertMaterial({ color: 0x3e2723 }));
+    mouth.position.set(0, 1.82, 0.42);
+    mouth.rotation.x = Math.PI/2;
+    g.add(mouth);
+
+    // Eyes wide/crazy
+    [-1,1].forEach(s => {
+      const eyeW = new THREE.Mesh(new THREE.SphereGeometry(0.08, 7, 6),
+        new THREE.MeshLambertMaterial({ color: 0xffffff }));
+      eyeW.position.set(s*0.11, 2.0, 0.38); g.add(eyeW);
+      const p = new THREE.Mesh(new THREE.SphereGeometry(0.04, 6, 6),
+        new THREE.MeshLambertMaterial({ color: 0x000000 }));
+      p.position.set(s*0.13, 2.02, 0.44); g.add(p);
+    });
+
+    // Arms (raised, throwing)
+    [-1,1].forEach(s => {
+      const arm = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 0.8, 7), body);
+      arm.position.set(s*0.45, 1.6, 0);
+      arm.rotation.z = s*0.9;
+      g.add(arm);
+    });
+
+    // Banana in hand (always shown)
+    const banana = buildBananaMesh(0.6);
+    banana.position.set(0.7, 2.0, 0.1);
+    banana.rotation.z = 0.6;
+    g.add(banana);
+
+    return g;
+  }
+
+  // ─── EAGLE MAN ────────────────────────────
+  function buildEagleMan() {
+    const g = new THREE.Group();
+    const feather = new THREE.MeshLambertMaterial({ color: 0x8d5524 });
+    const white   = new THREE.MeshLambertMaterial({ color: 0xf5f5f5 });
+    const beakM   = new THREE.MeshLambertMaterial({ color: 0xffb300 });
+
+    // Body (feathered torso)
+    const torso = new THREE.Mesh(new THREE.SphereGeometry(0.45, 10, 9), feather);
+    torso.position.y = 0.5; g.add(torso);
+
+    // White chest
+    const chest = new THREE.Mesh(new THREE.SphereGeometry(0.33, 9, 8), white);
+    chest.position.set(0, 0.5, 0.22);
+    chest.scale.set(0.9, 1.1, 0.6);
+    g.add(chest);
+
+    // Head (white)
+    const head = new THREE.Mesh(new THREE.SphereGeometry(0.35, 10, 9), white);
+    head.position.y = 1.1; g.add(head);
+
+    // Beak
+    const beak = new THREE.Mesh(new THREE.ConeGeometry(0.13, 0.38, 6), beakM);
+    beak.position.set(0, 1.05, 0.42);
+    beak.rotation.x = Math.PI/2;
+    g.add(beak);
+
+    // Eyes
+    [-1,1].forEach(s => {
+      const ew = new THREE.Mesh(new THREE.SphereGeometry(0.07, 7, 6),
+        new THREE.MeshLambertMaterial({ color: 0xfff59d }));
+      ew.position.set(s*0.14, 1.18, 0.28); g.add(ew);
+      const p = new THREE.Mesh(new THREE.SphereGeometry(0.035, 6, 6),
+        new THREE.MeshLambertMaterial({ color: 0x000000 }));
+      p.position.set(s*0.15, 1.18, 0.33); g.add(p);
+    });
+
+    // Wings — big outstretched
+    [-1,1].forEach(s => {
+      const wing = new THREE.Mesh(
+        new THREE.BoxGeometry(0.8, 0.08, 0.5), feather
+      );
+      wing.position.set(s*0.75, 0.55, 0);
+      wing.rotation.z = s*0.25;
+      wing.rotation.y = s*0.15;
+      g.add(wing);
+
+      const tip = new THREE.Mesh(
+        new THREE.ConeGeometry(0.22, 0.55, 5), feather
+      );
+      tip.position.set(s*1.25, 0.55, 0);
+      tip.rotation.z = s*Math.PI/2;
+      g.add(tip);
+    });
+
+    // Little legs
+    [-1,1].forEach(s => {
+      const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.3, 6), beakM);
+      leg.position.set(s*0.1, 0.08, 0); g.add(leg);
+    });
+
+    // Happy party hat — "Eagle Man loves fun"
+    const hat = new THREE.Mesh(new THREE.ConeGeometry(0.22, 0.45, 6),
+      new THREE.MeshLambertMaterial({ color: 0xe91e63 }));
+    hat.position.y = 1.55; g.add(hat);
+    const dot = new THREE.Mesh(new THREE.SphereGeometry(0.05, 6, 5),
+      new THREE.MeshLambertMaterial({ color: 0xffd700 }));
+    dot.position.y = 1.82; g.add(dot);
+
+    return g;
+  }
+
+  // ─── MOUSE BOY ────────────────────────────
+  function buildMouseBoy() {
+    const g = new THREE.Group();
+    const fur = new THREE.MeshLambertMaterial({ color: 0xbdbdbd });
+    const pink = new THREE.MeshLambertMaterial({ color: 0xf48fb1 });
+
+    // body
+    const body = new THREE.Mesh(new THREE.SphereGeometry(0.4, 10, 9), fur);
+    body.position.y = 0.5;
+    body.scale.set(1, 0.9, 1.1);
+    g.add(body);
+
+    // head
+    const head = new THREE.Mesh(new THREE.SphereGeometry(0.32, 10, 9), fur);
+    head.position.set(0, 0.95, 0.25); g.add(head);
+
+    // snout
+    const snout = new THREE.Mesh(new THREE.SphereGeometry(0.15, 8, 7),
+      new THREE.MeshLambertMaterial({ color: 0xe0e0e0 }));
+    snout.position.set(0, 0.88, 0.48);
+    g.add(snout);
+
+    // Big round ears
+    [-1,1].forEach(s => {
+      const ear = new THREE.Mesh(new THREE.SphereGeometry(0.2, 10, 8), fur);
+      ear.position.set(s*0.22, 1.25, 0.15);
+      ear.scale.set(1, 1, 0.5);
+      g.add(ear);
+      const inner = new THREE.Mesh(new THREE.SphereGeometry(0.13, 8, 7), pink);
+      inner.position.set(s*0.22, 1.25, 0.22);
+      inner.scale.set(1, 1, 0.4);
+      g.add(inner);
+    });
+
+    // Nose
+    const nose = new THREE.Mesh(new THREE.SphereGeometry(0.06, 7, 6), pink);
+    nose.position.set(0, 0.9, 0.62); g.add(nose);
+
+    // Eyes
+    [-1,1].forEach(s => {
+      const e = new THREE.Mesh(new THREE.SphereGeometry(0.05, 7, 6),
+        new THREE.MeshLambertMaterial({ color: 0x1a1a1a }));
+      e.position.set(s*0.13, 1.02, 0.48); g.add(e);
+    });
+
+    // Little bow tie
+    const bow = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.1, 0.08),
+      new THREE.MeshLambertMaterial({ color: 0xff5252 }));
+    bow.position.set(0, 0.7, 0.35); g.add(bow);
+
+    // Tail
+    const tail = new THREE.Mesh(new THREE.TorusGeometry(0.3, 0.04, 6, 12, Math.PI*1.1),
+      new THREE.MeshLambertMaterial({ color: 0xe0c0a0 }));
+    tail.rotation.x = Math.PI/2;
+    tail.rotation.z = -0.5;
+    tail.position.set(-0.2, 0.4, -0.25);
+    g.add(tail);
+
+    return g;
+  }
+
+  function buildFriendMesh(kind) {
+    const wrapper = new THREE.Group();
+    let character;
+    if      (kind === 'monkey') character = buildMonkey(1.2);
+    else if (kind === 'eagle')  character = buildEagleMan();
+    else                         character = buildMouseBoy();
+    wrapper.add(character);
+
+    // Glow ring beneath
+    const ring = new THREE.Mesh(
+      new THREE.TorusGeometry(0.95, 0.08, 8, 22),
+      new THREE.MeshLambertMaterial({ color: 0xffd700, emissive: 0xffaa00, emissiveIntensity: 0.8 })
+    );
+    ring.rotation.x = Math.PI/2;
+    ring.position.y = 0.05;
+    wrapper.add(ring);
+
+    // Sparkle cloud
+    const sMat = new THREE.MeshLambertMaterial({ color: 0xfff176, emissive: 0xffd700, emissiveIntensity: 0.9 });
+    for (let i=0; i<6; i++) {
+      const sp = new THREE.Mesh(new THREE.SphereGeometry(0.08, 6, 5), sMat);
+      const a = (i/6)*Math.PI*2;
+      sp.position.set(Math.cos(a)*1.1, 1.2 + Math.sin(a)*0.3, Math.sin(a)*1.1);
+      wrapper.add(sp);
+    }
+    return wrapper;
+  }
+
+  // ─── BANANA ───────────────────────────────
+  function buildBananaMesh(scale=1) {
+    const g = new THREE.Group();
+    const m = new THREE.MeshLambertMaterial({ color: 0xfdd835, emissive: 0xffeb3b, emissiveIntensity: 0.15 });
+    // curved banana via a torus slice
+    const body = new THREE.Mesh(new THREE.TorusGeometry(0.35, 0.11, 8, 14, Math.PI*0.8), m);
+    body.rotation.z = Math.PI/2;
+    g.add(body);
+    // dark tips
+    const tipM = new THREE.MeshLambertMaterial({ color: 0x5d4037 });
+    const t1 = new THREE.Mesh(new THREE.SphereGeometry(0.09, 6, 6), tipM);
+    t1.position.set(0.35, 0, 0); g.add(t1);
+    const t2 = new THREE.Mesh(new THREE.SphereGeometry(0.09, 6, 6), tipM);
+    t2.position.set(-0.35, 0, 0); g.add(t2);
+    g.scale.set(scale, scale, scale);
+    return g;
+  }
+
+  // ─── PALACE ───────────────────────────────
+  function buildPalace(x, y, z) {
+    const g = new THREE.Group();
+    const wallM  = new THREE.MeshLambertMaterial({ color: 0xfff3c4 });
+    const goldM  = new THREE.MeshLambertMaterial({ color: 0xffd700, emissive: 0xffaa00, emissiveIntensity: 0.45 });
+    const doorM  = new THREE.MeshLambertMaterial({ color: 0x6d4c41 });
+    const domeM  = new THREE.MeshLambertMaterial({ color: 0xffc107, emissive: 0xffaa00, emissiveIntensity: 0.25 });
+
+    // Main building
+    const keep = new THREE.Mesh(new THREE.BoxGeometry(8, 5, 5), wallM);
+    keep.position.y = 2.5; g.add(keep);
+
+    // Central big dome
+    const bigDome = new THREE.Mesh(new THREE.SphereGeometry(2.6, 16, 10, 0, Math.PI*2, 0, Math.PI/2), domeM);
+    bigDome.position.y = 5; g.add(bigDome);
+    // Dome spire
+    const spire = new THREE.Mesh(new THREE.ConeGeometry(0.25, 1.5, 6), goldM);
+    spire.position.y = 7.8; g.add(spire);
+
+    // Side towers with onion domes
+    [-1,1].forEach(s => {
+      const tower = new THREE.Mesh(new THREE.CylinderGeometry(0.8, 0.9, 4, 10), wallM);
+      tower.position.set(s*4, 2, 2); g.add(tower);
+      const onion = new THREE.Mesh(new THREE.SphereGeometry(1.0, 12, 9, 0, Math.PI*2, 0, Math.PI*0.75), domeM);
+      onion.position.set(s*4, 4.2, 2); g.add(onion);
+      const tip = new THREE.Mesh(new THREE.ConeGeometry(0.15, 0.7, 5), goldM);
+      tip.position.set(s*4, 5.4, 2); g.add(tip);
+    });
+
+    // Door arch
+    const door = new THREE.Mesh(new THREE.BoxGeometry(1.6, 2.5, 0.3), doorM);
+    door.position.set(0, 1.25, 2.55); g.add(door);
+    const arch = new THREE.Mesh(new THREE.CylinderGeometry(0.8, 0.8, 0.3, 12, 1, false, 0, Math.PI), doorM);
+    arch.position.set(0, 2.5, 2.55);
+    arch.rotation.z = Math.PI/2;
+    g.add(arch);
+
+    // Golden flag on top
+    const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.04,0.04,1.5,5), goldM);
+    pole.position.y = 8.8; g.add(pole);
+
+    g.position.set(x, y, z); scene.add(g);
+  }
+
+  // ═══════════════════════════════════════════
+  //  CONTROLS
+  // ═══════════════════════════════════════════
+  function setupControls() {
+    const zone = document.getElementById('touch-zone');
+    let dragging = false;
+    let startX = 0;
+    let startTarget = 0;
+
+    function pointerDown(e) {
+      if (!gameActive) return;
+      dragging = true;
+      startX = e.clientX ?? (e.touches && e.touches[0].clientX) ?? 0;
+      startTarget = targetX;
+      e.preventDefault();
+    }
+    function pointerMove(e) {
+      if (!dragging || !gameActive) return;
+      const x = e.clientX ?? (e.touches && e.touches[0].clientX) ?? 0;
+      const dx = x - startX;
+      // Map screen pixels to world units
+      const scale = 0.015 * Math.min(window.innerWidth, 600) / 120;
+      targetX = Math.max(-CFG.strafeMax, Math.min(CFG.strafeMax, startTarget + dx * scale));
+      e.preventDefault();
+    }
+    function pointerUp() { dragging = false; }
+
+    zone.addEventListener('pointerdown', pointerDown);
+    window.addEventListener('pointermove', pointerMove);
+    window.addEventListener('pointerup', pointerUp);
+    zone.addEventListener('touchstart', pointerDown, { passive:false });
+    window.addEventListener('touchmove', pointerMove, { passive:false });
+    window.addEventListener('touchend', pointerUp);
+
+    // Keyboard for desktop
+    window.addEventListener('keydown', e => {
+      if (!gameActive) return;
+      if (e.key === 'ArrowLeft' || e.key === 'a')  targetX = Math.max(-CFG.strafeMax, targetX - 1.2);
+      if (e.key === 'ArrowRight'|| e.key === 'd')  targetX = Math.min( CFG.strafeMax, targetX + 1.2);
+    });
+  }
+
+  // ═══════════════════════════════════════════
+  //  GAME LOOP
+  // ═══════════════════════════════════════════
+  function animate() {
+    requestAnimationFrame(animate);
+    const dt = Math.min(clock.getDelta(), 0.05);
+
+    if (gameActive) {
+      // Move forward (we move leaf in world, camera follows)
+      leafZ -= CFG.flySpeed * dt;
+      leaf.position.z = leafZ;
+
+      // Smoothly lerp actual X toward targetX
+      const cur = leaf.position.x;
+      const lerpSpeed = CFG.strafeSpeed * dt * 1.6;
+      const diff = targetX - cur;
+      const step = Math.sign(diff) * Math.min(Math.abs(diff), lerpSpeed);
+      leaf.position.x = cur + step;
+
+      // Bob and tilt
+      bobT += dt;
+      const bob = Math.sin(bobT * 2.5) * 0.15;
+      leaf.position.y = CFG.leafBaseY + bob;
+
+      // Roll banking based on movement
+      tiltRoll += (step*25 - tiltRoll) * 0.15;
+      leaf.rotation.z = THREE.MathUtils.clamp(tiltRoll, -0.5, 0.5);
+      // Slight pitch from bob
+      leaf.rotation.x = Math.sin(bobT * 2.5) * 0.08;
+
+      // Wobble recovery after banana hit
+      if (wobbleT > 0) {
+        wobbleT -= dt;
+        leaf.rotation.z += Math.sin(wobbleT * 28) * 0.35 * (wobbleT/0.8);
+        leaf.position.y += Math.sin(wobbleT * 30) * 0.3 * (wobbleT/0.8);
+      }
+
+      // Camera follows from behind
+      camera.position.set(leaf.position.x * 0.4, CFG.leafBaseY + 2.5, leaf.position.z + 7);
+      camera.lookAt(leaf.position.x * 0.5, CFG.leafBaseY + 0.5, leaf.position.z - 6);
+
+      // Animate pet monkey
+      monkeyPet.rotation.y = Math.sin(bobT*3) * 0.3;
+      monkeyPet.position.y = 0.5 + Math.sin(bobT*4)*0.05;
+
+      // Princess hair sway
+      princess.rotation.y = Math.sin(bobT*2) * 0.1;
+
+      // Animate friends
+      friendMeshes.forEach(m => {
+        if (m.userData.collected) return;
+        m.userData.t += dt * 2;
+        m.position.y = m.userData.baseY + Math.sin(m.userData.t) * 0.2;
+        m.rotation.y += dt * 1.2;
+      });
+
+      // Animate monkey boys
+      monkeyBoyMeshes.forEach(b => {
+        b.userData.t += dt * 4;
+        b.rotation.y = Math.sin(b.userData.t) * 0.3 - (b.userData.side > 0 ? 0.6 : -0.6);
+        b.position.y = Math.abs(Math.sin(b.userData.t*1.5)) * 0.1;
+      });
+
+      // Animate bananas — they circle and wobble
+      bananaMeshes.forEach(b => {
+        if (b.userData.hit) {
+          // spin off after hit
+          b.position.y -= dt * 3;
+          b.rotation.x += dt * 6;
+          b.rotation.z += dt * 4;
+          return;
+        }
+        b.userData.t += dt * 2;
+        // Oscillate across path
+        b.position.x = b.userData.baseX + Math.sin(b.userData.t) * (b.userData.baseX > 0 ? -4 : 4);
+        b.position.z = b.userData.baseZ + Math.sin(b.userData.t*0.6) * 0.8;
+        b.position.y = b.userData.baseY + Math.sin(b.userData.t*1.3) * 0.2;
+        b.rotation.y += dt * 3;
+        b.rotation.z += dt * 2;
+      });
+
+      // Collision detection — friends
+      friendMeshes.forEach(m => {
+        if (m.userData.collected) return;
+        const dx = m.position.x - leaf.position.x;
+        const dy = m.position.y - leaf.position.y;
+        const dz = m.position.z - leaf.position.z;
+        const d = Math.sqrt(dx*dx + dy*dy + dz*dz);
+        if (d < CFG.collectDist) {
+          collectFriend(m);
+        }
+      });
+
+      // Collision detection — bananas
+      bananaMeshes.forEach(b => {
+        if (b.userData.hit) return;
+        const dx = b.position.x - leaf.position.x;
+        const dy = b.position.y - leaf.position.y;
+        const dz = b.position.z - leaf.position.z;
+        const d = Math.sqrt(dx*dx + dy*dy + dz*dz);
+        if (d < CFG.bananaHit) {
+          hitBanana(b);
+        }
+      });
+
+      // Win check
+      if (leafZ <= CFG.palaceZ + 8) {
+        winGame();
+      }
+    }
+
+    renderer.render(scene, camera);
+  }
+
+  function collectFriend(m) {
+    m.userData.collected = true;
+    // fly up and fade
+    m.visible = false;
+    friendsCollected++;
+    const kind = m.userData.kind;
+    const slot = document.getElementById('slot-' + kind);
+    if (slot) slot.classList.add('got');
+    const f = document.getElementById('collect-flash');
+    f.classList.add('show');
+    setTimeout(() => f.classList.remove('show'), 400);
+    playCollect(kind);
+  }
+
+  function hitBanana(b) {
+    b.userData.hit = true;
+    wobbleT = 0.8;
+    const f = document.getElementById('wobble-flash');
+    f.classList.add('show');
+    setTimeout(() => f.classList.remove('show'), 300);
+    playBanana();
+  }
+
+  // ═══════════════════════════════════════════
+  //  FLOW
+  // ═══════════════════════════════════════════
+  function startGame() {
+    document.getElementById('start-screen').classList.add('hidden');
+    document.getElementById('hud').style.display = 'flex';
+    document.getElementById('touch-zone').style.display = 'block';
+    try { au().resume(); } catch(e) {}
+    playWhoosh();
+
+    if (!renderer) {
+      initThree();
+      buildWorld();
+      setupControls();
+      animate();
+    }
+    leafZ = 0;
+    targetX = 0;
+    friendsCollected = 0;
+    wobbleT = 0;
+    gameActive = true;
+  }
+
+  function winGame() {
+    gameActive = false;
+    document.getElementById('hud').style.display = 'none';
+    document.getElementById('touch-zone').style.display = 'none';
+    // Show only friends actually collected
+    const w = document.getElementById('win-friends');
+    const icons = friendMeshes.filter(m => m.userData.collected)
+      .map(m => m.userData.kind === 'monkey' ? '🐵'
+             : m.userData.kind === 'eagle'  ? '🦅' : '🐭');
+    w.textContent = icons.length ? icons.join('') : '🏰';
+    document.getElementById('win-screen').classList.remove('hidden');
+    playWin();
+  }
+
+  function restartGame() {
+    // Reset friends
+    friendMeshes.forEach((m, i) => {
+      const cfg = CFG.friends[i];
+      m.userData.collected = false;
+      m.visible = true;
+      m.position.set(cfg.x, cfg.y, cfg.z);
+    });
+    // Reset bananas
+    bananaMeshes.forEach((b, i) => {
+      const cfg = CFG.bananas[i];
+      b.userData.hit = false;
+      b.position.set(cfg.x, cfg.y, cfg.z);
+    });
+    document.querySelectorAll('.friend-slot').forEach(s => s.classList.remove('got'));
+    document.getElementById('win-screen').classList.add('hidden');
+    startGame();
+  }
+  </script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+{
+  "id": "013-magic-leaf",
+  "title": "Jasmine's Magic Leaf",
+  "description": "Fly the magic leaf with Princess Jasmine, dodge bananas and meet Monkey, Eagle Man and Mouse Boy!",
+  "icon": "🍃",
+  "ageMin": 2,
+  "ageMax": 5,
+  "skill": "steering, focus & friends",
+  "category": "adventure",
+  "version": "1.0.0"
+}

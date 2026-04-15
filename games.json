@@ -142,5 +142,17 @@
     "version": "1.0.0",
     "category": "colours-shapes",
     "path": "games/012-pattern-princess/index.html"
+  },
+  {
+    "id": "013-magic-leaf",
+    "title": "Jasmine's Magic Leaf",
+    "description": "Fly with Princess Jasmine, dodge bananas and meet Monkey, Eagle Man and Mouse Boy!",
+    "icon": "🍃",
+    "ageMin": 2,
+    "ageMax": 5,
+    "skill": "steering, focus & friends",
+    "version": "1.0.0",
+    "category": "adventure",
+    "path": "games/013-magic-leaf/index.html"
   }
 ]
