@@ -19,7 +19,7 @@
     "ageMin": 2,
     "ageMax": 4,
     "skill": "counting 1-5",
-    "version": "1.1.0",
+    "version": "1.0.0",
     "category": "numbers",
     "path": "games/002-counting-crowns/index.html"
   },
@@ -132,27 +132,15 @@
     "path": "games/011-princess-quest/index.html"
   },
   {
-    "id": "012-pattern-princess",
-    "title": "Pattern Princess",
-    "description": "Spot what comes next in the princess's magical pattern",
-    "icon": "🌸",
-    "ageMin": 3,
-    "ageMax": 5,
-    "skill": "pattern recognition",
-    "version": "1.0.0",
-    "category": "colours-shapes",
-    "path": "games/012-pattern-princess/index.html"
-  },
-  {
     "id": "013-magic-leaf",
     "title": "Jasmine's Magic Leaf",
-    "description": "Fly with Princess Jasmine, dodge bananas and meet Monkey, Eagle Man and Mouse Boy!",
+    "description": "Fly the magic leaf with Princess Jasmine, dodge bananas and meet Monkey, Eagle Man and Mouse Boy!",
     "icon": "🍃",
     "ageMin": 2,
     "ageMax": 5,
     "skill": "steering, focus & friends",
-    "version": "1.0.0",
     "category": "adventure",
+    "version": "1.0.0",
     "path": "games/013-magic-leaf/index.html"
   }
 ]
