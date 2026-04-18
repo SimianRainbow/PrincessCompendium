@@ -63,6 +63,7 @@ After any change to a game file, bump its `version` in `games.json` (semver: `1.
 | 011-princess-quest | Princess Quest 🏰 | 3D adventure & steering | 1.0.0 |
 | 012-pattern-princess | Pattern Princess 🌸 | pattern recognition (ABAB/AABB) | 1.0.0 |
 | 013-magic-leaf | Magic Leaf 🍃 | 3D flying & steering | 1.0.0 |
+| 014-mermaid-lagoon | Mermaid Lagoon 🧜‍♀️ | 3D free-roam swimming & exploration | 1.1.0 |
 
 ## Skills still not covered (priority order)
 
@@ -87,4 +88,4 @@ git commit -m "feat/fix/chore: <what changed>"
 git push origin main
 ```
 
-The next sequential game ID is `014-<slug>`.
+The next sequential game ID is `015-<slug>`.

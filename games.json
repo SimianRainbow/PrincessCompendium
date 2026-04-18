@@ -142,5 +142,17 @@
     "category": "adventure",
     "version": "1.0.0",
     "path": "games/013-magic-leaf/index.html"
+  },
+  {
+    "id": "014-mermaid-lagoon",
+    "title": "Mermaid Lagoon",
+    "description": "Swim freely with Ariel through a 3D underwater wonderland — meet Rapunzel on her tower, a twirling mermaid friend, the happy sun & the princess in a clamshell!",
+    "icon": "🧜‍♀️",
+    "ageMin": 2,
+    "ageMax": 5,
+    "skill": "free-roam steering & exploration",
+    "category": "adventure",
+    "version": "1.1.0",
+    "path": "games/014-mermaid-lagoon/index.html"
   }
 ]
