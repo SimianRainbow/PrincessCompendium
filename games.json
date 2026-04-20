@@ -154,5 +154,29 @@
     "category": "adventure",
     "version": "1.1.0",
     "path": "games/014-mermaid-lagoon/index.html"
+  },
+  {
+    "id": "015-mermaid-lagoon-v2",
+    "title": "Mermaid Lagoon · Painted",
+    "description": "Same lagoon, painted edition — hand-drawn animated Ariel, Rapunzel, friends, fish and seahorses.",
+    "icon": "🎨",
+    "ageMin": 2,
+    "ageMax": 5,
+    "skill": "free-roam steering & exploration",
+    "category": "adventure",
+    "version": "1.0.0",
+    "path": "games/015-mermaid-lagoon-v2/index.html"
+  },
+  {
+    "id": "016-mermaid-lagoon-pixel",
+    "title": "Mermaid Lagoon · Pixel",
+    "description": "Top-down pixel-art lagoon with undersea chiptune — tap anywhere and Ariel swims there! Collect pearls and find all four friends.",
+    "icon": "👾",
+    "ageMin": 2,
+    "ageMax": 5,
+    "skill": "click-and-go navigation",
+    "category": "adventure",
+    "version": "1.2.0",
+    "path": "games/016-mermaid-lagoon-pixel/index.html"
   }
 ]

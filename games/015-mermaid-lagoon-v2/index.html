@@ -1,0 +1,2770 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Mermaid Lagoon · Painted 🎨</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+    body { background:#001a3a; overflow:hidden; touch-action:none; font-family:Georgia,serif; }
+    canvas { display:block; }
+
+    .screen {
+      position:fixed; inset:0; display:flex; flex-direction:column;
+      align-items:center; justify-content:center; gap:clamp(12px,3vw,22px);
+      z-index:20;
+    }
+    .screen.hidden { display:none; }
+
+    #start-screen {
+      background:
+        radial-gradient(ellipse at 50% 28%, #81d4fa 0%, #29b6f6 25%, #0288d1 55%, #01579b 80%, #002850 100%);
+    }
+    #start-art {
+      width:clamp(200px,55vw,340px); height:clamp(220px,60vw,360px);
+      filter:drop-shadow(0 14px 22px rgba(0,0,0,.45));
+      animation:bob 3s ease-in-out infinite;
+    }
+    @keyframes bob { 0%,100%{transform:translateY(0) rotate(-4deg)} 50%{transform:translateY(-18px) rotate(4deg)} }
+    #start-title {
+      font-size:clamp(30px,8.5vw,62px); color:#fff;
+      text-shadow:
+        0 0 24px rgba(255,180,220,.9),
+        0 0 40px rgba(200,240,255,.6),
+        0 3px 10px rgba(0,0,0,.5);
+      text-align:center; padding:0 16px;
+      letter-spacing:1px;
+    }
+    #start-sub {
+      font-size:clamp(14px,3.6vw,22px); color:rgba(255,255,255,.92);
+      text-align:center; padding:0 16px; max-width:92vw;
+      text-shadow:0 2px 6px rgba(0,0,0,.5);
+    }
+    #start-tag {
+      font-size:clamp(12px,3vw,18px); color:#ffe0f0;
+      background:rgba(0,0,0,.28); padding:5px 14px; border-radius:20px;
+      letter-spacing:1.5px; text-transform:uppercase;
+    }
+    #start-btn {
+      padding:clamp(14px,4vw,22px) clamp(40px,10vw,72px);
+      font-size:clamp(20px,5.5vw,32px); border-radius:50px; border:none;
+      background:linear-gradient(135deg,#ff80ab,#f06292,#ec407a); color:#5a1030;
+      font-weight:bold; cursor:pointer; font-family:inherit;
+      box-shadow:0 6px 24px rgba(255,128,171,.65);
+      animation:btnPulse 1.8s ease-in-out infinite;
+    }
+    @keyframes btnPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.08)} }
+
+    .start-bubble {
+      position:absolute; border-radius:50%;
+      background:radial-gradient(circle at 35% 30%, rgba(255,255,255,.9), rgba(200,240,255,.2) 60%, rgba(180,220,255,0) 90%);
+      pointer-events:none;
+      animation:riseBubble 8s linear infinite;
+    }
+    @keyframes riseBubble {
+      0%   { transform:translateY(10vh) scale(.4); opacity:0; }
+      10%  { opacity:.9; }
+      90%  { opacity:.6; }
+      100% { transform:translateY(-110vh) scale(1.1); opacity:0; }
+    }
+
+    #hud {
+      position:fixed; top:0; left:0; right:0; z-index:10;
+      display:flex; justify-content:center; align-items:center;
+      padding:clamp(8px,2vw,16px);
+      pointer-events:none; gap:clamp(10px,3vw,18px);
+    }
+    .friend-slot {
+      font-size:clamp(30px,8vw,46px);
+      filter:grayscale(1) brightness(.5);
+      transition:filter .3s ease, transform .4s ease, background .3s ease, border-color .3s ease;
+      text-shadow:0 2px 8px rgba(0,0,0,.5);
+      background:rgba(255,255,255,.12);
+      border-radius:50%;
+      width:clamp(54px,13vw,76px);
+      height:clamp(54px,13vw,76px);
+      display:flex; align-items:center; justify-content:center;
+      border:3px solid rgba(255,255,255,.25);
+      backdrop-filter:blur(4px);
+    }
+    .friend-slot.near {
+      filter:grayscale(.4) brightness(.85);
+      border-color:rgba(255,215,100,.7);
+      box-shadow:0 0 18px rgba(255,215,100,.55);
+      animation:nearPulse 1.1s ease-in-out infinite;
+    }
+    @keyframes nearPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.12)} }
+    .friend-slot.got {
+      filter:none;
+      background:rgba(255,255,255,.3);
+      border-color:#fff0b3;
+      box-shadow:0 0 22px rgba(255,240,180,.8);
+      animation:pop .75s ease;
+    }
+    @keyframes pop { 0%{transform:scale(1)} 30%{transform:scale(1.8)} 60%{transform:scale(.92)} 100%{transform:scale(1)} }
+
+    #pearl-counter {
+      position:fixed; top:clamp(70px,18vw,100px); right:clamp(10px,3vw,18px); z-index:10;
+      font-size:clamp(20px,5.5vw,30px); color:#fff;
+      text-shadow:0 0 10px rgba(255,240,255,.8), 0 2px 5px rgba(0,0,0,.5);
+      pointer-events:none;
+      background:rgba(0,0,0,.25);
+      padding:4px 14px; border-radius:22px;
+      backdrop-filter:blur(4px);
+    }
+
+    .steer-btn {
+      position:fixed; bottom:clamp(18px,5vw,34px);
+      width:clamp(118px,26vw,158px); height:clamp(118px,26vw,158px);
+      border-radius:50%; border:5px solid rgba(255,255,255,.75);
+      background:radial-gradient(circle at 35% 35%, rgba(255,255,255,.5), rgba(255,128,171,.6) 55%, rgba(236,64,122,.75));
+      color:#fff; font-size:clamp(54px,13vw,82px);
+      display:flex; align-items:center; justify-content:center;
+      cursor:pointer; user-select:none; z-index:15;
+      box-shadow:0 8px 22px rgba(0,0,0,.4), inset 0 -5px 9px rgba(0,0,0,.22);
+      font-family:Arial, sans-serif; font-weight:bold;
+      transition:transform .08s ease, background .15s ease, box-shadow .15s ease;
+    }
+    .steer-btn.pressed {
+      transform:scale(.92);
+      background:radial-gradient(circle at 35% 35%, rgba(255,255,255,.8), rgba(255,215,0,.9) 55%, rgba(255,140,0,.95));
+      box-shadow:0 4px 14px rgba(255,180,0,.6), inset 0 -4px 6px rgba(0,0,0,.2);
+    }
+    #steer-left  { left:clamp(14px,4vw,26px); }
+    #steer-right { right:clamp(14px,4vw,26px); }
+
+    #twirl-btn {
+      position:fixed; bottom:clamp(22px,5.5vw,38px);
+      left:50%; transform:translateX(-50%);
+      width:clamp(82px,18vw,110px); height:clamp(82px,18vw,110px);
+      border-radius:50%; border:4px solid rgba(255,255,255,.75);
+      background:radial-gradient(circle at 35% 35%, rgba(255,255,255,.55), rgba(186,104,200,.65) 55%, rgba(123,31,162,.85));
+      color:#fff; font-size:clamp(36px,9vw,54px);
+      display:flex; align-items:center; justify-content:center;
+      cursor:pointer; user-select:none; z-index:15;
+      box-shadow:0 6px 18px rgba(0,0,0,.35), inset 0 -4px 7px rgba(0,0,0,.2);
+      animation:twirlPulse 2.4s ease-in-out infinite;
+    }
+    @keyframes twirlPulse { 0%,100%{box-shadow:0 6px 18px rgba(0,0,0,.35), inset 0 -4px 7px rgba(0,0,0,.2), 0 0 0 0 rgba(186,104,200,.5)} 50%{box-shadow:0 6px 18px rgba(0,0,0,.35), inset 0 -4px 7px rgba(0,0,0,.2), 0 0 28px 6px rgba(186,104,200,.35)} }
+    #twirl-btn.pressed { transform:translateX(-50%) scale(.9); }
+
+    #hint {
+      position:fixed; bottom:clamp(160px,36vw,230px); left:0; right:0;
+      text-align:center; color:rgba(255,255,255,.85);
+      font-size:clamp(15px,4vw,22px); z-index:10; pointer-events:none;
+      text-shadow:0 2px 6px rgba(0,0,0,.6);
+      animation:hintFade 7s ease-in-out 5s forwards;
+    }
+    @keyframes hintFade { to{opacity:0} }
+
+    #find-flash {
+      position:fixed; inset:0; pointer-events:none; z-index:8;
+      background:radial-gradient(circle, rgba(255,220,120,.6) 0%, rgba(255,220,120,0) 60%);
+      opacity:0; transition:opacity .35s ease;
+    }
+    #find-flash.show { opacity:1; }
+    #pearl-flash {
+      position:fixed; inset:0; pointer-events:none; z-index:8;
+      background:radial-gradient(circle, rgba(255,255,255,.4) 0%, rgba(255,255,255,0) 55%);
+      opacity:0; transition:opacity .2s ease;
+    }
+    #pearl-flash.show { opacity:1; }
+
+    #friend-banner {
+      position:fixed; top:40%; left:50%; transform:translate(-50%,-50%) scale(.6);
+      font-size:clamp(30px,8vw,58px); color:#fff;
+      text-shadow:0 0 20px rgba(255,230,180,1), 0 3px 12px rgba(0,0,0,.6);
+      pointer-events:none; z-index:12; opacity:0;
+      font-weight:bold; text-align:center; padding:0 16px;
+      transition:opacity .25s ease, transform .45s cubic-bezier(.2,1.4,.4,1);
+    }
+    #friend-banner.show { opacity:1; transform:translate(-50%,-50%) scale(1); }
+
+    #vignette {
+      position:fixed; inset:0; pointer-events:none; z-index:6;
+      background:
+        radial-gradient(ellipse at 50% 55%, transparent 45%, rgba(0,30,70,.4) 85%, rgba(0,10,40,.7) 100%);
+    }
+
+    #win-screen {
+      background:
+        radial-gradient(ellipse at 50% 28%, #ffe0ee 0%, #ff80ab 35%, #c2185b 72%, #3a0020 100%);
+    }
+    #win-title {
+      font-size:clamp(26px,7vw,54px); color:#fff8dc;
+      text-shadow:0 0 24px rgba(255,230,180,.9), 0 3px 10px rgba(0,0,0,.5);
+      text-align:center; padding:0 16px;
+    }
+    #win-friends { font-size:clamp(44px,12vw,84px); letter-spacing:6px; animation:wiggle 1.8s ease-in-out infinite; }
+    @keyframes wiggle { 0%,100%{transform:rotate(-4deg)} 50%{transform:rotate(4deg)} }
+    #play-again-btn {
+      padding:clamp(14px,4vw,22px) clamp(40px,10vw,72px);
+      font-size:clamp(18px,5vw,28px); border-radius:50px; border:none;
+      background:linear-gradient(135deg,#ffd700,#ff8c00); color:#5d2e00;
+      font-weight:bold; cursor:pointer; font-family:inherit;
+      box-shadow:0 6px 24px rgba(255,180,0,.5);
+    }
+
+    .confetti-piece {
+      position:fixed; pointer-events:none; z-index:25;
+      animation:confettiFall linear forwards;
+    }
+    @keyframes confettiFall { 0%{top:-20px;opacity:1} 100%{top:110vh;opacity:0} }
+
+    #back-btn {
+      position:fixed; top:10px; left:10px; z-index:25;
+      background:rgba(0,0,0,.35); color:#fff; border:none; border-radius:50%;
+      width:44px; height:44px; font-size:22px; cursor:pointer;
+    }
+  </style>
+</head>
+<body>
+  <button id="back-btn" onclick="history.length>1?history.back():window.close()">←</button>
+
+  <div id="start-screen" class="screen">
+    <div id="start-tag">Painted Edition</div>
+    <canvas id="start-art" width="340" height="360"></canvas>
+    <div id="start-title">Mermaid Lagoon</div>
+    <div id="start-sub">Swim free with Ariel — meet Rapunzel, a mermaid friend, the happy sun &amp; the princess girl!</div>
+    <button id="start-btn" onclick="startGame()">Swim ▶</button>
+  </div>
+
+  <div id="hud" style="display:none">
+    <div class="friend-slot" id="slot-rapunzel">👸</div>
+    <div class="friend-slot" id="slot-mermaid">🧜‍♀️</div>
+    <div class="friend-slot" id="slot-happy">😊</div>
+    <div class="friend-slot" id="slot-girl">👧</div>
+  </div>
+  <div id="pearl-counter" style="display:none">🫧 0</div>
+
+  <div id="hint" style="display:none">Hold ◀ or ▶ to steer · Tap ✨ to twirl</div>
+
+  <button id="steer-left"  class="steer-btn" style="display:none">◀</button>
+  <button id="steer-right" class="steer-btn" style="display:none">▶</button>
+  <button id="twirl-btn"   style="display:none">✨</button>
+
+  <div id="find-flash"></div>
+  <div id="pearl-flash"></div>
+  <div id="friend-banner"></div>
+  <div id="vignette"></div>
+
+  <div id="win-screen" class="screen hidden">
+    <div id="win-title">You found all your friends!</div>
+    <div id="win-friends">👸🧜‍♀️😊👧</div>
+    <button id="play-again-btn" onclick="restartGame()">Swim Again 🔄</button>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script>
+  // ═══════════════════════════════════════════════════════════════════════
+  //  SPRITE / DRAWING UTILITIES
+  //  Every character is painted on a <canvas>, frame-animated, and used
+  //  as a CanvasTexture on a billboarded plane in the 3D world.
+  // ═══════════════════════════════════════════════════════════════════════
+  function makeCanvas(w, h) {
+    const c = document.createElement('canvas');
+    c.width = w; c.height = h;
+    return c;
+  }
+  function texFromDraw(w, h, drawFn) {
+    const c = makeCanvas(w, h);
+    drawFn(c.getContext('2d'), w, h);
+    const tex = new THREE.CanvasTexture(c);
+    tex.minFilter = THREE.LinearFilter;
+    tex.magFilter = THREE.LinearFilter;
+    tex.anisotropy = 4;
+    return tex;
+  }
+  function makeFrames(w, h, count, drawFn) {
+    const frames = [];
+    for (let i=0; i<count; i++) {
+      frames.push(texFromDraw(w, h, (ctx, W, H) => drawFn(ctx, W, H, i, count)));
+    }
+    return frames;
+  }
+  function makeSpritePlane(worldW, worldH, frames) {
+    const mat = new THREE.MeshBasicMaterial({
+      map: frames[0], transparent: true, side: THREE.DoubleSide,
+      alphaTest: 0.02, depthWrite: false,
+    });
+    const mesh = new THREE.Mesh(new THREE.PlaneGeometry(worldW, worldH), mat);
+    mesh.userData.frames = frames;
+    mesh.userData.frameIdx = 0;
+    return mesh;
+  }
+  function setFrame(mesh, idx) {
+    const f = mesh.userData.frames;
+    const i = ((idx % f.length) + f.length) % f.length;
+    if (i !== mesh.userData.frameIdx) {
+      mesh.userData.frameIdx = i;
+      mesh.material.map = f[i];
+    }
+  }
+  function billboardY(mesh, camPos) {
+    mesh.rotation.y = Math.atan2(camPos.x - mesh.position.x, camPos.z - mesh.position.z);
+  }
+
+  // Nice painterly helpers ---------------------------------------------------
+  function rounded(ctx, x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x+r, y);
+    ctx.arcTo(x+w, y,   x+w, y+h, r);
+    ctx.arcTo(x+w, y+h, x,   y+h, r);
+    ctx.arcTo(x,   y+h, x,   y,   r);
+    ctx.arcTo(x,   y,   x+w, y,   r);
+    ctx.closePath();
+  }
+  function circle(ctx, x, y, r) { ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI*2); ctx.fill(); }
+  function strokeCircle(ctx, x, y, r) { ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI*2); ctx.stroke(); }
+
+  // ═══════════════════════════════════════════════════════════════════════
+  //  CHARACTER DRAWINGS — each is a pure function(ctx, W, H, frame, total)
+  //  Drawn at generous resolution so they stay crisp when zoomed.
+  // ═══════════════════════════════════════════════════════════════════════
+
+  // ── ARIEL (player, back view) ──
+  function drawAriel(ctx, W, H, fr, total) {
+    ctx.clearRect(0,0,W,H);
+    const cx = W/2;
+    const ph = (fr / total) * Math.PI * 2;
+    const swish = Math.sin(ph) * 0.35;
+    const armSw = Math.sin(ph) * 0.25;
+
+    // ── Hair back halo (massive, flowing) ──
+    ctx.save();
+    const hairGrad = ctx.createLinearGradient(cx, 80, cx, 650);
+    hairGrad.addColorStop(0, '#b71c1c');
+    hairGrad.addColorStop(0.4, '#e53935');
+    hairGrad.addColorStop(1, '#ff7043');
+    ctx.fillStyle = hairGrad;
+    // Large back fan
+    ctx.beginPath();
+    ctx.moveTo(cx - 170, 210);
+    ctx.quadraticCurveTo(cx - 230, 430, cx - 120, 620);
+    ctx.quadraticCurveTo(cx, 660, cx + 120, 620);
+    ctx.quadraticCurveTo(cx + 230, 430, cx + 170, 210);
+    ctx.quadraticCurveTo(cx, 160, cx - 170, 210);
+    ctx.closePath();
+    ctx.fill();
+    // Strand wiggle
+    for (let i=-5; i<=5; i++) {
+      const x0 = cx + i * 26;
+      const wx = Math.sin(ph + i*0.5) * 14;
+      ctx.beginPath();
+      ctx.moveTo(x0 - 10, 220);
+      ctx.quadraticCurveTo(x0 + wx - 5, 420, x0 + wx + 4, 600);
+      ctx.quadraticCurveTo(x0 + wx + 14, 620, x0 + wx + 24, 600);
+      ctx.quadraticCurveTo(x0 + wx + 15, 420, x0 + 10, 220);
+      ctx.closePath();
+      ctx.fill();
+    }
+    // Shine streaks
+    ctx.globalAlpha = 0.35;
+    ctx.fillStyle = '#ffab91';
+    for (let i=-3; i<=3; i++) {
+      const x0 = cx + i * 30 + Math.sin(ph + i)*8;
+      ctx.beginPath();
+      ctx.ellipse(x0, 380 + i*15, 6, 160, 0, 0, Math.PI*2);
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+    ctx.restore();
+
+    // ── Head (back) ──
+    ctx.fillStyle = '#ffd9b8';
+    circle(ctx, cx, 180, 78);
+    // Hair cap on top
+    ctx.fillStyle = '#c62828';
+    ctx.beginPath();
+    ctx.ellipse(cx, 150, 88, 80, 0, Math.PI, Math.PI*2);
+    ctx.fill();
+    // Tiny ear peek
+    ctx.fillStyle = '#ffc49b';
+    circle(ctx, cx - 75, 185, 12);
+    circle(ctx, cx + 75, 185, 12);
+
+    // ── Shoulders & torso back ──
+    ctx.fillStyle = '#ffd9b8';
+    // Neck
+    rounded(ctx, cx - 22, 245, 44, 32, 12); ctx.fill();
+    // Back of torso (skin)
+    ctx.beginPath();
+    ctx.moveTo(cx - 95, 275);
+    ctx.quadraticCurveTo(cx - 110, 360, cx - 80, 450);
+    ctx.quadraticCurveTo(cx, 475, cx + 80, 450);
+    ctx.quadraticCurveTo(cx + 110, 360, cx + 95, 275);
+    ctx.quadraticCurveTo(cx, 260, cx - 95, 275);
+    ctx.closePath();
+    ctx.fill();
+    // Shell bra strap (pink ribbon across back)
+    ctx.strokeStyle = '#d81b60';
+    ctx.lineWidth = 10;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(cx - 70, 300);
+    ctx.quadraticCurveTo(cx, 290, cx + 70, 300);
+    ctx.stroke();
+    // Bow knot at center back
+    ctx.fillStyle = '#ec407a';
+    circle(ctx, cx, 302, 10);
+    ctx.fillStyle = '#f8bbd0';
+    circle(ctx, cx - 2, 299, 4);
+
+    // ── Arms ──
+    for (const side of [-1, 1]) {
+      ctx.save();
+      ctx.translate(cx + side*90, 300);
+      ctx.rotate(side * (0.35 + armSw));
+      ctx.fillStyle = '#ffd9b8';
+      rounded(ctx, -18, 0, 36, 110, 16); ctx.fill();
+      // Hand
+      circle(ctx, 0, 118, 22);
+      ctx.restore();
+    }
+
+    // ── Tail (multi-curve, scaled) ──
+    const tailBase = 460, tailTip = 780;
+    const midX = cx + swish * 55;
+    const tipX = cx + swish * 115;
+    ctx.save();
+    const tailGrad = ctx.createLinearGradient(cx, tailBase, cx, tailTip);
+    tailGrad.addColorStop(0, '#00695c');
+    tailGrad.addColorStop(0.4, '#1de9b6');
+    tailGrad.addColorStop(1, '#84ffff');
+    ctx.fillStyle = tailGrad;
+    ctx.beginPath();
+    ctx.moveTo(cx - 80, tailBase);
+    ctx.quadraticCurveTo(midX - 65, 600, tipX - 30, tailTip - 20);
+    ctx.lineTo(tipX + 30, tailTip - 20);
+    ctx.quadraticCurveTo(midX + 65, 600, cx + 80, tailBase);
+    ctx.quadraticCurveTo(cx, 445, cx - 80, tailBase);
+    ctx.closePath();
+    ctx.fill();
+    // Scale pattern
+    ctx.strokeStyle = 'rgba(0, 77, 64, 0.5)';
+    ctx.lineWidth = 2.5;
+    for (let row=0; row<10; row++) {
+      const y = tailBase + 18 + row*30;
+      const rowLerp = row / 10;
+      const offX = swish * rowLerp * 80;
+      for (let col=-3; col<=3; col++) {
+        const sx = cx + col*22 + offX;
+        ctx.beginPath();
+        ctx.arc(sx, y, 12, 0, Math.PI);
+        ctx.stroke();
+      }
+    }
+    // Highlights on tail
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.22)';
+    ctx.beginPath();
+    ctx.ellipse(midX + 10, 570, 14, 70, -0.1, 0, Math.PI*2);
+    ctx.fill();
+    ctx.restore();
+
+    // ── Tail fin (two big fans) ──
+    ctx.save();
+    const finGrad = ctx.createRadialGradient(tipX, tailTip+20, 10, tipX, tailTip+20, 180);
+    finGrad.addColorStop(0, '#b2ebf2');
+    finGrad.addColorStop(0.6, '#4dd0e1');
+    finGrad.addColorStop(1, 'rgba(77, 208, 225, 0.3)');
+    ctx.fillStyle = finGrad;
+    ctx.globalAlpha = 0.95;
+    // Left fan
+    ctx.beginPath();
+    ctx.moveTo(tipX, tailTip - 10);
+    ctx.quadraticCurveTo(tipX - 140, tailTip - 30, tipX - 110, tailTip + 70);
+    ctx.quadraticCurveTo(tipX - 80, tailTip + 50, tipX - 50, tailTip + 40);
+    ctx.quadraticCurveTo(tipX - 20, tailTip + 20, tipX, tailTip - 10);
+    ctx.fill();
+    // Right fan
+    ctx.beginPath();
+    ctx.moveTo(tipX, tailTip - 10);
+    ctx.quadraticCurveTo(tipX + 140, tailTip - 30, tipX + 110, tailTip + 70);
+    ctx.quadraticCurveTo(tipX + 80, tailTip + 50, tipX + 50, tailTip + 40);
+    ctx.quadraticCurveTo(tipX + 20, tailTip + 20, tipX, tailTip - 10);
+    ctx.fill();
+    // Fin vein lines
+    ctx.strokeStyle = 'rgba(0, 151, 167, 0.6)';
+    ctx.lineWidth = 2;
+    for (let s=-1; s<=1; s+=2) {
+      for (let i=1; i<=4; i++) {
+        ctx.beginPath();
+        ctx.moveTo(tipX, tailTip - 5);
+        ctx.quadraticCurveTo(tipX + s*(i*25), tailTip + 15, tipX + s*(i*28), tailTip + 60);
+        ctx.stroke();
+      }
+    }
+    // Shimmer dots
+    ctx.globalAlpha = 0.95;
+    ctx.fillStyle = '#fff59d';
+    for (let i=0; i<8; i++) {
+      const sx = tipX + (i<4 ? -1 : 1) * (20 + (i%4)*20);
+      const sy = tailTip + 15 + (i%3)*18;
+      circle(ctx, sx, sy, 4);
+    }
+    ctx.restore();
+  }
+
+  // ── RAPUNZEL (front view) ──
+  function drawRapunzel(ctx, W, H, fr, total) {
+    ctx.clearRect(0,0,W,H);
+    const cx = W/2;
+    const ph = (fr / total) * Math.PI * 2;
+    const sway = Math.sin(ph) * 12;
+
+    // Massive golden hair backdrop
+    ctx.save();
+    const hairGrad = ctx.createLinearGradient(cx, 100, cx, 780);
+    hairGrad.addColorStop(0, '#fff176');
+    hairGrad.addColorStop(0.4, '#ffd54f');
+    hairGrad.addColorStop(1, '#ffb300');
+    ctx.fillStyle = hairGrad;
+    ctx.beginPath();
+    ctx.moveTo(cx - 190, 190);
+    ctx.quadraticCurveTo(cx - 250 + sway, 450, cx - 160, 760);
+    ctx.quadraticCurveTo(cx, 790, cx + 160, 760);
+    ctx.quadraticCurveTo(cx + 250 - sway, 450, cx + 190, 190);
+    ctx.quadraticCurveTo(cx, 140, cx - 190, 190);
+    ctx.closePath();
+    ctx.fill();
+    // Hair strands
+    ctx.strokeStyle = 'rgba(255,179,0,0.55)';
+    ctx.lineWidth = 2.5;
+    for (let i=-6; i<=6; i++) {
+      const x0 = cx + i*26;
+      const wx = Math.sin(ph + i*0.5) * 10;
+      ctx.beginPath();
+      ctx.moveTo(x0, 220);
+      ctx.quadraticCurveTo(x0 + wx, 450, x0 + wx, 740);
+      ctx.stroke();
+    }
+    ctx.restore();
+
+    // ── Dress ──
+    ctx.save();
+    const dressGrad = ctx.createLinearGradient(cx, 380, cx, 750);
+    dressGrad.addColorStop(0, '#ce93d8');
+    dressGrad.addColorStop(1, '#6a1b9a');
+    ctx.fillStyle = dressGrad;
+    ctx.beginPath();
+    ctx.moveTo(cx - 60, 370);
+    ctx.lineTo(cx - 200, 740);
+    ctx.quadraticCurveTo(cx, 770, cx + 200, 740);
+    ctx.lineTo(cx + 60, 370);
+    ctx.quadraticCurveTo(cx, 390, cx - 60, 370);
+    ctx.closePath();
+    ctx.fill();
+    // Dress sash
+    ctx.fillStyle = '#e91e63';
+    rounded(ctx, cx - 75, 400, 150, 30, 6); ctx.fill();
+    // Sparkle details on skirt
+    ctx.fillStyle = '#fff59d';
+    for (let i=0; i<14; i++) {
+      const a = Math.random() < 0.5 ? -1 : 1;
+      circle(ctx, cx + a * (20 + Math.random()*160), 500 + Math.random()*230, 3 + Math.random()*3);
+    }
+    ctx.restore();
+
+    // ── Torso (skin) ──
+    ctx.fillStyle = '#ffd9b8';
+    rounded(ctx, cx - 55, 300, 110, 100, 24); ctx.fill();
+    // Sleeves (puffed purple)
+    ctx.fillStyle = '#ba68c8';
+    circle(ctx, cx - 70, 310, 30);
+    circle(ctx, cx + 70, 310, 30);
+    // Arms
+    ctx.fillStyle = '#ffd9b8';
+    ctx.save();
+    ctx.translate(cx - 82, 340); ctx.rotate(-0.35);
+    rounded(ctx, -16, 0, 32, 85, 12); ctx.fill();
+    circle(ctx, 0, 92, 20);
+    ctx.restore();
+    ctx.save();
+    ctx.translate(cx + 82, 340); ctx.rotate(0.35);
+    rounded(ctx, -16, 0, 32, 85, 12); ctx.fill();
+    circle(ctx, 0, 92, 20);
+    ctx.restore();
+
+    // ── Head ──
+    ctx.fillStyle = '#ffd9b8';
+    circle(ctx, cx, 230, 78);
+    // Bangs
+    ctx.fillStyle = '#ffd54f';
+    ctx.beginPath();
+    ctx.moveTo(cx - 80, 220);
+    ctx.quadraticCurveTo(cx, 150, cx + 80, 220);
+    ctx.quadraticCurveTo(cx + 75, 195, cx + 30, 195);
+    ctx.quadraticCurveTo(cx, 185, cx - 30, 195);
+    ctx.quadraticCurveTo(cx - 75, 195, cx - 80, 220);
+    ctx.fill();
+    // Eyes (large anime-style)
+    // Whites
+    ctx.fillStyle = '#fff';
+    circle(ctx, cx - 28, 240, 16);
+    circle(ctx, cx + 28, 240, 16);
+    // Iris blue
+    ctx.fillStyle = '#29b6f6';
+    circle(ctx, cx - 28, 242, 12);
+    circle(ctx, cx + 28, 242, 12);
+    // Pupils
+    ctx.fillStyle = '#0d47a1';
+    circle(ctx, cx - 28, 242, 7);
+    circle(ctx, cx + 28, 242, 7);
+    // Eye sparkle
+    ctx.fillStyle = '#fff';
+    circle(ctx, cx - 25, 238, 3.5);
+    circle(ctx, cx + 31, 238, 3.5);
+    // Lashes
+    ctx.strokeStyle = '#3e2723';
+    ctx.lineWidth = 3;
+    ctx.lineCap = 'round';
+    for (const sx of [-28, 28]) {
+      ctx.beginPath();
+      ctx.moveTo(cx + sx - 15, 228);
+      ctx.quadraticCurveTo(cx + sx, 220, cx + sx + 15, 228);
+      ctx.stroke();
+    }
+    // Cheeks
+    ctx.fillStyle = 'rgba(255,138,128,0.7)';
+    circle(ctx, cx - 45, 265, 10);
+    circle(ctx, cx + 45, 265, 10);
+    // Smile
+    ctx.strokeStyle = '#d81b60';
+    ctx.lineWidth = 4;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.arc(cx, 275, 14, 0.2, Math.PI - 0.2);
+    ctx.stroke();
+    // Tiny nose
+    ctx.fillStyle = '#f8bbd0';
+    circle(ctx, cx, 260, 4);
+
+    // ── Flower crown ──
+    const crownFlowers = [
+      {a:-70, c:'#ec407a'},{a:-40,c:'#f48fb1'},{a:-10,c:'#ffeb3b'},
+      {a: 20, c:'#ec407a'},{a: 50,c:'#f48fb1'},{a: 80,c:'#ffeb3b'},
+    ];
+    for (const fl of crownFlowers) {
+      const fx = cx + fl.a;
+      const fy = 175 + Math.abs(fl.a)*0.08;
+      ctx.fillStyle = fl.c;
+      for (let k=0; k<5; k++) {
+        const a = (k/5)*Math.PI*2;
+        circle(ctx, fx + Math.cos(a)*8, fy + Math.sin(a)*8, 8);
+      }
+      ctx.fillStyle = '#fff';
+      circle(ctx, fx, fy, 5);
+      ctx.fillStyle = '#ffd740';
+      circle(ctx, fx, fy, 3);
+    }
+
+    // ── Sparkle aura (animated) ──
+    ctx.save();
+    for (let i=0; i<6; i++) {
+      const a = ph + (i/6)*Math.PI*2;
+      const rx = cx + Math.cos(a) * 220;
+      const ry = 400 + Math.sin(a*1.3) * 200;
+      ctx.fillStyle = 'rgba(255, 245, 157, 0.85)';
+      circle(ctx, rx, ry, 5);
+      ctx.fillStyle = 'rgba(255, 245, 157, 0.3)';
+      circle(ctx, rx, ry, 14);
+    }
+    ctx.restore();
+  }
+
+  // ── MERMAID FRIEND (front, purple/blue) ──
+  function drawMermaidFriend(ctx, W, H, fr, total) {
+    ctx.clearRect(0,0,W,H);
+    const cx = W/2;
+    const ph = (fr / total) * Math.PI * 2;
+    const tailSw = Math.sin(ph) * 20;
+    const hairSw = Math.sin(ph + 0.6) * 10;
+
+    // Blue hair back
+    ctx.save();
+    const hairGrad = ctx.createLinearGradient(cx, 100, cx, 480);
+    hairGrad.addColorStop(0, '#1976d2');
+    hairGrad.addColorStop(1, '#64b5f6');
+    ctx.fillStyle = hairGrad;
+    ctx.beginPath();
+    ctx.moveTo(cx - 150, 200);
+    ctx.quadraticCurveTo(cx - 200 + hairSw, 380, cx - 110, 480);
+    ctx.quadraticCurveTo(cx, 490, cx + 110, 480);
+    ctx.quadraticCurveTo(cx + 200 - hairSw, 380, cx + 150, 200);
+    ctx.quadraticCurveTo(cx, 150, cx - 150, 200);
+    ctx.closePath();
+    ctx.fill();
+    // Hair sheen lines
+    ctx.strokeStyle = 'rgba(144,202,249,0.6)';
+    ctx.lineWidth = 2;
+    for (let i=-4; i<=4; i++) {
+      const x0 = cx + i*24;
+      const wx = Math.sin(ph + i*0.4)*8;
+      ctx.beginPath();
+      ctx.moveTo(x0, 220);
+      ctx.quadraticCurveTo(x0 + wx, 350, x0 + wx, 465);
+      ctx.stroke();
+    }
+    ctx.restore();
+
+    // ── Tail (purple) ──
+    ctx.save();
+    const tailGrad = ctx.createLinearGradient(cx, 460, cx, 760);
+    tailGrad.addColorStop(0, '#4a148c');
+    tailGrad.addColorStop(0.5, '#ab47bc');
+    tailGrad.addColorStop(1, '#e1bee7');
+    ctx.fillStyle = tailGrad;
+    ctx.beginPath();
+    ctx.moveTo(cx - 70, 460);
+    ctx.quadraticCurveTo(cx - 80 + tailSw, 620, cx - 30 + tailSw*2, 760);
+    ctx.quadraticCurveTo(cx, 770, cx + 30 + tailSw*2, 760);
+    ctx.quadraticCurveTo(cx + 80 + tailSw, 620, cx + 70, 460);
+    ctx.closePath();
+    ctx.fill();
+    // Scales
+    ctx.strokeStyle = 'rgba(74,20,140,0.6)';
+    ctx.lineWidth = 2;
+    for (let row=0; row<7; row++) {
+      const y = 475 + row*35;
+      const rowLerp = row / 7;
+      const offX = tailSw * rowLerp * 1.5;
+      for (let col=-2; col<=2; col++) {
+        ctx.beginPath();
+        ctx.arc(cx + col*20 + offX, y, 10, 0, Math.PI);
+        ctx.stroke();
+      }
+    }
+    ctx.restore();
+    // Tail fins
+    ctx.save();
+    const finGrad = ctx.createRadialGradient(cx + tailSw*2, 780, 10, cx + tailSw*2, 780, 150);
+    finGrad.addColorStop(0, '#f8bbd0');
+    finGrad.addColorStop(1, 'rgba(206,147,216,0.4)');
+    ctx.fillStyle = finGrad;
+    ctx.globalAlpha = 0.95;
+    ctx.beginPath();
+    ctx.moveTo(cx + tailSw*2, 760);
+    ctx.quadraticCurveTo(cx - 130 + tailSw, 740, cx - 100 + tailSw, 810);
+    ctx.quadraticCurveTo(cx - 40 + tailSw, 790, cx + tailSw*2, 760);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.moveTo(cx + tailSw*2, 760);
+    ctx.quadraticCurveTo(cx + 130 + tailSw, 740, cx + 100 + tailSw, 810);
+    ctx.quadraticCurveTo(cx + 40 + tailSw, 790, cx + tailSw*2, 760);
+    ctx.fill();
+    ctx.restore();
+
+    // ── Torso ──
+    ctx.fillStyle = '#ffd9b8';
+    rounded(ctx, cx - 50, 340, 100, 130, 22); ctx.fill();
+    // Shell top (purple seashell cups)
+    ctx.fillStyle = '#8e24aa';
+    for (const side of [-1,1]) {
+      const bx = cx + side*24;
+      ctx.beginPath();
+      ctx.moveTo(bx - 20, 395);
+      ctx.quadraticCurveTo(bx, 355, bx + 20, 395);
+      ctx.quadraticCurveTo(bx, 410, bx - 20, 395);
+      ctx.fill();
+      // Shell ridges
+      ctx.strokeStyle = '#ce93d8';
+      ctx.lineWidth = 1.5;
+      for (let r=0; r<3; r++) {
+        ctx.beginPath();
+        ctx.moveTo(bx, 395);
+        ctx.lineTo(bx + (r-1)*10, 375);
+        ctx.stroke();
+      }
+      ctx.fillStyle = '#8e24aa';
+    }
+    // Arms
+    ctx.fillStyle = '#ffd9b8';
+    ctx.save();
+    ctx.translate(cx - 80, 380); ctx.rotate(-0.45);
+    rounded(ctx, -15, 0, 30, 85, 12); ctx.fill();
+    circle(ctx, 0, 92, 20);
+    ctx.restore();
+    ctx.save();
+    ctx.translate(cx + 80, 380); ctx.rotate(0.45);
+    rounded(ctx, -15, 0, 30, 85, 12); ctx.fill();
+    circle(ctx, 0, 92, 20);
+    ctx.restore();
+
+    // ── Head ──
+    ctx.fillStyle = '#ffd9b8';
+    circle(ctx, cx, 260, 76);
+    // Bangs
+    ctx.fillStyle = '#1976d2';
+    ctx.beginPath();
+    ctx.moveTo(cx - 78, 250);
+    ctx.quadraticCurveTo(cx, 175, cx + 78, 250);
+    ctx.quadraticCurveTo(cx + 50, 210, cx, 205);
+    ctx.quadraticCurveTo(cx - 50, 210, cx - 78, 250);
+    ctx.fill();
+    // Eyes
+    ctx.fillStyle = '#fff';
+    circle(ctx, cx - 26, 270, 14);
+    circle(ctx, cx + 26, 270, 14);
+    ctx.fillStyle = '#7e57c2';
+    circle(ctx, cx - 26, 272, 11);
+    circle(ctx, cx + 26, 272, 11);
+    ctx.fillStyle = '#1a237e';
+    circle(ctx, cx - 26, 272, 6);
+    circle(ctx, cx + 26, 272, 6);
+    ctx.fillStyle = '#fff';
+    circle(ctx, cx - 23, 268, 3);
+    circle(ctx, cx + 29, 268, 3);
+    // Cheeks
+    ctx.fillStyle = 'rgba(255,138,128,0.7)';
+    circle(ctx, cx - 44, 292, 10);
+    circle(ctx, cx + 44, 292, 10);
+    // Smile
+    ctx.strokeStyle = '#ad1457';
+    ctx.lineWidth = 4; ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.arc(cx, 302, 13, 0.2, Math.PI - 0.2);
+    ctx.stroke();
+    // Starfish hair accessory
+    ctx.fillStyle = '#ffab40';
+    const sx = cx - 55, sy = 210;
+    for (let k=0; k<5; k++) {
+      const a = (k/5)*Math.PI*2 - Math.PI/2;
+      ctx.save();
+      ctx.translate(sx, sy);
+      ctx.rotate(a);
+      ctx.beginPath();
+      ctx.ellipse(0, -12, 6, 14, 0, 0, Math.PI*2);
+      ctx.fill();
+      ctx.restore();
+    }
+    ctx.fillStyle = '#fff59d';
+    circle(ctx, sx, sy, 5);
+  }
+
+  // ── HAPPY FACE (sun, front view) ──
+  function drawHappyFace(ctx, W, H, fr, total) {
+    ctx.clearRect(0,0,W,H);
+    const cx = W/2, cy = H/2;
+    const ph = (fr / total) * Math.PI * 2;
+    const blink = (fr === total - 1) ? 1 : 0;
+
+    // Rays (rotating per frame)
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(ph * 0.2);
+    const rayCount = 16;
+    for (let i=0; i<rayCount; i++) {
+      const a = (i / rayCount) * Math.PI*2;
+      const long = i % 2 === 0;
+      ctx.fillStyle = long ? '#ffca28' : '#ffab00';
+      ctx.save();
+      ctx.rotate(a);
+      ctx.beginPath();
+      ctx.moveTo(-22, -200);
+      ctx.lineTo(22, -200);
+      ctx.lineTo(0, long ? -310 : -265);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+    }
+    ctx.restore();
+
+    // Glow halo
+    const glow = ctx.createRadialGradient(cx, cy, 150, cx, cy, 260);
+    glow.addColorStop(0, 'rgba(255, 245, 157, 0.8)');
+    glow.addColorStop(1, 'rgba(255, 245, 157, 0)');
+    ctx.fillStyle = glow;
+    ctx.fillRect(0, 0, W, H);
+
+    // Sun face body
+    const faceGrad = ctx.createRadialGradient(cx - 40, cy - 40, 30, cx, cy, 200);
+    faceGrad.addColorStop(0, '#fff59d');
+    faceGrad.addColorStop(0.5, '#ffee58');
+    faceGrad.addColorStop(1, '#fbc02d');
+    ctx.fillStyle = faceGrad;
+    circle(ctx, cx, cy, 195);
+
+    // Rim shadow
+    ctx.strokeStyle = 'rgba(255, 152, 0, 0.6)';
+    ctx.lineWidth = 6;
+    strokeCircle(ctx, cx, cy, 192);
+
+    // Eyes (cheerful closed arches)
+    ctx.strokeStyle = '#3e2723';
+    ctx.lineWidth = 14;
+    ctx.lineCap = 'round';
+    if (blink > 0) {
+      // Blink frame: simple lines
+      ctx.beginPath();
+      ctx.moveTo(cx - 95, cy - 30);
+      ctx.lineTo(cx - 35, cy - 30);
+      ctx.moveTo(cx + 35, cy - 30);
+      ctx.lineTo(cx + 95, cy - 30);
+      ctx.stroke();
+    } else {
+      for (const sx of [-65, 65]) {
+        ctx.beginPath();
+        ctx.arc(cx + sx, cy - 30, 40, Math.PI + 0.2, -0.2);
+        ctx.stroke();
+      }
+      // Eye sparkle
+      ctx.fillStyle = '#fff';
+      circle(ctx, cx - 50, cy - 55, 6);
+      circle(ctx, cx + 80, cy - 55, 6);
+    }
+
+    // Cheeks
+    ctx.fillStyle = 'rgba(255,128,128,0.65)';
+    circle(ctx, cx - 110, cy + 30, 22);
+    circle(ctx, cx + 110, cy + 30, 22);
+
+    // Huge smile with tongue
+    ctx.fillStyle = '#3e2723';
+    ctx.beginPath();
+    ctx.arc(cx, cy + 25, 80, 0.15, Math.PI - 0.15);
+    ctx.closePath();
+    ctx.fill();
+    // Tongue
+    ctx.fillStyle = '#e57373';
+    ctx.beginPath();
+    ctx.ellipse(cx, cy + 75, 35, 22, 0, 0, Math.PI);
+    ctx.fill();
+    // Teeth hint
+    ctx.fillStyle = '#fff';
+    rounded(ctx, cx - 50, cy + 40, 100, 14, 6); ctx.fill();
+  }
+
+  // ── PRINCESS GIRL (in a clamshell) ──
+  function drawPrincessGirl(ctx, W, H, fr, total) {
+    ctx.clearRect(0,0,W,H);
+    const cx = W/2;
+    const ph = (fr / total) * Math.PI * 2;
+    const openAmt = 0.5 + Math.sin(ph) * 0.15; // 0.35 - 0.65
+    const sway = Math.sin(ph) * 8;
+
+    // ── Bottom clam half ──
+    ctx.save();
+    const clamGrad = ctx.createLinearGradient(cx, 420, cx, 760);
+    clamGrad.addColorStop(0, '#fff0f5');
+    clamGrad.addColorStop(0.6, '#f8bbd0');
+    clamGrad.addColorStop(1, '#e91e63');
+    ctx.fillStyle = clamGrad;
+    ctx.beginPath();
+    ctx.moveTo(cx - 280, 500);
+    ctx.quadraticCurveTo(cx - 300, 720, cx, 760);
+    ctx.quadraticCurveTo(cx + 300, 720, cx + 280, 500);
+    ctx.quadraticCurveTo(cx, 470, cx - 280, 500);
+    ctx.closePath();
+    ctx.fill();
+    // Ridges
+    ctx.strokeStyle = 'rgba(233, 30, 99, 0.55)';
+    ctx.lineWidth = 5;
+    for (let i=-5; i<=5; i++) {
+      const x0 = cx + i*44;
+      ctx.beginPath();
+      ctx.moveTo(x0, 500);
+      ctx.quadraticCurveTo(x0 + i*3, 640, x0 + i*5, 760);
+      ctx.stroke();
+    }
+    ctx.restore();
+
+    // Pearl at base (just inside clam)
+    ctx.save();
+    const pGrad = ctx.createRadialGradient(cx - 10, 580, 5, cx, 590, 40);
+    pGrad.addColorStop(0, '#fff');
+    pGrad.addColorStop(1, '#e1bee7');
+    ctx.fillStyle = pGrad;
+    circle(ctx, cx, 605, 40);
+    ctx.fillStyle = 'rgba(255,255,255,0.9)';
+    circle(ctx, cx - 12, 590, 10);
+    ctx.restore();
+
+    // ── Princess girl in the middle ──
+    // Dress
+    ctx.save();
+    const dressGrad = ctx.createLinearGradient(cx, 320, cx, 580);
+    dressGrad.addColorStop(0, '#f8bbd0');
+    dressGrad.addColorStop(1, '#c2185b');
+    ctx.fillStyle = dressGrad;
+    ctx.beginPath();
+    ctx.moveTo(cx - 50, 320);
+    ctx.lineTo(cx - 130, 580);
+    ctx.quadraticCurveTo(cx, 605, cx + 130, 580);
+    ctx.lineTo(cx + 50, 320);
+    ctx.closePath();
+    ctx.fill();
+    // Dress gems
+    ctx.fillStyle = '#fff59d';
+    for (let i=0; i<8; i++) {
+      circle(ctx, cx + (i-3.5)*28, 440, 5);
+    }
+    ctx.restore();
+    // Torso
+    ctx.fillStyle = '#ffd9b8';
+    rounded(ctx, cx - 40, 260, 80, 70, 18); ctx.fill();
+    // Arms
+    for (const side of [-1,1]) {
+      ctx.save();
+      ctx.translate(cx + side*55, 285);
+      ctx.rotate(side * 0.4);
+      ctx.fillStyle = '#ffd9b8';
+      rounded(ctx, -12, 0, 24, 75, 10); ctx.fill();
+      circle(ctx, 0, 82, 18);
+      ctx.restore();
+    }
+    // Head
+    ctx.fillStyle = '#ffd9b8';
+    circle(ctx, cx, 200, 68);
+    // Hair (pink with pigtails)
+    ctx.fillStyle = '#f48fb1';
+    // back
+    ctx.beginPath();
+    ctx.ellipse(cx, 185, 78, 70, 0, Math.PI, Math.PI*2);
+    ctx.fill();
+    // Bangs
+    ctx.beginPath();
+    ctx.moveTo(cx - 65, 190);
+    ctx.quadraticCurveTo(cx, 130, cx + 65, 190);
+    ctx.quadraticCurveTo(cx + 40, 170, cx, 168);
+    ctx.quadraticCurveTo(cx - 40, 170, cx - 65, 190);
+    ctx.fill();
+    // Pigtails
+    for (const side of [-1,1]) {
+      ctx.save();
+      ctx.translate(cx + side*80, 200);
+      ctx.rotate(side * 0.2 + Math.sin(ph)*0.1);
+      ctx.fillStyle = '#f48fb1';
+      ctx.beginPath();
+      ctx.ellipse(0, 50, 25, 65, 0, 0, Math.PI*2);
+      ctx.fill();
+      // Bow
+      ctx.fillStyle = '#e91e63';
+      circle(ctx, 0, -15, 12);
+      circle(ctx, -10, -15, 10);
+      circle(ctx, 10, -15, 10);
+      ctx.restore();
+    }
+    // Eyes
+    ctx.fillStyle = '#fff';
+    circle(ctx, cx - 24, 210, 13);
+    circle(ctx, cx + 24, 210, 13);
+    ctx.fillStyle = '#6a1b9a';
+    circle(ctx, cx - 24, 212, 10);
+    circle(ctx, cx + 24, 212, 10);
+    ctx.fillStyle = '#000';
+    circle(ctx, cx - 24, 212, 5);
+    circle(ctx, cx + 24, 212, 5);
+    ctx.fillStyle = '#fff';
+    circle(ctx, cx - 22, 208, 2.5);
+    circle(ctx, cx + 27, 208, 2.5);
+    // Smile
+    ctx.strokeStyle = '#ad1457';
+    ctx.lineWidth = 3.5; ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.arc(cx, 235, 12, 0.2, Math.PI - 0.2);
+    ctx.stroke();
+    // Cheeks
+    ctx.fillStyle = 'rgba(255,138,128,0.7)';
+    circle(ctx, cx - 40, 230, 8);
+    circle(ctx, cx + 40, 230, 8);
+    // Crown
+    ctx.fillStyle = '#ffd700';
+    ctx.strokeStyle = '#ff8f00';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(cx - 50, 155);
+    ctx.lineTo(cx - 30, 120);
+    ctx.lineTo(cx - 15, 145);
+    ctx.lineTo(cx, 115);
+    ctx.lineTo(cx + 15, 145);
+    ctx.lineTo(cx + 30, 120);
+    ctx.lineTo(cx + 50, 155);
+    ctx.closePath();
+    ctx.fill(); ctx.stroke();
+    // Crown gems
+    ctx.fillStyle = '#e91e63';
+    circle(ctx, cx - 30, 130, 5);
+    ctx.fillStyle = '#4fc3f7';
+    circle(ctx, cx, 125, 6);
+    ctx.fillStyle = '#7e57c2';
+    circle(ctx, cx + 30, 130, 5);
+
+    // ── Top clam half (opens up) ──
+    ctx.save();
+    ctx.translate(cx, 490);
+    ctx.rotate(-openAmt * 1.1);
+    ctx.translate(-cx, -490);
+    const topGrad = ctx.createLinearGradient(cx, 200, cx, 490);
+    topGrad.addColorStop(0, '#ec407a');
+    topGrad.addColorStop(0.5, '#f8bbd0');
+    topGrad.addColorStop(1, '#fff0f5');
+    ctx.fillStyle = topGrad;
+    ctx.beginPath();
+    ctx.moveTo(cx - 280, 490);
+    ctx.quadraticCurveTo(cx - 300, 230, cx, 195);
+    ctx.quadraticCurveTo(cx + 300, 230, cx + 280, 490);
+    ctx.quadraticCurveTo(cx, 460, cx - 280, 490);
+    ctx.closePath();
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(233, 30, 99, 0.55)';
+    ctx.lineWidth = 5;
+    for (let i=-5; i<=5; i++) {
+      const x0 = cx + i*44;
+      ctx.beginPath();
+      ctx.moveTo(x0, 490);
+      ctx.quadraticCurveTo(x0 + i*3, 340, x0 + i*5, 200 + Math.abs(i)*6);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  // ── FISH (side view) ──
+  function drawFish(color, hue2) {
+    return (ctx, W, H, fr, total) => {
+      ctx.clearRect(0,0,W,H);
+      const cy = H/2;
+      const flap = Math.sin((fr/total)*Math.PI*2) * 10;
+      // Body
+      const bg = ctx.createLinearGradient(0, cy-50, 0, cy+50);
+      bg.addColorStop(0, hue2);
+      bg.addColorStop(1, color);
+      ctx.fillStyle = bg;
+      ctx.beginPath();
+      ctx.ellipse(W*0.55, cy, W*0.32, H*0.32, 0, 0, Math.PI*2);
+      ctx.fill();
+      // Belly
+      ctx.fillStyle = 'rgba(255,255,255,0.4)';
+      ctx.beginPath();
+      ctx.ellipse(W*0.6, cy + H*0.15, W*0.25, H*0.12, 0, 0, Math.PI*2);
+      ctx.fill();
+      // Tail
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.moveTo(W*0.27, cy);
+      ctx.lineTo(W*0.08, cy - H*0.28 + flap);
+      ctx.lineTo(W*0.08, cy + H*0.28 - flap);
+      ctx.closePath();
+      ctx.fill();
+      // Top fin
+      ctx.beginPath();
+      ctx.moveTo(W*0.55, cy - H*0.28);
+      ctx.lineTo(W*0.45, cy - H*0.45);
+      ctx.lineTo(W*0.65, cy - H*0.32);
+      ctx.fill();
+      // Side fin
+      ctx.fillStyle = hue2;
+      ctx.beginPath();
+      ctx.moveTo(W*0.55, cy + 5);
+      ctx.lineTo(W*0.48, cy + H*0.25);
+      ctx.lineTo(W*0.66, cy + H*0.08);
+      ctx.fill();
+      // Scale detail
+      ctx.strokeStyle = 'rgba(0,0,0,0.18)';
+      ctx.lineWidth = 1.5;
+      for (let r=0; r<3; r++) {
+        for (let c=0; c<4; c++) {
+          ctx.beginPath();
+          ctx.arc(W*0.42 + c*W*0.09, cy - H*0.1 + r*H*0.12, H*0.08, -0.5, 0.5);
+          ctx.stroke();
+        }
+      }
+      // Eye
+      ctx.fillStyle = '#fff';
+      circle(ctx, W*0.78, cy - H*0.08, H*0.1);
+      ctx.fillStyle = '#000';
+      circle(ctx, W*0.79, cy - H*0.08, H*0.06);
+      ctx.fillStyle = '#fff';
+      circle(ctx, W*0.80, cy - H*0.1, H*0.02);
+      // Smile
+      ctx.strokeStyle = '#000';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(W*0.85, cy + H*0.05, H*0.08, -0.5, 0.5);
+      ctx.stroke();
+    };
+  }
+
+  // ── SEAHORSE (side view) ──
+  function drawSeahorse(color) {
+    return (ctx, W, H, fr, total) => {
+      ctx.clearRect(0,0,W,H);
+      const cx = W/2;
+      const ph = (fr/total) * Math.PI * 2;
+      const wag = Math.sin(ph) * 6;
+      // Body (curly S shape)
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 38;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(cx - 15, H*0.18);
+      ctx.quadraticCurveTo(cx + 45 + wag, H*0.35, cx - 10, H*0.55);
+      ctx.quadraticCurveTo(cx - 50 - wag, H*0.72, cx + 30, H*0.92);
+      ctx.stroke();
+      // Belly highlight
+      ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+      ctx.lineWidth = 12;
+      ctx.beginPath();
+      ctx.moveTo(cx - 22, H*0.2);
+      ctx.quadraticCurveTo(cx + 30 + wag, H*0.4, cx - 20, H*0.55);
+      ctx.stroke();
+      // Head bump (snout)
+      ctx.fillStyle = color;
+      circle(ctx, cx - 10, H*0.14, 24);
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.ellipse(cx - 30, H*0.15, 16, 9, 0, 0, Math.PI*2);
+      ctx.fill();
+      // Crown spikes (ridge)
+      for (let i=0; i<4; i++) {
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        ctx.moveTo(cx - 10 + i*4, H*0.08);
+        ctx.lineTo(cx - 6 + i*4, H*0.02);
+        ctx.lineTo(cx - 2 + i*4, H*0.08);
+        ctx.fill();
+      }
+      // Eye
+      ctx.fillStyle = '#fff';
+      circle(ctx, cx - 5, H*0.13, 7);
+      ctx.fillStyle = '#000';
+      circle(ctx, cx - 4, H*0.13, 4);
+      // Back fin
+      ctx.fillStyle = color;
+      ctx.globalAlpha = 0.7;
+      ctx.beginPath();
+      ctx.moveTo(cx + 25, H*0.25);
+      ctx.quadraticCurveTo(cx + 55, H*0.35, cx + 30, H*0.45);
+      ctx.fill();
+      ctx.globalAlpha = 1;
+      // Spots
+      ctx.fillStyle = 'rgba(255,255,255,0.5)';
+      for (let i=0; i<5; i++) {
+        const t = 0.25 + i*0.12;
+        circle(ctx, cx + (Math.sin(t*6)*20), H*t, 4);
+      }
+    };
+  }
+
+  // ── OCTOPUS (front view, animated tentacles) ──
+  function drawOctopus(ctx, W, H, fr, total) {
+    ctx.clearRect(0,0,W,H);
+    const cx = W/2, cy = H*0.42;
+    const ph = (fr / total) * Math.PI * 2;
+    // 8 tentacles - drawn first so head overlaps
+    const legColor = ctx.createLinearGradient(cx, cy, cx, H);
+    legColor.addColorStop(0, '#ab47bc');
+    legColor.addColorStop(1, '#4a148c');
+    ctx.strokeStyle = legColor;
+    ctx.lineWidth = 30;
+    ctx.lineCap = 'round';
+    for (let i=0; i<8; i++) {
+      const a = (i/8)*Math.PI*2 - Math.PI/2;
+      const off = Math.sin(ph + i*0.7) * 25;
+      ctx.beginPath();
+      ctx.moveTo(cx + Math.cos(a)*70, cy + Math.sin(a)*70 + 20);
+      ctx.quadraticCurveTo(
+        cx + Math.cos(a)*140 + off,
+        cy + Math.sin(a)*140 + 80,
+        cx + Math.cos(a)*170 - off*0.5,
+        cy + Math.sin(a)*170 + 150
+      );
+      ctx.stroke();
+    }
+    // Body
+    const bodyGrad = ctx.createRadialGradient(cx - 30, cy - 40, 20, cx, cy, 140);
+    bodyGrad.addColorStop(0, '#ce93d8');
+    bodyGrad.addColorStop(1, '#6a1b9a');
+    ctx.fillStyle = bodyGrad;
+    ctx.beginPath();
+    ctx.ellipse(cx, cy, 120, 110, 0, 0, Math.PI*2);
+    ctx.fill();
+    // Cheek
+    ctx.fillStyle = 'rgba(255,128,128,0.6)';
+    circle(ctx, cx - 55, cy + 25, 18);
+    circle(ctx, cx + 55, cy + 25, 18);
+    // Eyes
+    ctx.fillStyle = '#fff';
+    circle(ctx, cx - 40, cy - 15, 22);
+    circle(ctx, cx + 40, cy - 15, 22);
+    ctx.fillStyle = '#1a237e';
+    circle(ctx, cx - 40, cy - 12, 14);
+    circle(ctx, cx + 40, cy - 12, 14);
+    ctx.fillStyle = '#000';
+    circle(ctx, cx - 40, cy - 12, 7);
+    circle(ctx, cx + 40, cy - 12, 7);
+    ctx.fillStyle = '#fff';
+    circle(ctx, cx - 36, cy - 17, 4);
+    circle(ctx, cx + 44, cy - 17, 4);
+    // Smile
+    ctx.strokeStyle = '#4a148c';
+    ctx.lineWidth = 5;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.arc(cx, cy + 30, 30, 0.2, Math.PI - 0.2);
+    ctx.stroke();
+    // Suckers on tentacles (dots)
+    ctx.fillStyle = '#f3e5f5';
+    for (let i=0; i<8; i++) {
+      const a = (i/8)*Math.PI*2 - Math.PI/2;
+      for (let k=1; k<=3; k++) {
+        const t = k/3;
+        const off = Math.sin(ph + i*0.7) * 25 * t;
+        const px = cx + Math.cos(a)*(70 + t*110) + off*0.5;
+        const py = cy + Math.sin(a)*(70 + t*110) + t*90;
+        circle(ctx, px, py, 4);
+      }
+    }
+  }
+
+  // ── DOLPHIN (side view) ──
+  function drawDolphin(ctx, W, H, fr, total) {
+    ctx.clearRect(0,0,W,H);
+    const ph = (fr/total) * Math.PI * 2;
+    const flip = Math.sin(ph) * 6;
+    // Body
+    const bodyGrad = ctx.createLinearGradient(0, H*0.1, 0, H);
+    bodyGrad.addColorStop(0, '#546e7a');
+    bodyGrad.addColorStop(0.7, '#90a4ae');
+    bodyGrad.addColorStop(1, '#eceff1');
+    ctx.fillStyle = bodyGrad;
+    ctx.beginPath();
+    ctx.moveTo(W*0.1, H*0.55 + flip);
+    ctx.quadraticCurveTo(W*0.3, H*0.25, W*0.7, H*0.35);
+    ctx.quadraticCurveTo(W*0.92, H*0.42, W*0.95, H*0.55);
+    ctx.quadraticCurveTo(W*0.7, H*0.75, W*0.3, H*0.72);
+    ctx.quadraticCurveTo(W*0.15, H*0.7, W*0.1, H*0.55 + flip);
+    ctx.fill();
+    // Belly
+    ctx.fillStyle = 'rgba(255,255,255,0.35)';
+    ctx.beginPath();
+    ctx.ellipse(W*0.55, H*0.65, W*0.3, H*0.08, 0, 0, Math.PI*2);
+    ctx.fill();
+    // Dorsal
+    ctx.fillStyle = '#78909c';
+    ctx.beginPath();
+    ctx.moveTo(W*0.55, H*0.32);
+    ctx.lineTo(W*0.45, H*0.12);
+    ctx.lineTo(W*0.65, H*0.3);
+    ctx.fill();
+    // Tail fluke
+    ctx.beginPath();
+    ctx.moveTo(W*0.1, H*0.55 + flip);
+    ctx.lineTo(W*0.0, H*0.35 + flip);
+    ctx.lineTo(W*0.05, H*0.55 + flip);
+    ctx.lineTo(W*0.0, H*0.8 + flip);
+    ctx.fill();
+    // Flipper
+    ctx.beginPath();
+    ctx.moveTo(W*0.5, H*0.62);
+    ctx.quadraticCurveTo(W*0.42, H*0.82, W*0.55, H*0.78);
+    ctx.fill();
+    // Eye
+    ctx.fillStyle = '#fff';
+    circle(ctx, W*0.85, H*0.45, H*0.04);
+    ctx.fillStyle = '#000';
+    circle(ctx, W*0.86, H*0.45, H*0.025);
+    // Smile
+    ctx.strokeStyle = '#37474f';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(W*0.82, H*0.58);
+    ctx.quadraticCurveTo(W*0.9, H*0.62, W*0.94, H*0.55);
+    ctx.stroke();
+  }
+
+  // ── WHALE (side view) ──
+  function drawWhale(ctx, W, H, fr, total) {
+    ctx.clearRect(0,0,W,H);
+    const ph = (fr/total) * Math.PI * 2;
+    const flip = Math.sin(ph) * 10;
+    // Body
+    const bodyGrad = ctx.createLinearGradient(0, H*0.1, 0, H);
+    bodyGrad.addColorStop(0, '#1a237e');
+    bodyGrad.addColorStop(0.6, '#3f51b5');
+    bodyGrad.addColorStop(1, '#c5cae9');
+    ctx.fillStyle = bodyGrad;
+    ctx.beginPath();
+    ctx.moveTo(W*0.05, H*0.55 + flip);
+    ctx.quadraticCurveTo(W*0.25, H*0.2, W*0.65, H*0.28);
+    ctx.quadraticCurveTo(W*0.92, H*0.35, W*0.98, H*0.55);
+    ctx.quadraticCurveTo(W*0.75, H*0.82, W*0.3, H*0.8);
+    ctx.quadraticCurveTo(W*0.1, H*0.75, W*0.05, H*0.55 + flip);
+    ctx.fill();
+    // Belly with pleats
+    ctx.fillStyle = 'rgba(255,255,255,0.3)';
+    ctx.beginPath();
+    ctx.ellipse(W*0.55, H*0.68, W*0.35, H*0.1, 0, 0, Math.PI*2);
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(26, 35, 126, 0.5)';
+    ctx.lineWidth = 3;
+    for (let i=0; i<6; i++) {
+      ctx.beginPath();
+      ctx.moveTo(W*0.3 + i*W*0.08, H*0.6);
+      ctx.lineTo(W*0.3 + i*W*0.08, H*0.78);
+      ctx.stroke();
+    }
+    // Tail fluke (horizontal)
+    ctx.fillStyle = '#3f51b5';
+    ctx.beginPath();
+    ctx.moveTo(W*0.05, H*0.55 + flip);
+    ctx.lineTo(W*-0.05, H*0.3 + flip);
+    ctx.lineTo(W*0.1, H*0.52 + flip);
+    ctx.lineTo(W*-0.05, H*0.8 + flip);
+    ctx.fill();
+    // Flipper
+    ctx.beginPath();
+    ctx.moveTo(W*0.35, H*0.7);
+    ctx.quadraticCurveTo(W*0.3, H*0.95, W*0.5, H*0.88);
+    ctx.fill();
+    // Eye
+    ctx.fillStyle = '#fff';
+    circle(ctx, W*0.82, H*0.42, H*0.04);
+    ctx.fillStyle = '#000';
+    circle(ctx, W*0.83, H*0.42, H*0.025);
+    // Smile
+    ctx.strokeStyle = '#1a237e';
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.moveTo(W*0.78, H*0.58);
+    ctx.quadraticCurveTo(W*0.88, H*0.65, W*0.96, H*0.56);
+    ctx.stroke();
+    // Water spout (animated)
+    ctx.fillStyle = 'rgba(200, 230, 255, 0.75)';
+    const spoutH = 30 + Math.sin(ph)*10;
+    ctx.beginPath();
+    ctx.ellipse(W*0.5, H*0.2 - spoutH, 14, spoutH, 0, 0, Math.PI*2);
+    ctx.fill();
+    for (let i=0; i<5; i++) {
+      ctx.beginPath();
+      ctx.arc(W*0.5 + (Math.random()-0.5)*40, H*0.2 - spoutH - i*8, 5 + Math.random()*4, 0, Math.PI*2);
+      ctx.fill();
+    }
+  }
+
+  // ── CRAB (top view) ──
+  function drawCrab(ctx, W, H, fr, total) {
+    ctx.clearRect(0,0,W,H);
+    const cx = W/2, cy = H*0.6;
+    const ph = (fr/total) * Math.PI*2;
+    const legWag = Math.sin(ph) * 6;
+    // Legs
+    ctx.strokeStyle = '#d32f2f';
+    ctx.lineWidth = 10;
+    ctx.lineCap = 'round';
+    for (let i=0; i<3; i++) {
+      for (const side of [-1,1]) {
+        const x1 = cx + side*50, y1 = cy - 20 + i*20;
+        const x2 = cx + side*(110 + legWag*(i-1)), y2 = cy - 40 + i*30 + legWag;
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.quadraticCurveTo(cx + side*80, cy, x2, y2);
+        ctx.stroke();
+      }
+    }
+    // Body
+    const bodyGrad = ctx.createRadialGradient(cx - 20, cy - 20, 10, cx, cy, 80);
+    bodyGrad.addColorStop(0, '#ef5350');
+    bodyGrad.addColorStop(1, '#b71c1c');
+    ctx.fillStyle = bodyGrad;
+    ctx.beginPath();
+    ctx.ellipse(cx, cy, 65, 45, 0, 0, Math.PI*2);
+    ctx.fill();
+    // Claws
+    for (const side of [-1,1]) {
+      ctx.fillStyle = '#c62828';
+      ctx.save();
+      ctx.translate(cx + side*75, cy - 15);
+      ctx.rotate(side * (0.5 + Math.sin(ph)*0.15));
+      ctx.beginPath();
+      ctx.ellipse(0, 0, 25, 18, 0, 0, Math.PI*2);
+      ctx.fill();
+      // Claw pincer
+      ctx.fillStyle = '#b71c1c';
+      ctx.beginPath();
+      ctx.moveTo(0, -15);
+      ctx.lineTo(20, -25);
+      ctx.lineTo(10, 0);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+    }
+    // Eyes on stalks
+    ctx.strokeStyle = '#d32f2f';
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.moveTo(cx - 15, cy - 30);
+    ctx.lineTo(cx - 18, cy - 55);
+    ctx.moveTo(cx + 15, cy - 30);
+    ctx.lineTo(cx + 18, cy - 55);
+    ctx.stroke();
+    ctx.fillStyle = '#fff';
+    circle(ctx, cx - 18, cy - 60, 9);
+    circle(ctx, cx + 18, cy - 60, 9);
+    ctx.fillStyle = '#000';
+    circle(ctx, cx - 18, cy - 60, 5);
+    circle(ctx, cx + 18, cy - 60, 5);
+    // Smile
+    ctx.strokeStyle = '#3e2723';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.arc(cx, cy + 5, 15, 0.2, Math.PI - 0.2);
+    ctx.stroke();
+  }
+
+  // ── Start-screen mermaid preview ──
+  function drawStartMermaid(canvas) {
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // Just re-use the front mermaid friend style (quick preview)
+    const scale = canvas.width / 512;
+    ctx.save();
+    ctx.scale(scale * (canvas.height / 540) * 0.95, scale);
+    drawRapunzel(ctx, 512, canvas.height / scale, 0, 2);
+    ctx.restore();
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════
+  //  CONFIG + STATE
+  // ═══════════════════════════════════════════════════════════════════════
+  const CFG = {
+    swimSpeed:    5.0,
+    turnSpeed:    1.65,
+    findDist:     4.2,
+    pearlDist:    2.4,
+    lagoonRadius: 58,
+    nearFriendDist: 11,
+    friends: [
+      { kind:'rapunzel', x:  32, z:  -4, label:'Rapunzel!' },
+      { kind:'mermaid',  x: -22, z:  34, label:'Mermaid friend!' },
+      { kind:'happy',    x: -38, z: -24, label:'Happy Face!' },
+      { kind:'girl',     x:  16, z:  42, label:'Princess girl!' },
+    ],
+  };
+
+  let gameActive = false;
+  let mermaidX = 0, mermaidZ = 0, mermaidY = 3;
+  let heading = 0, headingVel = 0;
+  let turnInput = 0;
+  let swimT = 0, bobT = 0, globalT = 0;
+  let twirlT = 0;
+  let foundCount = 0, pearlsCollected = 0;
+  let friendMeshes = [], pearlMeshes = [];
+  let bubbleMeshes = [], marineSnow = [];
+  let fishMeshes = [], seaweedMeshes = [];
+  let rayMeshes = [], causticMeshes = [];
+  let crystalMeshes = [];
+  let seahorseMeshes = [];
+  let dolphin, whale, crab, octopusSprite;
+  let ariel = null;
+  let spriteList = []; // for frame cycling + billboarding
+  let scene, camera, renderer, clock;
+  let ambientMusicT = 0;
+
+  // ═══════════════════════════════════════════════════════════════════════
+  //  AUDIO (Web Audio API only)
+  // ═══════════════════════════════════════════════════════════════════════
+  let audioCtx = null;
+  function au() { if (!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)(); return audioCtx; }
+  function tone(f, type, d, v=0.14, when=0) {
+    try {
+      const c=au(), o=c.createOscillator(), g=c.createGain();
+      o.connect(g); g.connect(c.destination);
+      o.type=type||'sine'; o.frequency.value=f;
+      const t0 = c.currentTime + when;
+      g.gain.setValueAtTime(0.0001, t0);
+      g.gain.exponentialRampToValueAtTime(v, t0 + 0.015);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + d);
+      o.start(t0); o.stop(t0 + d + 0.02);
+    } catch(e) {}
+  }
+  function playPearl() { tone(1320,'sine',0.18,0.10); tone(1760,'sine',0.14,0.08, 0.06); }
+  function playFind(kind) {
+    const scales = {
+      rapunzel: [523,659,784,988,1175],
+      mermaid:  [587,740,880,1175,1397],
+      happy:    [659,784,988,1319,1568],
+      girl:     [523,698,880,1047,1319],
+    };
+    const notes = scales[kind] || scales.rapunzel;
+    notes.forEach((f,i) => tone(f,'sine',0.34,0.14, i*0.08));
+    [1760,1976,2349].forEach((f,i)=>tone(f,'triangle',0.12,0.05, 0.15 + i*0.05));
+  }
+  function playTwirl() {
+    const base = 523;
+    for (let i=0; i<8; i++) tone(base * Math.pow(2, i/6), 'sine', 0.22, 0.08, i*0.055);
+  }
+  function playNearHint() { tone(1046,'sine',0.14,0.06); }
+  function playWin() {
+    const melody = [523,659,784,1047,988,1175,1319,1568,1760,2093];
+    melody.forEach((f,i) => tone(f,'sine',0.38,0.14, i*0.11));
+    [131,196,262,330,392].forEach((f,i) => tone(f,'triangle',0.55,0.10, i*0.22));
+    for (let i=0; i<14; i++) tone(1800 + Math.random()*800, 'sine', 0.10, 0.04, 0.3 + i*0.08);
+  }
+  function ambientPad(t) {
+    if (t - ambientMusicT < 6.5) return;
+    ambientMusicT = t;
+    const roots = [
+      [196, 294, 392, 588],
+      [220, 330, 440, 659],
+      [175, 262, 349, 523],
+      [246, 370, 494, 659],
+    ];
+    const chord = roots[Math.floor(Math.random()*roots.length)];
+    chord.forEach((f,i) => tone(f,'sine', 2.2, 0.025, i*0.06));
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════
+  //  THREE SETUP
+  // ═══════════════════════════════════════════════════════════════════════
+  function initThree() {
+    renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference:'high-performance' });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.75));
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.insertBefore(renderer.domElement, document.body.firstChild);
+
+    scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x0a4a82);
+    scene.fog = new THREE.Fog(0x0a4a82, 20, 95);
+
+    camera = new THREE.PerspectiveCamera(62, window.innerWidth/window.innerHeight, 0.1, 320);
+
+    scene.add(new THREE.AmbientLight(0xb3e5fc, 0.85));
+    const sun = new THREE.DirectionalLight(0xfff5cc, 1.15);
+    sun.position.set(8, 28, 6); scene.add(sun);
+    const fill = new THREE.DirectionalLight(0x80d8ff, 0.4);
+    fill.position.set(-8, 6, -4); scene.add(fill);
+    const accent = new THREE.PointLight(0x4fc3f7, 0.5, 60);
+    accent.position.set(0, 4, 0); scene.add(accent);
+
+    clock = new THREE.Clock();
+    window.addEventListener('resize', onResize);
+  }
+  function onResize() {
+    camera.aspect = window.innerWidth/window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════
+  //  WORLD (environment stays as 3D meshes; characters are sprites)
+  // ═══════════════════════════════════════════════════════════════════════
+  function buildWorld() {
+    buildFloor();
+    buildCaustics();
+    buildWaterSurface();
+    buildGodRays();
+    buildBubbles();
+    buildMarineSnow();
+    buildCorals();
+    buildKelpForest(-48, 18);
+    buildKelpForest(40, 22);
+    buildCrystalCave(-30, -30);
+    buildRapunzelTower(32, -4);
+    buildSunkenShip(22, -38);
+    buildPinkCastle(0, -78);
+    buildScatteredSeaweed();
+    buildShells();
+    buildStarfishes();
+    buildFishSchools();
+    buildPearls();
+    buildSeahorses();
+    buildCrab();
+    buildDolphin();
+    buildWhale();
+    buildOctopusSprite();
+    buildFriends();
+  }
+
+  function buildFloor() {
+    const sandMat = new THREE.MeshLambertMaterial({ color: 0xf4d9a4 });
+    const floor = new THREE.Mesh(new THREE.CircleGeometry(85, 64), sandMat);
+    floor.rotation.x = -Math.PI/2;
+    floor.position.y = -1.5;
+    scene.add(floor);
+    const ringMat = new THREE.MeshBasicMaterial({ color: 0xd6b980, transparent:true, opacity:0.5 });
+    for (let i=0; i<3; i++) {
+      const ring = new THREE.Mesh(new THREE.RingGeometry(28 + i*12, 30 + i*12, 48), ringMat);
+      ring.rotation.x = -Math.PI/2;
+      ring.position.y = -1.48 + i*0.003;
+      scene.add(ring);
+    }
+  }
+
+  function buildCaustics() {
+    const causMat = new THREE.MeshBasicMaterial({
+      color: 0xfff4c2, transparent:true, opacity:0.12, depthWrite:false,
+    });
+    for (let i=0; i<36; i++) {
+      const size = 2 + Math.random()*3.5;
+      const c = new THREE.Mesh(new THREE.CircleGeometry(size, 16), causMat.clone());
+      c.rotation.x = -Math.PI/2;
+      c.position.set((Math.random()-.5)*120, -1.42, (Math.random()-.5)*120);
+      c.userData = {
+        baseX: c.position.x, baseZ: c.position.z,
+        phase: Math.random()*Math.PI*2,
+        speed: 0.3 + Math.random()*0.5,
+        opBase: 0.08 + Math.random()*0.09,
+      };
+      scene.add(c);
+      causticMeshes.push(c);
+    }
+  }
+
+  function buildWaterSurface() {
+    const geo = new THREE.CircleGeometry(95, 64);
+    const pos = geo.attributes.position;
+    for (let i=0; i<pos.count; i++) {
+      const x = pos.getX(i), y = pos.getY(i);
+      pos.setZ(i, Math.sin(x*0.18)*0.25 + Math.cos(y*0.22)*0.25);
+    }
+    geo.computeVertexNormals();
+    const surfMat = new THREE.MeshBasicMaterial({
+      color: 0x66d1ff, transparent:true, opacity:0.5, side:THREE.DoubleSide,
+    });
+    const surf = new THREE.Mesh(geo, surfMat);
+    surf.rotation.x = -Math.PI/2;
+    surf.position.y = 17;
+    scene.add(surf);
+    const skyMat = new THREE.MeshBasicMaterial({
+      color: 0xfff8d0, transparent:true, opacity:0.35, side:THREE.DoubleSide,
+    });
+    const sky = new THREE.Mesh(new THREE.CircleGeometry(90, 32), skyMat);
+    sky.rotation.x = -Math.PI/2;
+    sky.position.y = 17.2;
+    scene.add(sky);
+  }
+
+  function buildGodRays() {
+    const rayMat = new THREE.MeshBasicMaterial({
+      color: 0xfff7c4, transparent:true, opacity:0.14, side:THREE.DoubleSide, depthWrite:false,
+    });
+    for (let i=0; i<16; i++) {
+      const angle = (i / 16) * Math.PI * 2 + Math.random()*0.3;
+      const r = 10 + Math.random()*45;
+      const rayGeo = new THREE.ConeGeometry(2.2 + Math.random()*1.6, 22, 8, 1, true);
+      const ray = new THREE.Mesh(rayGeo, rayMat.clone());
+      ray.position.set(Math.cos(angle)*r, 6, Math.sin(angle)*r);
+      ray.userData = { baseOp: 0.10 + Math.random()*0.09, phase: Math.random()*Math.PI*2 };
+      scene.add(ray);
+      rayMeshes.push(ray);
+    }
+  }
+
+  function buildBubbles() {
+    const bubbleMat = new THREE.MeshPhongMaterial({
+      color: 0xd1f2ff, transparent:true, opacity:0.6,
+      specular:0xffffff, shininess:90,
+    });
+    for (let i=0; i<80; i++) {
+      const b = new THREE.Mesh(new THREE.SphereGeometry(0.1 + Math.random()*0.25, 8, 6), bubbleMat);
+      b.position.set(
+        (Math.random()-.5) * 100,
+        Math.random() * 17,
+        (Math.random()-.5) * 100
+      );
+      b.userData = {
+        speed: 0.5 + Math.random()*0.9,
+        drift: Math.random()*Math.PI*2,
+      };
+      scene.add(b);
+      bubbleMeshes.push(b);
+    }
+  }
+
+  function buildMarineSnow() {
+    const snowMat = new THREE.MeshBasicMaterial({
+      color: 0xe0f7ff, transparent:true, opacity:0.5,
+    });
+    for (let i=0; i<60; i++) {
+      const s = new THREE.Mesh(new THREE.SphereGeometry(0.05 + Math.random()*0.05, 5, 3), snowMat);
+      s.position.set(
+        (Math.random()-.5) * 90,
+        Math.random() * 14,
+        (Math.random()-.5) * 90
+      );
+      s.userData = {
+        vy: -0.12 - Math.random()*0.15,
+        drift: Math.random()*Math.PI*2,
+      };
+      scene.add(s);
+      marineSnow.push(s);
+    }
+  }
+
+  function buildCorals() {
+    for (let i=0; i<48; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const r = 8 + Math.random()*52;
+      addCoral(Math.cos(angle)*r, Math.sin(angle)*r);
+    }
+  }
+  function addCoral(x, z) {
+    const palette = [0xff80ab, 0xff4081, 0xba68c8, 0xff9800, 0xffb74d, 0xe040fb, 0xf06292, 0xff6e40, 0x9575cd];
+    const color = palette[Math.floor(Math.random()*palette.length)];
+    const mat = new THREE.MeshLambertMaterial({ color });
+    const group = new THREE.Group();
+    const type = Math.random();
+    if (type < 0.4) {
+      const armCount = 3 + Math.floor(Math.random()*4);
+      for (let i=0; i<armCount; i++) {
+        const h = 1.5 + Math.random()*3;
+        const arm = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.32, h, 6), mat);
+        arm.position.set((Math.random()-.5)*0.9, h/2 - 1.2, (Math.random()-.5)*0.9);
+        arm.rotation.z = (Math.random()-.5)*0.6;
+        arm.rotation.x = (Math.random()-.5)*0.6;
+        group.add(arm);
+        const bobble = new THREE.Mesh(new THREE.SphereGeometry(0.32 + Math.random()*0.18, 8, 6), mat);
+        bobble.position.copy(arm.position);
+        bobble.position.y += h/2;
+        group.add(bobble);
+      }
+    } else if (type < 0.7) {
+      const dome = new THREE.Mesh(new THREE.SphereGeometry(0.9 + Math.random()*0.8, 10, 7), mat);
+      dome.scale.y = 0.55;
+      dome.position.y = -0.6;
+      group.add(dome);
+      for (let i=0; i<6; i++) {
+        const b = new THREE.Mesh(new THREE.SphereGeometry(0.25, 6, 4), mat);
+        const a = (i/6)*Math.PI*2;
+        b.position.set(Math.cos(a)*0.55, -0.3, Math.sin(a)*0.55);
+        group.add(b);
+      }
+    } else {
+      const fanMat = new THREE.MeshLambertMaterial({ color, side:THREE.DoubleSide });
+      for (let i=0; i<4; i++) {
+        const fan = new THREE.Mesh(new THREE.CircleGeometry(0.9 + Math.random()*0.4, 12, 0, Math.PI), fanMat);
+        fan.position.y = 0 + i*0.15;
+        fan.rotation.y = (i/4) * Math.PI * 2;
+        fan.rotation.x = -Math.PI/2 + 0.3;
+        group.add(fan);
+      }
+    }
+    group.position.set(x, 0, z);
+    group.rotation.y = Math.random()*Math.PI*2;
+    scene.add(group);
+  }
+
+  function buildKelpForest(cx, cz) {
+    for (let i=0; i<14; i++) {
+      const x = cx + (Math.random()-.5)*14;
+      const z = cz + (Math.random()-.5)*14;
+      addTallKelp(x, z);
+    }
+  }
+  function addTallKelp(x, z) {
+    const mat = new THREE.MeshLambertMaterial({
+      color: Math.random()<0.5 ? 0x388e3c : 0x2e7d32,
+      side: THREE.DoubleSide,
+    });
+    const group = new THREE.Group();
+    const segments = 8 + Math.floor(Math.random()*4);
+    const chain = [];
+    let parent = group;
+    for (let i=0; i<segments; i++) {
+      const seg = new THREE.Group();
+      const leaf = new THREE.Mesh(new THREE.PlaneGeometry(0.55 + Math.random()*0.2, 1.1), mat);
+      leaf.position.y = 0.55;
+      leaf.rotation.y = Math.random()*Math.PI*2;
+      seg.add(leaf);
+      if (i > 0) seg.position.y = 1.0;
+      parent.add(seg);
+      chain.push(seg);
+      parent = seg;
+    }
+    group.position.set(x, -0.8, z);
+    group.userData = { phase: Math.random()*Math.PI*2, chain };
+    scene.add(group);
+    seaweedMeshes.push(group);
+  }
+
+  function buildCrystalCave(cx, cz) {
+    const rockMat = new THREE.MeshLambertMaterial({ color: 0x4a2c6f });
+    for (let i=0; i<6; i++) {
+      const r = new THREE.Mesh(new THREE.DodecahedronGeometry(1.5 + Math.random()*1.5, 0), rockMat);
+      const a = (i/6)*Math.PI*2;
+      r.position.set(cx + Math.cos(a)*2.5, 0 + Math.random()*0.5, cz + Math.sin(a)*2.5);
+      r.rotation.set(Math.random(),Math.random(),Math.random());
+      scene.add(r);
+    }
+    const cryColors = [0xe1bee7, 0xce93d8, 0xb39ddb, 0xf8bbd0, 0x81d4fa, 0xa5d6a7];
+    for (let i=0; i<12; i++) {
+      const col = cryColors[Math.floor(Math.random()*cryColors.length)];
+      const cryMat = new THREE.MeshPhongMaterial({
+        color: col, emissive: col, emissiveIntensity:0.35,
+        transparent:true, opacity:0.82,
+        specular:0xffffff, shininess:120,
+      });
+      const h = 1.6 + Math.random()*2.2;
+      const cry = new THREE.Mesh(new THREE.ConeGeometry(0.32 + Math.random()*0.22, h, 5), cryMat);
+      const a = Math.random()*Math.PI*2;
+      const r = Math.random()*2.4;
+      cry.position.set(cx + Math.cos(a)*r, h/2 - 0.3, cz + Math.sin(a)*r);
+      cry.rotation.z = (Math.random()-.5)*0.35;
+      cry.rotation.x = (Math.random()-.5)*0.35;
+      cry.userData = { pulsePhase: Math.random()*Math.PI*2, baseEmissive: 0.35 };
+      scene.add(cry);
+      crystalMeshes.push(cry);
+    }
+  }
+
+  function buildOctopusSprite() {
+    const frames = makeFrames(384, 384, 4, drawOctopus);
+    const mesh = makeSpritePlane(5.5, 5.5, frames);
+    mesh.position.set(-30, 2, -30);
+    mesh.userData.bill = true;
+    mesh.userData.frameSpeed = 4;
+    mesh.userData.baseY = 2;
+    scene.add(mesh);
+    spriteList.push(mesh);
+    octopusSprite = mesh;
+  }
+
+  function buildRapunzelTower(x, z) {
+    const rockMat = new THREE.MeshLambertMaterial({ color: 0xef9a9a });
+    const tower = new THREE.Mesh(new THREE.CylinderGeometry(0.9, 2.4, 4.5, 8), rockMat);
+    tower.position.set(x, 0.75, z);
+    scene.add(tower);
+    const top = new THREE.Mesh(
+      new THREE.CylinderGeometry(1.4, 1.2, 0.35, 10),
+      new THREE.MeshLambertMaterial({ color: 0xffcdd2 })
+    );
+    top.position.set(x, 3.15, z);
+    scene.add(top);
+    const flMat = new THREE.MeshBasicMaterial({ color: 0xff80ab });
+    for (let i=0; i<8; i++) {
+      const a = (i/8)*Math.PI*2;
+      const f = new THREE.Mesh(new THREE.SphereGeometry(0.22, 8, 6), flMat);
+      f.position.set(x + Math.cos(a)*2.2, -0.9, z + Math.sin(a)*2.2);
+      scene.add(f);
+    }
+  }
+
+  function buildSunkenShip(x, z) {
+    const hullMat = new THREE.MeshLambertMaterial({ color: 0x5d4037 });
+    const plankMat = new THREE.MeshLambertMaterial({ color: 0x8d6e63 });
+    const group = new THREE.Group();
+    const hull = new THREE.Mesh(new THREE.CylinderGeometry(2.4, 3, 8, 10, 1, false, 0, Math.PI), hullMat);
+    hull.rotation.z = Math.PI/2;
+    hull.rotation.x = Math.PI/2;
+    hull.scale.z = 0.8;
+    hull.position.y = 0.3;
+    group.add(hull);
+    const deck = new THREE.Mesh(new THREE.BoxGeometry(7.5, 0.4, 4.5), plankMat);
+    deck.position.y = 1.1;
+    group.add(deck);
+    const mast = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.3, 6, 6), plankMat);
+    mast.position.set(0.5, 4, 0);
+    mast.rotation.z = 0.4;
+    group.add(mast);
+    const cabin = new THREE.Mesh(new THREE.BoxGeometry(2.2, 1.8, 2.4), plankMat);
+    cabin.position.set(-2, 2.2, 0);
+    group.add(cabin);
+    const chestBody = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.9, 1.1),
+      new THREE.MeshLambertMaterial({color: 0x795548}));
+    chestBody.position.set(2, 1.75, 0);
+    group.add(chestBody);
+    const chestLid = new THREE.Mesh(new THREE.SphereGeometry(0.9, 10, 6, 0, Math.PI*2, 0, Math.PI/2),
+      new THREE.MeshLambertMaterial({color: 0x4e342e}));
+    chestLid.position.set(2, 2.25, 0);
+    chestLid.rotation.z = Math.PI/2;
+    chestLid.scale.z = 0.6;
+    group.add(chestLid);
+    const goldMat = new THREE.MeshPhongMaterial({ color: 0xffd700, emissive: 0x3a2a00, shininess:120 });
+    for (let i=0; i<6; i++) {
+      const c = new THREE.Mesh(new THREE.SphereGeometry(0.22, 8, 6), goldMat);
+      c.position.set(2 + (Math.random()-.5)*0.9, 2.05 + Math.random()*0.4, (Math.random()-.5)*0.6);
+      group.add(c);
+    }
+    group.rotation.z = 0.25;
+    group.rotation.y = -0.5;
+    group.position.set(x, -0.5, z);
+    scene.add(group);
+    for (let i=0; i<6; i++) {
+      const b = new THREE.Mesh(new THREE.SphereGeometry(0.15, 8, 6),
+        new THREE.MeshPhongMaterial({color:0xd1f2ff, transparent:true, opacity:0.65, shininess:90}));
+      b.position.set(x + (Math.random()-.5)*1.5, 2 + i*1.5, z + (Math.random()-.5)*1.5);
+      b.userData = { speed: 0.8 + Math.random()*0.3, origX:x, origZ:z };
+      scene.add(b);
+      bubbleMeshes.push(b);
+    }
+  }
+
+  function buildPinkCastle(x, z) {
+    const pink = new THREE.MeshLambertMaterial({ color: 0xf48fb1 });
+    const accent = new THREE.MeshLambertMaterial({ color: 0xffc1e3 });
+    const roof = new THREE.MeshLambertMaterial({ color: 0x7b1fa2 });
+    const gold = new THREE.MeshPhongMaterial({ color: 0xffd700, shininess:80 });
+    const group = new THREE.Group();
+    const keep = new THREE.Mesh(new THREE.BoxGeometry(10, 12, 10), pink);
+    keep.position.y = 6; group.add(keep);
+    for (let i=0; i<8; i++) {
+      const a = (i/8)*Math.PI*2;
+      const crenel = new THREE.Mesh(new THREE.BoxGeometry(1.2, 1.5, 1.2), pink);
+      crenel.position.set(Math.cos(a)*4.8, 12.4, Math.sin(a)*4.8);
+      group.add(crenel);
+    }
+    [-1,1].forEach(sx => [-1,1].forEach(sz => {
+      const t = new THREE.Mesh(new THREE.CylinderGeometry(1.6, 1.8, 16, 10), accent);
+      t.position.set(sx*5, 8, sz*5); group.add(t);
+      const cap = new THREE.Mesh(new THREE.ConeGeometry(2.1, 4, 10), roof);
+      cap.position.set(sx*5, 17.5, sz*5); group.add(cap);
+      const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 1.8, 5), gold);
+      pole.position.set(sx*5, 20.3, sz*5); group.add(pole);
+      const flag = new THREE.Mesh(new THREE.PlaneGeometry(1.2, 0.7),
+        new THREE.MeshLambertMaterial({color:0xe91e63, side:THREE.DoubleSide}));
+      flag.position.set(sx*5 + 0.6, 20.6, sz*5);
+      group.add(flag);
+    }));
+    const spire = new THREE.Mesh(new THREE.ConeGeometry(3, 7, 10), roof);
+    spire.position.y = 16; group.add(spire);
+    const door = new THREE.Mesh(new THREE.BoxGeometry(2.5, 4, 0.3), gold);
+    door.position.set(0, 2, 5.1); group.add(door);
+    const heart = new THREE.Mesh(new THREE.SphereGeometry(0.8, 10, 8),
+      new THREE.MeshPhongMaterial({color:0xfce4ec, emissive:0xe91e63, emissiveIntensity:0.3}));
+    heart.position.set(0, 9, 5.1); group.add(heart);
+    group.position.set(x, -1, z);
+    scene.add(group);
+  }
+
+  function buildScatteredSeaweed() {
+    for (let i=0; i<26; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const r = 6 + Math.random()*54;
+      addSeaweed(Math.cos(angle)*r, Math.sin(angle)*r);
+    }
+  }
+  function addSeaweed(x, z) {
+    const mat = new THREE.MeshLambertMaterial({
+      color: Math.random()<0.4 ? 0x66bb6a : 0x43a047,
+      side: THREE.DoubleSide,
+    });
+    const group = new THREE.Group();
+    const segments = 4 + Math.floor(Math.random()*3);
+    for (let i=0; i<segments; i++) {
+      const seg = new THREE.Mesh(new THREE.PlaneGeometry(0.4, 0.8), mat);
+      seg.position.y = -0.9 + i*0.7;
+      seg.rotation.y = i*0.3;
+      group.add(seg);
+    }
+    group.position.set(x, 0, z);
+    group.rotation.y = Math.random()*Math.PI*2;
+    group.userData = { phase: Math.random()*Math.PI*2, simple: true };
+    scene.add(group);
+    seaweedMeshes.push(group);
+  }
+
+  function buildStarfishes() {
+    for (let i=0; i<18; i++) {
+      const angle = Math.random()*Math.PI*2;
+      const r = 5 + Math.random()*52;
+      addStarfish(Math.cos(angle)*r, Math.sin(angle)*r);
+    }
+  }
+  function addStarfish(x, z) {
+    const mat = new THREE.MeshLambertMaterial({
+      color: [0xff7043, 0xffab40, 0xef5350, 0xffd54f][Math.floor(Math.random()*4)],
+    });
+    const group = new THREE.Group();
+    for (let i=0; i<5; i++) {
+      const arm = new THREE.Mesh(new THREE.ConeGeometry(0.22, 0.8, 5), mat);
+      const a = (i/5)*Math.PI*2;
+      arm.position.set(Math.cos(a)*0.3, 0, Math.sin(a)*0.3);
+      arm.rotation.z = Math.PI/2;
+      arm.rotation.y = -a;
+      group.add(arm);
+    }
+    const center = new THREE.Mesh(new THREE.SphereGeometry(0.24, 8, 6), mat);
+    group.add(center);
+    group.position.set(x, -1.25, z);
+    group.rotation.y = Math.random()*Math.PI*2;
+    scene.add(group);
+  }
+
+  function buildShells() {
+    for (let i=0; i<26; i++) {
+      const angle = Math.random()*Math.PI*2;
+      const r = 5 + Math.random()*54;
+      addShell(Math.cos(angle)*r, Math.sin(angle)*r);
+    }
+  }
+  function addShell(x, z) {
+    const colors = [0xfff0e0, 0xffe4f0, 0xe0f2ff, 0xf8bbd0, 0xffccbc];
+    const mat = new THREE.MeshPhongMaterial({
+      color: colors[Math.floor(Math.random()*colors.length)],
+      specular:0xffffff, shininess:60,
+    });
+    const shell = new THREE.Mesh(new THREE.SphereGeometry(0.4, 10, 7, 0, Math.PI*2, 0, Math.PI/2), mat);
+    shell.position.set(x, -1.3, z);
+    shell.rotation.y = Math.random()*Math.PI*2;
+    shell.rotation.z = (Math.random()-.5)*0.3;
+    scene.add(shell);
+  }
+
+  // ── Fish (SPRITES instead of meshes) ──
+  function buildFishSchools() {
+    const palettes = [
+      ['#ff6f00', '#ffca28'],
+      ['#6a1b9a', '#ce93d8'],
+      ['#0277bd', '#81d4fa'],
+      ['#2e7d32', '#aed581'],
+      ['#c2185b', '#f8bbd0'],
+      ['#f57f17', '#fff176'],
+      ['#00838f', '#80deea'],
+    ];
+    const framesByPalette = palettes.map(([a,b]) => makeFrames(128, 64, 4, drawFish(a, b)));
+    for (let i=0; i<32; i++) {
+      const frames = framesByPalette[i % framesByPalette.length];
+      const m = makeSpritePlane(1.8, 0.9, frames);
+      m.position.set(
+        (Math.random()-.5)*85,
+        1 + Math.random()*10,
+        (Math.random()-.5)*85,
+      );
+      m.userData.centerX = m.position.x;
+      m.userData.centerZ = m.position.z;
+      m.userData.radius = 3 + Math.random()*6;
+      m.userData.speed = 0.35 + Math.random()*0.55;
+      m.userData.phase = Math.random()*Math.PI*2;
+      m.userData.y = m.position.y;
+      m.userData.frameSpeed = 8;
+      m.userData.fish = true;
+      scene.add(m);
+      fishMeshes.push(m);
+      spriteList.push(m);
+    }
+  }
+
+  // ── Pearls ──
+  function buildPearls() {
+    for (let i=0; i<18; i++) {
+      const angle = Math.random()*Math.PI*2;
+      const r = 6 + Math.random()*48;
+      addPearl(Math.cos(angle)*r, Math.sin(angle)*r);
+    }
+  }
+  function addPearl(x, z) {
+    const pearl = new THREE.Mesh(
+      new THREE.SphereGeometry(0.34, 14, 10),
+      new THREE.MeshPhongMaterial({
+        color: 0xfff7fa, specular: 0xffffff, shininess: 130,
+        emissive: 0x331a33, emissiveIntensity: 0.4,
+      })
+    );
+    pearl.position.set(x, 1.2 + Math.random()*2.5, z);
+    const halo = new THREE.Mesh(
+      new THREE.SphereGeometry(0.7, 10, 8),
+      new THREE.MeshBasicMaterial({ color: 0xfff0ff, transparent:true, opacity:0.2 })
+    );
+    pearl.add(halo);
+    pearl.userData = { baseY: pearl.position.y, t: Math.random()*Math.PI*2, collected: false };
+    scene.add(pearl);
+    pearlMeshes.push(pearl);
+  }
+
+  // ── Seahorse sprites ──
+  function buildSeahorses() {
+    const colors = ['#ffb74d', '#f48fb1', '#81d4fa', '#ce93d8', '#aed581'];
+    for (let i=0; i<6; i++) {
+      const angle = Math.random()*Math.PI*2;
+      const r = 15 + Math.random()*35;
+      const frames = makeFrames(128, 256, 3, drawSeahorse(colors[i % colors.length]));
+      const m = makeSpritePlane(1.4, 2.8, frames);
+      m.position.set(Math.cos(angle)*r, 1.6 + Math.random()*2, Math.sin(angle)*r);
+      m.userData.baseY = m.position.y;
+      m.userData.phase = Math.random()*Math.PI*2;
+      m.userData.frameSpeed = 2;
+      m.userData.seahorse = true;
+      scene.add(m);
+      seahorseMeshes.push(m);
+      spriteList.push(m);
+    }
+  }
+
+  function buildCrab() {
+    const frames = makeFrames(256, 192, 4, drawCrab);
+    const m = makeSpritePlane(2.4, 1.8, frames);
+    m.position.set(-15, -0.5, -6);
+    m.userData.crab = true;
+    m.userData.frameSpeed = 6;
+    m.userData.phase = 0;
+    scene.add(m);
+    spriteList.push(m);
+    crab = m;
+  }
+
+  function buildDolphin() {
+    const frames = makeFrames(256, 128, 4, drawDolphin);
+    const m = makeSpritePlane(3.6, 1.8, frames);
+    m.position.set(40, 5, 0);
+    m.userData.dolphin = true;
+    m.userData.t = Math.random()*Math.PI*2;
+    m.userData.frameSpeed = 6;
+    scene.add(m);
+    spriteList.push(m);
+    dolphin = m;
+  }
+
+  function buildWhale() {
+    const frames = makeFrames(512, 256, 3, drawWhale);
+    const m = makeSpritePlane(14, 7, frames);
+    m.position.set(60, 8, -40);
+    m.userData.whale = true;
+    m.userData.t = Math.random()*Math.PI;
+    m.userData.frameSpeed = 1.2;
+    scene.add(m);
+    spriteList.push(m);
+    whale = m;
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════
+  //  FRIENDS (sprites)
+  // ═══════════════════════════════════════════════════════════════════════
+  function addHaloSprite(mesh, color) {
+    const canvas = makeCanvas(256, 256);
+    const c = canvas.getContext('2d');
+    const g = c.createRadialGradient(128, 128, 30, 128, 128, 128);
+    g.addColorStop(0, color);
+    g.addColorStop(0.5, color.replace('1)', '0.5)'));
+    g.addColorStop(1, color.replace(/,\s*[^,]+\)$/, ',0)'));
+    c.fillStyle = g;
+    c.fillRect(0, 0, 256, 256);
+    const tex = new THREE.CanvasTexture(canvas);
+    const mat = new THREE.SpriteMaterial({ map: tex, transparent:true, opacity:0 });
+    const halo = new THREE.Sprite(mat);
+    halo.scale.set(6, 6, 1);
+    halo.position.y = -0.2;
+    mesh.add(halo);
+    mesh.userData.halo = halo;
+    return halo;
+  }
+
+  function buildFriends() {
+    CFG.friends.forEach(cfg => {
+      let mesh, baseY = 2.6, wScale, hScale, frames;
+      if (cfg.kind === 'rapunzel') {
+        frames = makeFrames(512, 820, 3, drawRapunzel);
+        mesh = makeSpritePlane(4.2, 6.7, frames);
+        baseY = 5.5; // on top of tower
+      } else if (cfg.kind === 'mermaid') {
+        frames = makeFrames(512, 820, 4, drawMermaidFriend);
+        mesh = makeSpritePlane(4.0, 6.4, frames);
+        baseY = 3.2;
+      } else if (cfg.kind === 'happy') {
+        frames = makeFrames(512, 512, 6, drawHappyFace);
+        mesh = makeSpritePlane(6.0, 6.0, frames);
+        baseY = 4.5;
+      } else if (cfg.kind === 'girl') {
+        frames = makeFrames(560, 820, 3, drawPrincessGirl);
+        mesh = makeSpritePlane(5.6, 8.2, frames);
+        baseY = 3.5;
+      }
+      mesh.position.set(cfg.x, baseY, cfg.z);
+      mesh.userData = Object.assign({}, mesh.userData, {
+        kind: cfg.kind, label: cfg.label, found: false,
+        t: Math.random()*Math.PI*2, near: false, baseY,
+        bill: true, frameSpeed: cfg.kind === 'happy' ? 3 : 2,
+      });
+      addHaloSprite(mesh, 'rgba(255,230,150,1)');
+      scene.add(mesh);
+      friendMeshes.push(mesh);
+      spriteList.push(mesh);
+    });
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════
+  //  ARIEL (player, back view sprite that rotates with heading)
+  // ═══════════════════════════════════════════════════════════════════════
+  function buildAriel() {
+    const frames = makeFrames(512, 820, 6, drawAriel);
+    const mesh = makeSpritePlane(3.6, 5.8, frames);
+    mesh.userData.frameSpeed = 5;
+    mesh.userData.isAriel = true;
+    return mesh;
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════
+  //  INPUT
+  // ═══════════════════════════════════════════════════════════════════════
+  function bindInput() {
+    const leftBtn  = document.getElementById('steer-left');
+    const rightBtn = document.getElementById('steer-right');
+    const twirlBtn = document.getElementById('twirl-btn');
+
+    function press(which) { turnInput = which; }
+    function release(which) {
+      if (which === undefined || turnInput === which) turnInput = 0;
+    }
+
+    leftBtn.addEventListener('pointerdown',  e => { e.preventDefault(); leftBtn.classList.add('pressed'); press(+1); });
+    leftBtn.addEventListener('pointerup',    e => { e.preventDefault(); leftBtn.classList.remove('pressed'); release(+1); });
+    leftBtn.addEventListener('pointerleave', e => { leftBtn.classList.remove('pressed'); release(+1); });
+    leftBtn.addEventListener('pointercancel',e => { leftBtn.classList.remove('pressed'); release(+1); });
+
+    rightBtn.addEventListener('pointerdown',  e => { e.preventDefault(); rightBtn.classList.add('pressed'); press(-1); });
+    rightBtn.addEventListener('pointerup',    e => { e.preventDefault(); rightBtn.classList.remove('pressed'); release(-1); });
+    rightBtn.addEventListener('pointerleave', e => { rightBtn.classList.remove('pressed'); release(-1); });
+    rightBtn.addEventListener('pointercancel',e => { rightBtn.classList.remove('pressed'); release(-1); });
+
+    twirlBtn.addEventListener('pointerdown',  e => {
+      e.preventDefault(); twirlBtn.classList.add('pressed');
+      if (twirlT <= 0) { twirlT = 1.2; playTwirl(); burstSparkles(mermaidX, mermaidY, mermaidZ, 0xff80ab, 40); }
+    });
+    twirlBtn.addEventListener('pointerup',    e => twirlBtn.classList.remove('pressed'));
+    twirlBtn.addEventListener('pointerleave', e => twirlBtn.classList.remove('pressed'));
+
+    window.addEventListener('keydown', e => {
+      if (!gameActive) return;
+      if (e.key === 'ArrowLeft'  || e.key === 'a') { turnInput = +1; leftBtn.classList.add('pressed'); }
+      if (e.key === 'ArrowRight' || e.key === 'd') { turnInput = -1; rightBtn.classList.add('pressed'); }
+      if (e.key === ' ' || e.key === 'Enter') {
+        if (twirlT <= 0) { twirlT = 1.2; playTwirl(); burstSparkles(mermaidX, mermaidY, mermaidZ, 0xff80ab, 40); }
+      }
+    });
+    window.addEventListener('keyup', e => {
+      if (e.key === 'ArrowLeft'  || e.key === 'a') { release(+1); leftBtn.classList.remove('pressed'); }
+      if (e.key === 'ArrowRight' || e.key === 'd') { release(-1); rightBtn.classList.remove('pressed'); }
+    });
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════
+  //  ANIMATE
+  // ═══════════════════════════════════════════════════════════════════════
+  function animate() {
+    requestAnimationFrame(animate);
+    if (!gameActive) { if (renderer) renderer.render(scene, camera); return; }
+
+    const dt = Math.min(0.05, clock.getDelta());
+    swimT  += dt;
+    bobT   += dt;
+    globalT += dt;
+    if (twirlT > 0) twirlT -= dt;
+
+    ambientPad(globalT);
+
+    // Steering
+    const targetVel = turnInput * CFG.turnSpeed;
+    headingVel += (targetVel - headingVel) * Math.min(1, dt * 8);
+    heading += headingVel * dt;
+    const twirlSpin = twirlT > 0 ? (twirlT * 12) : 0;
+
+    // Forward motion
+    const fx = -Math.sin(heading);
+    const fz = -Math.cos(heading);
+    mermaidX += fx * CFG.swimSpeed * dt;
+    mermaidZ += fz * CFG.swimSpeed * dt;
+
+    const dist = Math.hypot(mermaidX, mermaidZ);
+    if (dist > CFG.lagoonRadius) {
+      mermaidX = (mermaidX / dist) * CFG.lagoonRadius;
+      mermaidZ = (mermaidZ / dist) * CFG.lagoonRadius;
+      const angleToCenter = Math.atan2(-mermaidX, -mermaidZ);
+      heading = lerpAngle(heading, angleToCenter, 0.09);
+    }
+
+    mermaidY = 3 + Math.sin(bobT * 1.5) * 0.35;
+
+    // Ariel — sprite rotates so its back faces the camera (camera is behind her)
+    ariel.position.set(mermaidX, mermaidY, mermaidZ);
+    ariel.rotation.y = heading + twirlSpin;
+    // Frame animation
+    const arFrame = Math.floor(swimT * ariel.userData.frameSpeed);
+    setFrame(ariel, arFrame);
+    // Lean into turns via Z-rot
+    ariel.rotation.z = -headingVel * 0.3 + Math.sin(swimT * 1.3) * 0.03;
+
+    // Twirl sparkle trail
+    if (twirlT > 0 && Math.random() < 0.6) {
+      burstSparkles(
+        mermaidX + (Math.random()-.5)*1.5,
+        mermaidY + (Math.random()-.5)*1.5,
+        mermaidZ + (Math.random()-.5)*1.5,
+        [0xff80ab, 0xffeb3b, 0x81d4fa, 0xce93d8][Math.floor(Math.random()*4)],
+        3
+      );
+    }
+    // Swim sparkle trail
+    if (Math.random() < 0.25) {
+      burstSparkles(mermaidX - fx*1.5, mermaidY - 0.3, mermaidZ - fz*1.5, 0xb3e5fc, 1);
+    }
+
+    // Camera
+    const camDist = 7.5;
+    const camH = 3.4;
+    const tx = mermaidX + Math.sin(heading) * camDist;
+    const tz = mermaidZ + Math.cos(heading) * camDist;
+    const ty = mermaidY + camH;
+    camera.position.x += (tx - camera.position.x) * Math.min(1, dt*5);
+    camera.position.y += (ty - camera.position.y) * Math.min(1, dt*5);
+    camera.position.z += (tz - camera.position.z) * Math.min(1, dt*5);
+    camera.lookAt(mermaidX + fx*2, mermaidY + 0.3, mermaidZ + fz*2);
+
+    // Pearls
+    for (const p of pearlMeshes) {
+      if (p.userData.collected) continue;
+      p.userData.t += dt;
+      p.rotation.y += dt * 1.6;
+      p.position.y = p.userData.baseY + Math.sin(p.userData.t * 2.1) * 0.3;
+      const d = Math.hypot(p.position.x - mermaidX, p.position.z - mermaidZ);
+      if (d < CFG.pearlDist && Math.abs(p.position.y - mermaidY) < 2.5) {
+        p.userData.collected = true;
+        p.visible = false;
+        pearlsCollected++;
+        updatePearlCounter();
+        playPearl();
+        flash('pearl-flash');
+        burstSparkles(p.position.x, p.position.y, p.position.z, 0xfff7fa, 12);
+      }
+    }
+
+    // Friends
+    for (const f of friendMeshes) {
+      f.userData.t += dt;
+      if (f.userData.kind !== 'rapunzel') {
+        f.position.y = f.userData.baseY + Math.sin(f.userData.t * 1.2) * 0.22;
+      }
+      // frame cycle
+      setFrame(f, Math.floor(f.userData.t * f.userData.frameSpeed));
+
+      if (!f.userData.found) {
+        const d = Math.hypot(f.position.x - mermaidX, f.position.z - mermaidZ);
+        const haloOn = d < CFG.findDist * 2.5;
+        if (f.userData.halo) {
+          const k = Math.max(0, 1 - d / (CFG.findDist * 2.5));
+          f.userData.halo.material.opacity = haloOn ? (0.25 + k * 0.45) : 0;
+        }
+        const wasNear = f.userData.near;
+        const isNear = d < CFG.nearFriendDist;
+        f.userData.near = isNear;
+        const slotEl = document.getElementById('slot-' + f.userData.kind);
+        if (slotEl) slotEl.classList.toggle('near', isNear);
+        if (isNear && !wasNear) playNearHint();
+
+        if (d < CFG.findDist) {
+          f.userData.found = true;
+          foundCount++;
+          markFriendFound(f.userData.kind);
+          showBanner(f.userData.label);
+          playFind(f.userData.kind);
+          burstSparkles(f.position.x, f.position.y + 1, f.position.z,
+            [0xffd700,0xff80ab,0x81d4fa,0xffeb3b][foundCount-1] || 0xfff3b0, 40);
+          flash('find-flash');
+          if (foundCount >= CFG.friends.length) {
+            setTimeout(() => winGame(), 1800);
+          }
+        }
+      } else {
+        if (f.userData.halo) {
+          f.userData.halo.material.opacity = 0.4 + Math.sin(f.userData.t * 2) * 0.15;
+        }
+      }
+    }
+
+    // Billboard every sprite that's marked bill:true, plus fish facing swim direction
+    for (const s of spriteList) {
+      if (s.userData.bill) {
+        billboardY(s, camera.position);
+      }
+      if (s.userData.frameSpeed !== undefined && !s.userData.fish) {
+        setFrame(s, Math.floor(globalT * s.userData.frameSpeed));
+      }
+    }
+
+    // Bubbles
+    for (const b of bubbleMeshes) {
+      b.position.y += b.userData.speed * dt;
+      b.position.x += Math.sin(b.userData.drift + bobT) * 0.2 * dt;
+      if (b.position.y > 16) {
+        b.position.y = -1;
+        if (b.userData.origX !== undefined) {
+          b.position.x = b.userData.origX + (Math.random()-.5)*1.5;
+          b.position.z = b.userData.origZ + (Math.random()-.5)*1.5;
+        } else {
+          b.position.x = (Math.random()-.5) * 100;
+          b.position.z = (Math.random()-.5) * 100;
+        }
+      }
+    }
+    // Marine snow
+    for (const s of marineSnow) {
+      s.position.y += s.userData.vy * dt;
+      s.position.x += Math.sin(bobT + s.userData.drift) * 0.05;
+      if (s.position.y < -1) {
+        s.position.y = 15;
+        s.position.x = (Math.random()-.5)*90;
+        s.position.z = (Math.random()-.5)*90;
+      }
+    }
+
+    // Fish — circle around their center, orient sprite to swim direction
+    for (const f of fishMeshes) {
+      const u = f.userData;
+      u.phase += u.speed * dt;
+      const x = u.centerX + Math.cos(u.phase) * u.radius;
+      const z = u.centerZ + Math.sin(u.phase) * u.radius;
+      f.position.set(x, u.y, z);
+      // Side view sprite: rotate to face travel direction (tangent)
+      const tangX = -Math.sin(u.phase);
+      const tangZ =  Math.cos(u.phase);
+      // Orient the plane so normal is perpendicular to travel
+      f.rotation.y = Math.atan2(tangX, tangZ) + Math.PI/2;
+      // Flip horizontally if moving "backward" relative to view — handled by sprite always visible, simple side view is OK
+      setFrame(f, Math.floor(u.phase * u.speed * 3 + u.phase*4));
+    }
+
+    // Seaweed sways
+    for (const s of seaweedMeshes) {
+      if (s.userData.simple) {
+        s.rotation.z = Math.sin(bobT * 0.9 + s.userData.phase) * 0.22;
+      } else {
+        const chain = s.userData.chain;
+        for (let i=0; i<chain.length; i++) {
+          chain[i].rotation.z = Math.sin(bobT*1.1 + s.userData.phase + i*0.35) * 0.14;
+          chain[i].rotation.x = Math.cos(bobT*0.9 + s.userData.phase + i*0.35) * 0.08;
+        }
+      }
+    }
+
+    // Caustics drift + pulse
+    for (const c of causticMeshes) {
+      c.userData.phase += c.userData.speed * dt;
+      c.position.x = c.userData.baseX + Math.sin(c.userData.phase) * 3;
+      c.position.z = c.userData.baseZ + Math.cos(c.userData.phase*0.8) * 2.5;
+      c.material.opacity = c.userData.opBase + Math.sin(c.userData.phase*1.5) * 0.05;
+    }
+    for (const r of rayMeshes) {
+      r.material.opacity = r.userData.baseOp + Math.sin(globalT*1.3 + r.userData.phase)*0.06;
+    }
+    for (const c of crystalMeshes) {
+      c.material.emissiveIntensity = c.userData.baseEmissive + Math.sin(globalT*2 + c.userData.pulsePhase)*0.2;
+    }
+
+    // Seahorse bob
+    for (const sh of seahorseMeshes) {
+      sh.position.y = sh.userData.baseY + Math.sin(globalT*1.5 + sh.userData.phase)*0.4;
+    }
+
+    // Crab scuttle
+    if (crab) {
+      crab.userData.phase += dt * 1.4;
+      const r = 14;
+      crab.position.x = Math.cos(crab.userData.phase*0.5)*r;
+      crab.position.z = -5 + Math.sin(crab.userData.phase*0.5)*r;
+      crab.position.y = -0.5 + Math.abs(Math.sin(crab.userData.phase*4))*0.15;
+    }
+
+    // Dolphin big arcs
+    if (dolphin) {
+      dolphin.userData.t += dt * 0.4;
+      const loopR = 45;
+      const t = dolphin.userData.t;
+      const x = Math.cos(t) * loopR;
+      const z = Math.sin(t) * loopR;
+      const y = 4 + Math.sin(t * 3) * 8;
+      dolphin.position.set(x, y, z);
+      // Face tangent (sprite side view)
+      const tangX = -Math.sin(t);
+      const tangZ =  Math.cos(t);
+      dolphin.rotation.y = Math.atan2(tangX, tangZ) + Math.PI/2;
+      dolphin.rotation.z = Math.cos(t * 3) * 0.35;
+    }
+    // Whale drifts
+    if (whale) {
+      whale.userData.t += dt * 0.08;
+      const t = whale.userData.t;
+      const x = Math.cos(t) * 100;
+      const z = Math.sin(t) * 100 - 40;
+      whale.position.set(x, 8, z);
+      const tangX = -Math.sin(t);
+      const tangZ =  Math.cos(t);
+      whale.rotation.y = Math.atan2(tangX, tangZ) + Math.PI/2;
+    }
+
+    // Octopus gentle hover
+    if (octopusSprite) {
+      octopusSprite.position.y = octopusSprite.userData.baseY + Math.sin(globalT*0.8)*0.3;
+    }
+
+    updateSparkles(dt);
+    renderer.render(scene, camera);
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════
+  //  SPARKLES / CONFETTI
+  // ═══════════════════════════════════════════════════════════════════════
+  let sparkles = [];
+  function burstSparkles(x, y, z, color=0xfff7b0, count=28) {
+    for (let i=0; i<count; i++) {
+      const mat = new THREE.MeshBasicMaterial({ color, transparent:true });
+      const s = new THREE.Mesh(new THREE.SphereGeometry(0.15 + Math.random()*0.12, 6, 4), mat);
+      s.position.set(x, y, z);
+      const a = Math.random()*Math.PI*2, phi = Math.random()*Math.PI;
+      const speed = 3 + Math.random()*3;
+      s.userData = {
+        vx: Math.sin(phi)*Math.cos(a)*speed,
+        vy: Math.cos(phi)*speed,
+        vz: Math.sin(phi)*Math.sin(a)*speed,
+        life: 1.0,
+      };
+      scene.add(s);
+      sparkles.push(s);
+    }
+  }
+  function updateSparkles(dt) {
+    for (let i = sparkles.length-1; i >= 0; i--) {
+      const s = sparkles[i];
+      s.userData.life -= dt * 1.2;
+      if (s.userData.life <= 0) {
+        scene.remove(s);
+        s.geometry.dispose();
+        s.material.dispose();
+        sparkles.splice(i,1);
+        continue;
+      }
+      s.position.x += s.userData.vx * dt;
+      s.position.y += s.userData.vy * dt;
+      s.position.z += s.userData.vz * dt;
+      s.userData.vy -= 1.5 * dt;
+      s.material.opacity = s.userData.life;
+      s.scale.setScalar(s.userData.life * 1.2);
+    }
+  }
+
+  function spawnConfetti() {
+    const colors = ['#ff80ab','#ffd700','#4fc3f7','#ba68c8','#ffca28','#f06292','#7e57c2','#aed581','#26a69a','#ff9800'];
+    for (let i=0; i<90; i++) {
+      const p = document.createElement('div');
+      p.className = 'confetti-piece';
+      const size = 8 + Math.random()*14;
+      p.style.width  = size + 'px';
+      p.style.height = (size * (0.5 + Math.random()*0.8)) + 'px';
+      p.style.left   = (Math.random()*100) + 'vw';
+      p.style.background = colors[Math.floor(Math.random()*colors.length)];
+      p.style.borderRadius = Math.random() < 0.5 ? '50%' : '4px';
+      p.style.animationDuration = (2.4 + Math.random()*2.6) + 's';
+      document.body.appendChild(p);
+      setTimeout(() => p.remove(), 5500);
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════
+  //  HELPERS
+  // ═══════════════════════════════════════════════════════════════════════
+  function lerpAngle(a, b, t) {
+    let d = b - a;
+    while (d >  Math.PI) d -= Math.PI*2;
+    while (d < -Math.PI) d += Math.PI*2;
+    return a + d * t;
+  }
+  function flash(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.classList.add('show');
+    setTimeout(() => el.classList.remove('show'), 320);
+  }
+  function updatePearlCounter() {
+    document.getElementById('pearl-counter').textContent = '🫧 ' + pearlsCollected;
+  }
+  function markFriendFound(kind) {
+    const el = document.getElementById('slot-' + kind);
+    if (el) { el.classList.add('got'); el.classList.remove('near'); }
+  }
+  function showBanner(text) {
+    const b = document.getElementById('friend-banner');
+    b.textContent = text;
+    b.classList.add('show');
+    setTimeout(() => b.classList.remove('show'), 1400);
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════
+  //  FLOW
+  // ═══════════════════════════════════════════════════════════════════════
+  function startGame() {
+    try { au().resume(); } catch(e) {}
+    document.getElementById('start-screen').classList.add('hidden');
+    document.getElementById('hud').style.display = 'flex';
+    document.getElementById('pearl-counter').style.display = 'block';
+    document.getElementById('steer-left').style.display = 'flex';
+    document.getElementById('steer-right').style.display = 'flex';
+    document.getElementById('twirl-btn').style.display = 'flex';
+    document.getElementById('hint').style.display = 'block';
+
+    if (!renderer) {
+      initThree();
+      buildWorld();
+      ariel = buildAriel();
+      scene.add(ariel);
+      bindInput();
+      animate();
+    }
+    gameActive = true;
+    clock.start();
+    [523,659,784,988,1175].forEach((f,i) => tone(f,'sine',0.28,0.12, i*0.08));
+  }
+
+  function winGame() {
+    gameActive = false;
+    document.getElementById('hud').style.display = 'none';
+    document.getElementById('pearl-counter').style.display = 'none';
+    document.getElementById('steer-left').style.display = 'none';
+    document.getElementById('steer-right').style.display = 'none';
+    document.getElementById('twirl-btn').style.display = 'none';
+    document.getElementById('win-screen').classList.remove('hidden');
+    playWin();
+    spawnConfetti();
+    setTimeout(spawnConfetti, 700);
+    setTimeout(spawnConfetti, 1500);
+    setTimeout(spawnConfetti, 2400);
+  }
+
+  function restartGame() {
+    mermaidX = 0; mermaidZ = 0; mermaidY = 3;
+    heading = 0; headingVel = 0; turnInput = 0;
+    swimT = 0; bobT = 0; twirlT = 0;
+    foundCount = 0; pearlsCollected = 0;
+    friendMeshes.forEach(f => {
+      f.userData.found = false;
+      f.userData.near = false;
+      if (f.userData.halo) f.userData.halo.material.opacity = 0;
+    });
+    pearlMeshes.forEach(p => { p.userData.collected = false; p.visible = true; });
+    document.querySelectorAll('.friend-slot').forEach(s => { s.classList.remove('got'); s.classList.remove('near'); });
+    updatePearlCounter();
+    document.getElementById('win-screen').classList.add('hidden');
+    document.getElementById('hud').style.display = 'flex';
+    document.getElementById('pearl-counter').style.display = 'block';
+    document.getElementById('steer-left').style.display = 'flex';
+    document.getElementById('steer-right').style.display = 'flex';
+    document.getElementById('twirl-btn').style.display = 'flex';
+    gameActive = true;
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════
+  //  START-SCREEN BUBBLES + ART
+  // ═══════════════════════════════════════════════════════════════════════
+  (function(){
+    const s = document.getElementById('start-screen');
+    for (let i=0; i<16; i++) {
+      const b = document.createElement('div');
+      b.className = 'start-bubble';
+      const size = 12 + Math.random()*44;
+      b.style.width = size+'px'; b.style.height = size+'px';
+      b.style.left = (Math.random()*100)+'vw';
+      b.style.animationDelay = (Math.random()*8)+'s';
+      b.style.animationDuration = (6 + Math.random()*6)+'s';
+      s.appendChild(b);
+    }
+    // Draw the painted mermaid on the start art canvas (Rapunzel-style princess preview)
+    const artCanvas = document.getElementById('start-art');
+    artCanvas.width = 340;
+    artCanvas.height = 360;
+    // Render a scaled version of Ariel's sprite (front would be nicer, but back read ok)
+    // Actually use the mermaid friend (front view) at the right size
+    const c = artCanvas.getContext('2d');
+    const tmp = makeCanvas(512, 820);
+    drawMermaidFriend(tmp.getContext('2d'), 512, 820, 0, 4);
+    c.clearRect(0, 0, 340, 360);
+    c.drawImage(tmp, 0, 0, 512, 820, 0, 0, 340, (340/512)*820);
+  })();
+  </script>
+</body>
+</html>
