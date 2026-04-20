@@ -179,13 +179,16 @@
     }
     @keyframes confettiFall { 0%{top:-20px;opacity:1} 100%{top:110vh;opacity:0} }
 
-    #back-btn {
-      position:fixed; top:10px; left:10px; z-index:25;
+    #back-btn, #mute-btn {
+      position:fixed; top:10px; z-index:25;
       background:#1a237e; color:#fff; border:3px solid #000;
-      width:44px; height:44px; font-size:22px; cursor:pointer;
+      width:44px; height:44px; font-size:20px; cursor:pointer;
       box-shadow:3px 3px 0 #000;
       font-family:inherit; font-weight:bold;
     }
+    #back-btn { left:10px; }
+    #mute-btn { right:10px; }
+    #mute-btn.muted { background:#6d4c41; color:#999; }
 
     /* Tap ripple */
     .tap-ring {
@@ -203,6 +206,7 @@
 </head>
 <body>
   <button id="back-btn" onclick="history.length>1?history.back():window.close()">←</button>
+  <button id="mute-btn" onclick="toggleMute()" style="display:none">♪</button>
 
   <div id="start-screen" class="screen">
     <div id="start-tag">Pixel Edition</div>
@@ -1182,18 +1186,117 @@
     melody.forEach((f,i) => tone(f,'square',0.22,0.1, i*0.1));
     [131,196,262,330,392].forEach((f,i) => tone(f,'triangle',0.35,0.08, i*0.2));
   }
-  function ambientPad(t) {
-    if (t - ambientMusicT < 6.5) return;
-    ambientMusicT = t;
-    const roots = [
-      [196, 294, 392, 588],
-      [220, 330, 440, 659],
-      [175, 262, 349, 523],
-      [246, 370, 494, 659],
-    ];
-    const chord = roots[Math.floor(Math.random()*roots.length)];
-    chord.forEach((f,i) => tone(f,'sine', 1.8, 0.025, i*0.06));
+  // ── Chiptune music scheduler ──
+  // Schedules notes on precise audioContext times, loops a 4-bar I-vi-IV-V
+  // progression with an arpeggio lead and a sustained triangle bass.
+  const MUSIC = {
+    enabled: true,
+    bpm: 96,
+    barsScheduled: 0,
+    nextBarTime: 0,
+    timerId: null,
+    masterVol: 1.0,
+  };
+
+  function beatDur() { return 60 / MUSIC.bpm / 2; }  // 8th note
+  function barDur()  { return beatDur() * 8; }
+
+  // Absolute-time tone scheduler — unlike tone() which uses relative 'when'
+  function toneAt(f, type, d, v, whenAbs) {
+    try {
+      const c = au();
+      const o = c.createOscillator();
+      const g = c.createGain();
+      o.connect(g); g.connect(c.destination);
+      o.type = type || 'sine';
+      o.frequency.value = f;
+      g.gain.setValueAtTime(0.0001, whenAbs);
+      g.gain.exponentialRampToValueAtTime(v * MUSIC.masterVol, whenAbs + 0.012);
+      g.gain.exponentialRampToValueAtTime(0.0001, whenAbs + d);
+      o.start(whenAbs);
+      o.stop(whenAbs + d + 0.02);
+    } catch(e) {}
   }
+
+  // Chord progression: I - vi - IV - V in C major
+  // Each chord: { root (bass), notes (arpeggio stack) }
+  const CHORDS = [
+    { root: 130.81, notes: [261.63, 329.63, 392.00, 523.25, 659.25] }, // C   (C3 C4 E4 G4 C5 E5)
+    { root: 110.00, notes: [220.00, 329.63, 440.00, 523.25, 659.25] }, // Am
+    { root:  87.31, notes: [174.61, 261.63, 349.23, 440.00, 523.25] }, // F
+    { root:  98.00, notes: [196.00, 293.66, 392.00, 493.88, 587.33] }, // G
+  ];
+  // Arpeggio pattern — indexes into chord.notes
+  const ARP = [0, 1, 2, 3, 2, 1, 2, 3];
+  // Melody hook (used on bars 4-7 of an 8-bar phrase)
+  const HOOK = [4, 3, 4, null, 3, 2, 3, null];
+
+  function scheduleBar(barIdx, barT, phraseBar) {
+    const ch = CHORDS[barIdx];
+    const bd = beatDur();
+    // Bass (triangle, sustained)
+    toneAt(ch.root, 'triangle', barDur() * 0.95, 0.07, barT);
+    toneAt(ch.root * 2, 'sine', barDur() * 0.9, 0.015, barT);  // subtle octave doubling
+    // Arpeggio (square, staccato)
+    for (let beat = 0; beat < 8; beat++) {
+      const n = ch.notes[ARP[beat]];
+      toneAt(n, 'square', bd * 0.55, 0.025, barT + beat * bd);
+      // Soft harmony layer a third below
+      if (beat % 2 === 0) {
+        toneAt(n * 0.75, 'triangle', bd * 0.5, 0.014, barT + beat * bd);
+      }
+    }
+    // On every other 4-bar group, add a high melody hook
+    if (phraseBar >= 4) {
+      for (let beat = 0; beat < 8; beat++) {
+        const idx = HOOK[beat];
+        if (idx === null) continue;
+        const n = ch.notes[idx];
+        toneAt(n, 'triangle', bd * 0.75, 0.028, barT + beat * bd);
+      }
+    }
+    // Downbeat sparkle every 8 bars
+    if (phraseBar === 0) {
+      toneAt(ch.notes[4] * 2, 'sine', 0.12, 0.025, barT);
+      toneAt(ch.notes[4] * 2, 'triangle', 0.18, 0.015, barT + 0.06);
+    }
+  }
+
+  function pumpMusic() {
+    if (!audioCtx || !MUSIC.enabled) return;
+    const now = audioCtx.currentTime;
+    // Schedule up to ~1.2s ahead
+    while (MUSIC.nextBarTime < now + 1.2) {
+      const chordIdx = MUSIC.barsScheduled % 4;
+      const phraseBar = MUSIC.barsScheduled % 8;
+      scheduleBar(chordIdx, MUSIC.nextBarTime, phraseBar);
+      MUSIC.nextBarTime += barDur();
+      MUSIC.barsScheduled++;
+    }
+  }
+
+  function startMusic() {
+    if (!audioCtx || MUSIC.timerId) return;
+    MUSIC.nextBarTime = audioCtx.currentTime + 0.25;
+    MUSIC.barsScheduled = 0;
+    pumpMusic();
+    MUSIC.timerId = setInterval(pumpMusic, 180);
+  }
+  function stopMusic() {
+    if (MUSIC.timerId) { clearInterval(MUSIC.timerId); MUSIC.timerId = null; }
+  }
+  function toggleMute() {
+    MUSIC.enabled = !MUSIC.enabled;
+    MUSIC.masterVol = MUSIC.enabled ? 1.0 : 0.0;
+    const btn = document.getElementById('mute-btn');
+    if (btn) {
+      btn.classList.toggle('muted', !MUSIC.enabled);
+      btn.textContent = MUSIC.enabled ? '♪' : '𝄽';
+    }
+    if (MUSIC.enabled) { startMusic(); }
+    else               { stopMusic();  }
+  }
+  window.toggleMute = toggleMute;
 
   // ═══════════════════════════════════════════════════════════════════════
   //  WORLD BUILDING
@@ -1647,8 +1750,6 @@
     globalT += dt;
     ariel.frameT += dt;
 
-    ambientPad(globalT);
-
     // ── Move Ariel toward target ──
     if (ariel.targetX !== null) {
       const dx = ariel.targetX - ariel.x;
@@ -1817,6 +1918,7 @@
     document.getElementById('hud').style.display = 'flex';
     document.getElementById('pearl-counter').style.display = 'block';
     document.getElementById('hint').style.display = 'block';
+    document.getElementById('mute-btn').style.display = 'block';
 
     if (!canvas) {
       initCanvas();
@@ -1831,6 +1933,7 @@
     gameActive = true;
     lastT = performance.now();
     [523,659,784,988,1175].forEach((f,i) => tone(f,'square',0.2,0.1, i*0.07));
+    startMusic();
   }
 
   function winGame() {
@@ -1838,6 +1941,7 @@
     document.getElementById('hud').style.display = 'none';
     document.getElementById('pearl-counter').style.display = 'none';
     document.getElementById('win-screen').classList.remove('hidden');
+    stopMusic();
     playWin();
     spawnConfetti();
     setTimeout(spawnConfetti, 700);
@@ -1859,6 +1963,7 @@
     document.getElementById('pearl-counter').style.display = 'block';
     gameActive = true;
     lastT = performance.now();
+    if (MUSIC.enabled) startMusic();
   }
 
   function spawnConfetti() {

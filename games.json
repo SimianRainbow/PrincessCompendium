@@ -170,13 +170,13 @@
   {
     "id": "016-mermaid-lagoon-pixel",
     "title": "Mermaid Lagoon · Pixel",
-    "description": "Top-down pixel-art lagoon — tap anywhere and Ariel swims there! Collect pearls and find all four friends.",
+    "description": "Top-down pixel-art lagoon with chiptune music — tap anywhere and Ariel swims there! Collect pearls and find all four friends.",
     "icon": "👾",
     "ageMin": 2,
     "ageMax": 5,
     "skill": "click-and-go navigation",
     "category": "adventure",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "path": "games/016-mermaid-lagoon-pixel/index.html"
   }
 ]
