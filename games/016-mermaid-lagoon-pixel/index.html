@@ -1186,88 +1186,138 @@
     melody.forEach((f,i) => tone(f,'square',0.22,0.1, i*0.1));
     [131,196,262,330,392].forEach((f,i) => tone(f,'triangle',0.35,0.08, i*0.2));
   }
-  // ── Chiptune music scheduler ──
-  // Schedules notes on precise audioContext times, loops a 4-bar I-vi-IV-V
-  // progression with an arpeggio lead and a sustained triangle bass.
+  // ═══════════════════════════════════════════════════════════════════════
+  //  UNDERSEA AMBIENT CHIPTUNE
+  //  Slow i-VI-III-v7 drift in A minor: Am7 → Fmaj7 → Cmaj7 → Em7.
+  //  Lowpass filter on the whole music bus gives the underwater muffle.
+  //  Each note has slight random detune + scheduled echoes for watery reverb.
+  //  Layers: sustained pad, triangle bass, whale sub-swells, square arpeggio,
+  //  random sparkle twinkles, and a gentle bell chime on downbeats.
+  // ═══════════════════════════════════════════════════════════════════════
   const MUSIC = {
     enabled: true,
-    bpm: 96,
+    bpm: 72,
     barsScheduled: 0,
     nextBarTime: 0,
     timerId: null,
-    masterVol: 1.0,
+    masterVol: 0.9,
+    busFilter: null,
+    busGain: null,
+    graphReady: false,
   };
 
-  function beatDur() { return 60 / MUSIC.bpm / 2; }  // 8th note
+  function ensureMusicGraph() {
+    if (MUSIC.graphReady) return;
+    const c = au();
+    // Lowpass gives the "underwater" muffle; resonance nudges it toward dreamy
+    MUSIC.busFilter = c.createBiquadFilter();
+    MUSIC.busFilter.type = 'lowpass';
+    MUSIC.busFilter.frequency.value = 2200;
+    MUSIC.busFilter.Q.value = 0.7;
+    MUSIC.busGain = c.createGain();
+    MUSIC.busGain.gain.value = 0.0001;
+    MUSIC.busFilter.connect(MUSIC.busGain);
+    MUSIC.busGain.connect(c.destination);
+    MUSIC.graphReady = true;
+  }
+
+  function beatDur() { return 60 / MUSIC.bpm / 2; }   // 8th note
   function barDur()  { return beatDur() * 8; }
 
-  // Absolute-time tone scheduler — unlike tone() which uses relative 'when'
-  function toneAt(f, type, d, v, whenAbs) {
+  // Route a single note through the music bus (filtered)
+  function musicTone(f, type, d, v, whenAbs, attack=0.04) {
     try {
       const c = au();
       const o = c.createOscillator();
       const g = c.createGain();
-      o.connect(g); g.connect(c.destination);
+      o.detune.value = (Math.random() - 0.5) * 6; // watery pitch wobble
+      o.connect(g);
+      g.connect(MUSIC.busFilter);
       o.type = type || 'sine';
       o.frequency.value = f;
       g.gain.setValueAtTime(0.0001, whenAbs);
-      g.gain.exponentialRampToValueAtTime(v * MUSIC.masterVol, whenAbs + 0.012);
+      g.gain.exponentialRampToValueAtTime(v, whenAbs + attack);
       g.gain.exponentialRampToValueAtTime(0.0001, whenAbs + d);
       o.start(whenAbs);
-      o.stop(whenAbs + d + 0.02);
+      o.stop(whenAbs + d + 0.1);
     } catch(e) {}
   }
 
-  // Chord progression: I - vi - IV - V in C major
-  // Each chord: { root (bass), notes (arpeggio stack) }
-  const CHORDS = [
-    { root: 130.81, notes: [261.63, 329.63, 392.00, 523.25, 659.25] }, // C   (C3 C4 E4 G4 C5 E5)
-    { root: 110.00, notes: [220.00, 329.63, 440.00, 523.25, 659.25] }, // Am
-    { root:  87.31, notes: [174.61, 261.63, 349.23, 440.00, 523.25] }, // F
-    { root:  98.00, notes: [196.00, 293.66, 392.00, 493.88, 587.33] }, // G
-  ];
-  // Arpeggio pattern — indexes into chord.notes
-  const ARP = [0, 1, 2, 3, 2, 1, 2, 3];
-  // Melody hook (used on bars 4-7 of an 8-bar phrase)
-  const HOOK = [4, 3, 4, null, 3, 2, 3, null];
+  // Schedule a note + two decaying echoes — cheap underwater "reverb"
+  function musicToneEcho(f, type, d, v, whenAbs, attack) {
+    musicTone(f, type, d, v, whenAbs, attack);
+    const ed = 60 / MUSIC.bpm * 0.375;   // dotted 8th
+    musicTone(f, type, d * 0.7, v * 0.32, whenAbs + ed, attack);
+    musicTone(f, type, d * 0.5, v * 0.14, whenAbs + ed * 2, attack);
+  }
 
-  function scheduleBar(barIdx, barT, phraseBar) {
-    const ch = CHORDS[barIdx];
+  // i - VI - III - v in A minor, all with 7ths → floating, unresolved feel
+  // Each chord lists [root, ...arpeggio tones from low to high]
+  const CHORDS = [
+    // Am7:  A3 C4 E4 G4 A4 C5 E5
+    { root: 110.00, arp: [220.00, 261.63, 329.63, 392.00, 440.00, 523.25, 659.25] },
+    // Fmaj7: F3 A3 C4 E4 F4 A4 C5
+    { root:  87.31, arp: [174.61, 220.00, 261.63, 329.63, 349.23, 440.00, 523.25] },
+    // Cmaj7: C3 E3 G3 B3 C4 E4 G4
+    { root:  65.41, arp: [130.81, 164.81, 196.00, 246.94, 261.63, 329.63, 392.00] },
+    // Em7:  E3 G3 B3 D4 E4 G4 B4
+    { root:  82.41, arp: [164.81, 196.00, 246.94, 293.66, 329.63, 392.00, 493.88] },
+  ];
+
+  // 8-step rolling arpeggio — floats up, dips, undulates back
+  const ARP_PATTERN = [0, 2, 4, 6, 4, 3, 5, 2];
+
+  function scheduleBar(chordIdx, barT, phraseBar) {
+    const ch = CHORDS[chordIdx];
     const bd = beatDur();
-    // Bass (triangle, sustained)
-    toneAt(ch.root, 'triangle', barDur() * 0.95, 0.07, barT);
-    toneAt(ch.root * 2, 'sine', barDur() * 0.9, 0.015, barT);  // subtle octave doubling
-    // Arpeggio (square, staccato)
-    for (let beat = 0; beat < 8; beat++) {
-      const n = ch.notes[ARP[beat]];
-      toneAt(n, 'square', bd * 0.55, 0.025, barT + beat * bd);
-      // Soft harmony layer a third below
-      if (beat % 2 === 0) {
-        toneAt(n * 0.75, 'triangle', bd * 0.5, 0.014, barT + beat * bd);
-      }
+    const duration = barDur();
+
+    // ── Pad: slow sine swell on chord tones ──
+    [ch.root, ch.arp[1], ch.arp[3], ch.arp[5]].forEach(f => {
+      musicTone(f, 'sine', duration * 1.08, 0.018, barT, 0.8);
+    });
+
+    // ── Bass: sustained triangle root + sine octave below ──
+    musicTone(ch.root,        'triangle', duration * 0.96, 0.075, barT, 0.2);
+    musicTone(ch.root * 0.5,  'sine',     duration * 0.96, 0.045, barT, 0.3);
+
+    // ── Arpeggio: soft square, 8 eighth-notes ──
+    for (let step = 0; step < 8; step++) {
+      const idx = ARP_PATTERN[step];
+      const f   = ch.arp[idx];
+      // Second half of 8-bar phrase gets a bit more presence
+      const v   = 0.022 + (phraseBar >= 4 ? 0.01 : 0);
+      musicTone(f, 'square', bd * 1.8, v, barT + step * bd, 0.015);
     }
-    // On every other 4-bar group, add a high melody hook
-    if (phraseBar >= 4) {
-      for (let beat = 0; beat < 8; beat++) {
-        const idx = HOOK[beat];
-        if (idx === null) continue;
-        const n = ch.notes[idx];
-        toneAt(n, 'triangle', bd * 0.75, 0.028, barT + beat * bd);
-      }
+
+    // ── Bell chime every other bar on beat 2 ──
+    if (phraseBar % 2 === 0) {
+      const bellIdx = 4 + Math.floor(Math.random() * 3);
+      const bellNote = ch.arp[bellIdx] * 2;
+      musicToneEcho(bellNote, 'sine', 1.4, 0.03, barT + bd * 2, 0.008);
     }
-    // Downbeat sparkle every 8 bars
+
+    // ── Random high twinkles — 1-2 per bar at random positions ──
+    const sparkleCount = 1 + Math.floor(Math.random() * 2);
+    for (let k = 0; k < sparkleCount; k++) {
+      const step    = Math.floor(Math.random() * 8);
+      const noteIdx = 4 + Math.floor(Math.random() * 3);
+      const f       = ch.arp[noteIdx] * 2;
+      musicToneEcho(f, 'triangle', 0.7, 0.012, barT + step * bd, 0.006);
+    }
+
+    // ── Deep whale-like sub swell every 4 bars ──
     if (phraseBar === 0) {
-      toneAt(ch.notes[4] * 2, 'sine', 0.12, 0.025, barT);
-      toneAt(ch.notes[4] * 2, 'triangle', 0.18, 0.015, barT + 0.06);
+      musicTone(ch.root * 0.5, 'sine', duration * 4.2, 0.055, barT, 1.4);
     }
   }
 
   function pumpMusic() {
     if (!audioCtx || !MUSIC.enabled) return;
+    ensureMusicGraph();
     const now = audioCtx.currentTime;
-    // Schedule up to ~1.2s ahead
-    while (MUSIC.nextBarTime < now + 1.2) {
-      const chordIdx = MUSIC.barsScheduled % 4;
+    while (MUSIC.nextBarTime < now + 1.8) {
+      const chordIdx  = MUSIC.barsScheduled % 4;
       const phraseBar = MUSIC.barsScheduled % 8;
       scheduleBar(chordIdx, MUSIC.nextBarTime, phraseBar);
       MUSIC.nextBarTime += barDur();
@@ -1277,24 +1327,35 @@
 
   function startMusic() {
     if (!audioCtx || MUSIC.timerId) return;
-    MUSIC.nextBarTime = audioCtx.currentTime + 0.25;
+    ensureMusicGraph();
+    const now = audioCtx.currentTime;
+    // Smooth fade-in so it doesn't pop
+    MUSIC.busGain.gain.cancelScheduledValues(now);
+    MUSIC.busGain.gain.setValueAtTime(MUSIC.busGain.gain.value, now);
+    MUSIC.busGain.gain.linearRampToValueAtTime(MUSIC.masterVol, now + 1.8);
+    MUSIC.nextBarTime = now + 0.6;
     MUSIC.barsScheduled = 0;
     pumpMusic();
-    MUSIC.timerId = setInterval(pumpMusic, 180);
+    MUSIC.timerId = setInterval(pumpMusic, 300);
   }
   function stopMusic() {
     if (MUSIC.timerId) { clearInterval(MUSIC.timerId); MUSIC.timerId = null; }
+    if (MUSIC.busGain && audioCtx) {
+      const now = audioCtx.currentTime;
+      MUSIC.busGain.gain.cancelScheduledValues(now);
+      MUSIC.busGain.gain.setValueAtTime(MUSIC.busGain.gain.value, now);
+      MUSIC.busGain.gain.linearRampToValueAtTime(0.0001, now + 1.0);
+    }
   }
   function toggleMute() {
     MUSIC.enabled = !MUSIC.enabled;
-    MUSIC.masterVol = MUSIC.enabled ? 1.0 : 0.0;
     const btn = document.getElementById('mute-btn');
     if (btn) {
       btn.classList.toggle('muted', !MUSIC.enabled);
       btn.textContent = MUSIC.enabled ? '♪' : '𝄽';
     }
-    if (MUSIC.enabled) { startMusic(); }
-    else               { stopMusic();  }
+    if (MUSIC.enabled) startMusic();
+    else               stopMusic();
   }
   window.toggleMute = toggleMute;
 
