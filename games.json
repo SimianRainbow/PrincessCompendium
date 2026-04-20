@@ -178,5 +178,17 @@
     "category": "adventure",
     "version": "1.2.0",
     "path": "games/016-mermaid-lagoon-pixel/index.html"
+  },
+  {
+    "id": "017-tidepool-tales",
+    "title": "Tidepool Tales",
+    "description": "A tiny pixel RPG — walk up to princess friends and sea creatures, they talk to you, and some of them follow you around!",
+    "icon": "🐚",
+    "ageMin": 2,
+    "ageMax": 5,
+    "skill": "dialogue, exploration & friendship",
+    "category": "adventure",
+    "version": "1.0.0",
+    "path": "games/017-tidepool-tales/index.html"
   }
 ]
