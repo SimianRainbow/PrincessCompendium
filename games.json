@@ -154,5 +154,17 @@
     "category": "adventure",
     "version": "1.1.0",
     "path": "games/014-mermaid-lagoon/index.html"
+  },
+  {
+    "id": "015-mermaid-lagoon-v2",
+    "title": "Mermaid Lagoon · Painted",
+    "description": "Same lagoon, painted edition — hand-drawn animated Ariel, Rapunzel, friends, fish and seahorses.",
+    "icon": "🎨",
+    "ageMin": 2,
+    "ageMax": 5,
+    "skill": "free-roam steering & exploration",
+    "category": "adventure",
+    "version": "1.0.0",
+    "path": "games/015-mermaid-lagoon-v2/index.html"
   }
 ]
