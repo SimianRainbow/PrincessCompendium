@@ -12,7 +12,6 @@
       font-family:Georgia,serif; user-select:none; position:relative;
     }
 
-    /* Twinkling bg stars */
     .bg-star { position:fixed; border-radius:50%; background:#fff; animation:twinkle ease-in-out infinite; pointer-events:none; }
     @keyframes twinkle { 0%,100%{opacity:.2} 50%{opacity:.8} }
 
@@ -26,29 +25,42 @@
       text-shadow:0 0 12px rgba(255,215,0,.6), 0 2px 6px rgba(0,0,0,.5);
       font-weight:bold;
     }
-    #timer-display {
-      font-size:clamp(22px,6vw,36px); color:rgba(255,255,255,.8);
-      text-shadow:0 2px 6px rgba(0,0,0,.4);
+    #tier-badge {
+      font-size:clamp(14px,3.5vw,20px); padding:6px 18px; border-radius:20px; font-weight:bold;
     }
-    #princess-static {
-      font-size:clamp(32px,8vw,52px);
-      filter:drop-shadow(0 2px 8px rgba(255,215,0,.4));
+    .tier-easy   { background:linear-gradient(135deg,#43e97b,#38f9d7); color:#004d20; }
+    .tier-medium { background:linear-gradient(135deg,#f7971e,#ffd200); color:#5a3000; }
+    .tier-hard   { background:linear-gradient(135deg,#f953c6,#b91d73); color:#fff; }
+
+    #progress-wrap {
+      position:fixed; top:clamp(58px,13vw,82px); left:0; right:0; z-index:10;
+      padding:0 clamp(14px,4vw,24px);
+    }
+    #progress-track {
+      background:rgba(255,255,255,.15); border-radius:20px;
+      height:clamp(10px,2.5vw,16px); overflow:hidden;
+    }
+    #progress-fill {
+      height:100%; border-radius:20px;
+      background:linear-gradient(90deg,#ffd700,#fff176);
+      transition:width .3s ease; width:0%;
+      box-shadow:0 0 10px rgba(255,215,0,.5);
+    }
+
+    #goal-text {
+      position:fixed; top:clamp(78px,17vw,105px); left:0; right:0;
+      text-align:center; z-index:10;
+      font-size:clamp(14px,3.5vw,20px); color:rgba(255,255,255,.75);
+      padding-top:clamp(6px,1.5vw,10px);
     }
 
     /* Falling stars */
     .star {
-      position:absolute;
-      font-size:clamp(44px,12vw,70px);
-      line-height:1;
-      cursor:pointer;
+      position:absolute; line-height:1; cursor:pointer;
       animation:fallDown linear forwards;
       filter:drop-shadow(0 0 12px rgba(255,215,0,.8));
-      transition:transform .06s;
     }
-    .star:active { transform:scale(.85); }
     .star.caught { animation:starCaught .4s ease-out forwards !important; }
-    .star.missed { animation:starMiss .3s ease-out forwards !important; }
-
     @keyframes fallDown {
       0%   { top:-80px; opacity:0; }
       10%  { opacity:1; }
@@ -56,35 +68,36 @@
       100% { top:110vh; opacity:0; }
     }
     @keyframes starCaught {
-      0%   { transform:scale(1); opacity:1; filter:drop-shadow(0 0 12px rgba(255,215,0,.8)); }
-      50%  { transform:scale(2.2); opacity:.9; filter:drop-shadow(0 0 30px rgba(255,215,0,1)); }
+      0%   { transform:scale(1); opacity:1; }
+      50%  { transform:scale(2.2); opacity:.9; }
       100% { transform:scale(0); opacity:0; }
     }
-    @keyframes starMiss {
-      0%   { opacity:1; }
-      100% { opacity:0; transform:translateY(30px) scale(.5); }
-    }
 
-    /* Score pop */
     .score-pop {
-      position:fixed; font-size:clamp(28px,8vw,48px); color:#ffd700;
+      position:fixed; font-size:clamp(26px,7vw,44px); color:#ffd700;
       font-weight:bold; text-shadow:0 0 12px rgba(255,215,0,.6);
       pointer-events:none; z-index:50;
       animation:scorePop .8s ease-out forwards;
     }
     @keyframes scorePop { 0%{transform:translateY(0);opacity:1} 100%{transform:translateY(-80px);opacity:0} }
 
-    /* End screen */
-    #end-overlay {
-      position:fixed; inset:0; background:rgba(0,0,0,.7);
+    .sparkle {
+      position:fixed; pointer-events:none; z-index:50; border-radius:50%;
+      animation:sparkleOut .65s ease-out forwards;
+    }
+    @keyframes sparkleOut { 0%{transform:scale(0);opacity:1} 100%{transform:scale(1.4);opacity:0} }
+
+    /* Overlays */
+    .overlay {
+      position:fixed; inset:0; background:rgba(0,0,0,.72);
       display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px;
       z-index:99; opacity:0; pointer-events:none; transition:opacity .4s;
     }
-    #end-overlay.show { opacity:1; pointer-events:all; }
-    #end-princess { font-size:clamp(64px,18vw,110px); }
-    #end-title { font-size:clamp(28px,7vw,52px); color:#ffd700; text-shadow:0 0 20px rgba(255,215,0,.7); text-align:center; padding:0 16px; }
-    #end-score { font-size:clamp(22px,6vw,36px); color:#fff; }
-    #play-again { padding:clamp(14px,4vw,20px) clamp(32px,8vw,56px); font-size:clamp(20px,5vw,28px); border-radius:50px; border:none; background:linear-gradient(135deg,#ffd700,#ff9800); color:#5d2e00; font-weight:bold; cursor:pointer; font-family:inherit; }
+    .overlay.show { opacity:1; pointer-events:all; }
+    .ov-emoji   { font-size:clamp(64px,18vw,110px); }
+    .ov-title   { font-size:clamp(26px,7vw,50px); color:#ffd700; text-shadow:0 0 20px rgba(255,215,0,.7); text-align:center; padding:0 16px; }
+    .ov-sub     { font-size:clamp(18px,5vw,26px); color:rgba(255,255,255,.85); text-align:center; padding:0 16px; }
+    .btn-next   { padding:clamp(14px,4vw,20px) clamp(32px,8vw,56px); font-size:clamp(20px,5vw,28px); border-radius:50px; border:none; background:linear-gradient(135deg,#ffd700,#ff9800); color:#5d2e00; font-weight:bold; cursor:pointer; font-family:inherit; min-height:64px; min-width:180px; }
 
     .confetti-piece { position:fixed; width:12px; height:12px; border-radius:50%; animation:confettiFall linear forwards; pointer-events:none; z-index:100; }
     @keyframes confettiFall { 0%{top:-20px;opacity:1} 100%{top:110vh;opacity:.2} }
@@ -94,129 +107,170 @@
 
   <div id="hud">
     <div id="score-display">⭐ 0</div>
-    <div id="princess-static">👸</div>
-    <div id="timer-display">30s</div>
+    <div style="font-size:clamp(32px,8vw,52px);filter:drop-shadow(0 2px 8px rgba(255,215,0,.4))">👸</div>
+    <div id="tier-badge" class="tier-easy">Easy</div>
+  </div>
+  <div id="progress-wrap">
+    <div id="progress-track"><div id="progress-fill"></div></div>
+  </div>
+  <div id="goal-text">Catch ⭐ 10 stars!</div>
+
+  <div class="overlay" id="round-overlay">
+    <div class="ov-emoji">🌟</div>
+    <div class="ov-title" id="round-title">Amazing!</div>
+    <div class="ov-sub" id="round-sub">Ready for the next round?</div>
+    <button class="btn-next" id="round-btn">Next Round ➡️</button>
   </div>
 
-  <div id="end-overlay">
-    <div id="end-princess">👸✨</div>
-    <div id="end-title">Amazing catching!</div>
-    <div id="end-score"></div>
-    <button id="play-again" onclick="startGame()">Play Again ⭐</button>
+  <div class="overlay" id="end-overlay">
+    <div class="ov-emoji">👸✨</div>
+    <div class="ov-title">You're a Star Princess!</div>
+    <div class="ov-sub">All stars caught! 👑</div>
+    <button class="btn-next" onclick="startGame()">Play Again ⭐</button>
   </div>
 
 <script>
-  let audioCtx=null;
-  function getAudio(){ if(!audioCtx) audioCtx=new(window.AudioContext||window.webkitAudioContext)(); return audioCtx; }
-  function tone(f,t,d,v=.15){ try{ const c=getAudio(),o=c.createOscillator(),g=c.createGain(); o.connect(g);g.connect(c.destination); o.type=t||'sine';o.frequency.value=f;g.gain.setValueAtTime(v,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+d);o.start();o.stop(c.currentTime+d); }catch(e){} }
-  function playCatch(){ tone(880,'sine',.08); setTimeout(()=>tone(1100,'sine',.1),60); }
-  function playEnd(){ [523,659,784,1047].forEach((f,i)=>setTimeout(()=>tone(f,'sine',.25),i*100)); }
+  // ── Audio ────────────────────────────────────────────────────────────────
+  let audioCtx = null;
+  function getAudio() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); return audioCtx; }
+  function tone(f, type, d, v = .15) {
+    try {
+      const c = getAudio(), o = c.createOscillator(), g = c.createGain();
+      o.connect(g); g.connect(c.destination);
+      o.type = type; o.frequency.value = f;
+      g.gain.setValueAtTime(v, c.currentTime);
+      g.gain.exponentialRampToValueAtTime(.001, c.currentTime + d);
+      o.start(); o.stop(c.currentTime + d);
+    } catch (e) {}
+  }
+  function playCatch(tierIdx) {
+    const melodies = [[523, 659], [659, 784, 880], [784, 1047, 1319]];
+    (melodies[tierIdx] || melodies[0]).forEach((f, i) => setTimeout(() => tone(f, 'sine', .12, .18), i * 55));
+  }
+  function playRoundWin()  { [523,659,784,1047,1319].forEach((f,i)=>setTimeout(()=>tone(f,'triangle',.3,.22),i*90)); }
+  function playFinalWin()  { [523,659,784,1047,784,1047,1319,1568].forEach((f,i)=>setTimeout(()=>tone(f,'sine',.32,.24),i*100)); }
 
+  // ── Tier config ──────────────────────────────────────────────────────────
+  const TIERS = [
+    { label:'Easy',   cls:'tier-easy',   goal:10, fallBase:4500, fallRand:2000, spawnMs:1200, fontSize:'clamp(50px,14vw,76px)' },
+    { label:'Medium', cls:'tier-medium', goal:15, fallBase:3200, fallRand:1500, spawnMs:920,  fontSize:'clamp(44px,12vw,68px)' },
+    { label:'Hard',   cls:'tier-hard',   goal:20, fallBase:2400, fallRand:1200, spawnMs:710,  fontSize:'clamp(38px,10vw,60px)' },
+  ];
   const STAR_EMOJIS = ['⭐','🌟','💫','✨'];
-  const GAME_DURATION = 30; // seconds
 
-  let score=0, timeLeft=GAME_DURATION, spawnTimer=null, countdownTimer=null, gameActive=false;
+  let tierIdx = 0, caught = 0, spawnTimer = null, gameActive = false;
 
-  function makeBgStars(){
-    for(let i=0;i<40;i++){
-      const s=document.createElement('div'); s.className='bg-star';
-      const sz=1+Math.random()*3;
-      s.style.cssText=`width:${sz}px;height:${sz}px;top:${Math.random()*100}vh;left:${Math.random()*100}vw;animation-duration:${2+Math.random()*3}s;animation-delay:${Math.random()*3}s`;
+  // ── Background stars ─────────────────────────────────────────────────────
+  function makeBgStars() {
+    for (let i = 0; i < 40; i++) {
+      const s = document.createElement('div'); s.className = 'bg-star';
+      const sz = 1 + Math.random() * 3;
+      s.style.cssText = `width:${sz}px;height:${sz}px;top:${Math.random()*100}vh;left:${Math.random()*100}vw;animation-duration:${2+Math.random()*3}s;animation-delay:${Math.random()*3}s`;
       document.body.appendChild(s);
     }
   }
 
-  function startGame(){
+  // ── Game flow ────────────────────────────────────────────────────────────
+  function startGame() {
     document.getElementById('end-overlay').classList.remove('show');
-    score=0; timeLeft=GAME_DURATION; gameActive=true;
-    updateHUD();
-    clearInterval(spawnTimer); clearInterval(countdownTimer);
-    document.querySelectorAll('.star').forEach(s=>s.remove());
-
-    // Spawn at increasing rate
-    let spawnInterval=1400;
-    spawnTimer=setInterval(()=>{
-      if(!gameActive) return;
-      spawnStar();
-      // Gradually speed up
-      if(timeLeft<20 && spawnInterval>900){ spawnInterval=900; clearInterval(spawnTimer); spawnTimer=setInterval(()=>{ if(gameActive) spawnStar(); },spawnInterval); }
-      if(timeLeft<10 && spawnInterval>650){ spawnInterval=650; clearInterval(spawnTimer); spawnTimer=setInterval(()=>{ if(gameActive) spawnStar(); },spawnInterval); }
-    }, spawnInterval);
-
-    countdownTimer=setInterval(()=>{
-      timeLeft--;
-      updateHUD();
-      if(timeLeft<=0){ endGame(); }
-    },1000);
+    document.getElementById('round-overlay').classList.remove('show');
+    tierIdx = 0; caught = 0; gameActive = false;
+    startRound();
   }
 
-  function updateHUD(){
-    document.getElementById('score-display').textContent='⭐ '+score;
-    document.getElementById('timer-display').textContent=timeLeft+'s';
+  function startRound() {
+    document.querySelectorAll('.star').forEach(s => s.remove());
+    caught = 0; gameActive = true;
+    const t = TIERS[tierIdx];
+
+    const badge = document.getElementById('tier-badge');
+    badge.textContent = t.label; badge.className = t.cls;
+    document.getElementById('goal-text').textContent = `Catch ⭐ ${t.goal} stars!`;
+    updateProgress();
+
+    clearInterval(spawnTimer);
+    spawnTimer = setInterval(() => { if (gameActive) spawnStar(); }, t.spawnMs);
   }
 
-  function spawnStar(){
-    const emoji=STAR_EMOJIS[Math.floor(Math.random()*STAR_EMOJIS.length)];
-    const el=document.createElement('div');
-    el.className='star'; el.textContent=emoji;
+  function updateProgress() {
+    const t = TIERS[tierIdx];
+    document.getElementById('score-display').textContent = '⭐ ' + caught;
+    document.getElementById('progress-fill').style.width = (caught / t.goal * 100) + '%';
+  }
 
-    const size=Math.max(44, Math.min(window.innerWidth*0.14, 70));
-    el.style.left=Math.random()*(window.innerWidth-size-10)+'px';
-
-    // Duration: fast=3s, slow=5.5s; varies inversely with timeLeft
-    const dur=3000+Math.random()*2500*(timeLeft/GAME_DURATION);
-    el.style.animationDuration=dur+'ms';
-
-    el.addEventListener('pointerdown',(e)=>{
-      e.stopPropagation();
-      catchStar(el, e.clientX, e.clientY);
-    });
+  function spawnStar() {
+    const t = TIERS[tierIdx];
+    const el = document.createElement('div');
+    el.className = 'star';
+    el.textContent = STAR_EMOJIS[Math.floor(Math.random() * STAR_EMOJIS.length)];
+    el.style.fontSize = t.fontSize;
+    el.style.left = Math.random() * (window.innerWidth - 80) + 'px';
+    el.style.animationDuration = (t.fallBase + Math.random() * t.fallRand) + 'ms';
+    el.addEventListener('pointerdown', e => { e.stopPropagation(); catchStar(el, e.clientX, e.clientY); });
     document.body.appendChild(el);
-    el.addEventListener('animationend',()=>{ if(el.parentNode) el.remove(); });
+    el.addEventListener('animationend', () => { if (el.parentNode && !el.classList.contains('caught')) el.remove(); });
   }
 
-  function catchStar(el, x, y){
-    if(!gameActive || el.classList.contains('caught')) return;
+  function catchStar(el, x, y) {
+    if (!gameActive || el.classList.contains('caught')) return;
     el.classList.add('caught');
-    el.removeEventListener('pointerdown',catchStar);
-    playCatch();
-    score++;
-    updateHUD();
+    playCatch(tierIdx);
+    caught++;
+    updateProgress();
+    sparklesBurst(x, y);
 
-    // Score pop
-    const pop=document.createElement('div');
-    pop.className='score-pop'; pop.textContent='+1 ⭐';
-    pop.style.left=(x-40)+'px'; pop.style.top=(y-30)+'px';
+    const pop = document.createElement('div');
+    pop.className = 'score-pop'; pop.textContent = '+1 ⭐';
+    pop.style.left = (x - 40) + 'px'; pop.style.top = (y - 50) + 'px';
     document.body.appendChild(pop);
-    setTimeout(()=>pop.remove(),800);
+    setTimeout(() => pop.remove(), 800);
+
+    if (caught >= TIERS[tierIdx].goal) roundComplete();
   }
 
-  function endGame(){
-    gameActive=false;
-    clearInterval(spawnTimer); clearInterval(countdownTimer);
-    document.querySelectorAll('.star').forEach(s=>s.remove());
-    playEnd();
+  function sparklesBurst(cx, cy) {
+    const cols = ['#ffd700','#fff176','#ffffff','#fffde7','#ffee58','#ffe082'];
+    for (let i = 0; i < 14; i++) {
+      const el = document.createElement('div'); el.className = 'sparkle';
+      const a = Math.random() * Math.PI * 2, r = 20 + Math.random() * 60, sz = 6 + Math.random() * 9;
+      el.style.cssText = `left:${cx + Math.cos(a)*r - sz/2}px;top:${cy + Math.sin(a)*r - sz/2}px;width:${sz}px;height:${sz}px;background:${cols[i % cols.length]}`;
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 700);
+    }
+  }
 
-    let title='Amazing catching! 👸';
-    if(score>=25) title='You\'re a Star Princess! 👑✨';
-    else if(score>=15) title='Super catcher! 🌟';
-    else if(score>=8)  title='Well done! ⭐';
-
-    document.getElementById('end-title').textContent=title;
-    document.getElementById('end-score').textContent='You caught '+score+' stars!';
-    document.getElementById('end-overlay').classList.add('show');
+  function roundComplete() {
+    gameActive = false;
+    clearInterval(spawnTimer);
+    document.querySelectorAll('.star').forEach(s => s.remove());
     confettiBurst();
+
+    if (tierIdx < TIERS.length - 1) {
+      playRoundWin();
+      const next = TIERS[tierIdx + 1];
+      document.getElementById('round-title').textContent = `${TIERS[tierIdx].goal} stars! Amazing! 🌟`;
+      document.getElementById('round-sub').textContent = `Next: ${next.label} — catch ${next.goal} stars!`;
+      document.getElementById('round-btn').onclick = () => {
+        document.getElementById('round-overlay').classList.remove('show');
+        tierIdx++;
+        startRound();
+      };
+      document.getElementById('round-overlay').classList.add('show');
+    } else {
+      playFinalWin();
+      document.getElementById('end-overlay').classList.add('show');
+    }
   }
 
-  function confettiBurst(){
-    const cols=['#ffd700','#fff','#00cfff','#ff69b4','#7fff00'];
-    for(let i=0;i<35;i++){
-      const el=document.createElement('div'); el.className='confetti-piece';
-      el.style.left=Math.random()*100+'vw';
-      el.style.background=cols[Math.floor(Math.random()*cols.length)];
-      el.style.animationDuration=(1.5+Math.random()*1.8)+'s';
-      el.style.animationDelay=(Math.random()*.5)+'s';
-      document.body.appendChild(el); setTimeout(()=>el.remove(),3000);
+  function confettiBurst() {
+    const cols = ['#ffd700','#fff','#00cfff','#ff69b4','#7fff00','#ff9800'];
+    for (let i = 0; i < 45; i++) {
+      const el = document.createElement('div'); el.className = 'confetti-piece';
+      el.style.left = Math.random() * 100 + 'vw';
+      el.style.background = cols[Math.floor(Math.random() * cols.length)];
+      el.style.animationDuration = (1.5 + Math.random() * 1.8) + 's';
+      el.style.animationDelay = (Math.random() * .6) + 's';
+      document.body.appendChild(el); setTimeout(() => el.remove(), 3200);
     }
   }
 

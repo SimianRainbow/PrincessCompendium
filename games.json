@@ -18,8 +18,8 @@
     "icon": "👑",
     "ageMin": 2,
     "ageMax": 4,
-    "skill": "counting 1-5",
-    "version": "1.0.0",
+    "skill": "counting 1-5 / 1-10",
+    "version": "1.1.0",
     "category": "numbers",
     "path": "games/002-counting-crowns/index.html"
   },
@@ -98,13 +98,13 @@
   {
     "id": "009-star-catcher",
     "title": "Star Catcher",
-    "description": "Tap the falling stars before they disappear",
+    "description": "Catch falling stars — 3 rounds of increasing speed, no timer stress!",
     "icon": "⭐",
     "ageMin": 2,
     "ageMax": 5,
     "skill": "focus & reaction",
     "category": "play",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "path": "games/009-star-catcher/index.html"
   },
   {
@@ -130,6 +130,18 @@
     "category": "adventure",
     "version": "1.0.0",
     "path": "games/011-princess-quest/index.html"
+  },
+  {
+    "id": "012-pattern-princess",
+    "title": "Pattern Princess",
+    "description": "Complete the princess pattern — ABAB, AABB and ABB sequences",
+    "icon": "🌸",
+    "ageMin": 3,
+    "ageMax": 5,
+    "skill": "pattern recognition",
+    "version": "1.0.0",
+    "category": "colours-shapes",
+    "path": "games/012-pattern-princess/index.html"
   },
   {
     "id": "013-magic-leaf",
@@ -190,5 +202,17 @@
     "category": "adventure",
     "version": "1.0.0",
     "path": "games/017-tidepool-tales/index.html"
+  },
+  {
+    "id": "018-size-sort",
+    "title": "Big & Small Magic",
+    "description": "Tap the bigger or smaller princess treasure — 3 rounds from obvious to tricky!",
+    "icon": "🔮",
+    "ageMin": 2,
+    "ageMax": 5,
+    "skill": "sorting by size",
+    "version": "1.0.0",
+    "category": "colours-shapes",
+    "path": "games/018-size-sort/index.html"
   }
 ]
