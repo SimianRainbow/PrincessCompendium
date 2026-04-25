@@ -31,7 +31,7 @@
     "ageMin": 2,
     "ageMax": 4,
     "skill": "animal recognition",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "category": "animals",
     "path": "games/003-animal-friends/index.html"
   },
@@ -214,5 +214,17 @@
     "version": "1.0.0",
     "category": "colours-shapes",
     "path": "games/018-size-sort/index.html"
+  },
+  {
+    "id": "019-feelings-faces",
+    "title": "Feeling Friends",
+    "description": "Tap the face that shows how Princess feels — happy, sad, angry, surprised and more!",
+    "icon": "🌈",
+    "ageMin": 2,
+    "ageMax": 5,
+    "skill": "emotions & feelings",
+    "version": "1.0.0",
+    "category": "other",
+    "path": "games/019-feelings-faces/index.html"
   }
 ]

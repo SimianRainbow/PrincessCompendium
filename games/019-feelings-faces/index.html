@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Feeling Friends 🌈</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    body {
+      background: linear-gradient(160deg, #CE93D8 0%, #9C27B0 40%, #4A148C 100%);
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      font-family: Georgia, serif;
+      overflow: hidden; user-select: none;
+      padding: 10px 8px;
+    }
+    #score-row { position: fixed; top: 16px; right: 20px; font-size: clamp(22px,6vw,32px); }
+    h1 { font-size: clamp(16px,4.5vw,24px); color: #fff; text-shadow: 0 2px 8px rgba(0,0,0,.3); margin-bottom: 8px; text-align: center; }
+    #tier-bar { display: flex; gap: 8px; margin-bottom: 10px; }
+    .tier-chip {
+      padding: 4px 12px; border-radius: 20px;
+      font-size: clamp(11px,2.8vw,14px); font-weight: bold;
+      background: rgba(255,255,255,0.2); color: rgba(255,255,255,0.6);
+      transition: all .3s;
+    }
+    .tier-chip.active {
+      background: rgba(255,255,255,0.85); color: #6A1B9A;
+      box-shadow: 0 2px 8px rgba(0,0,0,.2);
+    }
+    #prompt { font-size: clamp(16px,4.2vw,24px); color: #fff; text-shadow: 0 2px 6px rgba(0,0,0,.4); margin-bottom: 12px; text-align: center; }
+    #scene-card {
+      background: rgba(255,255,255,0.18); border-radius: 28px;
+      border: 3px solid rgba(255,255,255,0.3);
+      padding: clamp(10px,3vw,20px);
+      display: flex; flex-direction: column; align-items: center; gap: 6px;
+      margin-bottom: 18px;
+      box-shadow: 0 4px 24px rgba(0,0,0,.18);
+      min-width: clamp(180px,52vw,260px);
+    }
+    #scene-emoji { font-size: clamp(64px,17vw,100px); line-height: 1; animation: popIn .4s cubic-bezier(.34,1.56,.64,1); }
+    #scene-context { font-size: clamp(14px,3.5vw,20px); color: #fff; font-weight: bold; text-shadow: 0 1px 4px rgba(0,0,0,.35); text-align: center; }
+    @keyframes popIn { from{transform:scale(0);opacity:0} to{transform:scale(1);opacity:1} }
+
+    #emotion-grid {
+      display: grid; grid-template-columns: repeat(2,1fr);
+      gap: clamp(10px,2.5vw,16px); padding: 4px;
+    }
+    #emotion-grid[data-opts="2"] .emotion-btn { width:clamp(130px,33vw,165px); height:clamp(130px,33vw,165px); }
+    #emotion-grid[data-opts="2"] .btn-face    { font-size:clamp(52px,13vw,72px); }
+    #emotion-grid[data-opts="3"] .emotion-btn { width:clamp(100px,25vw,130px); height:clamp(100px,25vw,130px); }
+    #emotion-grid[data-opts="3"] .btn-face    { font-size:clamp(40px,10vw,56px); }
+    #emotion-grid[data-opts="4"] .emotion-btn { width:clamp(110px,27vw,150px); height:clamp(110px,27vw,150px); }
+    #emotion-grid[data-opts="4"] .btn-face    { font-size:clamp(44px,11vw,62px); }
+
+    .emotion-btn {
+      border-radius: 22px; border: none; cursor: pointer;
+      background: rgba(255,255,255,0.22);
+      box-shadow: 0 4px 16px rgba(0,0,0,.25), inset 0 2px 0 rgba(255,255,255,.25);
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+      transition: transform .1s;
+    }
+    .emotion-btn:active { transform: scale(.9); }
+    .btn-face  { line-height: 1; }
+    .btn-label { font-size: clamp(12px,3vw,16px); color: #fff; font-weight: bold; text-shadow: 0 1px 3px rgba(0,0,0,.5); }
+    .emotion-btn.correct-flash { animation: correctPulse .5s ease-out; }
+    .emotion-btn.wrong-flash   { animation: wrongShake .4s ease-out; }
+    @keyframes correctPulse { 0%{transform:scale(1)} 40%{transform:scale(1.18);box-shadow:0 0 40px rgba(255,255,255,.75)} 100%{transform:scale(1)} }
+    @keyframes wrongShake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-10px)} 60%{transform:translateX(10px)} }
+
+    #celebrate-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,.55);
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px;
+      z-index: 99; opacity: 0; pointer-events: none; transition: opacity .3s;
+    }
+    #celebrate-overlay.show { opacity: 1; pointer-events: all; }
+    #celebrate-text { font-size: clamp(28px,8vw,56px); color: #fff; text-shadow: 0 0 20px #ffd700; text-align: center; padding: 0 16px; }
+    #celebrate-face { font-size: clamp(60px,18vw,110px); }
+    #next-btn { padding: clamp(14px,4vw,20px) clamp(32px,8vw,56px); font-size: clamp(20px,5vw,28px); border-radius: 50px; border: none; background: linear-gradient(135deg,#ffd700,#ff9800); color: #5d2e00; font-weight: bold; cursor: pointer; font-family: inherit; box-shadow: 0 4px 16px rgba(255,180,0,.5); }
+    .confetti-piece { position: fixed; width: 10px; height: 10px; border-radius: 50%; animation: confettiFall linear forwards; pointer-events: none; z-index: 100; }
+    @keyframes confettiFall { 0%{top:-20px;opacity:1} 100%{top:110vh;opacity:.2} }
+    .sparkle { position: fixed; font-size: clamp(16px,4vw,24px); pointer-events: none; z-index: 101; animation: sparkleFloat .9s ease-out forwards; }
+    @keyframes sparkleFloat { 0%{transform:translateY(0) scale(1);opacity:1} 100%{transform:translateY(-80px) scale(0);opacity:0} }
+  </style>
+</head>
+<body>
+  <div id="score-row"></div>
+  <h1>✨ Feeling Friends ✨</h1>
+  <div id="tier-bar">
+    <div class="tier-chip" id="tier-easy">🌱 Easy</div>
+    <div class="tier-chip" id="tier-med">🌸 Medium</div>
+    <div class="tier-chip" id="tier-hard">⭐ Hard</div>
+  </div>
+  <div id="prompt">How does Princess feel? 👸</div>
+  <div id="scene-card">
+    <div id="scene-emoji"></div>
+    <div id="scene-context"></div>
+  </div>
+  <div id="emotion-grid"></div>
+
+  <div id="celebrate-overlay">
+    <div id="celebrate-text"></div>
+    <div id="celebrate-face"></div>
+    <button id="next-btn" onclick="nextRound()">Next ➡️</button>
+  </div>
+
+<script>
+  // Each emotion has characteristic audio (ascending = happy, descending = sad, etc.)
+  const EMOTIONS = [
+    { emoji:'😊', name:'Happy',     snd:c=>{[523,659,784,1047].forEach((f,i)=>setTimeout(()=>tone(c,f,'sine',.2,.1),i*80));} },
+    { emoji:'😢', name:'Sad',       snd:c=>{[440,392,349,294].forEach((f,i)=>setTimeout(()=>tone(c,f,'sine',.28,.08),i*130));} },
+    { emoji:'😠', name:'Angry',     snd:c=>{tone(c,150,'sawtooth',.32,.14); setTimeout(()=>tone(c,120,'sawtooth',.22,.11),360);} },
+    { emoji:'😲', name:'Surprised', snd:c=>{sweep(c,400,920,.22,.12); setTimeout(()=>tone(c,880,'sine',.15,.08),260);} },
+    { emoji:'😨', name:'Scared',    snd:c=>{[300,275,255].forEach((f,i)=>setTimeout(()=>tone(c,f,'triangle',.22,.08),i*110));} },
+    { emoji:'😄', name:'Excited',   snd:c=>{[523,659,784,880,1047].forEach((f,i)=>setTimeout(()=>tone(c,f,'sine',.15,.1),i*55));} },
+    { emoji:'😴', name:'Sleepy',    snd:c=>{sweep(c,420,210,.65,.1); setTimeout(()=>sweep(c,390,180,.5,.08),750);} },
+    { emoji:'🤣', name:'Silly',     snd:c=>{[620,720,520,820,470].forEach((f,i)=>setTimeout(()=>tone(c,f,'sine',.12,.1),i*65));} },
+  ];
+
+  // Scenarios: emoji scene + context label + which emotion is correct
+  const SCENARIOS = [
+    { scene:'🎁', context:'Got a gift!',        emotion:'Happy'     },
+    { scene:'🌈', context:'A rainbow!',          emotion:'Happy'     },
+    { scene:'🍰', context:'Birthday cake!',      emotion:'Happy'     },
+    { scene:'🦋', context:'A butterfly!',        emotion:'Happy'     },
+    { scene:'💐', context:'Pretty flowers!',     emotion:'Happy'     },
+    { scene:'💔', context:'Lost her crown',      emotion:'Sad'       },
+    { scene:'🌧️', context:'It is raining',      emotion:'Sad'       },
+    { scene:'😿', context:'Kitty is hurt',       emotion:'Sad'       },
+    { scene:'🚫', context:'That is not fair!',   emotion:'Angry'     },
+    { scene:'💢', context:'She is cross!',       emotion:'Angry'     },
+    { scene:'🎉', context:'Surprise party!',     emotion:'Surprised' },
+    { scene:'🎊', context:'A gift appeared!',    emotion:'Surprised' },
+    { scene:'👻', context:'A spooky ghost!',     emotion:'Scared'    },
+    { scene:'⚡', context:'Loud thunder!',       emotion:'Scared'    },
+    { scene:'🎠', context:'Going to the fair!',  emotion:'Excited'   },
+    { scene:'🦄', context:'A unicorn arrived!',  emotion:'Excited'   },
+    { scene:'🌙', context:'Time for sleep',      emotion:'Sleepy'    },
+    { scene:'💤', context:'So very tired...',    emotion:'Sleepy'    },
+    { scene:'🤪', context:'Being goofy!',        emotion:'Silly'     },
+    { scene:'🃏', context:'Playing tricks!',     emotion:'Silly'     },
+  ];
+
+  const EASY_POOL = ['Happy','Sad'];
+  const MED_POOL  = ['Happy','Sad','Angry','Surprised'];
+
+  const TIERS = [
+    { name:'easy', rounds:[1,3], opts:2, pool:EASY_POOL },
+    { name:'med',  rounds:[4,6], opts:3, pool:MED_POOL  },
+    { name:'hard', rounds:[7,9], opts:4, pool:null       },
+  ];
+  const TOTAL = 9;
+
+  let audioCtx = null;
+  function getAudio(){ if(!audioCtx) audioCtx=new(window.AudioContext||window.webkitAudioContext)(); return audioCtx; }
+
+  function tone(ctx,f,type,dur,vol=.12){
+    try{
+      const o=ctx.createOscillator(), g=ctx.createGain();
+      o.connect(g); g.connect(ctx.destination);
+      o.type=type; o.frequency.value=f;
+      g.gain.setValueAtTime(vol,ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+dur);
+      o.start(); o.stop(ctx.currentTime+dur);
+    }catch(e){}
+  }
+  function sweep(ctx,f1,f2,dur,vol=.1){
+    try{
+      const o=ctx.createOscillator(), g=ctx.createGain();
+      o.connect(g); g.connect(ctx.destination);
+      o.type='sine';
+      o.frequency.setValueAtTime(f1,ctx.currentTime);
+      o.frequency.linearRampToValueAtTime(f2,ctx.currentTime+dur);
+      g.gain.setValueAtTime(vol,ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+dur);
+      o.start(); o.stop(ctx.currentTime+dur);
+    }catch(e){}
+  }
+
+  function playCorrect(){ const c=getAudio(); [523,659,784].forEach((f,i)=>setTimeout(()=>tone(c,f,'sine',.18),i*90)); }
+  function playWrong(){   const c=getAudio(); tone(c,200,'sawtooth',.2,.09); }
+  function playCelebrate(){ const c=getAudio(); [523,587,659,698,784,880,1047].forEach((f,i)=>setTimeout(()=>tone(c,f,'sine',.22),i*70)); }
+
+  let targetEmotion, score=0, round=0, usedScenarios=[];
+
+  function getTier(r){ for(const t of TIERS){ if(r>=t.rounds[0]&&r<=t.rounds[1]) return t; } return TIERS[2]; }
+  function shuffle(a){ const b=[...a]; for(let i=b.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]]; } return b; }
+  function updateScore(){ document.getElementById('score-row').innerHTML=Array.from({length:score},()=>'⭐').join(''); }
+  function updateTierUI(t){
+    document.querySelectorAll('.tier-chip').forEach(el=>el.classList.remove('active'));
+    document.getElementById('tier-'+t.name).classList.add('active');
+  }
+
+  function nextRound(){
+    document.getElementById('celebrate-overlay').classList.remove('show');
+    if(round>=TOTAL){ endGame(); return; }
+    round++;
+    const tier = getTier(round);
+    updateTierUI(tier);
+
+    // Filter scenarios valid for this tier's emotion pool
+    const validScenes = tier.pool
+      ? SCENARIOS.filter(s=>tier.pool.includes(s.emotion))
+      : SCENARIOS;
+
+    // Avoid repeating recent scenarios
+    const fresh = validScenes.filter(s=>!usedScenarios.includes(s));
+    const pool = fresh.length ? fresh : validScenes;
+    const scenario = pool[Math.floor(Math.random()*pool.length)];
+    usedScenarios.push(scenario);
+    if(usedScenarios.length > Math.floor(SCENARIOS.length/2)) usedScenarios = usedScenarios.slice(-4);
+
+    targetEmotion = EMOTIONS.find(e=>e.name===scenario.emotion);
+
+    // Build options: target + distractors
+    const emotionPool = tier.pool ? EMOTIONS.filter(e=>tier.pool.includes(e.name)) : EMOTIONS;
+    const distractors = shuffle(emotionPool.filter(e=>e.name!==targetEmotion.name)).slice(0,tier.opts-1);
+    const opts = shuffle([targetEmotion, ...distractors]);
+
+    // Update scene card
+    const se = document.getElementById('scene-emoji');
+    se.textContent = scenario.scene;
+    se.style.animation = 'none'; void se.offsetWidth; se.style.animation = '';
+    document.getElementById('scene-context').textContent = scenario.context;
+
+    // Play the emotion's audio signature
+    setTimeout(()=>{ if(targetEmotion.snd) targetEmotion.snd(getAudio()); }, 350);
+
+    const grid = document.getElementById('emotion-grid');
+    grid.dataset.opts = tier.opts;
+    grid.style.gridTemplateColumns = tier.opts===3 ? 'repeat(3,1fr)' : 'repeat(2,1fr)';
+    grid.innerHTML = '';
+    opts.forEach(em=>{
+      const btn = document.createElement('button');
+      btn.className = 'emotion-btn';
+      btn.innerHTML = `<span class="btn-face">${em.emoji}</span><span class="btn-label">${em.name}</span>`;
+      btn.addEventListener('pointerdown', ()=>handleTap(btn,em));
+      grid.appendChild(btn);
+    });
+  }
+
+  function sparkle(x,y){
+    const icons=['✨','💫','⭐','🌟','💖'];
+    for(let i=0;i<7;i++){
+      const el=document.createElement('span'); el.className='sparkle';
+      el.textContent=icons[Math.floor(Math.random()*icons.length)];
+      el.style.left=(x+(Math.random()-.5)*90)+'px';
+      el.style.top=(y+(Math.random()-.5)*70)+'px';
+      el.style.animationDelay=(Math.random()*.25)+'s';
+      document.body.appendChild(el);
+      setTimeout(()=>el.remove(),1100);
+    }
+  }
+
+  function handleTap(btn,em){
+    if(em.name===targetEmotion.name){
+      btn.classList.add('correct-flash'); playCorrect(); score++; updateScore();
+      const r=btn.getBoundingClientRect();
+      sparkle(r.left+r.width/2, r.top+r.height/2);
+      setTimeout(()=>{
+        btn.classList.remove('correct-flash');
+        const msgs=["Yes! Princess feels...","Correct! 🎉","You know it! 💖","Brilliant! ✨"];
+        document.getElementById('celebrate-text').textContent=msgs[Math.floor(Math.random()*msgs.length)];
+        document.getElementById('celebrate-face').textContent=targetEmotion.emoji;
+        document.getElementById('celebrate-overlay').classList.add('show');
+        playCelebrate(); confettiBurst();
+      },500);
+    } else {
+      btn.classList.add('wrong-flash'); playWrong();
+      setTimeout(()=>btn.classList.remove('wrong-flash'),400);
+    }
+  }
+
+  function endGame(){
+    document.getElementById('celebrate-text').textContent=`You got ${score} stars! 🌟`;
+    document.getElementById('celebrate-face').textContent=Array.from({length:Math.min(score,9)},()=>'⭐').join('')||'🌸';
+    document.getElementById('next-btn').textContent='Play Again 🔄';
+    document.getElementById('next-btn').onclick=()=>{ score=0;round=0;usedScenarios=[];updateScore();nextRound();document.getElementById('celebrate-overlay').classList.remove('show'); };
+    document.getElementById('celebrate-overlay').classList.add('show');
+    playCelebrate(); confettiBurst();
+  }
+
+  function confettiBurst(){
+    const cols=['#ffd700','#ff69b4','#00cfff','#7fff00','#ff6347','#da70d6'];
+    for(let i=0;i<32;i++){
+      const el=document.createElement('div'); el.className='confetti-piece';
+      el.style.left=Math.random()*100+'vw';
+      el.style.background=cols[Math.floor(Math.random()*cols.length)];
+      el.style.animationDuration=(1.2+Math.random()*1.6)+'s';
+      el.style.animationDelay=(Math.random()*.4)+'s';
+      document.body.appendChild(el);
+      setTimeout(()=>el.remove(),2700);
+    }
+  }
+
+  nextRound();
+</script>
+</body>
+</html>

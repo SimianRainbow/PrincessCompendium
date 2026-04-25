@@ -1,10 +1,9 @@
 # Princess Compendium — Status
 
 ## Last update run
-Date: 2026-04-22
-- Improved: `009-star-catcher` → v1.1.0 (removed 30-second countdown timer that could cause distress; replaced with 3 difficulty tiers based on target star counts: Easy 10 / Medium 15 / Hard 20; added sparkle burst on each catch, richer ascending audio per tier, confetti on round complete)
-- Also fixed: `012-pattern-princess` was missing from `games.json` — added entry (file already existed on disk)
-- Added: `018-size-sort` (sorting by size — big vs. small; ages 2–5)
+Date: 2026-04-25
+- Improved: `003-animal-friends` → v1.1.0 (added 6 more animals; distinctive per-animal Web Audio sound tones; 3 difficulty tiers — Easy 2 choices / Medium 3 / Hard 4; sparkle burst on correct tap; tier indicator bar; tap-to-hear on target; 8 rounds total)
+- Added: `019-feelings-faces` (emotions & feelings — 8 emotions, scenario-based scenes, 3 difficulty tiers, 9 rounds)
 
 ## Improvement history
 
@@ -12,13 +11,13 @@ Date: 2026-04-22
 |------|------|--------|-------------|
 | 2026-04-17 | 002-counting-crowns | 3 difficulty tiers, sparkles, richer audio | 1.1.0 |
 | 2026-04-22 | 009-star-catcher | Removed distress timer; target-count tiers + sparkle bursts | 1.1.0 |
+| 2026-04-25 | 003-animal-friends | +6 animals, animal sounds, 3 difficulty tiers, sparkles | 1.1.0 |
 
 ## Games due for improvement (all at v1.0.0)
 
 Priority candidates — pick whichever has the clearest improvement path:
 
 - **001-colour-match** — could add more colours (orange, brown, white), difficulty tiers, sparkle effects
-- **003-animal-friends** — could add animal sounds (Web Audio tones to suggest each animal), more animals
 - **004-shape-castle** — could add more shapes (oval, heart, star, diamond), drag-to-slot mechanic
 - **005-princess-says** — could add longer instruction sequences, more variety
 - **007-letter-bubbles** — could add phonics audio (distinctive tone per letter group), difficulty tiers A-E / A-M / A-Z
@@ -27,9 +26,9 @@ Priority candidates — pick whichever has the clearest improvement path:
 ## Skills not yet covered
 
 See `CLAUDE.md` for the full prioritised list. Top 3 to build next:
-1. Emotions / feelings recognition
-2. Opposites (hot/cold, up/down, fast/slow)
-3. Body parts (point to nose, ears, hands, etc.)
+1. Opposites (hot/cold, up/down, fast/slow)
+2. Body parts (point to nose, ears, hands, etc.)
+3. Simple addition (1+1, 2+1, tap the answer — ages 4-5)
 
 ## Next game ID
-`019-<slug>`
+`020-<slug>`

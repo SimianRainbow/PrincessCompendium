@@ -13,60 +13,90 @@
       align-items: center; justify-content: center;
       font-family: Georgia, serif;
       overflow: hidden; user-select: none;
+      padding: 8px;
     }
-    #prompt { font-size: clamp(20px,5.5vw,32px); color:#fff; text-shadow:0 2px 8px rgba(0,0,0,.4); margin-bottom:16px; text-align:center; padding:0 12px; }
+    #score-row { position: fixed; top: 16px; right: 20px; font-size: clamp(22px,6vw,32px); }
+    #tier-bar { display: flex; gap: 8px; margin-bottom: 10px; }
+    .tier-chip {
+      padding: 4px 14px; border-radius: 20px;
+      font-size: clamp(11px,2.8vw,15px); font-weight: bold;
+      background: rgba(255,255,255,0.2); color: rgba(255,255,255,0.6);
+      transition: all .3s;
+    }
+    .tier-chip.active {
+      background: rgba(255,255,255,0.85); color: #2e7d32;
+      box-shadow: 0 2px 8px rgba(0,0,0,.2);
+    }
+    #prompt { font-size: clamp(18px,5vw,30px); color: #fff; text-shadow: 0 2px 8px rgba(0,0,0,.4); margin-bottom: 14px; text-align: center; padding: 0 12px; }
     #target-stage {
-      background: rgba(255,255,255,0.18); border-radius:28px;
-      border:3px solid rgba(255,255,255,0.3);
-      padding: clamp(14px,4vw,24px);
-      display:flex; flex-direction:column; align-items:center; gap:8px;
-      margin-bottom:28px;
-      box-shadow:0 4px 24px rgba(0,0,0,.18);
+      background: rgba(255,255,255,0.18); border-radius: 28px;
+      border: 3px solid rgba(255,255,255,0.3);
+      padding: clamp(12px,3.5vw,22px);
+      display: flex; flex-direction: column; align-items: center; gap: 6px;
+      margin-bottom: 22px;
+      box-shadow: 0 4px 24px rgba(0,0,0,.18);
+      cursor: pointer;
+      min-width: clamp(180px,50vw,260px);
     }
-    #target-emoji { font-size: clamp(72px,20vw,120px); line-height:1; animation: popIn .4s cubic-bezier(.34,1.56,.64,1); }
-    #target-label { font-size: clamp(18px,5vw,30px); color:#fff; font-weight:bold; text-shadow:0 1px 4px rgba(0,0,0,.3); letter-spacing:1px; }
+    #target-emoji { font-size: clamp(68px,18vw,110px); line-height: 1; animation: popIn .4s cubic-bezier(.34,1.56,.64,1); }
+    #target-label { font-size: clamp(18px,5vw,30px); color: #fff; font-weight: bold; text-shadow: 0 1px 4px rgba(0,0,0,.3); letter-spacing: 1px; }
+    #sound-hint { font-size: clamp(10px,2.5vw,13px); color: rgba(255,255,255,0.65); }
     @keyframes popIn { from{transform:scale(0);opacity:0} to{transform:scale(1);opacity:1} }
 
     #animal-grid {
-      display:grid; grid-template-columns:repeat(2,1fr);
-      gap:clamp(12px,3vw,20px); padding:4px;
+      display: grid; grid-template-columns: repeat(2,1fr);
+      gap: clamp(10px,2.5vw,16px); padding: 4px;
     }
+    /* button sizing by tier option count */
+    #animal-grid[data-opts="2"] .animal-btn { width: clamp(130px,33vw,165px); height: clamp(130px,33vw,165px); }
+    #animal-grid[data-opts="2"] .btn-emoji  { font-size: clamp(52px,13vw,72px); }
+    #animal-grid[data-opts="3"] .animal-btn { width: clamp(100px,25vw,130px); height: clamp(100px,25vw,130px); }
+    #animal-grid[data-opts="3"] .btn-emoji  { font-size: clamp(40px,10vw,56px); }
+    #animal-grid[data-opts="4"] .animal-btn { width: clamp(110px,27vw,150px); height: clamp(110px,27vw,150px); }
+    #animal-grid[data-opts="4"] .btn-emoji  { font-size: clamp(44px,11vw,64px); }
+
     .animal-btn {
-      width:clamp(110px,27vw,150px); height:clamp(110px,27vw,150px);
-      border-radius:22px; border:none; cursor:pointer;
-      background:rgba(255,255,255,0.2);
-      box-shadow:0 4px 16px rgba(0,0,0,.25), inset 0 2px 0 rgba(255,255,255,.2);
-      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px;
-      transition:transform .1s;
+      border-radius: 22px; border: none; cursor: pointer;
+      background: rgba(255,255,255,0.2);
+      box-shadow: 0 4px 16px rgba(0,0,0,.25), inset 0 2px 0 rgba(255,255,255,.2);
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+      transition: transform .1s;
     }
-    .animal-btn:active { transform:scale(.9); }
-    .animal-btn .btn-emoji { font-size:clamp(44px,11vw,64px); line-height:1; }
-    .animal-btn .btn-label { font-size:clamp(12px,3vw,16px); color:#fff; font-weight:bold; text-shadow:0 1px 3px rgba(0,0,0,.4); }
-    .animal-btn.correct-flash { animation:correctPulse .5s ease-out; }
-    .animal-btn.wrong-flash { animation:wrongShake .4s ease-out; }
+    .animal-btn:active { transform: scale(.9); }
+    .btn-emoji { line-height: 1; }
+    .btn-label { font-size: clamp(11px,2.8vw,15px); color: #fff; font-weight: bold; text-shadow: 0 1px 3px rgba(0,0,0,.4); }
+    .animal-btn.correct-flash { animation: correctPulse .5s ease-out; }
+    .animal-btn.wrong-flash   { animation: wrongShake .4s ease-out; }
     @keyframes correctPulse { 0%{transform:scale(1)} 40%{transform:scale(1.18);box-shadow:0 0 40px rgba(255,255,255,.7)} 100%{transform:scale(1)} }
     @keyframes wrongShake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-10px)} 60%{transform:translateX(10px)} }
 
     #celebrate-overlay {
-      position:fixed; inset:0; background:rgba(0,0,0,.55);
-      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:18px;
-      z-index:99; opacity:0; pointer-events:none; transition:opacity .3s;
+      position: fixed; inset: 0; background: rgba(0,0,0,.55);
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px;
+      z-index: 99; opacity: 0; pointer-events: none; transition: opacity .3s;
     }
-    #celebrate-overlay.show { opacity:1; pointer-events:all; }
-    #celebrate-text { font-size:clamp(32px,9vw,64px); color:#fff; text-shadow:0 0 20px #ffd700; text-align:center; padding:0 16px; }
-    #celebrate-animal { font-size:clamp(60px,18vw,110px); }
-    #next-btn { padding:clamp(14px,4vw,20px) clamp(32px,8vw,56px); font-size:clamp(20px,5vw,28px); border-radius:50px; border:none; background:linear-gradient(135deg,#ffd700,#ff9800); color:#5d2e00; font-weight:bold; cursor:pointer; font-family:inherit; box-shadow:0 4px 16px rgba(255,180,0,.5); }
-    #score-row { position:fixed; top:16px; right:20px; font-size:clamp(22px,6vw,32px); }
-    .confetti-piece { position:fixed; width:10px; height:10px; border-radius:50%; animation:confettiFall linear forwards; pointer-events:none; z-index:100; }
+    #celebrate-overlay.show { opacity: 1; pointer-events: all; }
+    #celebrate-text  { font-size: clamp(30px,8vw,60px); color: #fff; text-shadow: 0 0 20px #ffd700; text-align: center; padding: 0 16px; }
+    #celebrate-animal{ font-size: clamp(60px,18vw,110px); }
+    #next-btn { padding: clamp(14px,4vw,20px) clamp(32px,8vw,56px); font-size: clamp(20px,5vw,28px); border-radius: 50px; border: none; background: linear-gradient(135deg,#ffd700,#ff9800); color: #5d2e00; font-weight: bold; cursor: pointer; font-family: inherit; box-shadow: 0 4px 16px rgba(255,180,0,.5); }
+    .confetti-piece { position: fixed; width: 10px; height: 10px; border-radius: 50%; animation: confettiFall linear forwards; pointer-events: none; z-index: 100; }
     @keyframes confettiFall { 0%{top:-20px;opacity:1} 100%{top:110vh;opacity:.2} }
+    .sparkle { position: fixed; font-size: clamp(16px,4vw,24px); pointer-events: none; z-index: 101; animation: sparkleFloat .9s ease-out forwards; }
+    @keyframes sparkleFloat { 0%{transform:translateY(0) scale(1);opacity:1} 100%{transform:translateY(-80px) scale(0);opacity:0} }
   </style>
 </head>
 <body>
   <div id="score-row"></div>
+  <div id="tier-bar">
+    <div class="tier-chip" id="tier-easy">🌱 Easy</div>
+    <div class="tier-chip" id="tier-med">🌸 Medium</div>
+    <div class="tier-chip" id="tier-hard">⭐ Hard</div>
+  </div>
   <div id="prompt">Find this animal! 🌿</div>
-  <div id="target-stage">
+  <div id="target-stage" onclick="playAnimalSound(target)">
     <div id="target-emoji"></div>
     <div id="target-label"></div>
+    <div id="sound-hint">👆 tap to hear</div>
   </div>
   <div id="animal-grid"></div>
 
@@ -77,60 +107,129 @@
   </div>
 
 <script>
+  // Each animal has a characteristic sound function that receives the audio context
   const ANIMALS = [
-    { emoji:'🐶', name:'Dog' },    { emoji:'🐱', name:'Cat' },
-    { emoji:'🐰', name:'Bunny' },  { emoji:'🦊', name:'Fox' },
-    { emoji:'🐻', name:'Bear' },   { emoji:'🐼', name:'Panda' },
-    { emoji:'🐨', name:'Koala' },  { emoji:'🦁', name:'Lion' },
-    { emoji:'🐯', name:'Tiger' },  { emoji:'🦄', name:'Unicorn' },
-    { emoji:'🐸', name:'Frog' },   { emoji:'🐧', name:'Penguin' },
-    { emoji:'🦋', name:'Butterfly'},{ emoji:'🐬', name:'Dolphin' },
+    { emoji:'🐶', name:'Dog',       snd:a=>{snd(a,300,'sawtooth',.12,.1); setTimeout(()=>snd(a,270,'sawtooth',.1,.09),140);} },
+    { emoji:'🐱', name:'Cat',       snd:a=>{sweep(a,520,340,.3,.1);} },
+    { emoji:'🐰', name:'Bunny',     snd:a=>{[700,820,700].forEach((f,i)=>setTimeout(()=>snd(a,f,'sine',.09,.07),i*80));} },
+    { emoji:'🦊', name:'Fox',       snd:a=>{snd(a,430,'sawtooth',.1,.1); setTimeout(()=>snd(a,380,'sawtooth',.09,.09),130);} },
+    { emoji:'🐻', name:'Bear',      snd:a=>{sweep(a,180,110,.55,.16);} },
+    { emoji:'🐼', name:'Panda',     snd:a=>{[360,440,360].forEach((f,i)=>setTimeout(()=>snd(a,f,'sine',.15,.09),i*130));} },
+    { emoji:'🐨', name:'Koala',     snd:a=>{sweep(a,260,190,.45,.09);} },
+    { emoji:'🦁', name:'Lion',      snd:a=>{sweep(a,170,100,.6,.2);} },
+    { emoji:'🐯', name:'Tiger',     snd:a=>{sweep(a,230,160,.4,.18);} },
+    { emoji:'🦄', name:'Unicorn',   snd:a=>{[523,659,784,1047].forEach((f,i)=>setTimeout(()=>snd(a,f,'sine',.22,.1),i*80));} },
+    { emoji:'🐸', name:'Frog',      snd:a=>{snd(a,300,'square',.08,.12); setTimeout(()=>snd(a,280,'square',.08,.12),200);} },
+    { emoji:'🐧', name:'Penguin',   snd:a=>{[440,490,440,390].forEach((f,i)=>setTimeout(()=>snd(a,f,'sine',.1,.09),i*100));} },
+    { emoji:'🦋', name:'Butterfly', snd:a=>{[620,720,620,720].forEach((f,i)=>setTimeout(()=>snd(a,f,'sine',.07,.06),i*60));} },
+    { emoji:'🐬', name:'Dolphin',   snd:a=>{sweep(a,800,1300,.22,.1); setTimeout(()=>sweep(a,700,1100,.18,.08),320);} },
+    { emoji:'🐘', name:'Elephant',  snd:a=>{sweep(a,200,320,.5,.2); setTimeout(()=>sweep(a,180,90,.4,.14),650);} },
+    { emoji:'🐒', name:'Monkey',    snd:a=>{[380,430,380,460,380].forEach((f,i)=>setTimeout(()=>snd(a,f,'sine',.1,.08),i*70));} },
+    { emoji:'🦉', name:'Owl',       snd:a=>{snd(a,350,'sine',.35,.12); setTimeout(()=>snd(a,310,'sine',.3,.1),420);} },
+    { emoji:'🦆', name:'Duck',      snd:a=>{sweep(a,510,400,.15,.1); setTimeout(()=>sweep(a,510,400,.15,.1),230);} },
+    { emoji:'🐴', name:'Horse',     snd:a=>{[450,560,450,330].forEach((f,i)=>setTimeout(()=>snd(a,f,'triangle',.15,.12),i*80));} },
+    { emoji:'🐟', name:'Fish',      snd:a=>{[620,700,660,730].forEach((f,i)=>setTimeout(()=>snd(a,f,'sine',.08,.06),i*60));} },
   ];
 
-  let audioCtx=null;
+  const TIERS = [
+    { name:'easy', rounds:[1,2], opts:2 },
+    { name:'med',  rounds:[3,5], opts:3 },
+    { name:'hard', rounds:[6,8], opts:4 },
+  ];
+  const TOTAL = 8;
+
+  let audioCtx = null;
   function getAudio(){ if(!audioCtx) audioCtx=new(window.AudioContext||window.webkitAudioContext)(); return audioCtx; }
-  function tone(f,t,d,v=.15){ try{ const c=getAudio(),o=c.createOscillator(),g=c.createGain(); o.connect(g);g.connect(c.destination); o.type=t||'sine';o.frequency.value=f;g.gain.setValueAtTime(v,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+d);o.start();o.stop(c.currentTime+d); }catch(e){} }
-  function playCorrect(){ [523,659,784].forEach((f,i)=>setTimeout(()=>tone(f,'sine',.18),i*90)); }
-  function playWrong(){ tone(200,'sawtooth',.2,.09); }
-  function playCelebrate(){ [523,587,659,698,784,880,1047].forEach((f,i)=>setTimeout(()=>tone(f,'sine',.22),i*70)); }
 
-  let target,score=0,round=0;
-  const TOTAL=6;
+  function snd(ctx,f,type,dur,vol=.13){
+    try{
+      const o=ctx.createOscillator(), g=ctx.createGain();
+      o.connect(g); g.connect(ctx.destination);
+      o.type=type; o.frequency.value=f;
+      g.gain.setValueAtTime(vol,ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+dur);
+      o.start(); o.stop(ctx.currentTime+dur);
+    }catch(e){}
+  }
+  function sweep(ctx,f1,f2,dur,vol=.11){
+    try{
+      const o=ctx.createOscillator(), g=ctx.createGain();
+      o.connect(g); g.connect(ctx.destination);
+      o.type='sine';
+      o.frequency.setValueAtTime(f1,ctx.currentTime);
+      o.frequency.linearRampToValueAtTime(f2,ctx.currentTime+dur);
+      g.gain.setValueAtTime(vol,ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+dur);
+      o.start(); o.stop(ctx.currentTime+dur);
+    }catch(e){}
+  }
 
+  function playAnimalSound(animal){ if(animal&&animal.snd) animal.snd(getAudio()); }
+  function playCorrect(){ const c=getAudio(); [523,659,784].forEach((f,i)=>setTimeout(()=>snd(c,f,'sine',.18),i*90)); }
+  function playWrong(){   const c=getAudio(); snd(c,200,'sawtooth',.2,.09); }
+  function playCelebrate(){ const c=getAudio(); [523,587,659,698,784,880,1047].forEach((f,i)=>setTimeout(()=>snd(c,f,'sine',.22),i*70)); }
+
+  let target, score=0, round=0;
+
+  function getTier(r){ for(const t of TIERS){ if(r>=t.rounds[0]&&r<=t.rounds[1]) return t; } return TIERS[2]; }
   function shuffle(a){ const b=[...a]; for(let i=b.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]]; } return b; }
   function updateScore(){ document.getElementById('score-row').innerHTML=Array.from({length:score},()=>'⭐').join(''); }
+  function updateTierUI(t){
+    document.querySelectorAll('.tier-chip').forEach(el=>el.classList.remove('active'));
+    document.getElementById('tier-'+t.name).classList.add('active');
+  }
 
   function nextRound(){
     document.getElementById('celebrate-overlay').classList.remove('show');
     if(round>=TOTAL){ endGame(); return; }
     round++;
-    const pool=shuffle(ANIMALS);
-    target=pool[0];
-    const opts=shuffle(pool.slice(0,4));
+    const tier = getTier(round);
+    updateTierUI(tier);
 
-    document.getElementById('target-emoji').textContent=target.emoji;
-    document.getElementById('target-label').textContent=target.name;
-    document.getElementById('target-emoji').style.animation='none';
-    void document.getElementById('target-emoji').offsetWidth;
-    document.getElementById('target-emoji').style.animation='';
+    const pool = shuffle(ANIMALS);
+    target = pool[0];
+    const opts = shuffle(pool.slice(0, tier.opts));
 
-    const grid=document.getElementById('animal-grid');
-    grid.innerHTML='';
+    const te = document.getElementById('target-emoji');
+    te.textContent = target.emoji;
+    te.style.animation = 'none'; void te.offsetWidth; te.style.animation = '';
+    document.getElementById('target-label').textContent = target.name;
+    setTimeout(()=>playAnimalSound(target), 350);
+
+    const grid = document.getElementById('animal-grid');
+    grid.dataset.opts = tier.opts;
+    grid.style.gridTemplateColumns = tier.opts === 3 ? 'repeat(3,1fr)' : 'repeat(2,1fr)';
+    grid.innerHTML = '';
     opts.forEach(a=>{
-      const btn=document.createElement('button');
-      btn.className='animal-btn';
-      btn.innerHTML=`<span class="btn-emoji">${a.emoji}</span><span class="btn-label">${a.name}</span>`;
-      btn.addEventListener('pointerdown',()=>handleTap(btn,a));
+      const btn = document.createElement('button');
+      btn.className = 'animal-btn';
+      btn.innerHTML = `<span class="btn-emoji">${a.emoji}</span><span class="btn-label">${a.name}</span>`;
+      btn.addEventListener('pointerdown', ()=>handleTap(btn,a));
       grid.appendChild(btn);
     });
+  }
+
+  function sparkle(x,y){
+    const icons=['✨','💫','⭐','🌟','★'];
+    for(let i=0;i<7;i++){
+      const el=document.createElement('span'); el.className='sparkle';
+      el.textContent=icons[Math.floor(Math.random()*icons.length)];
+      el.style.left=(x+(Math.random()-.5)*90)+'px';
+      el.style.top=(y+(Math.random()-.5)*70)+'px';
+      el.style.animationDelay=(Math.random()*.25)+'s';
+      document.body.appendChild(el);
+      setTimeout(()=>el.remove(),1100);
+    }
   }
 
   function handleTap(btn,a){
     if(a.name===target.name){
       btn.classList.add('correct-flash'); playCorrect(); score++; updateScore();
+      const r=btn.getBoundingClientRect();
+      sparkle(r.left+r.width/2, r.top+r.height/2);
       setTimeout(()=>{
         btn.classList.remove('correct-flash');
-        const msgs=['Yes! That\'s a...','Correct! 🎉','You found it! 💖','Brilliant! ✨'];
+        const msgs=["Yes! That's a...","Correct! 🎉","You found it! 💖","Brilliant! ✨"];
         document.getElementById('celebrate-text').textContent=msgs[Math.floor(Math.random()*msgs.length)];
         document.getElementById('celebrate-animal').textContent=target.emoji;
         document.getElementById('celebrate-overlay').classList.add('show');
@@ -144,7 +243,7 @@
 
   function endGame(){
     document.getElementById('celebrate-text').textContent=`You got ${score} stars! 🌟`;
-    document.getElementById('celebrate-animal').textContent=Array.from({length:score},()=>'⭐').join('')||'🌸';
+    document.getElementById('celebrate-animal').textContent=Array.from({length:Math.min(score,8)},()=>'⭐').join('')||'🌸';
     document.getElementById('next-btn').textContent='Play Again 🔄';
     document.getElementById('next-btn').onclick=()=>{ score=0;round=0;updateScore();nextRound();document.getElementById('celebrate-overlay').classList.remove('show'); };
     document.getElementById('celebrate-overlay').classList.add('show');
@@ -153,14 +252,14 @@
 
   function confettiBurst(){
     const cols=['#ffd700','#ff69b4','#00cfff','#7fff00','#ff6347','#da70d6'];
-    for(let i=0;i<30;i++){
+    for(let i=0;i<32;i++){
       const el=document.createElement('div'); el.className='confetti-piece';
       el.style.left=Math.random()*100+'vw';
       el.style.background=cols[Math.floor(Math.random()*cols.length)];
       el.style.animationDuration=(1.2+Math.random()*1.6)+'s';
       el.style.animationDelay=(Math.random()*.4)+'s';
       document.body.appendChild(el);
-      setTimeout(()=>el.remove(),2600);
+      setTimeout(()=>el.remove(),2700);
     }
   }
 
