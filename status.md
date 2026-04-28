@@ -1,9 +1,9 @@
 # Princess Compendium — Status
 
 ## Last update run
-Date: 2026-04-25
-- Improved: `003-animal-friends` → v1.1.0 (added 6 more animals; distinctive per-animal Web Audio sound tones; 3 difficulty tiers — Easy 2 choices / Medium 3 / Hard 4; sparkle burst on correct tap; tier indicator bar; tap-to-hear on target; 8 rounds total)
-- Added: `019-feelings-faces` (emotions & feelings — 8 emotions, scenario-based scenes, 3 difficulty tiers, 9 rounds)
+Date: 2026-04-28
+- Improved: `007-letter-bubbles` → v1.1.0 (visible ⭐/⭐⭐/⭐⭐⭐ tier badge; "Tap to hear 🔊" prompt plays per-letter phonics tone — vowels=sine, consonants=triangle, each letter unique pitch; sparkle particle burst on correct pop; extended to 12 rounds; faster spawn rate at Hard tier)
+- Added: `020-opposites` (opposites — 12 pairs hot/cold, day/night, up/down, happy/sad etc.; 3 difficulty tiers 2/3/4 choices; sparkle + confetti on correct; purple-pink princess theme)
 
 ## Improvement history
 
@@ -12,6 +12,7 @@ Date: 2026-04-25
 | 2026-04-17 | 002-counting-crowns | 3 difficulty tiers, sparkles, richer audio | 1.1.0 |
 | 2026-04-22 | 009-star-catcher | Removed distress timer; target-count tiers + sparkle bursts | 1.1.0 |
 | 2026-04-25 | 003-animal-friends | +6 animals, animal sounds, 3 difficulty tiers, sparkles | 1.1.0 |
+| 2026-04-28 | 007-letter-bubbles | Tier badge, tap-to-hear phonics tones, sparkle bursts, 12 rounds | 1.1.0 |
 
 ## Games due for improvement (all at v1.0.0)
 
@@ -26,9 +27,9 @@ Priority candidates — pick whichever has the clearest improvement path:
 ## Skills not yet covered
 
 See `CLAUDE.md` for the full prioritised list. Top 3 to build next:
-1. Opposites (hot/cold, up/down, fast/slow)
-2. Body parts (point to nose, ears, hands, etc.)
-3. Simple addition (1+1, 2+1, tap the answer — ages 4-5)
+1. Body parts (point to nose, ears, hands, etc.)
+2. Simple addition (1+1, 2+1, tap the answer — ages 4-5)
+3. Spatial concepts (in, on, under, next to, behind)
 
 ## Next game ID
-`020-<slug>`
+`021-<slug>`

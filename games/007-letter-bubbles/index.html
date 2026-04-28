@@ -14,37 +14,46 @@
 
     #top-bar {
       position:fixed; top:0; left:0; right:0; z-index:10;
-      padding:clamp(12px,3vw,20px) clamp(16px,4vw,24px);
-      display:flex; align-items:center; justify-content:space-between;
+      padding:clamp(10px,2.5vw,18px) clamp(10px,2.5vw,18px);
+      display:flex; align-items:center; justify-content:space-between; gap:6px;
     }
-    #score-row { font-size:clamp(22px,6vw,32px); }
+    #score-row { font-size:clamp(18px,5vw,28px); min-width:50px; flex-shrink:0; }
+
     #prompt-box {
-      background:rgba(255,255,255,.2); border:3px solid rgba(255,255,255,.4);
-      border-radius:20px; padding:clamp(8px,2vw,14px) clamp(16px,4vw,28px);
+      background:rgba(255,255,255,.2); border:3px solid rgba(255,255,255,.5);
+      border-radius:20px; padding:clamp(6px,1.5vw,12px) clamp(12px,3vw,22px);
       display:flex; flex-direction:column; align-items:center; gap:2px;
+      cursor:pointer; touch-action:manipulation; flex:0 0 auto;
     }
-    #prompt-label { font-size:clamp(11px,2.8vw,16px); color:rgba(255,255,255,.8); }
+    #prompt-box:active { transform:scale(.93); }
+    #prompt-label { font-size:clamp(10px,2.5vw,14px); color:rgba(255,255,255,.85); font-weight:bold; }
     #prompt-letter {
-      font-size:clamp(48px,12vw,72px); color:#fff; font-weight:bold; line-height:1;
+      font-size:clamp(44px,11vw,68px); color:#fff; font-weight:bold; line-height:1;
       text-shadow:0 2px 12px rgba(0,0,0,.3);
     }
+    #prompt-hint { font-size:clamp(9px,2vw,12px); color:rgba(255,255,255,.75); }
 
-    /* Floating bubbles */
+    #tier-badge {
+      background:rgba(255,255,255,.2); border:2px solid rgba(255,255,255,.4);
+      border-radius:16px; padding:5px 10px;
+      font-size:clamp(11px,2.8vw,16px); color:#fff; text-align:center;
+      white-space:nowrap; font-weight:bold; flex-shrink:0;
+    }
+
     .bubble {
-      position:absolute;
-      border-radius:50%;
+      position:absolute; border-radius:50%;
       display:flex; align-items:center; justify-content:center;
-      font-size:clamp(30px,8vw,52px); font-weight:bold; color:#fff;
+      font-size:clamp(28px,7.5vw,50px); font-weight:bold; color:#fff;
       text-shadow:0 2px 6px rgba(0,0,0,.25);
-      cursor:pointer;
+      cursor:pointer; touch-action:manipulation;
       border:4px solid rgba(255,255,255,.5);
       box-shadow:inset 0 -6px 12px rgba(0,0,0,.1), inset 0 6px 12px rgba(255,255,255,.3), 0 4px 16px rgba(0,0,0,.2);
       animation: floatUp linear forwards;
       transition: transform .08s;
     }
     .bubble:active { transform:scale(.9); }
-    .bubble.pop-correct { animation: popCorrect .35s ease-out forwards !important; }
-    .bubble.pop-wrong   { animation: popWrong   .3s  ease-out forwards !important; }
+    .bubble.pop-correct { animation: popCorrect .38s ease-out forwards !important; }
+    .bubble.pop-wrong   { animation: popWrong   .32s ease-out forwards !important; }
 
     @keyframes floatUp {
       0%   { bottom:-120px; opacity:0; }
@@ -54,13 +63,14 @@
     }
     @keyframes popCorrect {
       0%   { transform:scale(1); opacity:1; }
-      40%  { transform:scale(1.5); opacity:.8; }
+      40%  { transform:scale(1.6); opacity:.8; }
       100% { transform:scale(0); opacity:0; }
     }
     @keyframes popWrong {
-      0%   { transform:scale(1); }
-      30%  { transform:scale(1.1) rotate(-8deg); }
-      60%  { transform:scale(1.1) rotate(8deg); }
+      0%   { transform:scale(1) rotate(0); }
+      25%  { transform:scale(1.05) rotate(-10deg); }
+      50%  { transform:scale(1.05) rotate(10deg); }
+      75%  { transform:scale(1.05) rotate(-5deg); }
       100% { transform:scale(1) rotate(0); }
     }
 
@@ -70,12 +80,19 @@
       z-index:99; opacity:0; pointer-events:none; transition:opacity .3s;
     }
     #celebrate-overlay.show { opacity:1; pointer-events:all; }
-    #celebrate-text { font-size:clamp(32px,9vw,64px); color:#fff; text-shadow:0 0 20px #ffd700; text-align:center; padding:0 16px; }
+    #celebrate-text { font-size:clamp(28px,8vw,54px); color:#fff; text-shadow:0 0 20px #ffd700; text-align:center; padding:0 16px; font-weight:bold; }
     #celebrate-letter {
-      font-size:clamp(80px,22vw,130px); color:#ffd700;
+      font-size:clamp(72px,20vw,120px); color:#ffd700;
       text-shadow:0 0 30px rgba(255,215,0,.8); font-weight:bold;
     }
-    #next-btn { padding:clamp(14px,4vw,20px) clamp(32px,8vw,56px); font-size:clamp(20px,5vw,28px); border-radius:50px; border:none; background:linear-gradient(135deg,#ffd700,#ff9800); color:#5d2e00; font-weight:bold; cursor:pointer; font-family:inherit; }
+    #next-btn {
+      padding:clamp(14px,4vw,20px) clamp(32px,8vw,56px);
+      font-size:clamp(20px,5vw,28px); border-radius:50px; border:none;
+      background:linear-gradient(135deg,#ffd700,#ff9800);
+      color:#5d2e00; font-weight:bold; cursor:pointer;
+      font-family:inherit; touch-action:manipulation;
+    }
+
     .confetti-piece { position:fixed; width:10px; height:10px; border-radius:50%; animation:confettiFall linear forwards; pointer-events:none; z-index:100; }
     @keyframes confettiFall { 0%{top:-20px;opacity:1} 100%{top:110vh;opacity:.2} }
   </style>
@@ -84,11 +101,12 @@
 
   <div id="top-bar">
     <div id="score-row"></div>
-    <div id="prompt-box">
-      <div id="prompt-label">Find the letter</div>
+    <div id="prompt-box" onclick="onPromptTap()">
+      <div id="prompt-label">🔊 Tap to hear</div>
       <div id="prompt-letter">A</div>
+      <div id="prompt-hint">Find this bubble!</div>
     </div>
-    <div style="width:60px"></div>
+    <div id="tier-badge">⭐ Easy</div>
   </div>
 
   <div id="celebrate-overlay">
@@ -98,129 +116,223 @@
   </div>
 
 <script>
-  // Letters grouped by difficulty — unlock more as rounds progress
+  // Letter sets per difficulty tier
   const SETS = [
-    ['A','B','C','D','E'],         // rounds 1-4
-    ['A','B','C','D','E','F','G','H','I','J'],   // rounds 5-8
-    'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split(''),      // rounds 9+
+    ['A','B','C','D','E'],
+    ['A','B','C','D','E','F','G','H','I','J'],
+    'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split(''),
+  ];
+  const VOWELS = new Set(['A','E','I','O','U']);
+
+  // Each letter maps to a unique frequency (pentatonic-inspired, pleasant pitches)
+  const LETTER_FREQS = [
+    261.63, 293.66, 329.63, 349.23, 392.00,  // A-E
+    440.00, 493.88, 523.25, 587.33, 659.25,  // F-J
+    698.46, 783.99, 880.00, 987.77, 1046.50, // K-O
+    1108.73,1174.66,1244.51,1318.51,1396.91, // P-T
+    1479.98,1567.98,1661.22,1760.00,1864.66, // U-Y
+    1975.53                                   // Z
   ];
 
   const BUBBLE_COLOURS = [
-    '#e53935','#1e88e5','#43a047','#8e24aa','#f57c00','#00838f','#c2185b','#0288d1',
+    '#e53935','#1e88e5','#43a047','#8e24aa','#f57c00','#00838f','#c2185b','#0288d1','#558b2f',
   ];
 
-  let audioCtx=null;
-  function getAudio(){ if(!audioCtx) audioCtx=new(window.AudioContext||window.webkitAudioContext)(); return audioCtx; }
-  function tone(f,t,d,v=.15){ try{ const c=getAudio(),o=c.createOscillator(),g=c.createGain(); o.connect(g);g.connect(c.destination); o.type=t||'sine';o.frequency.value=f;g.gain.setValueAtTime(v,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+d);o.start();o.stop(c.currentTime+d); }catch(e){} }
-  function playPop(){ tone(880,'sine',.1); setTimeout(()=>tone(1100,'sine',.1),80); }
-  function playWrong(){ tone(220,'sawtooth',.18,.09); }
-  function playCelebrate(){ [523,659,784,1047].forEach((f,i)=>setTimeout(()=>tone(f,'sine',.2),i*80)); }
-
-  let target='A', score=0, round=0;
-  const TOTAL=10;
-  let spawnTimer=null, activeRound=true;
-
-  function shuffle(a){ const b=[...a]; for(let i=b.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]]; } return b; }
-  function updateScore(){ document.getElementById('score-row').innerHTML=Array.from({length:score},()=>'⭐').join(''); }
-
-  function getLetterPool(){
-    if(round<=4) return SETS[0];
-    if(round<=8) return SETS[1];
-    return SETS[2];
+  let audioCtx = null;
+  function getAudio() {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    return audioCtx;
+  }
+  function tone(f, t, d, v = .15) {
+    try {
+      const c = getAudio(), o = c.createOscillator(), g = c.createGain();
+      o.connect(g); g.connect(c.destination);
+      o.type = t || 'sine'; o.frequency.value = f;
+      g.gain.setValueAtTime(v, c.currentTime);
+      g.gain.exponentialRampToValueAtTime(.001, c.currentTime + d);
+      o.start(); o.stop(c.currentTime + d);
+    } catch (e) {}
   }
 
-  function nextRound(){
+  // Vowels: warm sine; consonants: brighter triangle — each has its own pitch
+  function playLetterTone(letter) {
+    const idx = letter.charCodeAt(0) - 65;
+    const freq = LETTER_FREQS[idx];
+    const oType = VOWELS.has(letter) ? 'sine' : 'triangle';
+    tone(freq, oType, 0.4, 0.18);
+    setTimeout(() => tone(freq * 1.5, 'sine', 0.22, 0.07), 90);
+  }
+
+  function playPop(letter) {
+    const idx = letter.charCodeAt(0) - 65;
+    const freq = LETTER_FREQS[idx];
+    const oType = VOWELS.has(letter) ? 'sine' : 'triangle';
+    tone(freq, oType, 0.18, 0.18);
+    setTimeout(() => tone(freq * 1.5, 'sine', 0.16, 0.12), 100);
+    setTimeout(() => tone(freq * 2.0, 'sine', 0.14, 0.08), 210);
+  }
+  function playWrong() {
+    tone(200, 'sawtooth', 0.2, 0.1);
+    setTimeout(() => tone(170, 'sawtooth', 0.18, 0.08), 180);
+  }
+  function playCelebrate() {
+    [523, 659, 784, 1047, 1318].forEach((f, i) => setTimeout(() => tone(f, 'sine', 0.22), i * 75));
+  }
+
+  function onPromptTap() { playLetterTone(target); }
+
+  let target = 'A', score = 0, round = 0;
+  const TOTAL = 12;
+  let spawnTimer = null, activeRound = true;
+
+  function shuffle(a) {
+    const b = [...a];
+    for (let i = b.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [b[i], b[j]] = [b[j], b[i]];
+    }
+    return b;
+  }
+
+  function updateScore() {
+    document.getElementById('score-row').textContent = Array.from({ length: score }, () => '⭐').join('');
+  }
+
+  function clamp(min, val, max) { return Math.max(min, Math.min(max, val)); }
+
+  function getTier() {
+    if (round <= 4)  return { set: SETS[0], label: '⭐ Easy',          interval: 1800 };
+    if (round <= 8)  return { set: SETS[1], label: '⭐⭐ Medium',      interval: 1350 };
+    return                  { set: SETS[2], label: '⭐⭐⭐ Hard',      interval: 950  };
+  }
+
+  function nextRound() {
     document.getElementById('celebrate-overlay').classList.remove('show');
     clearAllBubbles();
-    if(round>=TOTAL){ endGame(); return; }
+    if (round >= TOTAL) { endGame(); return; }
     round++;
-    activeRound=true;
+    activeRound = true;
 
-    const pool=getLetterPool();
-    target=pool[Math.floor(Math.random()*pool.length)];
-    document.getElementById('prompt-letter').textContent=target;
+    const { set, label, interval } = getTier();
+    document.getElementById('tier-badge').textContent = label;
 
-    // Spawn bubbles continuously
-    spawnBubble(); // immediate first
-    spawnTimer=setInterval(spawnBubble, 1800 - Math.min(round*80, 900));
+    target = set[Math.floor(Math.random() * set.length)];
+    document.getElementById('prompt-letter').textContent = target;
+
+    // Play the letter's unique tone at round start
+    setTimeout(() => playLetterTone(target), 300);
+
+    spawnBubble();
+    spawnTimer = setInterval(spawnBubble, interval);
   }
 
-  function clearAllBubbles(){
+  function clearAllBubbles() {
     clearInterval(spawnTimer);
-    document.querySelectorAll('.bubble').forEach(b=>b.remove());
+    document.querySelectorAll('.bubble').forEach(b => b.remove());
   }
 
-  function spawnBubble(){
-    if(!activeRound) return;
-    const pool=getLetterPool();
-    // 40% chance of correct letter, 60% decoy
-    const isCorrect=Math.random()<0.4;
+  function spawnBubble() {
+    if (!activeRound) return;
+    const { set } = getTier();
+    const isCorrect = Math.random() < 0.35;
     const letter = isCorrect ? target : (() => {
-      const decoys=pool.filter(l=>l!==target);
-      return decoys[Math.floor(Math.random()*decoys.length)]||target;
+      const decoys = set.filter(l => l !== target);
+      return decoys.length ? decoys[Math.floor(Math.random() * decoys.length)] : target;
     })();
 
-    const size=Math.round(clamp(80, window.innerWidth*0.18, 110));
-    const el=document.createElement('div');
-    el.className='bubble';
-    el.textContent=letter;
-    el.dataset.letter=letter;
+    const size = Math.round(clamp(85, window.innerWidth * 0.19, 115));
+    const el = document.createElement('div');
+    el.className = 'bubble';
+    el.textContent = letter;
 
-    const maxLeft=window.innerWidth-size-10;
-    el.style.left=Math.random()*maxLeft+'px';
-    el.style.width=size+'px'; el.style.height=size+'px';
-    el.style.background=BUBBLE_COLOURS[Math.floor(Math.random()*BUBBLE_COLOURS.length)];
+    const maxLeft = window.innerWidth - size - 10;
+    el.style.left = Math.random() * maxLeft + 'px';
+    el.style.width = size + 'px';
+    el.style.height = size + 'px';
+    el.style.background = BUBBLE_COLOURS[Math.floor(Math.random() * BUBBLE_COLOURS.length)];
 
-    const duration=clamp(4000, 6500-round*200, 7000);
-    el.style.animationDuration=duration+'ms';
+    const tierIdx = round <= 4 ? 0 : round <= 8 ? 1 : 2;
+    const duration = clamp(3200, 6500 - tierIdx * 800 - round * 80, 7200);
+    el.style.animationDuration = duration + 'ms';
 
-    el.addEventListener('pointerdown',()=>handleBubbleTap(el,letter));
+    el.addEventListener('pointerdown', () => handleBubbleTap(el, letter));
     document.body.appendChild(el);
-    el.addEventListener('animationend',()=>{ if(el.parentNode) el.remove(); });
+    el.addEventListener('animationend', () => { if (el.parentNode) el.remove(); });
   }
 
-  function clamp(min,val,max){ return Math.max(min,Math.min(max,val)); }
-
-  function handleBubbleTap(el, letter){
-    if(!activeRound) return;
-    if(letter===target){
-      activeRound=false;
-      clearInterval(spawnTimer);
-      el.classList.add('pop-correct');
-      playPop(); score++; updateScore();
-      setTimeout(()=>{
-        el.remove();
-        document.getElementById('celebrate-letter').textContent=target;
-        const msgs=['You found it! ✨','Yes! '+target+'! 🌟','Amazing! 💫','Brilliant! 👑'];
-        document.getElementById('celebrate-text').textContent=msgs[Math.floor(Math.random()*msgs.length)];
-        document.getElementById('celebrate-overlay').classList.add('show');
-        playCelebrate(); confettiBurst();
-      },350);
-    } else {
-      el.classList.add('pop-wrong');
-      playWrong();
-      setTimeout(()=>el.classList.remove('pop-wrong'),300);
+  function sparkle(x, y) {
+    const cols = ['#ffd700', '#ff69b4', '#00cfff', '#aaffaa', '#ff8c00', '#da70d6', '#ffffff'];
+    for (let i = 0; i < 16; i++) {
+      const el = document.createElement('div');
+      const sz = 6 + Math.random() * 8;
+      el.style.cssText = `position:fixed;left:${x}px;top:${y}px;width:${sz}px;height:${sz}px;border-radius:50%;background:${cols[i % cols.length]};pointer-events:none;z-index:200;`;
+      document.body.appendChild(el);
+      const angle = (i / 16) * Math.PI * 2;
+      const dist = 30 + Math.random() * 55;
+      const tx = Math.cos(angle) * dist, ty = Math.sin(angle) * dist;
+      el.animate(
+        [{ transform: 'translate(-50%,-50%) scale(1.2)', opacity: 1 },
+         { transform: `translate(calc(-50% + ${tx}px),calc(-50% + ${ty}px)) scale(0)`, opacity: 0 }],
+        { duration: 450 + Math.random() * 200, easing: 'ease-out' }
+      ).onfinish = () => el.remove();
     }
   }
 
-  function endGame(){
-    document.getElementById('celebrate-text').textContent=`${score} stars! Great reading! 📚`;
-    document.getElementById('celebrate-letter').textContent=Array.from({length:Math.min(score,5)},()=>'⭐').join('')||'🌸';
-    document.getElementById('next-btn').textContent='Play Again 🔄';
-    document.getElementById('next-btn').onclick=()=>{ score=0;round=0;updateScore();nextRound();document.getElementById('celebrate-overlay').classList.remove('show'); };
-    document.getElementById('celebrate-overlay').classList.add('show');
-    playCelebrate(); confettiBurst();
+  function handleBubbleTap(el, letter) {
+    if (!activeRound) return;
+    if (letter === target) {
+      activeRound = false;
+      clearInterval(spawnTimer);
+      const rect = el.getBoundingClientRect();
+      el.classList.add('pop-correct');
+      sparkle(rect.left + rect.width / 2, rect.top + rect.height / 2);
+      playPop(letter);
+      score++;
+      updateScore();
+      setTimeout(() => {
+        if (el.parentNode) el.remove();
+        document.getElementById('celebrate-letter').textContent = target;
+        const msgs = ['You found it! ✨', 'Yes! ' + target + '! 🌟', 'Amazing! 💫', 'Brilliant! 👑', 'Wonderful! 🌸', 'Great job! 🎀'];
+        document.getElementById('celebrate-text').textContent = msgs[Math.floor(Math.random() * msgs.length)];
+        document.getElementById('celebrate-overlay').classList.add('show');
+        playCelebrate();
+        confettiBurst();
+      }, 400);
+    } else {
+      el.classList.add('pop-wrong');
+      playWrong();
+      setTimeout(() => el.classList.remove('pop-wrong'), 320);
+    }
   }
 
-  function confettiBurst(){
-    const cols=['#ffd700','#ff69b4','#00cfff','#7fff00','#ff6347','#da70d6'];
-    for(let i=0;i<30;i++){
-      const el=document.createElement('div'); el.className='confetti-piece';
-      el.style.left=Math.random()*100+'vw';
-      el.style.background=cols[Math.floor(Math.random()*cols.length)];
-      el.style.animationDuration=(1.2+Math.random()*1.6)+'s';
-      el.style.animationDelay=(Math.random()*.5)+'s';
-      document.body.appendChild(el); setTimeout(()=>el.remove(),2800);
+  function endGame() {
+    document.getElementById('celebrate-text').textContent = `${score} stars! 🌟 Great reading!`;
+    document.getElementById('celebrate-letter').textContent = Array.from({ length: Math.min(score, 5) }, () => '⭐').join('') || '🌸';
+    const btn = document.getElementById('next-btn');
+    btn.textContent = 'Play Again 🔄';
+    btn.onclick = () => {
+      score = 0; round = 0;
+      updateScore();
+      btn.textContent = 'Next ➡️';
+      btn.onclick = nextRound;
+      nextRound();
+    };
+    document.getElementById('celebrate-overlay').classList.add('show');
+    playCelebrate();
+    confettiBurst();
+  }
+
+  function confettiBurst() {
+    const cols = ['#ffd700', '#ff69b4', '#00cfff', '#7fff00', '#ff6347', '#da70d6'];
+    for (let i = 0; i < 35; i++) {
+      const el = document.createElement('div');
+      el.className = 'confetti-piece';
+      el.style.left = Math.random() * 100 + 'vw';
+      el.style.background = cols[Math.floor(Math.random() * cols.length)];
+      el.style.animationDuration = (1.2 + Math.random() * 1.6) + 's';
+      el.style.animationDelay = (Math.random() * .5) + 's';
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 2800);
     }
   }
 

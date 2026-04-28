@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Opposite Kingdom 🔄</title>
+  <style>
+    * { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+    body {
+      background: linear-gradient(160deg, #4a0080 0%, #9b1dba 40%, #e91e8c 80%, #ff6eb4 100%);
+      height:100vh; width:100vw; overflow:hidden;
+      font-family:Georgia,serif; user-select:none;
+      display:flex; flex-direction:column;
+    }
+
+    #top-bar {
+      padding:clamp(10px,2.5vw,18px) clamp(12px,3vw,20px);
+      display:flex; align-items:center; justify-content:space-between; gap:8px;
+      flex-shrink:0;
+    }
+    #score-row { font-size:clamp(18px,5vw,28px); min-width:50px; }
+    #tier-badge {
+      background:rgba(255,255,255,.2); border:2px solid rgba(255,255,255,.4);
+      border-radius:16px; padding:5px 12px;
+      font-size:clamp(11px,2.8vw,16px); color:#fff; font-weight:bold;
+      white-space:nowrap;
+    }
+
+    #main-content {
+      flex:1; display:flex; flex-direction:column;
+      align-items:center; justify-content:center;
+      padding:clamp(8px,2vw,18px) clamp(12px,3vw,20px);
+      gap:clamp(14px,3.5vw,24px);
+      min-height:0;
+    }
+
+    #prompt-label {
+      font-size:clamp(15px,4vw,22px); color:rgba(255,255,255,.92);
+      font-weight:bold; text-align:center; letter-spacing:.5px;
+    }
+
+    #prompt-card {
+      background:rgba(255,255,255,.2); border:3px solid rgba(255,255,255,.5);
+      border-radius:28px; padding:clamp(14px,3.5vw,24px) clamp(22px,5.5vw,36px);
+      display:flex; flex-direction:column; align-items:center; gap:8px;
+      box-shadow:0 8px 32px rgba(0,0,0,.2);
+    }
+    #prompt-emoji { font-size:clamp(60px,16vw,100px); line-height:1; }
+    #prompt-word {
+      font-size:clamp(20px,5.5vw,34px); color:#fff; font-weight:bold;
+      text-shadow:0 2px 8px rgba(0,0,0,.25); letter-spacing:2px;
+      text-transform:uppercase;
+    }
+
+    #choices-grid {
+      display:grid; grid-template-columns:1fr 1fr;
+      gap:clamp(10px,2.5vw,16px);
+      width:100%; max-width:460px;
+    }
+
+    .choice-btn {
+      background:rgba(255,255,255,.18); border:3px solid rgba(255,255,255,.45);
+      border-radius:24px; padding:clamp(12px,3vw,20px) clamp(8px,2vw,14px);
+      display:flex; flex-direction:column; align-items:center; gap:6px;
+      cursor:pointer; touch-action:manipulation; font-family:inherit;
+      transition:transform .08s, background .1s;
+      min-height:clamp(110px,25vw,145px);
+    }
+    .choice-btn:active { transform:scale(.93); }
+    .choice-btn .ce { font-size:clamp(40px,11vw,68px); line-height:1; }
+    .choice-btn .cw {
+      font-size:clamp(13px,3.2vw,19px); color:#fff; font-weight:bold;
+      text-shadow:0 1px 4px rgba(0,0,0,.2); letter-spacing:1px;
+      text-transform:uppercase;
+    }
+
+    .choice-btn.correct {
+      background:rgba(80,255,120,.3); border-color:rgba(100,255,140,.8);
+    }
+    .choice-btn.wrong { animation:wobble .32s ease-out; }
+
+    @keyframes wobble {
+      0%   { transform:scale(1) rotate(0); }
+      25%  { transform:scale(1.04) rotate(-7deg); }
+      50%  { transform:scale(1.04) rotate(7deg); }
+      75%  { transform:scale(1.04) rotate(-3deg); }
+      100% { transform:scale(1) rotate(0); }
+    }
+
+    /* Centre a lone last button in the 2-col grid */
+    .choice-btn:last-child:nth-child(odd) {
+      grid-column: 1 / -1;
+      max-width: 48%;
+      margin: 0 auto;
+    }
+
+    #celebrate-overlay {
+      position:fixed; inset:0; background:rgba(0,0,0,.6);
+      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:18px;
+      z-index:99; opacity:0; pointer-events:none; transition:opacity .3s;
+    }
+    #celebrate-overlay.show { opacity:1; pointer-events:all; }
+    #celebrate-big  { font-size:clamp(68px,18vw,110px); line-height:1; }
+    #celebrate-text { font-size:clamp(26px,7.5vw,50px); color:#fff; text-shadow:0 0 20px #ffd700; text-align:center; padding:0 16px; font-weight:bold; }
+    #celebrate-pair { font-size:clamp(17px,4.5vw,26px); color:#ffd700; text-align:center; font-weight:bold; }
+    #next-btn {
+      padding:clamp(14px,4vw,20px) clamp(32px,8vw,56px);
+      font-size:clamp(20px,5vw,28px); border-radius:50px; border:none;
+      background:linear-gradient(135deg,#ffd700,#ff9800);
+      color:#5d2e00; font-weight:bold; cursor:pointer;
+      font-family:inherit; touch-action:manipulation;
+    }
+
+    .confetti-piece {
+      position:fixed; width:10px; height:10px; border-radius:50%;
+      animation:confettiFall linear forwards; pointer-events:none; z-index:100;
+    }
+    @keyframes confettiFall { 0%{top:-20px;opacity:1} 100%{top:110vh;opacity:.2} }
+  </style>
+</head>
+<body>
+
+  <div id="top-bar">
+    <div id="score-row"></div>
+    <div id="tier-badge">⭐ Easy</div>
+  </div>
+
+  <div id="main-content">
+    <div id="prompt-label">👸 Find the OPPOSITE of…</div>
+    <div id="prompt-card">
+      <div id="prompt-emoji">🔥</div>
+      <div id="prompt-word">Hot</div>
+    </div>
+    <div id="choices-grid"></div>
+  </div>
+
+  <div id="celebrate-overlay">
+    <div id="celebrate-big">✨</div>
+    <div id="celebrate-text">Amazing! 💫</div>
+    <div id="celebrate-pair"></div>
+    <button id="next-btn" onclick="nextRound()">Next ➡️</button>
+  </div>
+
+<script>
+  // 12 opposite pairs, grouped easy → hard
+  const PAIRS = [
+    // Easy — very visual, toddler-obvious
+    { a:{e:'🔥',w:'Hot'},    b:{e:'❄️',w:'Cold'} },
+    { a:{e:'☀️',w:'Day'},    b:{e:'🌙',w:'Night'} },
+    { a:{e:'⬆️',w:'Up'},     b:{e:'⬇️',w:'Down'} },
+    { a:{e:'😊',w:'Happy'},  b:{e:'😢',w:'Sad'} },
+    // Medium
+    { a:{e:'🐘',w:'Big'},    b:{e:'🐭',w:'Small'} },
+    { a:{e:'🐎',w:'Fast'},   b:{e:'🐢',w:'Slow'} },
+    { a:{e:'🌊',w:'Wet'},    b:{e:'🏜️',w:'Dry'} },
+    { a:{e:'😴',w:'Asleep'}, b:{e:'😃',w:'Awake'} },
+    // Hard — more abstract
+    { a:{e:'🔊',w:'Loud'},   b:{e:'🤫',w:'Quiet'} },
+    { a:{e:'🪶',w:'Light'},  b:{e:'🪨',w:'Heavy'} },
+    { a:{e:'📖',w:'Open'},   b:{e:'📕',w:'Closed'} },
+    { a:{e:'🌸',w:'Soft'},   b:{e:'💎',w:'Hard'} },
+  ];
+
+  // Audio
+  let audioCtx = null;
+  function getAudio() {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    return audioCtx;
+  }
+  function tone(f, t, d, v = .15) {
+    try {
+      const c = getAudio(), o = c.createOscillator(), g = c.createGain();
+      o.connect(g); g.connect(c.destination);
+      o.type = t || 'sine'; o.frequency.value = f;
+      g.gain.setValueAtTime(v, c.currentTime);
+      g.gain.exponentialRampToValueAtTime(.001, c.currentTime + d);
+      o.start(); o.stop(c.currentTime + d);
+    } catch (e) {}
+  }
+  function playCorrect()   { [523,659,784,1047].forEach((f,i) => setTimeout(() => tone(f,'sine',.2,.18), i*70)); }
+  function playWrong()     { tone(220,'sawtooth',.22,.12); setTimeout(() => tone(190,'sawtooth',.18,.1), 180); }
+  function playCelebrate() { [523,659,784,1047,1318,1568].forEach((f,i) => setTimeout(() => tone(f,'sine',.25,.2), i*70)); }
+  function playStart()     { tone(440,'sine',.14,.1); setTimeout(() => tone(523,'sine',.14,.09), 110); }
+
+  // Game state
+  let score = 0, round = 0;
+  const TOTAL = 12;
+  let usedPairs = new Set();
+  let currentPair = null, promptSide = null, correctEmoji = '';
+  let locked = false;
+
+  function shuffle(a) {
+    const b = [...a];
+    for (let i = b.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [b[i], b[j]] = [b[j], b[i]];
+    }
+    return b;
+  }
+  function rand(n) { return Math.floor(Math.random() * n); }
+
+  function updateScore() {
+    document.getElementById('score-row').textContent = Array.from({ length: score }, () => '⭐').join('');
+  }
+
+  function getTier() {
+    if (round <= 4) return { pairCount: 4,  choices: 2, label: '⭐ Easy' };
+    if (round <= 8) return { pairCount: 8,  choices: 3, label: '⭐⭐ Medium' };
+    return              { pairCount: 12, choices: 4, label: '⭐⭐⭐ Hard' };
+  }
+
+  function nextRound() {
+    document.getElementById('celebrate-overlay').classList.remove('show');
+    if (round >= TOTAL) { endGame(); return; }
+    round++;
+    locked = false;
+
+    const { pairCount, choices, label } = getTier();
+    document.getElementById('tier-badge').textContent = label;
+    updateScore();
+
+    // Pick a pair not yet used this game (within allowed tier range)
+    const available = Array.from({ length: pairCount }, (_, i) => i).filter(i => !usedPairs.has(i));
+    if (available.length === 0) usedPairs.clear();
+    const pool = available.length > 0 ? available : Array.from({ length: pairCount }, (_, i) => i);
+    const pIdx = pool[rand(pool.length)];
+    usedPairs.add(pIdx);
+
+    currentPair = PAIRS[pIdx];
+    promptSide = Math.random() < 0.5 ? 'a' : 'b';
+    const prompt  = currentPair[promptSide];
+    const correct = currentPair[promptSide === 'a' ? 'b' : 'a'];
+    correctEmoji = correct.e;
+
+    document.getElementById('prompt-emoji').textContent = prompt.e;
+    document.getElementById('prompt-word').textContent  = prompt.w;
+
+    // Build distractor pool from all other pairs (both sides)
+    const distractors = [];
+    PAIRS.forEach((p, i) => {
+      if (i === pIdx) return;
+      [p.a, p.b].forEach(side => {
+        if (side.e !== prompt.e && side.e !== correct.e) distractors.push(side);
+      });
+    });
+    const wrongChoices = shuffle(distractors).slice(0, choices - 1);
+    const allChoices = shuffle([correct, ...wrongChoices]);
+
+    // Build buttons
+    const grid = document.getElementById('choices-grid');
+    grid.innerHTML = '';
+    allChoices.forEach(choice => {
+      const btn = document.createElement('button');
+      btn.className = 'choice-btn';
+      btn.innerHTML = `<span class="ce">${choice.e}</span><span class="cw">${choice.w}</span>`;
+      btn.addEventListener('pointerdown', () => handleChoice(btn, choice.e === correctEmoji));
+      grid.appendChild(btn);
+    });
+
+    playStart();
+  }
+
+  function handleChoice(btn, isCorrect) {
+    if (locked) return;
+    if (isCorrect) {
+      locked = true;
+      btn.classList.add('correct');
+      score++;
+      updateScore();
+      const rect = btn.getBoundingClientRect();
+      sparkle(rect.left + rect.width / 2, rect.top + rect.height / 2);
+      playCorrect();
+      setTimeout(() => {
+        const opposite = currentPair[promptSide === 'a' ? 'b' : 'a'];
+        const prompt   = currentPair[promptSide];
+        const msgs = ['Amazing! 💫', 'Brilliant! 👑', 'You got it! ✨', 'Yes! 🌟', 'Wonderful! 🌸', 'Great job! 🎀'];
+        document.getElementById('celebrate-text').textContent = msgs[rand(msgs.length)];
+        document.getElementById('celebrate-big').textContent  = opposite.e;
+        document.getElementById('celebrate-pair').textContent = `${prompt.e} ${prompt.w}  ↔  ${opposite.e} ${opposite.w}`;
+        document.getElementById('celebrate-overlay').classList.add('show');
+        playCelebrate();
+        confettiBurst();
+      }, 420);
+    } else {
+      btn.classList.add('wrong');
+      playWrong();
+      setTimeout(() => btn.classList.remove('wrong'), 330);
+    }
+  }
+
+  function endGame() {
+    document.getElementById('celebrate-big').textContent  = score >= 10 ? '🏆' : '🌸';
+    document.getElementById('celebrate-text').textContent = `${score} / ${TOTAL} ⭐ Excellent!`;
+    document.getElementById('celebrate-pair').textContent = 'You know your opposites! 🎀';
+    const btn = document.getElementById('next-btn');
+    btn.textContent = 'Play Again 🔄';
+    btn.onclick = () => {
+      score = 0; round = 0;
+      usedPairs.clear();
+      updateScore();
+      btn.textContent = 'Next ➡️';
+      btn.onclick = nextRound;
+      nextRound();
+    };
+    document.getElementById('celebrate-overlay').classList.add('show');
+    playCelebrate();
+    confettiBurst();
+  }
+
+  function sparkle(x, y) {
+    const cols = ['#ffd700','#ff69b4','#00cfff','#aaffaa','#ff8c00','#da70d6','#ffffff'];
+    for (let i = 0; i < 16; i++) {
+      const el = document.createElement('div');
+      const sz = 7 + Math.random() * 8;
+      el.style.cssText = `position:fixed;left:${x}px;top:${y}px;width:${sz}px;height:${sz}px;border-radius:50%;background:${cols[i % cols.length]};pointer-events:none;z-index:200;`;
+      document.body.appendChild(el);
+      const angle = (i / 16) * Math.PI * 2;
+      const dist  = 35 + Math.random() * 60;
+      const tx = Math.cos(angle) * dist, ty = Math.sin(angle) * dist;
+      el.animate(
+        [{ transform:'translate(-50%,-50%) scale(1.3)', opacity:1 },
+         { transform:`translate(calc(-50% + ${tx}px),calc(-50% + ${ty}px)) scale(0)`, opacity:0 }],
+        { duration: 480 + Math.random() * 200, easing: 'ease-out' }
+      ).onfinish = () => el.remove();
+    }
+  }
+
+  function confettiBurst() {
+    const cols = ['#ffd700','#ff69b4','#00cfff','#7fff00','#ff6347','#da70d6'];
+    for (let i = 0; i < 35; i++) {
+      const el = document.createElement('div');
+      el.className = 'confetti-piece';
+      el.style.left = Math.random() * 100 + 'vw';
+      el.style.background = cols[rand(cols.length)];
+      el.style.animationDuration = (1.2 + Math.random() * 1.6) + 's';
+      el.style.animationDelay = (Math.random() * .5) + 's';
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 2800);
+    }
+  }
+
+  nextRound();
+</script>
+</body>
+</html>
