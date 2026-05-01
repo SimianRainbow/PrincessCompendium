@@ -19,69 +19,77 @@
       user-select: none;
     }
 
+    #tier-badge {
+      position: fixed;
+      top: 14px;
+      left: 16px;
+      font-size: clamp(18px, 5vw, 26px);
+      background: rgba(255,255,255,0.18);
+      border-radius: 20px;
+      padding: 4px 12px;
+      color: #fff;
+      letter-spacing: 2px;
+    }
+
     #crown-area {
       display: flex;
       flex-direction: column;
       align-items: center;
-      margin-bottom: 32px;
+      margin-bottom: 28px;
     }
 
     #prompt-text {
-      font-size: clamp(22px, 6vw, 36px);
+      font-size: clamp(20px, 5.5vw, 34px);
       color: #fff;
       text-shadow: 0 2px 8px rgba(0,0,0,0.4);
-      margin-bottom: 16px;
+      margin-bottom: 14px;
       letter-spacing: 1px;
     }
 
     #crown-display {
-      width: clamp(100px, 28vw, 160px);
-      height: clamp(100px, 28vw, 160px);
+      width: clamp(100px, 27vw, 155px);
+      height: clamp(100px, 27vw, 155px);
       border-radius: 50%;
       border: 6px solid rgba(255,255,255,0.6);
       box-shadow: 0 0 32px rgba(255,255,255,0.3), 0 0 0 12px rgba(255,255,255,0.08);
-      transition: background 0.3s;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: clamp(50px, 14vw, 80px);
+      font-size: clamp(46px, 13vw, 76px);
+      transition: background 0.3s;
     }
 
     #gems-grid {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: clamp(14px, 4vw, 24px);
+      gap: clamp(12px, 3.5vw, 22px);
       padding: 8px;
     }
+    #gems-grid.cols-2 { grid-template-columns: repeat(2, 1fr); }
+    #gems-grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
 
     .gem-btn {
-      width: clamp(110px, 28vw, 160px);
-      height: clamp(110px, 28vw, 160px);
+      width: clamp(100px, 26vw, 148px);
+      height: clamp(100px, 26vw, 148px);
       border-radius: 24px;
       border: none;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: clamp(52px, 13vw, 74px);
+      font-size: clamp(46px, 11.5vw, 68px);
       box-shadow: 0 6px 20px rgba(0,0,0,0.35), inset 0 2px 0 rgba(255,255,255,0.25);
       transition: transform 0.12s, box-shadow 0.12s;
       position: relative;
-      overflow: hidden;
+      overflow: visible;
     }
-
     .gem-btn:active { transform: scale(0.92); box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
 
-    .gem-btn.correct-flash {
-      animation: correctPulse 0.5s ease-out;
-    }
-    .gem-btn.wrong-flash {
-      animation: wrongShake 0.4s ease-out;
-    }
+    .gem-btn.correct-flash { animation: correctPulse 0.5s ease-out; }
+    .gem-btn.wrong-flash   { animation: wrongShake 0.4s ease-out; }
 
     @keyframes correctPulse {
       0%   { transform: scale(1); }
-      40%  { transform: scale(1.18); box-shadow: 0 0 40px rgba(255,255,255,0.7); }
+      40%  { transform: scale(1.2); box-shadow: 0 0 44px rgba(255,255,255,0.8); }
       100% { transform: scale(1); }
     }
     @keyframes wrongShake {
@@ -90,6 +98,19 @@
       40% { transform: translateX(10px); }
       60% { transform: translateX(-8px); }
       80% { transform: translateX(8px); }
+    }
+
+    /* sparkle particles */
+    .sparkle {
+      position: fixed;
+      pointer-events: none;
+      z-index: 98;
+      border-radius: 50%;
+      animation: sparklePop ease-out forwards;
+    }
+    @keyframes sparklePop {
+      0%   { transform: translate(0,0) scale(1); opacity: 1; }
+      100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
     }
 
     #celebrate-overlay {
@@ -106,21 +127,15 @@
       pointer-events: none;
       transition: opacity 0.35s;
     }
-    #celebrate-overlay.show {
-      opacity: 1;
-      pointer-events: all;
-    }
+    #celebrate-overlay.show { opacity: 1; pointer-events: all; }
     #celebrate-text {
-      font-size: clamp(36px, 10vw, 72px);
+      font-size: clamp(34px, 9.5vw, 68px);
       color: #fff;
       text-shadow: 0 0 20px #ffd700, 0 2px 8px rgba(0,0,0,0.5);
       text-align: center;
       padding: 0 16px;
     }
-    #stars-row {
-      font-size: clamp(40px, 12vw, 72px);
-      letter-spacing: 8px;
-    }
+    #stars-row { font-size: clamp(38px, 11vw, 68px); letter-spacing: 8px; }
     #next-btn {
       margin-top: 12px;
       padding: clamp(14px,4vw,20px) clamp(32px,8vw,56px);
@@ -140,15 +155,13 @@
       position: fixed;
       top: 16px;
       right: 20px;
-      display: flex;
-      gap: 4px;
-      font-size: clamp(22px, 6vw, 32px);
+      font-size: clamp(20px, 5.5vw, 30px);
+      letter-spacing: 2px;
     }
 
     .confetti-piece {
       position: fixed;
-      width: 12px;
-      height: 12px;
+      width: 12px; height: 12px;
       border-radius: 50%;
       animation: confettiFall linear forwards;
       pointer-events: none;
@@ -162,6 +175,7 @@
 </head>
 <body>
 
+  <div id="tier-badge">⭐</div>
   <div id="score-row"></div>
 
   <div id="crown-area">
@@ -169,7 +183,7 @@
     <div id="crown-display"></div>
   </div>
 
-  <div id="gems-grid"></div>
+  <div id="gems-grid" class="cols-2"></div>
 
   <div id="celebrate-overlay">
     <div id="celebrate-text">Amazing! 🌟</div>
@@ -178,16 +192,51 @@
   </div>
 
 <script>
-  const COLOURS = [
-    { name: 'red',    bg: '#e53935', gem: '❤️',  crown: '🔴' },
-    { name: 'blue',   bg: '#1e88e5', gem: '💙',  crown: '🔵' },
-    { name: 'yellow', bg: '#fdd835', gem: '💛',  crown: '🟡' },
-    { name: 'green',  bg: '#43a047', gem: '💚',  crown: '🟢' },
-    { name: 'pink',   bg: '#e91e8c', gem: '🩷',  crown: '🎀' },
-    { name: 'purple', bg: '#8e24aa', gem: '💜',  crown: '🟣' },
+  // Easy tier: 6 distinct, saturated colours — 4 choices
+  // Medium tier: adds orange, teal, brown — 5 choices
+  // Hard tier: adds white, grey, dark-blue — 6 choices (some near-neighbours)
+  const TIER_COLOURS = [
+    [
+      { name:'red',    bg:'#e53935', gem:'❤️',  crown:'🔴' },
+      { name:'blue',   bg:'#1e88e5', gem:'💙',  crown:'🔵' },
+      { name:'yellow', bg:'#fdd835', gem:'💛',  crown:'🟡' },
+      { name:'green',  bg:'#43a047', gem:'💚',  crown:'🟢' },
+      { name:'pink',   bg:'#e91e8c', gem:'🩷',  crown:'🎀' },
+      { name:'purple', bg:'#8e24aa', gem:'💜',  crown:'🟣' },
+    ],
+    [
+      { name:'red',    bg:'#e53935', gem:'❤️',  crown:'🔴' },
+      { name:'blue',   bg:'#1e88e5', gem:'💙',  crown:'🔵' },
+      { name:'yellow', bg:'#fdd835', gem:'💛',  crown:'🟡' },
+      { name:'green',  bg:'#43a047', gem:'💚',  crown:'🟢' },
+      { name:'pink',   bg:'#e91e8c', gem:'🩷',  crown:'🎀' },
+      { name:'purple', bg:'#8e24aa', gem:'💜',  crown:'🟣' },
+      { name:'orange', bg:'#fb8c00', gem:'🧡',  crown:'🟠' },
+      { name:'teal',   bg:'#00897b', gem:'🩵',  crown:'🫐' },
+      { name:'brown',  bg:'#6d4c41', gem:'🤎',  crown:'🟤' },
+    ],
+    [
+      { name:'red',    bg:'#e53935', gem:'❤️',  crown:'🔴' },
+      { name:'blue',   bg:'#1e88e5', gem:'💙',  crown:'🔵' },
+      { name:'yellow', bg:'#fdd835', gem:'💛',  crown:'🟡' },
+      { name:'green',  bg:'#43a047', gem:'💚',  crown:'🟢' },
+      { name:'pink',   bg:'#e91e8c', gem:'🩷',  crown:'🎀' },
+      { name:'purple', bg:'#8e24aa', gem:'💜',  crown:'🟣' },
+      { name:'orange', bg:'#fb8c00', gem:'🧡',  crown:'🟠' },
+      { name:'teal',   bg:'#00897b', gem:'🩵',  crown:'🫐' },
+      { name:'brown',  bg:'#6d4c41', gem:'🤎',  crown:'🟤' },
+      { name:'white',  bg:'#f5f5f5', gem:'🤍',  crown:'⚪' },
+      { name:'grey',   bg:'#757575', gem:'🩶',  crown:'🔘' },
+      { name:'navy',   bg:'#283593', gem:'🫙',  crown:'🌑' },
+    ],
   ];
 
-  // Audio context for simple tones
+  const TIER_OPTIONS  = [4, 5, 6];   // number of gem choices per tier
+  const TIER_COLS     = [2, 3, 3];   // grid columns
+  const TIER_ROUNDS   = [3, 3, 3];   // rounds per tier
+  const TIER_LABELS   = ['⭐', '⭐⭐', '⭐⭐⭐'];
+  const TOTAL_ROUNDS  = 9;
+
   let audioCtx = null;
   function getAudio() {
     if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -207,53 +256,76 @@
     } catch(e) {}
   }
   function playCorrect() {
-    playTone(523, 'sine', 0.12);
-    setTimeout(() => playTone(659, 'sine', 0.12), 100);
-    setTimeout(() => playTone(784, 'sine', 0.25), 200);
+    playTone(523,'sine',0.12);
+    setTimeout(() => playTone(659,'sine',0.12), 100);
+    setTimeout(() => playTone(784,'sine',0.25), 200);
   }
-  function playWrong() {
-    playTone(220, 'sawtooth', 0.2, 0.1);
-  }
+  function playWrong() { playTone(200,'sawtooth',0.2,0.1); }
   function playCelebrate() {
-    [523,587,659,698,784,880].forEach((f,i) => {
-      setTimeout(() => playTone(f, 'sine', 0.2), i * 80);
-    });
+    [523,587,659,698,784,880].forEach((f,i) =>
+      setTimeout(() => playTone(f,'sine',0.22), i*80));
   }
 
-  let target = null;
-  let options = [];
-  let score = 0;
-  let round = 0;
-  const TOTAL_ROUNDS = 6;
+  let target=null, score=0, round=0;
 
   function shuffle(arr) {
-    const a = [...arr];
-    for (let i = a.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [a[i], a[j]] = [a[j], a[i]];
-    }
+    const a=[...arr];
+    for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
     return a;
   }
 
+  function getTier() {
+    if (round <= 3) return 0;
+    if (round <= 6) return 1;
+    return 2;
+  }
+
   function updateScore() {
-    const el = document.getElementById('score-row');
-    el.innerHTML = Array.from({length: score}, () => '⭐').join('');
+    document.getElementById('score-row').innerHTML = Array.from({length:score},()=>'⭐').join('');
+  }
+  function updateTier() {
+    const t = getTier();
+    document.getElementById('tier-badge').textContent = TIER_LABELS[t];
+  }
+
+  function sparkleAt(btn) {
+    const rect = btn.getBoundingClientRect();
+    const cx = rect.left + rect.width/2;
+    const cy = rect.top  + rect.height/2;
+    const colours = ['#ffd700','#ff69b4','#00cfff','#ff6347','#da70d6','#7fff00','#fff'];
+    for (let i=0; i<18; i++) {
+      const el = document.createElement('div');
+      el.className = 'sparkle';
+      const size = 8 + Math.random()*10;
+      el.style.cssText = `
+        width:${size}px; height:${size}px;
+        left:${cx}px; top:${cy}px;
+        background:${colours[Math.floor(Math.random()*colours.length)]};
+        --tx:${(Math.random()-0.5)*160}px;
+        --ty:${(Math.random()-0.5)*160}px;
+        animation-duration:${0.45+Math.random()*0.35}s;
+      `;
+      document.body.appendChild(el);
+      setTimeout(()=>el.remove(), 900);
+    }
   }
 
   function nextRound() {
     document.getElementById('celebrate-overlay').classList.remove('show');
-    if (round >= TOTAL_ROUNDS) {
-      endGame(); return;
-    }
+    if (round >= TOTAL_ROUNDS) { endGame(); return; }
     round++;
-    const shuffled = shuffle(COLOURS);
-    target = shuffled[0];
-    options = shuffle(shuffled.slice(0, 4));
+    updateTier();
+
+    const tier = getTier();
+    const pool = shuffle(TIER_COLOURS[tier]);
+    target = pool[0];
+    const options = shuffle(pool.slice(0, TIER_OPTIONS[tier]));
 
     document.getElementById('crown-display').style.background = target.bg;
     document.getElementById('crown-display').textContent = target.crown;
 
     const grid = document.getElementById('gems-grid');
+    grid.className = 'cols-' + TIER_COLS[tier];
     grid.innerHTML = '';
     options.forEach(col => {
       const btn = document.createElement('button');
@@ -270,25 +342,27 @@
     if (col.name === target.name) {
       btn.classList.add('correct-flash');
       playCorrect();
+      sparkleAt(btn);
       score++;
       updateScore();
       setTimeout(() => {
         btn.classList.remove('correct-flash');
+        if (round >= TOTAL_ROUNDS) { endGame(); return; }
         showCelebrate();
-      }, 500);
+      }, 520);
     } else {
       btn.classList.add('wrong-flash');
       playWrong();
-      setTimeout(() => btn.classList.remove('wrong-flash'), 400);
+      setTimeout(()=>btn.classList.remove('wrong-flash'), 400);
     }
   }
 
   function showCelebrate() {
-    if (round >= TOTAL_ROUNDS) {
-      endGame(); return;
-    }
-    const messages = ['Amazing! 🌟', 'Yes!! 🎉', 'You did it! 💖', 'Brilliant! ✨', 'Wow! 🌈', 'Super! 👑'];
-    document.getElementById('celebrate-text').textContent = messages[Math.floor(Math.random()*messages.length)];
+    const msgs = ['Amazing! 🌟','Yes!! 🎉','You did it! 💖','Brilliant! ✨','Wow! 🌈','Super! 👑'];
+    document.getElementById('celebrate-text').textContent = msgs[Math.floor(Math.random()*msgs.length)];
+    document.getElementById('stars-row').textContent = '⭐'.repeat(Math.min(score,9));
+    document.getElementById('next-btn').textContent = 'Next ➡️';
+    document.getElementById('next-btn').onclick = nextRound;
     document.getElementById('celebrate-overlay').classList.add('show');
     playCelebrate();
     confettiBurst();
@@ -296,29 +370,28 @@
 
   function endGame() {
     document.getElementById('celebrate-text').textContent = `You got ${score} stars! 👑`;
-    document.getElementById('stars-row').textContent = Array.from({length: score}, () => '⭐').join('') || '🌸';
+    document.getElementById('stars-row').textContent = '⭐'.repeat(Math.min(score,9))||'🌸';
     document.getElementById('next-btn').textContent = 'Play Again! 🔄';
-    document.getElementById('next-btn').onclick = () => { score = 0; round = 0; updateScore(); nextRound(); document.getElementById('celebrate-overlay').classList.remove('show'); };
+    document.getElementById('next-btn').onclick = () => { score=0; round=0; updateScore(); updateTier(); nextRound(); };
     document.getElementById('celebrate-overlay').classList.add('show');
     playCelebrate();
     confettiBurst();
   }
 
   function confettiBurst() {
-    const colours = ['#ffd700','#ff69b4','#00cfff','#7fff00','#ff6347','#da70d6'];
-    for (let i = 0; i < 30; i++) {
-      const el = document.createElement('div');
-      el.className = 'confetti-piece';
-      el.style.left = Math.random() * 100 + 'vw';
-      el.style.background = colours[Math.floor(Math.random()*colours.length)];
-      el.style.animationDuration = (1.2 + Math.random()*1.6) + 's';
-      el.style.animationDelay = (Math.random()*0.4) + 's';
+    const colours=['#ffd700','#ff69b4','#00cfff','#7fff00','#ff6347','#da70d6'];
+    for(let i=0;i<32;i++){
+      const el=document.createElement('div');
+      el.className='confetti-piece';
+      el.style.left=Math.random()*100+'vw';
+      el.style.background=colours[Math.floor(Math.random()*colours.length)];
+      el.style.animationDuration=(1.2+Math.random()*1.6)+'s';
+      el.style.animationDelay=(Math.random()*0.4)+'s';
       document.body.appendChild(el);
-      setTimeout(() => el.remove(), 2500);
+      setTimeout(()=>el.remove(),2600);
     }
   }
 
-  // Start
   nextRound();
 </script>
 </body>

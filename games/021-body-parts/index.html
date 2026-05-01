@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Princess Body Parts 👑</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+    body {
+      background: linear-gradient(160deg, #1a0040 0%, #6a1b9a 45%, #f06292 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Georgia', serif;
+      overflow: hidden;
+      user-select: none;
+    }
+
+    #tier-badge {
+      position: fixed;
+      top: 14px;
+      left: 16px;
+      font-size: clamp(18px, 5vw, 24px);
+      background: rgba(255,255,255,0.18);
+      border-radius: 20px;
+      padding: 4px 12px;
+      color: #fff;
+      letter-spacing: 2px;
+    }
+    #score-row {
+      position: fixed;
+      top: 16px;
+      right: 18px;
+      font-size: clamp(20px, 5.5vw, 28px);
+      letter-spacing: 2px;
+    }
+
+    /* Princess figure */
+    #princess-wrap {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    #princess-figure {
+      font-size: clamp(70px, 18vw, 110px);
+      line-height: 1;
+      filter: drop-shadow(0 4px 16px rgba(0,0,0,0.4));
+      transition: transform 0.25s;
+    }
+
+    /* glowing highlight ring around the figure when prompting */
+    #princess-figure.pulse {
+      animation: princessPulse 0.8s ease-in-out infinite alternate;
+    }
+    @keyframes princessPulse {
+      from { filter: drop-shadow(0 4px 16px rgba(255,200,0,0.3)); }
+      to   { filter: drop-shadow(0 0 28px rgba(255,220,80,0.95)); }
+    }
+
+    /* Part pointer arrow */
+    #part-arrow {
+      font-size: clamp(28px, 7vw, 42px);
+      color: #ffd700;
+      text-shadow: 0 0 12px rgba(255,220,0,0.8);
+      margin: 2px 0 6px;
+      animation: bounce 0.6s ease-in-out infinite alternate;
+    }
+    @keyframes bounce {
+      from { transform: translateY(0); }
+      to   { transform: translateY(-8px); }
+    }
+
+    #prompt-text {
+      font-size: clamp(20px, 5.5vw, 34px);
+      color: #fff;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.45);
+      text-align: center;
+      padding: 0 12px;
+      margin-bottom: 18px;
+      letter-spacing: 0.5px;
+    }
+
+    #choices-grid {
+      display: grid;
+      gap: clamp(12px, 3.5vw, 20px);
+      padding: 6px;
+    }
+    #choices-grid.cols-2 { grid-template-columns: repeat(2, 1fr); }
+    #choices-grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
+
+    .choice-btn {
+      width: clamp(105px, 26vw, 145px);
+      height: clamp(105px, 26vw, 145px);
+      border-radius: 28px;
+      border: 4px solid rgba(255,255,255,0.25);
+      background: rgba(255,255,255,0.14);
+      backdrop-filter: blur(4px);
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      font-size: clamp(42px, 10.5vw, 64px);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+      transition: transform 0.12s;
+      position: relative;
+    }
+    .choice-btn .label {
+      font-size: clamp(12px, 3vw, 16px);
+      color: #fff;
+      text-shadow: 0 1px 4px rgba(0,0,0,0.5);
+      letter-spacing: 0.5px;
+    }
+    .choice-btn:active { transform: scale(0.91); }
+
+    .choice-btn.correct-flash { animation: correctPulse 0.52s ease-out; }
+    .choice-btn.wrong-flash   { animation: wrongShake 0.4s ease-out; }
+
+    @keyframes correctPulse {
+      0%   { transform: scale(1); }
+      40%  { transform: scale(1.18); box-shadow: 0 0 44px rgba(255,255,180,0.9); }
+      100% { transform: scale(1); }
+    }
+    @keyframes wrongShake {
+      0%,100% { transform: translateX(0); }
+      20% { transform: translateX(-10px); }
+      40% { transform: translateX(10px); }
+      60% { transform: translateX(-8px); }
+      80% { transform: translateX(8px); }
+    }
+
+    .sparkle {
+      position: fixed;
+      pointer-events: none;
+      z-index: 98;
+      border-radius: 50%;
+      animation: sparklePop ease-out forwards;
+    }
+    @keyframes sparklePop {
+      0%   { transform: translate(0,0) scale(1); opacity: 1; }
+      100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
+    }
+
+    #celebrate-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.55);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 18px;
+      z-index: 99;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.35s;
+    }
+    #celebrate-overlay.show { opacity: 1; pointer-events: all; }
+    #celebrate-text {
+      font-size: clamp(32px, 9vw, 64px);
+      color: #fff;
+      text-shadow: 0 0 20px #ffd700, 0 2px 8px rgba(0,0,0,0.5);
+      text-align: center;
+      padding: 0 16px;
+    }
+    #stars-row { font-size: clamp(36px, 10vw, 64px); letter-spacing: 6px; }
+    #next-btn {
+      margin-top: 10px;
+      padding: clamp(14px,4vw,20px) clamp(30px,8vw,52px);
+      font-size: clamp(20px,5vw,28px);
+      border-radius: 50px;
+      border: none;
+      background: linear-gradient(135deg, #ffd700, #ff9800);
+      color: #5d2e00;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 4px 16px rgba(255,180,0,0.5);
+      font-family: inherit;
+    }
+
+    .confetti-piece {
+      position: fixed;
+      width: 12px; height: 12px;
+      border-radius: 50%;
+      animation: confettiFall linear forwards;
+      pointer-events: none;
+      z-index: 100;
+    }
+    @keyframes confettiFall {
+      0%   { top: -20px; opacity: 1; }
+      100% { top: 110vh; opacity: 0.2; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="tier-badge">⭐</div>
+  <div id="score-row"></div>
+
+  <div id="princess-wrap">
+    <div id="princess-figure">👸</div>
+    <div id="part-arrow">👇</div>
+  </div>
+
+  <div id="prompt-text">Where is Princess's nose? 👃</div>
+
+  <div id="choices-grid" class="cols-2"></div>
+
+  <div id="celebrate-overlay">
+    <div id="celebrate-text">Amazing! 🌟</div>
+    <div id="stars-row">⭐⭐⭐</div>
+    <button id="next-btn" onclick="nextRound()">Next ➡️</button>
+  </div>
+
+<script>
+  const PARTS = [
+    { name:'nose',   emoji:'👃', label:'nose'   },
+    { name:'ear',    emoji:'👂', label:'ear'    },
+    { name:'eyes',   emoji:'👀', label:'eyes'   },
+    { name:'mouth',  emoji:'👄', label:'mouth'  },
+    { name:'hand',   emoji:'🖐️', label:'hand'  },
+    { name:'foot',   emoji:'🦶', label:'foot'   },
+    { name:'tooth',  emoji:'🦷', label:'tooth'  },
+    { name:'arm',    emoji:'💪', label:'arm'    },
+    { name:'hair',   emoji:'💇‍♀️', label:'hair' },
+    { name:'tongue', emoji:'👅', label:'tongue' },
+  ];
+
+  // Easy: 4 simple parts, 2 choices
+  // Medium: 7 parts, 3 choices
+  // Hard: all 10, 4 choices
+  const TIER_CFG = [
+    { pool: PARTS.slice(0,4),  choices: 2, cols: 2 },
+    { pool: PARTS.slice(0,7),  choices: 3, cols: 3 },
+    { pool: PARTS,             choices: 4, cols: 4 },  // 2×2
+  ];
+  const TIER_ROUNDS  = [3, 3, 3];  // rounds per tier
+  const TIER_LABELS  = ['⭐','⭐⭐','⭐⭐⭐'];
+  const TOTAL_ROUNDS = 9;
+
+  // Override cols=4 → 2×2 grid
+  const TIER_COLS_CLASS = ['cols-2','cols-3','cols-2'];
+
+  let target=null, score=0, round=0;
+
+  let audioCtx=null;
+  function getAudio() {
+    if(!audioCtx) audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+    return audioCtx;
+  }
+  function playTone(freq,type,dur,vol) {
+    try {
+      const ctx=getAudio();
+      const osc=ctx.createOscillator(), gain=ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.type=type||'sine';
+      osc.frequency.setValueAtTime(freq,ctx.currentTime);
+      gain.gain.setValueAtTime(vol||0.18,ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+dur);
+      osc.start(); osc.stop(ctx.currentTime+dur);
+    } catch(e){}
+  }
+  function playCorrect() {
+    playTone(523,'sine',0.12);
+    setTimeout(()=>playTone(659,'sine',0.12),100);
+    setTimeout(()=>playTone(784,'sine',0.28),200);
+  }
+  function playWrong() { playTone(200,'sawtooth',0.2,0.1); }
+  function playCelebrate() {
+    [523,587,659,698,784,880].forEach((f,i)=>
+      setTimeout(()=>playTone(f,'sine',0.22),i*80));
+  }
+
+  function shuffle(arr) {
+    const a=[...arr];
+    for(let i=a.length-1;i>0;i--){const j=0|Math.random()*(i+1);[a[i],a[j]]=[a[j],a[i]];}
+    return a;
+  }
+
+  function getTier() {
+    if(round<=3) return 0;
+    if(round<=6) return 1;
+    return 2;
+  }
+
+  function updateScore() {
+    document.getElementById('score-row').innerHTML='⭐'.repeat(score);
+  }
+
+  function sparkleAt(btn) {
+    const r=btn.getBoundingClientRect();
+    const cx=r.left+r.width/2, cy=r.top+r.height/2;
+    const cols=['#ffd700','#ff69b4','#00cfff','#ff6347','#da70d6','#7fff00','#fff'];
+    for(let i=0;i<20;i++){
+      const el=document.createElement('div');
+      el.className='sparkle';
+      const sz=8+Math.random()*11;
+      el.style.cssText=`width:${sz}px;height:${sz}px;left:${cx}px;top:${cy}px;
+        background:${cols[0|Math.random()*cols.length]};
+        --tx:${(Math.random()-.5)*180}px;--ty:${(Math.random()-.5)*180}px;
+        animation-duration:${0.45+Math.random()*0.38}s;`;
+      document.body.appendChild(el);
+      setTimeout(()=>el.remove(),900);
+    }
+  }
+
+  function nextRound() {
+    document.getElementById('celebrate-overlay').classList.remove('show');
+    if(round>=TOTAL_ROUNDS){endGame();return;}
+    round++;
+
+    const tier=getTier();
+    document.getElementById('tier-badge').textContent=TIER_LABELS[tier];
+
+    const cfg=TIER_CFG[tier];
+    const shuffledPool=shuffle(cfg.pool);
+    target=shuffledPool[0];
+    const options=shuffle(shuffledPool.slice(0,cfg.choices));
+
+    document.getElementById('prompt-text').textContent=
+      `Where is Princess's ${target.label}? ${target.emoji}`;
+
+    document.getElementById('princess-figure').classList.add('pulse');
+
+    const grid=document.getElementById('choices-grid');
+    grid.className=TIER_COLS_CLASS[tier];
+    grid.innerHTML='';
+    options.forEach(part=>{
+      const btn=document.createElement('button');
+      btn.className='choice-btn';
+      btn.innerHTML=`<span>${part.emoji}</span><span class="label">${part.label}</span>`;
+      btn.setAttribute('aria-label',part.label);
+      btn.addEventListener('pointerdown',()=>handleTap(btn,part));
+      grid.appendChild(btn);
+    });
+  }
+
+  function handleTap(btn, part) {
+    if(part.name===target.name){
+      btn.classList.add('correct-flash');
+      playCorrect();
+      sparkleAt(btn);
+      document.getElementById('princess-figure').classList.remove('pulse');
+      score++;
+      updateScore();
+      setTimeout(()=>{
+        btn.classList.remove('correct-flash');
+        if(round>=TOTAL_ROUNDS){endGame();return;}
+        showCelebrate();
+      },530);
+    } else {
+      btn.classList.add('wrong-flash');
+      playWrong();
+      setTimeout(()=>btn.classList.remove('wrong-flash'),420);
+    }
+  }
+
+  function showCelebrate() {
+    const msgs=['Amazing! 🌟','Yes!! 🎉','You did it! 💖','Brilliant! ✨','Wow! 🌈','Super! 👑'];
+    document.getElementById('celebrate-text').textContent=msgs[0|Math.random()*msgs.length];
+    document.getElementById('stars-row').textContent='⭐'.repeat(Math.min(score,9));
+    document.getElementById('next-btn').textContent='Next ➡️';
+    document.getElementById('next-btn').onclick=nextRound;
+    document.getElementById('celebrate-overlay').classList.add('show');
+    playCelebrate();
+    confettiBurst();
+  }
+
+  function endGame() {
+    document.getElementById('celebrate-text').textContent=`You got ${score} stars! 👑`;
+    document.getElementById('stars-row').textContent='⭐'.repeat(Math.min(score,9))||'🌸';
+    document.getElementById('next-btn').textContent='Play Again! 🔄';
+    document.getElementById('next-btn').onclick=()=>{score=0;round=0;updateScore();nextRound();};
+    document.getElementById('celebrate-overlay').classList.add('show');
+    playCelebrate();
+    confettiBurst();
+  }
+
+  function confettiBurst() {
+    const cols=['#ffd700','#ff69b4','#00cfff','#7fff00','#ff6347','#da70d6'];
+    for(let i=0;i<32;i++){
+      const el=document.createElement('div');
+      el.className='confetti-piece';
+      el.style.left=Math.random()*100+'vw';
+      el.style.background=cols[0|Math.random()*cols.length];
+      el.style.animationDuration=(1.2+Math.random()*1.6)+'s';
+      el.style.animationDelay=(Math.random()*0.4)+'s';
+      document.body.appendChild(el);
+      setTimeout(()=>el.remove(),2700);
+    }
+  }
+
+  nextRound();
+</script>
+</body>
+</html>
