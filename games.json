@@ -43,7 +43,7 @@
     "ageMin": 2,
     "ageMax": 4,
     "skill": "shape recognition",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "category": "colours-shapes",
     "path": "games/004-shape-castle/index.html"
   },
@@ -250,5 +250,17 @@
     "version": "1.0.0",
     "category": "other",
     "path": "games/021-body-parts/index.html"
+  },
+  {
+    "id": "022-magic-adding",
+    "title": "Magic Adding",
+    "description": "Count the princess gems and tap the right answer — learn simple addition 1+1 to 5+5!",
+    "icon": "✨",
+    "ageMin": 4,
+    "ageMax": 6,
+    "skill": "simple addition",
+    "version": "1.0.0",
+    "category": "numbers",
+    "path": "games/022-magic-adding/index.html"
   }
 ]
