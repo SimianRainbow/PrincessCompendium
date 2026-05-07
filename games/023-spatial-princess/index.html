@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Princess Hideaway 🗺️</title>
+  <style>
+    * { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+    body {
+      background: linear-gradient(160deg, #fff0f6 0%, #fce4ec 50%, #f8bbd0 100%);
+      min-height:100vh; display:flex; flex-direction:column;
+      align-items:center; justify-content:center;
+      font-family:Georgia,serif; overflow:hidden; user-select:none;
+    }
+
+    #status-bar {
+      position:fixed; top:0; left:0; right:0; z-index:10;
+      padding:clamp(8px,2vw,14px) clamp(14px,3.5vw,22px);
+      display:flex; justify-content:space-between; align-items:center;
+    }
+    #tier-badge {
+      font-size:clamp(13px,3.2vw,18px);
+      background:rgba(255,105,180,.18); border:1.5px solid rgba(255,105,180,.35);
+      border-radius:20px; padding:4px 12px; color:#c2185b;
+    }
+    #score-row { font-size:clamp(18px,4.5vw,26px); }
+
+    #prompt {
+      font-size:clamp(20px,5.5vw,30px); color:#880e4f;
+      text-align:center; padding:0 16px;
+      margin-bottom:clamp(12px,3vw,22px);
+      text-shadow:0 1px 4px rgba(255,255,255,.7);
+    }
+    #prompt .target-word {
+      font-weight:bold; color:#ad1457;
+      font-size:clamp(24px,6.5vw,36px);
+    }
+
+    /* Scene stage */
+    #scene-stage {
+      position:relative;
+      width:clamp(220px,60vw,280px);
+      height:clamp(220px,60vw,280px);
+      margin-bottom:clamp(16px,4vw,28px);
+      background:rgba(255,255,255,.45);
+      border-radius:24px;
+      border:3px solid rgba(255,105,180,.3);
+      box-shadow:0 4px 20px rgba(255,105,180,.15);
+    }
+    #scene-container {
+      position:absolute;
+      font-size:clamp(68px,18vw,90px);
+      line-height:1;
+      transform:translate(-50%,-50%);
+      left:50%; top:50%;
+      transition:none;
+    }
+    #scene-target {
+      position:absolute;
+      font-size:clamp(46px,12vw,60px);
+      line-height:1;
+      transform:translate(-50%,-50%);
+      transition:left .35s ease, top .35s ease;
+    }
+    #scene-target.behind { z-index:0; opacity:.55; font-size:clamp(36px,9vw,46px); }
+    #scene-container { z-index:1; }
+
+    /* Wobble on wrong */
+    @keyframes wobble { 0%,100%{transform:translate(-50%,-50%) rotate(0)} 25%{transform:translate(-50%,-50%) rotate(-10deg)} 75%{transform:translate(-50%,-50%) rotate(10deg)} }
+    .wobble-anim { animation:wobble .4s ease; }
+
+    /* Choices */
+    #choices {
+      display:flex; gap:clamp(10px,2.5vw,16px);
+      flex-wrap:wrap; justify-content:center;
+      padding:0 12px;
+    }
+    .choice-btn {
+      min-width:clamp(90px,22vw,120px); min-height:clamp(70px,16vw,88px);
+      border-radius:20px; border:3px solid #f48fb1;
+      background:linear-gradient(135deg,#fff0f6,#fce4ec);
+      color:#880e4f; font-size:clamp(16px,4.5vw,22px);
+      font-family:Georgia,serif; font-weight:bold; cursor:pointer;
+      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px;
+      box-shadow:0 4px 12px rgba(255,105,180,.2);
+      transition:transform .08s, background .1s;
+      padding:8px;
+    }
+    .choice-btn:active { transform:scale(.92); }
+    .choice-btn .choice-emoji { font-size:clamp(24px,6.5vw,32px); }
+    .choice-btn.correct-flash { background:linear-gradient(135deg,#a5d6a7,#66bb6a); border-color:#388e3c; color:#1b5e20; }
+    .choice-btn.wrong-flash   { background:linear-gradient(135deg,#ffcdd2,#ef9a9a); border-color:#c62828; }
+
+    /* Sparkle */
+    .spark { position:fixed; pointer-events:none; border-radius:50%; animation:sparkFly .75s ease-out forwards; z-index:50; }
+    @keyframes sparkFly { 0%{opacity:1;transform:scale(1)} 100%{opacity:0;transform:scale(0) translate(var(--dx),var(--dy))} }
+
+    /* Celebrate overlay */
+    #celebrate-overlay {
+      position:fixed; inset:0; background:rgba(255,240,246,.82);
+      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:18px;
+      z-index:99; opacity:0; pointer-events:none; transition:opacity .3s;
+    }
+    #celebrate-overlay.show { opacity:1; pointer-events:all; }
+    #celebrate-text { font-size:clamp(26px,7vw,50px); color:#880e4f; text-align:center; padding:0 16px; text-shadow:0 0 16px #ff69b4; }
+    #celebrate-icon { font-size:clamp(54px,15vw,88px); }
+    #next-btn { padding:clamp(13px,3.5vw,18px) clamp(28px,7vw,50px); font-size:clamp(18px,4.5vw,26px); border-radius:50px; border:none; background:linear-gradient(135deg,#f48fb1,#e91e8c); color:#fff; font-weight:bold; cursor:pointer; font-family:inherit; box-shadow:0 4px 14px rgba(233,30,140,.35); }
+    .confetti-piece { position:fixed; width:10px; height:10px; border-radius:50%; animation:confettiFall linear forwards; pointer-events:none; z-index:100; }
+    @keyframes confettiFall { 0%{top:-20px;opacity:1} 100%{top:110vh;opacity:.2} }
+  </style>
+</head>
+<body>
+
+  <div id="status-bar">
+    <div id="tier-badge">⭐ Easy</div>
+    <div id="score-row"></div>
+  </div>
+
+  <div id="prompt">Where is the <span id="target-name" class="target-word">gem</span>?</div>
+
+  <div id="scene-stage">
+    <div id="scene-container">🎁</div>
+    <div id="scene-target">💎</div>
+  </div>
+
+  <div id="choices"></div>
+
+  <div id="celebrate-overlay">
+    <div id="celebrate-icon">🌸</div>
+    <div id="celebrate-text">Amazing!</div>
+    <button id="next-btn" onclick="nextRound()">Next ➡️</button>
+  </div>
+
+<script>
+  /* ── Audio ── */
+  let audioCtx=null;
+  function getAudio(){ if(!audioCtx) audioCtx=new(window.AudioContext||window.webkitAudioContext)(); return audioCtx; }
+  function playTone(f,type,dur,vol=.15){
+    try{
+      const c=getAudio(),o=c.createOscillator(),g=c.createGain();
+      o.connect(g);g.connect(c.destination);
+      o.type=type||'sine';o.frequency.value=f;
+      g.gain.setValueAtTime(vol,c.currentTime);
+      g.gain.exponentialRampToValueAtTime(.001,c.currentTime+dur);
+      o.start();o.stop(c.currentTime+dur);
+    }catch(e){}
+  }
+  function playCorrect(){ [523,659,784,1047].forEach((f,i)=>setTimeout(()=>playTone(f,'sine',.18),i*70)); }
+  function playWrong(){ playTone(220,'sawtooth',.2,.1); }
+  function playRoundWin(){
+    [523,587,659,784,1047].forEach((f,i)=>setTimeout(()=>playTone(f,'sine',.2,.18),i*85));
+  }
+
+  /* ── Spatial positions ── */
+  // Positions expressed as % of stage (target center) and z-index hint
+  // Stage is 100x100 units; container fixed at 50,50
+  const POSITIONS = {
+    'in':      { label:'in',       emoji:'📥', x:50, y:50,  behind:false },
+    'on':      { label:'on',       emoji:'⬆️', x:50, y:14,  behind:false },
+    'under':   { label:'under',    emoji:'⬇️', x:50, y:85,  behind:false },
+    'next to': { label:'next to',  emoji:'↔️', x:82, y:50,  behind:false },
+    'behind':  { label:'behind',   emoji:'🫣', x:50, y:50,  behind:true  },
+  };
+
+  /* ── Tiers ── */
+  const TIERS = [
+    { label:'⭐ Easy',    positions:['in','on','under'],               choices:2, rounds:6  },
+    { label:'⭐⭐ Medium', positions:['in','on','under','next to'],      choices:3, rounds:6  },
+    { label:'⭐⭐⭐ Hard',  positions:['in','on','under','next to','behind'], choices:3, rounds:6 },
+  ];
+  let tierIdx=0, roundsInTier=0, totalRounds=0, score=0;
+
+  /* ── Items ── */
+  const TARGETS   = ['💎','⭐','👑','💖','🌸','🦋','🍭'];
+  const CONTAINERS= ['🎁','🧺','🪣','🏰','🪑'];
+  let currentTarget='💎', currentContainer='🎁', currentPos='in';
+
+  function getTargetName(emoji){
+    const map={'💎':'gem','⭐':'star','👑':'crown','💖':'heart','🌸':'flower','🦋':'butterfly','🍭':'sweet'};
+    return map[emoji]||'gem';
+  }
+
+  /* ── Scene ── */
+  function setScene(pos, targetEmoji, containerEmoji){
+    const p=POSITIONS[pos];
+    const stage=document.getElementById('scene-stage');
+    const stW=stage.offsetWidth||260, stH=stage.offsetHeight||260;
+
+    const tgt=document.getElementById('scene-target');
+    tgt.textContent=targetEmoji;
+    tgt.classList.toggle('behind', p.behind);
+    tgt.style.left=(p.x/100*stW)+'px';
+    tgt.style.top=(p.y/100*stH)+'px';
+    // z-index: behind means go below container (z:0), else above (z:2)
+    tgt.style.zIndex=p.behind?0:2;
+
+    document.getElementById('scene-container').textContent=containerEmoji;
+    document.getElementById('target-name').textContent=getTargetName(targetEmoji);
+  }
+
+  /* ── Choices ── */
+  function buildChoices(correctPos, allPositions, numChoices){
+    // Pick distractors from same tier pool
+    const distractors=allPositions.filter(p=>p!==correctPos);
+    shuffle(distractors);
+    const chosen=[correctPos,...distractors.slice(0,numChoices-1)];
+    shuffle(chosen);
+
+    const cont=document.getElementById('choices');
+    cont.innerHTML='';
+    chosen.forEach(pos=>{
+      const p=POSITIONS[pos];
+      const btn=document.createElement('button');
+      btn.className='choice-btn';
+      btn.dataset.pos=pos;
+      btn.innerHTML=`<span class="choice-emoji">${p.emoji}</span><span>${p.label}</span>`;
+      btn.addEventListener('pointerdown',()=>onChoice(pos,btn));
+      cont.appendChild(btn);
+    });
+  }
+
+  let locked=false;
+  function onChoice(pos, btn){
+    if(locked) return;
+    if(pos===currentPos){
+      locked=true;
+      btn.classList.add('correct-flash');
+      playCorrect();
+      sparkleBurst(btn);
+      score++; updateScore();
+      roundsInTier++; totalRounds++;
+      setTimeout(()=>{
+        const tier=TIERS[tierIdx];
+        if(roundsInTier>=tier.rounds && tierIdx<TIERS.length-1){
+          showCelebrate(true);
+        } else if(roundsInTier>=tier.rounds && tierIdx===TIERS.length-1){
+          showCelebrate(true);
+        } else {
+          showCelebrate(false);
+        }
+      },600);
+    } else {
+      btn.classList.add('wrong-flash');
+      playWrong();
+      // Wobble the target
+      const tgt=document.getElementById('scene-target');
+      tgt.classList.remove('wobble-anim');
+      void tgt.offsetWidth;
+      tgt.classList.add('wobble-anim');
+      setTimeout(()=>{ btn.classList.remove('wrong-flash'); },500);
+    }
+  }
+
+  function showCelebrate(isTierWin){
+    if(isTierWin) playRoundWin(); else playCorrect();
+    const msgs=isTierWin
+      ? ['Level up! 👑','You\'re a princess! 🌸','So clever! ✨','Magical! 🦋']
+      : ['Great job! 🌟','Well done! 💖','Brilliant! 🎀','Wonderful! 🌸'];
+    document.getElementById('celebrate-text').textContent=msgs[Math.floor(Math.random()*msgs.length)];
+    document.getElementById('celebrate-icon').textContent=isTierWin?'👑✨':'🌸';
+    document.getElementById('celebrate-overlay').classList.add('show');
+    confettiBurst();
+  }
+
+  function nextRound(){
+    document.getElementById('celebrate-overlay').classList.remove('show');
+    // Advance tier if needed
+    const tier=TIERS[tierIdx];
+    if(roundsInTier>=tier.rounds && tierIdx<TIERS.length-1){
+      tierIdx++; roundsInTier=0;
+      updateTierBadge();
+    } else if(roundsInTier>=tier.rounds){
+      // Reset for replay
+      tierIdx=0; roundsInTier=0; score=0; updateScore();
+      updateTierBadge();
+    }
+    buildRound();
+  }
+
+  function buildRound(){
+    locked=false;
+    const tier=TIERS[tierIdx];
+    const positions=tier.positions;
+    currentPos=positions[Math.floor(Math.random()*positions.length)];
+    currentTarget=TARGETS[Math.floor(Math.random()*TARGETS.length)];
+    currentContainer=CONTAINERS[Math.floor(Math.random()*CONTAINERS.length)];
+    setScene(currentPos, currentTarget, currentContainer);
+    buildChoices(currentPos, positions, tier.choices);
+    // Remove wobble
+    document.getElementById('scene-target').classList.remove('wobble-anim');
+  }
+
+  function updateScore(){ document.getElementById('score-row').innerHTML=Array.from({length:score},()=>'⭐').join(''); }
+  function updateTierBadge(){ document.getElementById('tier-badge').textContent=TIERS[tierIdx].label; }
+
+  function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]; } }
+
+  /* ── Sparkle ── */
+  function sparkleBurst(el){
+    const rect=el.getBoundingClientRect();
+    const cx=rect.left+rect.width/2, cy=rect.top+rect.height/2;
+    const colors=['#ffd700','#ff69b4','#ff8a65','#fff176','#ce93d8'];
+    for(let i=0;i<14;i++){
+      const s=document.createElement('div'); s.className='spark';
+      const angle=Math.random()*360, dist=45+Math.random()*65;
+      const dx=Math.cos(angle*Math.PI/180)*dist+'px';
+      const dy=Math.sin(angle*Math.PI/180)*dist+'px';
+      s.style.cssText=`left:${cx}px;top:${cy}px;width:${7+Math.random()*9}px;height:${7+Math.random()*9}px;background:${colors[i%colors.length]};--dx:${dx};--dy:${dy}`;
+      document.body.appendChild(s);
+      setTimeout(()=>s.remove(),850);
+    }
+  }
+
+  function confettiBurst(){
+    const cols=['#ffd700','#ff69b4','#ce93d8','#80deea','#a5d6a7'];
+    for(let i=0;i<28;i++){
+      const el=document.createElement('div'); el.className='confetti-piece';
+      el.style.left=Math.random()*100+'vw';
+      el.style.background=cols[Math.floor(Math.random()*cols.length)];
+      el.style.animationDuration=(1.3+Math.random()*1.5)+'s';
+      el.style.animationDelay=(Math.random()*.4)+'s';
+      document.body.appendChild(el); setTimeout(()=>el.remove(),2900);
+    }
+  }
+
+  /* ── Init ── */
+  buildRound();
+</script>
+</body>
+</html>

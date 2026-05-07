@@ -15,66 +15,71 @@
 
     #status-bar {
       position:fixed; top:0; left:0; right:0; z-index:10;
-      padding:clamp(10px,2.5vw,16px) clamp(16px,4vw,24px);
+      padding:clamp(8px,2vw,14px) clamp(14px,3.5vw,22px);
       display:flex; justify-content:space-between; align-items:center;
     }
-    #mode-label { font-size:clamp(14px,3.5vw,20px); color:rgba(255,255,255,.8); }
-    #score-row  { font-size:clamp(20px,5vw,28px); }
+    #tier-badge {
+      font-size:clamp(13px,3.2vw,18px);
+      background:rgba(255,255,255,.15); border:1.5px solid rgba(255,255,255,.3);
+      border-radius:20px; padding:4px 12px; color:#ffd700;
+    }
+    #score-row { font-size:clamp(18px,4.5vw,26px); }
 
     #conductor {
-      font-size:clamp(52px,13vw,80px); margin-bottom:clamp(8px,2vw,16px);
+      font-size:clamp(44px,11vw,70px); margin-bottom:clamp(4px,1.5vw,10px);
       filter:drop-shadow(0 4px 12px rgba(255,215,0,.3));
       transition:transform .15s;
     }
     #conductor.beat { transform:scale(1.25) rotate(-5deg); }
 
     #prompt-text {
-      font-size:clamp(16px,4.5vw,24px); color:#fff;
-      text-shadow:0 2px 6px rgba(0,0,0,.4); margin-bottom:clamp(16px,4vw,24px);
+      font-size:clamp(15px,4vw,22px); color:#fff;
+      text-shadow:0 2px 6px rgba(0,0,0,.4); margin-bottom:clamp(10px,2.5vw,18px);
       text-align:center; padding:0 12px; min-height:2em;
     }
 
-    /* Sequence replay dots */
     #seq-dots {
-      display:flex; gap:8px; margin-bottom:clamp(12px,3vw,20px); min-height:20px;
+      display:flex; gap:8px; margin-bottom:clamp(10px,2.5vw,16px); min-height:18px;
     }
-    .seq-dot { width:14px; height:14px; border-radius:50%; background:rgba(255,255,255,.25); transition:background .2s; }
+    .seq-dot { width:13px; height:13px; border-radius:50%; background:rgba(255,255,255,.22); transition:background .2s; }
     .seq-dot.lit { background:#ffd700; box-shadow:0 0 8px rgba(255,215,0,.8); }
+    .seq-dot.done { background:#69ff69; }
 
-    /* Instrument grid */
     #instrument-grid {
-      display:grid; grid-template-columns:repeat(2,1fr);
-      gap:clamp(14px,3.5vw,22px); padding:4px;
+      display:grid;
+      gap:clamp(10px,2.5vw,16px); padding:2px;
     }
     .instrument {
-      width:clamp(130px,31vw,175px); height:clamp(130px,31vw,175px);
-      border-radius:26px; border:none; cursor:pointer;
-      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px;
-      box-shadow:0 5px 20px rgba(0,0,0,.35), inset 0 2px 0 rgba(255,255,255,.2);
+      width:clamp(105px,25vw,145px); height:clamp(105px,25vw,145px);
+      border-radius:22px; border:none; cursor:pointer;
+      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px;
+      box-shadow:0 5px 18px rgba(0,0,0,.35), inset 0 2px 0 rgba(255,255,255,.2);
       transition:transform .08s, filter .08s;
       position:relative; overflow:hidden;
     }
-    .instrument:active, .instrument.playing { transform:scale(.93); filter:brightness(1.4); }
-    .instrument .instr-emoji { font-size:clamp(48px,13vw,72px); line-height:1; pointer-events:none; }
-    .instrument .instr-name  { font-size:clamp(13px,3.2vw,17px); color:#fff; font-weight:bold; text-shadow:0 1px 3px rgba(0,0,0,.5); pointer-events:none; }
+    .instrument:active, .instrument.playing { transform:scale(.92); filter:brightness(1.45); }
+    .instrument .instr-emoji { font-size:clamp(38px,10vw,58px); line-height:1; pointer-events:none; }
+    .instrument .instr-name  { font-size:clamp(11px,2.8vw,15px); color:#fff; font-weight:bold; text-shadow:0 1px 3px rgba(0,0,0,.5); pointer-events:none; }
 
-    /* Ripple */
     .ripple { position:absolute; border-radius:50%; background:rgba(255,255,255,.35); transform:scale(0); animation:rippleOut .5s ease-out forwards; pointer-events:none; }
     @keyframes rippleOut { to{ transform:scale(4); opacity:0; } }
 
-    #mode-btns { display:flex; gap:12px; margin-top:clamp(16px,4vw,24px); }
-    .mode-btn { padding:clamp(10px,2.5vw,14px) clamp(18px,5vw,28px); font-size:clamp(14px,3.5vw,18px); border-radius:30px; border:2px solid rgba(255,255,255,.4); background:rgba(255,255,255,.12); color:#fff; cursor:pointer; font-family:inherit; transition:background .1s; }
-    .mode-btn.active { background:rgba(255,255,255,.3); border-color:#ffd700; color:#ffd700; }
+    .spark { position:fixed; pointer-events:none; border-radius:50%; animation:sparkFly .7s ease-out forwards; z-index:50; }
+    @keyframes sparkFly { 0%{opacity:1;transform:scale(1)} 100%{opacity:0;transform:scale(0) translate(var(--dx),var(--dy))} }
+
+    #mode-btns { display:flex; gap:10px; margin-top:clamp(12px,3vw,20px); }
+    .mode-btn { padding:clamp(9px,2.2vw,13px) clamp(16px,4vw,24px); font-size:clamp(13px,3.2vw,17px); border-radius:30px; border:2px solid rgba(255,255,255,.35); background:rgba(255,255,255,.1); color:#fff; cursor:pointer; font-family:inherit; transition:background .1s; }
+    .mode-btn.active { background:rgba(255,255,255,.28); border-color:#ffd700; color:#ffd700; }
 
     #celebrate-overlay {
       position:fixed; inset:0; background:rgba(0,0,0,.55);
-      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:18px;
+      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px;
       z-index:99; opacity:0; pointer-events:none; transition:opacity .3s;
     }
     #celebrate-overlay.show { opacity:1; pointer-events:all; }
-    #celebrate-text { font-size:clamp(30px,8vw,56px); color:#fff; text-shadow:0 0 20px #ffd700; text-align:center; padding:0 16px; }
-    #celebrate-icon { font-size:clamp(60px,18vw,100px); }
-    #next-btn { padding:clamp(14px,4vw,20px) clamp(32px,8vw,56px); font-size:clamp(20px,5vw,28px); border-radius:50px; border:none; background:linear-gradient(135deg,#ffd700,#ff9800); color:#5d2e00; font-weight:bold; cursor:pointer; font-family:inherit; }
+    #celebrate-text { font-size:clamp(28px,7.5vw,52px); color:#fff; text-shadow:0 0 20px #ffd700; text-align:center; padding:0 16px; }
+    #celebrate-icon { font-size:clamp(56px,16vw,90px); }
+    #next-btn { padding:clamp(13px,3.5vw,18px) clamp(28px,7vw,50px); font-size:clamp(18px,4.5vw,26px); border-radius:50px; border:none; background:linear-gradient(135deg,#ffd700,#ff9800); color:#5d2e00; font-weight:bold; cursor:pointer; font-family:inherit; }
     .confetti-piece { position:fixed; width:10px; height:10px; border-radius:50%; animation:confettiFall linear forwards; pointer-events:none; z-index:100; }
     @keyframes confettiFall { 0%{top:-20px;opacity:1} 100%{top:110vh;opacity:.2} }
   </style>
@@ -82,7 +87,7 @@
 <body>
 
   <div id="status-bar">
-    <div id="mode-label">Free Play 🎶</div>
+    <div id="tier-badge">⭐ Easy</div>
     <div id="score-row"></div>
   </div>
 
@@ -91,18 +96,7 @@
   <div id="seq-dots"></div>
 
   <div id="instrument-grid">
-    <button class="instrument" id="instr-0" style="background:linear-gradient(135deg,#e53935,#b71c1c)" data-name="Drum">
-      <span class="instr-emoji">🥁</span><span class="instr-name">Drum</span>
-    </button>
-    <button class="instrument" id="instr-1" style="background:linear-gradient(135deg,#1e88e5,#0d47a1)" data-name="Harp">
-      <span class="instr-emoji">🎸</span><span class="instr-name">Harp</span>
-    </button>
-    <button class="instrument" id="instr-2" style="background:linear-gradient(135deg,#43a047,#1b5e20)" data-name="Bell">
-      <span class="instr-emoji">🔔</span><span class="instr-name">Bell</span>
-    </button>
-    <button class="instrument" id="instr-3" style="background:linear-gradient(135deg,#fdd835,#f57f17)" data-name="Trumpet">
-      <span class="instr-emoji">🎺</span><span class="instr-name">Trumpet</span>
-    </button>
+    <!-- populated by JS -->
   </div>
 
   <div id="mode-btns">
@@ -117,95 +111,160 @@
   </div>
 
 <script>
+  /* ── Audio ── */
   let audioCtx=null;
   function getAudio(){ if(!audioCtx) audioCtx=new(window.AudioContext||window.webkitAudioContext)(); return audioCtx; }
 
-  // Each instrument has a unique sound signature
-  const INSTRUMENTS = [
-    { id:0, name:'Drum',    notes:[[100,'sawtooth',.18,.2],[150,'sawtooth',.1,.15]] },
-    { id:1, name:'Harp',    notes:[[523,'sine',.5],[659,'sine',.4,.1],[784,'sine',.3,.08]] },
-    { id:2, name:'Bell',    notes:[[1047,'sine',.6,.12],[1319,'sine',.5,.1],[1568,'sine',.4,.08]] },
-    { id:3, name:'Trumpet', notes:[[392,'square',.3,.08],[494,'square',.25,.07],[587,'square',.2,.06]] },
+  function playTone(f,type,dur,vol=.15){
+    try{
+      const c=getAudio(),o=c.createOscillator(),g=c.createGain();
+      o.connect(g);g.connect(c.destination);
+      o.type=type||'sine';o.frequency.value=f;
+      g.gain.setValueAtTime(vol,c.currentTime);
+      g.gain.exponentialRampToValueAtTime(.001,c.currentTime+dur);
+      o.start();o.stop(c.currentTime+dur);
+    }catch(e){}
+  }
+
+  /* 6 instruments — each has a distinct sound palette */
+  const ALL_INSTRUMENTS = [
+    { id:0, name:'Drum',   emoji:'🥁', color:'linear-gradient(135deg,#e53935,#b71c1c)',
+      notes:[[100,'sawtooth',.18,.2],[150,'sawtooth',.1,.15]] },
+    { id:1, name:'Harp',   emoji:'🎸', color:'linear-gradient(135deg,#1e88e5,#0d47a1)',
+      notes:[[523,'sine',.5],[659,'sine',.4,.1],[784,'sine',.3,.08]] },
+    { id:2, name:'Bell',   emoji:'🔔', color:'linear-gradient(135deg,#43a047,#1b5e20)',
+      notes:[[1047,'sine',.6,.12],[1319,'sine',.5,.1],[1568,'sine',.4,.08]] },
+    { id:3, name:'Trumpet',emoji:'🎺', color:'linear-gradient(135deg,#fdd835,#f57f17)',
+      notes:[[392,'square',.3,.08],[494,'square',.25,.07],[587,'square',.2,.06]] },
+    { id:4, name:'Flute',  emoji:'🪈', color:'linear-gradient(135deg,#26c6da,#006064)',
+      notes:[[880,'sine',.4,.1],[1047,'sine',.35,.09],[1175,'sine',.3,.08]] },
+    { id:5, name:'Piano',  emoji:'🎹', color:'linear-gradient(135deg,#ab47bc,#4a148c)',
+      notes:[[440,'triangle',.35,.12],[550,'triangle',.3,.1],[660,'triangle',.25,.09]] },
   ];
 
+  /* Difficulty tiers */
+  const TIERS = [
+    { label:'⭐ Easy',   instrCount:3, minSeq:2, maxSeq:3, rounds:4 },
+    { label:'⭐⭐ Medium', instrCount:4, minSeq:3, maxSeq:5, rounds:4 },
+    { label:'⭐⭐⭐ Hard',  instrCount:6, minSeq:4, maxSeq:7, rounds:4 },
+  ];
+  let tierIdx=0, roundsInTier=0;
+  let activeInstrIds=[]; // which instruments are visible this tier
+
   function playInstrumentSound(instrId){
-    const instr=INSTRUMENTS[instrId];
+    const instr=ALL_INSTRUMENTS[instrId];
     try{
       const ctx=getAudio();
       instr.notes.forEach(([freq,type,dur,vol=.14],i)=>{
-        setTimeout(()=>{
-          const o=ctx.createOscillator(),g=ctx.createGain();
-          o.connect(g); g.connect(ctx.destination);
-          o.type=type; o.frequency.value=freq;
-          g.gain.setValueAtTime(vol,ctx.currentTime);
-          g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+dur);
-          o.start(); o.stop(ctx.currentTime+dur);
-        },i*60);
+        setTimeout(()=>playTone(freq,type,dur,vol), i*60);
       });
     }catch(e){}
   }
 
-  function playTone(f,t,d,v=.15){ try{ const c=getAudio(),o=c.createOscillator(),g=c.createGain(); o.connect(g);g.connect(c.destination); o.type=t||'sine';o.frequency.value=f;g.gain.setValueAtTime(v,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+d);o.start();o.stop(c.currentTime+d); }catch(e){} }
   function playCelebrate(){ [523,659,784,1047].forEach((f,i)=>setTimeout(()=>playTone(f,'sine',.22),i*80)); }
+  function playRoundWin(){
+    const melody=[523,587,659,784,1047,784,1047];
+    melody.forEach((f,i)=>setTimeout(()=>playTone(f,'sine',.18,.18),i*90));
+  }
+  function playWrong(){ playTone(220,'sawtooth',.25,.1); }
+
+  /* ── Build instrument grid ── */
+  function buildGrid(){
+    const t=TIERS[tierIdx];
+    activeInstrIds=ALL_INSTRUMENTS.slice(0,t.instrCount).map(x=>x.id);
+    const cols = t.instrCount<=4 ? 2 : 3;
+    const grid=document.getElementById('instrument-grid');
+    grid.style.gridTemplateColumns=`repeat(${cols},1fr)`;
+    grid.innerHTML='';
+    activeInstrIds.forEach(id=>{
+      const instr=ALL_INSTRUMENTS[id];
+      const btn=document.createElement('button');
+      btn.className='instrument'; btn.id='instr-'+id;
+      btn.dataset.name=instr.name;
+      btn.style.background=instr.color;
+      btn.innerHTML=`<span class="instr-emoji">${instr.emoji}</span><span class="instr-name">${instr.name}</span>`;
+      btn.addEventListener('pointerdown',()=>{
+        playInstrumentSound(id);
+        flashInstrument(id);
+        if(mode==='repeat') onPlayerTap(id);
+      });
+      grid.appendChild(btn);
+    });
+  }
 
   function flashInstrument(instrId){
     const el=document.getElementById('instr-'+instrId);
     if(!el) return;
     el.classList.add('playing');
-    // Ripple
     const r=document.createElement('div'); r.className='ripple';
     const size=el.offsetWidth; r.style.cssText=`width:${size}px;height:${size}px;left:0;top:0`;
     el.appendChild(r);
     setTimeout(()=>{ el.classList.remove('playing'); r.remove(); }, 350);
-    // Conductor bounce
     const c=document.getElementById('conductor');
     c.classList.add('beat');
     setTimeout(()=>c.classList.remove('beat'),150);
   }
 
-  // ---- FREE PLAY MODE ----
+  /* ── Sparkle burst ── */
+  function sparkleBurst(el){
+    const rect=el.getBoundingClientRect();
+    const cx=rect.left+rect.width/2, cy=rect.top+rect.height/2;
+    const colors=['#ffd700','#ff69b4','#00cfff','#fff176','#ff8a65'];
+    for(let i=0;i<12;i++){
+      const s=document.createElement('div'); s.className='spark';
+      const angle=Math.random()*360, dist=50+Math.random()*60;
+      const dx=Math.cos(angle*Math.PI/180)*dist+'px';
+      const dy=Math.sin(angle*Math.PI/180)*dist+'px';
+      s.style.cssText=`left:${cx}px;top:${cy}px;width:${8+Math.random()*8}px;height:${8+Math.random()*8}px;background:${colors[i%colors.length]};--dx:${dx};--dy:${dy}`;
+      document.body.appendChild(s);
+      setTimeout(()=>s.remove(),800);
+    }
+  }
+
+  /* ── Mode management ── */
   let mode='free';
   function setMode(m){
     mode=m;
     document.getElementById('btn-freeplay').classList.toggle('active',m==='free');
     document.getElementById('btn-repeat').classList.toggle('active',m==='repeat');
-    document.getElementById('mode-label').textContent=m==='free'?'Free Play 🎶':'Copy Me! 🎵';
     document.getElementById('seq-dots').innerHTML='';
     if(m==='free'){
       document.getElementById('prompt-text').textContent='Tap any instrument!';
-      score=0; updateScore();
+      score=0; updateScore(); tierIdx=0; buildGrid(); updateTierBadge();
     } else {
+      tierIdx=0; roundsInTier=0; score=0; updateScore();
+      buildGrid(); updateTierBadge();
       startRepeatMode();
     }
   }
 
-  // Free play tap
-  document.querySelectorAll('.instrument').forEach(btn=>{
-    btn.addEventListener('pointerdown',e=>{
-      const id=parseInt(btn.id.split('-')[1]);
-      playInstrumentSound(id);
-      flashInstrument(id);
-    });
-  });
+  function updateTierBadge(){ document.getElementById('tier-badge').textContent=TIERS[tierIdx].label; }
 
-  // ---- REPEAT MODE ----
-  let sequence=[], playerInput=[], score=0, seqLen=2, seqRound=0;
-  const MAX_SEQ=6;
+  /* ── Repeat mode ── */
+  let sequence=[], playerInput=[], score=0, seqLen=2;
   let isPlaying=false;
 
   function updateScore(){ document.getElementById('score-row').innerHTML=Array.from({length:score},()=>'⭐').join(''); }
 
   function startRepeatMode(){
-    score=0; seqLen=2; updateScore();
+    seqLen=TIERS[tierIdx].minSeq;
     nextSequence();
   }
 
   function nextSequence(){
     document.getElementById('celebrate-overlay').classList.remove('show');
-    seqRound++;
-    if(seqRound>1) seqLen=Math.min(seqLen+1, MAX_SEQ);
+    roundsInTier++;
+    // Advance tier
+    if(roundsInTier>TIERS[tierIdx].rounds && tierIdx<TIERS.length-1){
+      tierIdx++; roundsInTier=1;
+      buildGrid(); updateTierBadge();
+      seqLen=TIERS[tierIdx].minSeq;
+    } else {
+      // grow sequence within tier
+      seqLen=Math.min(seqLen+1, TIERS[tierIdx].maxSeq);
+    }
     sequence=[];
-    for(let i=0;i<seqLen;i++) sequence.push(Math.floor(Math.random()*4));
+    for(let i=0;i<seqLen;i++) sequence.push(activeInstrIds[Math.floor(Math.random()*activeInstrIds.length)]);
     playerInput=[];
     updateDots();
     setTimeout(()=>playSequence(), 600);
@@ -216,18 +275,20 @@
     dots.innerHTML='';
     sequence.forEach((_,i)=>{
       const d=document.createElement('div');
-      d.className='seq-dot'+(i<playerInput.length?' lit':'');
+      d.className='seq-dot'+(i<playerInput.length?' done':'');
       dots.appendChild(d);
     });
+  }
+
+  function lockBtns(lock){
+    document.querySelectorAll('.instrument').forEach(b=>b.style.pointerEvents=lock?'none':'');
   }
 
   function playSequence(){
     if(isPlaying) return;
     isPlaying=true;
     document.getElementById('prompt-text').textContent='Watch carefully... 👀';
-    // Lock buttons during playback
-    document.querySelectorAll('.instrument').forEach(b=>b.style.pointerEvents='none');
-
+    lockBtns(true);
     sequence.forEach((instrId,i)=>{
       setTimeout(()=>{
         playInstrumentSound(instrId);
@@ -235,49 +296,39 @@
         if(i===sequence.length-1){
           setTimeout(()=>{
             isPlaying=false;
-            document.querySelectorAll('.instrument').forEach(b=>b.style.pointerEvents='');
+            lockBtns(false);
             document.getElementById('prompt-text').textContent='Now you try! 🎵';
-            enablePlayerInput();
           },700);
         }
-      }, i*700);
+      }, i*750);
     });
   }
 
-  function enablePlayerInput(){
-    document.querySelectorAll('.instrument').forEach(btn=>{
-      btn.addEventListener('pointerdown', onPlayerTap, { once:false });
-    });
-  }
-
-  function onPlayerTap(e){
+  function onPlayerTap(id){
     if(isPlaying) return;
-    const btn=e.currentTarget;
-    const id=parseInt(btn.id.split('-')[1]);
-    playInstrumentSound(id);
-    flashInstrument(id);
     playerInput.push(id);
     updateDots();
-
     const idx=playerInput.length-1;
     if(playerInput[idx]!==sequence[idx]){
-      // Wrong — show correct briefly and restart sequence
-      playTone(200,'sawtooth',.25,.1);
+      playWrong();
       document.getElementById('prompt-text').textContent='Oops! Watch again... 👀';
-      document.querySelectorAll('.instrument').forEach(b=>b.removeEventListener('pointerdown',onPlayerTap));
       playerInput=[];
-      setTimeout(()=>playSequence(),900);
+      lockBtns(true);
+      setTimeout(()=>{ lockBtns(false); playSequence(); },900);
       return;
     }
+    // Correct tap — sparkle
+    const el=document.getElementById('instr-'+id);
+    if(el) sparkleBurst(el);
 
     if(playerInput.length===sequence.length){
-      // Correct!
-      document.querySelectorAll('.instrument').forEach(b=>b.removeEventListener('pointerdown',onPlayerTap));
+      lockBtns(true);
       score++; updateScore();
-      playCelebrate();
-      const msgs=['You copied it! 🎵','Perfect! 🌟','Amazing! 👑','Royal musician! 🎼'];
+      const isRoundWin = roundsInTier>=TIERS[tierIdx].rounds && tierIdx>=TIERS.length-1 || true;
+      if(seqLen>=TIERS[tierIdx].maxSeq) playRoundWin(); else playCelebrate();
+      const msgs=['You copied it! 🎵','Perfect! 🌟','Amazing! 👑','Royal musician! 🎼','Brilliant! 🎶'];
       document.getElementById('celebrate-text').textContent=msgs[Math.floor(Math.random()*msgs.length)];
-      document.getElementById('celebrate-icon').textContent=seqLen>=4?'🎼👑':'🎵✨';
+      document.getElementById('celebrate-icon').textContent=seqLen>=5?'🎼👑':'🎵✨';
       document.getElementById('celebrate-overlay').classList.add('show');
       confettiBurst();
     }
@@ -285,15 +336,19 @@
 
   function confettiBurst(){
     const cols=['#ffd700','#ff69b4','#00cfff','#7fff00','#ff6347'];
-    for(let i=0;i<25;i++){
+    for(let i=0;i<30;i++){
       const el=document.createElement('div'); el.className='confetti-piece';
       el.style.left=Math.random()*100+'vw';
       el.style.background=cols[Math.floor(Math.random()*cols.length)];
       el.style.animationDuration=(1.2+Math.random()*1.6)+'s';
       el.style.animationDelay=(Math.random()*.4)+'s';
-      document.body.appendChild(el); setTimeout(()=>el.remove(),2600);
+      document.body.appendChild(el); setTimeout(()=>el.remove(),2800);
     }
   }
+
+  /* ── Init ── */
+  buildGrid();
+  updateTierBadge();
 </script>
 </body>
 </html>

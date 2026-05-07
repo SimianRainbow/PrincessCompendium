@@ -116,7 +116,7 @@
     "ageMax": 5,
     "skill": "music & memory sequences",
     "category": "music",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "path": "games/010-royal-orchestra/index.html"
   },
   {
@@ -262,5 +262,17 @@
     "version": "1.0.0",
     "category": "numbers",
     "path": "games/022-magic-adding/index.html"
+  },
+  {
+    "id": "023-spatial-princess",
+    "title": "Princess Hideaway",
+    "description": "Where is the gem? Tap in, on, under, next to or behind — learn spatial words!",
+    "icon": "🗺️",
+    "ageMin": 2,
+    "ageMax": 5,
+    "skill": "spatial concepts",
+    "version": "1.0.0",
+    "category": "other",
+    "path": "games/023-spatial-princess/index.html"
   }
 ]
