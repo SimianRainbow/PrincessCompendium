@@ -1,9 +1,9 @@
 # Princess Compendium — Status
 
 ## Last update run
-Date: 2026-05-07
-- Improved: `010-royal-orchestra` → v1.1.0 (expanded from 4 to 6 instruments adding Flute 🪈 + Piano 🎹; 3 difficulty tiers Easy/Medium/Hard with 3/4/6 instruments and growing sequence lengths 2-3/3-5/4-7; tier badge UI; sparkle burst on each correct tap; dots turn green as you progress; round-win ascending melody; confetti on sequence completion)
-- Added: `023-spatial-princess` (spatial concepts — visual scene shows a treasure in/on/under/next to/behind a container; child taps the correct word; 3 tiers Easy=in/on/under, Medium adds next to, Hard adds behind; sparkles + confetti)
+Date: 2026-05-10
+- Improved: `005-princess-says` → v1.1.0 (3 difficulty tiers Easy/Medium/Hard; expanded item pool from 8 colours to 24 items across colours + animals + foods; tier badge; Easy=4 colour choices 2×2, Medium=4 choices from colours+animals, Hard=6 choices from all pools in 2×3 grid; sparkle burst on correct answer; locked state prevents double-taps; 9 rounds total)
+- Added: `024-rhyme-time` (rhyming/phonics — princess shows a word+emoji, child taps the rhyming word from 3–4 choices; 3 tiers Easy/Medium/Hard with 9 curated rhyme pairs; rhyme pair displayed in celebration overlay; sparkles + confetti + ascending melody)
 
 ## Improvement history
 
@@ -16,22 +16,21 @@ Date: 2026-05-07
 | 2026-05-01 | 001-colour-match | 3 tiers, 12 colours (incl. orange/teal/brown/white/grey/navy), sparkles, dynamic grid | 1.1.0 |
 | 2026-05-04 | 004-shape-castle | +3 shapes (Oval/Rectangle/Pentagon), 3 tiers, 9 rounds, sparkle bursts | 1.1.0 |
 | 2026-05-07 | 010-royal-orchestra | +2 instruments (Flute/Piano), 3 tiers, sparkle bursts, tier badge, round-win melody | 1.1.0 |
+| 2026-05-10 | 005-princess-says | 3 tiers, 24-item pool (colours+animals+foods), 2×3 Hard grid, sparkle bursts | 1.1.0 |
 
 ## Games due for improvement (all at v1.0.0)
 
 Priority candidates — pick whichever has the clearest improvement path:
 
-- **005-princess-says** — could add longer instruction sequences, more variety
 - **008-more-or-less** — could add a "how many more?" question type for higher rounds
-- **010-royal-orchestra** — could add more instruments, harder sequences
 - **012-pattern-princess** — could add ABBC / AABC patterns, more item variety
 
 ## Skills not yet covered
 
 See `CLAUDE.md` for the full prioritised list. Top 3 to build next:
-1. Rhyming / phonics (which two words rhyme?)
-2. Sorting by category (foods vs. animals vs. vehicles)
-3. Seasons / weather (match the weather to the scene)
+1. Sorting by category (foods vs. animals vs. vehicles)
+2. Seasons / weather (match the weather to the scene)
+3. Sight words (tap the word that matches the picture, ages 4-5)
 
 ## Next game ID
-`024-<slug>`
+`025-<slug>`

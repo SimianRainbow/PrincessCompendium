@@ -55,7 +55,7 @@
     "ageMin": 2,
     "ageMax": 4,
     "skill": "listening & following instructions",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "category": "listen",
     "path": "games/005-princess-says/index.html"
   },
@@ -274,5 +274,17 @@
     "version": "1.0.0",
     "category": "other",
     "path": "games/023-spatial-princess/index.html"
+  },
+  {
+    "id": "024-rhyme-time",
+    "title": "Rhyme Time",
+    "description": "Tap the word that rhymes with the princess word — CAT rhymes with HAT!",
+    "icon": "🎵",
+    "ageMin": 3,
+    "ageMax": 5,
+    "skill": "rhyming / phonics",
+    "version": "1.0.0",
+    "category": "letters",
+    "path": "games/024-rhyme-time/index.html"
   }
 ]
