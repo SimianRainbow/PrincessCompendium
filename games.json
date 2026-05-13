@@ -134,12 +134,12 @@
   {
     "id": "012-pattern-princess",
     "title": "Pattern Princess",
-    "description": "Complete the princess pattern — ABAB, AABB and ABB sequences",
+    "description": "Complete the princess pattern — ABAB, AAB, ABB and ABC sequences",
     "icon": "🌸",
     "ageMin": 3,
     "ageMax": 5,
     "skill": "pattern recognition",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "category": "colours-shapes",
     "path": "games/012-pattern-princess/index.html"
   },
@@ -286,5 +286,17 @@
     "version": "1.0.0",
     "category": "letters",
     "path": "games/024-rhyme-time/index.html"
+  },
+  {
+    "id": "025-princess-sort",
+    "title": "Princess Sort",
+    "description": "Sort princess things into the right basket — animals, sweets and flowers!",
+    "icon": "🧺",
+    "ageMin": 2,
+    "ageMax": 5,
+    "skill": "sorting by category",
+    "version": "1.0.0",
+    "category": "other",
+    "path": "games/025-princess-sort/index.html"
   }
 ]

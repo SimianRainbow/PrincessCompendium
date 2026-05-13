@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Princess Sort 🧺</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+    body {
+      background: linear-gradient(155deg, #1a237e 0%, #4a148c 50%, #ad1457 100%);
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      align-items: center;
+      font-family: Georgia, serif;
+      overflow: hidden; user-select: none;
+      padding-bottom: 16px;
+    }
+
+    #header {
+      width: 100%; display: flex;
+      justify-content: space-between; align-items: center;
+      padding: 14px 18px 0;
+      flex-shrink: 0;
+    }
+    #tier-badge {
+      font-size: clamp(13px, 3.5vw, 18px);
+      color: #fff;
+      background: rgba(255,255,255,0.2);
+      padding: 5px 14px; border-radius: 20px;
+      text-shadow: 0 1px 4px rgba(0,0,0,0.3);
+    }
+    #round-label {
+      font-size: clamp(13px, 3.2vw, 17px);
+      color: rgba(255,255,255,0.85);
+      text-shadow: 0 1px 4px rgba(0,0,0,0.3);
+    }
+    #score-row { font-size: clamp(18px, 4.5vw, 26px); }
+
+    #princess-area {
+      display: flex; flex-direction: column;
+      align-items: center; margin-top: 10px;
+      flex-shrink: 0;
+    }
+    #princess-emoji {
+      font-size: clamp(40px, 10vw, 60px);
+      animation: float 3s ease-in-out infinite;
+    }
+    @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-7px)} }
+    #prompt-text {
+      font-size: clamp(15px, 4vw, 22px);
+      color: #fff; text-align: center;
+      text-shadow: 0 2px 6px rgba(0,0,0,0.4);
+      padding: 4px 16px;
+    }
+
+    #item-area {
+      flex: 1;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      min-height: 140px;
+    }
+    #current-item {
+      font-size: clamp(78px, 21vw, 120px);
+      line-height: 1;
+      filter: drop-shadow(0 6px 18px rgba(0,0,0,0.35));
+      transition: transform 0.3s ease-in, opacity 0.3s ease-in;
+    }
+    #current-item.pop-in {
+      animation: popIn 0.4s cubic-bezier(0.34,1.56,0.64,1) both;
+    }
+    @keyframes popIn {
+      from { transform: scale(0) rotate(-15deg); opacity: 0; }
+      to   { transform: scale(1) rotate(0deg); opacity: 1; }
+    }
+
+    #progress-row {
+      display: flex; gap: 9px;
+      margin-top: 14px;
+    }
+    .dot {
+      width: 13px; height: 13px; border-radius: 50%;
+      border: 2px solid rgba(255,255,255,0.45);
+      background: rgba(255,255,255,0.12);
+      transition: background 0.3s, border-color 0.3s;
+    }
+    .dot.done { background: #ffd700; border-color: #ffd700; }
+
+    #buckets {
+      display: flex; gap: clamp(8px, 2vw, 14px);
+      justify-content: center;
+      padding: 14px clamp(10px, 2.5vw, 18px) 0;
+      width: 100%; flex-shrink: 0;
+    }
+    .bucket {
+      flex: 1;
+      min-height: clamp(90px, 24vw, 130px);
+      border-radius: 22px;
+      border: 3px solid rgba(255,255,255,0.3);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 5px; cursor: pointer;
+      box-shadow: 0 4px 18px rgba(0,0,0,0.25), inset 0 2px 0 rgba(255,255,255,0.15);
+      transition: transform 0.1s;
+    }
+    .bucket:active { transform: scale(0.93); }
+    .bucket-icon  { font-size: clamp(28px, 7.5vw, 44px); pointer-events: none; }
+    .bucket-label {
+      font-size: clamp(11px, 2.8vw, 15px);
+      color: #fff; font-weight: bold;
+      text-shadow: 0 1px 4px rgba(0,0,0,0.4);
+      pointer-events: none;
+    }
+    .bucket.correct-flash { animation: bucketCorrect 0.5s ease-out; }
+    .bucket.wrong-flash   { animation: wrongWobble 0.4s ease-out; }
+    @keyframes bucketCorrect {
+      0%   { transform: scale(1); }
+      35%  { transform: scale(1.1); box-shadow: 0 0 30px rgba(255,215,0,0.7); }
+      100% { transform: scale(1); }
+    }
+    @keyframes wrongWobble {
+      0%,100% { transform: translateX(0); }
+      25%     { transform: translateX(-9px); }
+      75%     { transform: translateX(9px); }
+    }
+
+    .sparkle {
+      position: fixed; font-size: clamp(12px, 3.5vw, 20px);
+      pointer-events: none; z-index: 50;
+      animation: sparkleFly ease-out forwards;
+    }
+    @keyframes sparkleFly {
+      0%   { transform: translate(0,0) scale(1.2); opacity: 1; }
+      100% { transform: translate(var(--tx), var(--ty)) scale(0.1); opacity: 0; }
+    }
+
+    #celebrate-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.55);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 18px;
+      z-index: 99; opacity: 0; pointer-events: none; transition: opacity 0.35s;
+    }
+    #celebrate-overlay.show { opacity: 1; pointer-events: all; }
+    #celebrate-emoji { font-size: clamp(64px,18vw,110px); }
+    #celebrate-text {
+      font-size: clamp(26px, 7vw, 50px);
+      color: #fff; text-shadow: 0 0 20px #ffd700;
+      text-align: center; padding: 0 16px;
+    }
+    #next-btn {
+      padding: clamp(14px,4vw,20px) clamp(32px,8vw,56px);
+      font-size: clamp(20px,5vw,28px);
+      border-radius: 50px; border: none;
+      background: linear-gradient(135deg,#ffd700,#ff9800);
+      color: #5d2e00; font-weight: bold; cursor: pointer;
+      font-family: inherit;
+      box-shadow: 0 4px 16px rgba(255,180,0,0.5);
+    }
+    .confetti-piece {
+      position: fixed; border-radius: 50%;
+      animation: confettiFall linear forwards;
+      pointer-events: none; z-index: 100;
+    }
+    @keyframes confettiFall { 0%{top:-20px;opacity:1} 100%{top:110vh;opacity:.2} }
+  </style>
+</head>
+<body>
+
+  <div id="header">
+    <div id="tier-badge">🌸 Easy</div>
+    <div id="round-label">Round 1 / 9</div>
+    <div id="score-row"></div>
+  </div>
+
+  <div id="princess-area">
+    <div id="princess-emoji">👸</div>
+    <div id="prompt-text">Where does this go? 🧺</div>
+  </div>
+
+  <div id="item-area">
+    <div id="current-item"></div>
+    <div id="progress-row"></div>
+  </div>
+
+  <div id="buckets"></div>
+
+  <div id="celebrate-overlay">
+    <div id="celebrate-emoji">🌟</div>
+    <div id="celebrate-text">All sorted!</div>
+    <button id="next-btn" onclick="nextRound()">Next ➡️</button>
+  </div>
+
+<script>
+  let audioCtx = null;
+  function getAudio() { if (!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)(); return audioCtx; }
+  function tone(f, t, d, v) {
+    try {
+      const ctx=getAudio(), o=ctx.createOscillator(), g=ctx.createGain();
+      o.connect(g); g.connect(ctx.destination);
+      o.type=t||'sine'; o.frequency.value=f;
+      g.gain.setValueAtTime(v||0.15, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime+d);
+      o.start(); o.stop(ctx.currentTime+d);
+    } catch(e) {}
+  }
+  function playCorrect()  { [523,659,784].forEach((f,i)=>setTimeout(()=>tone(f,'sine',0.15),i*90)); }
+  function playWrong()    { tone(220,'sawtooth',0.18,0.1); }
+  function playCelebrate(){ [523,659,784,880,1047,1175].forEach((f,i)=>setTimeout(()=>tone(f,'sine',0.2,0.17),i*70)); }
+
+  const TIER_CONFIG = [
+    { label:'🌸 Easy',   cats:['animals','sweets'],             perRound: 4 },
+    { label:'🌟 Medium', cats:['animals','sweets','flowers'],   perRound: 5 },
+    { label:'👑 Hard',   cats:['animals','sweets','flowers'],   perRound: 6 },
+  ];
+
+  const ITEM_POOLS = {
+    animals: ['🦄','🐱','🐶','🦁','🦋','🐰','🐼','🦊','🐸','🐨','🐧','🐬','🦩','🐝','🐻'],
+    sweets:  ['🍭','🍰','🎂','🍦','🍩','🍪','🍫','🧁','🍬','🍓','🍡','🍮','🥧','🧇','🍮'],
+    flowers: ['🌸','🌺','🌻','🌹','🌷','💐','🌼','🌿','🍀','🪷','🌵','🌴','🍁','🌾','🪻'],
+  };
+
+  const BUCKET_CFG = {
+    animals: { icon:'🐾', label:'Animals', bg:'rgba(76,175,80,0.28)',   border:'rgba(100,220,100,0.5)' },
+    sweets:  { icon:'🍭', label:'Sweets',  bg:'rgba(233,30,99,0.28)',   border:'rgba(255,100,150,0.5)' },
+    flowers: { icon:'🌸', label:'Flowers', bg:'rgba(156,39,176,0.28)', border:'rgba(200,100,240,0.5)' },
+  };
+
+  let score = 0, round = 0;
+  const TOTAL_ROUNDS = 9;
+  let roundItems = [];
+  let itemIndex = 0;
+  let locked = false;
+  const usedItems = { animals: new Set(), sweets: new Set(), flowers: new Set() };
+
+  function updateScore() {
+    document.getElementById('score-row').innerHTML =
+      Array.from({length: score}, () => '⭐').join('');
+  }
+
+  function shuffle(arr) {
+    const a = [...arr];
+    for (let i = a.length-1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i+1));
+      [a[i],a[j]] = [a[j],a[i]];
+    }
+    return a;
+  }
+
+  function pickItem(cat) {
+    const pool = ITEM_POOLS[cat];
+    const unused = pool.filter(e => !usedItems[cat].has(e));
+    const source = unused.length > 0 ? unused : pool;
+    const choice = source[Math.floor(Math.random() * source.length)];
+    usedItems[cat].add(choice);
+    return choice;
+  }
+
+  function buildRoundItems(cats, count) {
+    const perCat = Math.ceil(count / cats.length);
+    const all = [];
+    cats.forEach(cat => {
+      for (let i = 0; i < perCat; i++) all.push({ emoji: pickItem(cat), cat });
+    });
+    return shuffle(all).slice(0, count);
+  }
+
+  function getTierDef(r) {
+    if (r <= 3) return TIER_CONFIG[0];
+    if (r <= 6) return TIER_CONFIG[1];
+    return TIER_CONFIG[2];
+  }
+
+  function renderBuckets(cats) {
+    const el = document.getElementById('buckets');
+    el.innerHTML = '';
+    cats.forEach(cat => {
+      const cfg = BUCKET_CFG[cat];
+      const btn = document.createElement('div');
+      btn.className = 'bucket';
+      btn.dataset.cat = cat;
+      btn.style.background = cfg.bg;
+      btn.style.borderColor = cfg.border;
+      btn.innerHTML = `<span class="bucket-icon">${cfg.icon}</span><span class="bucket-label">${cfg.label}</span>`;
+      btn.addEventListener('pointerdown', () => handleSort(cat, btn));
+      el.appendChild(btn);
+    });
+  }
+
+  function renderProgress() {
+    const row = document.getElementById('progress-row');
+    row.innerHTML = '';
+    roundItems.forEach((_, i) => {
+      const d = document.createElement('div');
+      d.className = 'dot' + (i < itemIndex ? ' done' : '');
+      row.appendChild(d);
+    });
+  }
+
+  function showItem() {
+    const el = document.getElementById('current-item');
+    el.textContent = roundItems[itemIndex].emoji;
+    el.classList.remove('pop-in');
+    void el.offsetWidth;
+    el.classList.add('pop-in');
+    renderProgress();
+  }
+
+  function handleSort(chosenCat, bucketEl) {
+    if (locked) return;
+    const correctCat = roundItems[itemIndex].cat;
+
+    if (chosenCat === correctCat) {
+      locked = true;
+      bucketEl.classList.add('correct-flash');
+      playCorrect();
+
+      const rect = bucketEl.getBoundingClientRect();
+      sparkleBurst(rect.left + rect.width/2, rect.top + rect.height/2);
+
+      const itemEl = document.getElementById('current-item');
+      const itemRect = itemEl.getBoundingClientRect();
+      const dx = (rect.left + rect.width/2) - (itemRect.left + itemRect.width/2);
+      const dy = (rect.top + rect.height/2) - (itemRect.top + itemRect.height/2);
+      itemEl.style.transition = 'transform 0.3s ease-in, opacity 0.3s ease-in';
+      itemEl.style.transform  = `translate(${dx}px,${dy}px) scale(0.25)`;
+      itemEl.style.opacity    = '0';
+
+      setTimeout(() => {
+        bucketEl.classList.remove('correct-flash');
+        itemEl.style.transition = '';
+        itemEl.style.transform  = '';
+        itemEl.style.opacity    = '';
+        itemIndex++;
+        renderProgress();
+        if (itemIndex >= roundItems.length) {
+          setTimeout(showRoundCelebration, 150);
+        } else {
+          locked = false;
+          showItem();
+        }
+      }, 380);
+
+    } else {
+      bucketEl.classList.add('wrong-flash');
+      playWrong();
+      document.getElementById('current-item').animate([
+        { transform:'translateX(-11px)' },
+        { transform:'translateX(11px)' },
+        { transform:'translateX(-7px)' },
+        { transform:'translateX(0)' },
+      ], { duration:360 });
+      setTimeout(() => bucketEl.classList.remove('wrong-flash'), 400);
+    }
+  }
+
+  function showRoundCelebration() {
+    const celebs = [
+      { text:'All sorted! 🌟',       emoji:'👑' },
+      { text:'Princess sorting! ✨',  emoji:'🌸' },
+      { text:'Amazing work! 💖',      emoji:'💎' },
+      { text:'You did it! 🦄',        emoji:'⭐' },
+      { text:'Perfect sorting! 🎀',   emoji:'🎀' },
+    ];
+    const c = celebs[Math.floor(Math.random() * celebs.length)];
+    document.getElementById('celebrate-emoji').textContent = c.emoji;
+    document.getElementById('celebrate-text').textContent  = c.text;
+    const btn = document.getElementById('next-btn');
+    if (round >= TOTAL_ROUNDS) {
+      btn.textContent = 'Play Again 🔄';
+      btn.onclick = restartGame;
+    } else {
+      btn.textContent = 'Next ➡️';
+      btn.onclick = nextRound;
+    }
+    document.getElementById('celebrate-overlay').classList.add('show');
+    playCelebrate(); confettiBurst();
+  }
+
+  function nextRound() {
+    document.getElementById('celebrate-overlay').classList.remove('show');
+    round++;
+    score++;
+    updateScore();
+    locked = false;
+    itemIndex = 0;
+
+    const tierDef = getTierDef(round);
+    document.getElementById('tier-badge').textContent  = tierDef.label;
+    document.getElementById('round-label').textContent = `Round ${round} / ${TOTAL_ROUNDS}`;
+
+    roundItems = buildRoundItems(tierDef.cats, tierDef.perRound);
+    renderBuckets(tierDef.cats);
+    showItem();
+  }
+
+  function restartGame() {
+    score = 0; round = 0;
+    Object.keys(usedItems).forEach(k => usedItems[k].clear());
+    updateScore();
+    document.getElementById('celebrate-overlay').classList.remove('show');
+    nextRound();
+  }
+
+  function sparkleBurst(cx, cy) {
+    const icons = ['✨','🌸','⭐','💫','💖'];
+    for (let i = 0; i < 12; i++) {
+      const el = document.createElement('div');
+      el.className = 'sparkle';
+      el.textContent = icons[Math.floor(Math.random() * icons.length)];
+      const angle = (i / 12) * Math.PI * 2;
+      const dist  = 55 + Math.random() * 75;
+      el.style.setProperty('--tx', Math.cos(angle) * dist + 'px');
+      el.style.setProperty('--ty', Math.sin(angle) * dist - 20 + 'px');
+      el.style.left = (cx - 10) + 'px';
+      el.style.top  = (cy - 10) + 'px';
+      el.style.animationDuration = (0.45 + Math.random() * 0.45) + 's';
+      el.style.animationDelay    = (Math.random() * 0.08) + 's';
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 1000);
+    }
+  }
+
+  function confettiBurst() {
+    const cols = ['#ffd700','#ff69b4','#ff99cc','#c0a0ff','#7fff00','#00cfff','#ffffff'];
+    for (let i = 0; i < 34; i++) {
+      const el = document.createElement('div');
+      el.className = 'confetti-piece';
+      const sz = 8 + Math.random() * 8;
+      el.style.width  = sz + 'px'; el.style.height = sz + 'px';
+      el.style.left   = Math.random() * 100 + 'vw';
+      el.style.background = cols[Math.floor(Math.random() * cols.length)];
+      el.style.animationDuration = (1.2 + Math.random() * 1.6) + 's';
+      el.style.animationDelay    = (Math.random() * 0.4) + 's';
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 2800);
+    }
+  }
+
+  nextRound();
+</script>
+</body>
+</html>
