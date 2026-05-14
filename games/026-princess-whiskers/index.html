@@ -1,0 +1,4018 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Princess Whiskers · Forest 🐱</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+    body { background:#0c2a18; overflow:hidden; touch-action:none;
+           font-family:'Courier New', monospace; color:#fff; user-select:none; }
+    canvas {
+      display:block;
+      image-rendering: pixelated;
+      image-rendering: -moz-crisp-edges;
+      image-rendering: crisp-edges;
+      width:100vw; height:100vh;
+    }
+
+    .screen {
+      position:fixed; inset:0; display:flex; flex-direction:column;
+      align-items:center; justify-content:center; gap:clamp(12px,3vw,22px);
+      z-index:20;
+    }
+    .screen.hidden { display:none; }
+
+    #start-screen {
+      background:
+        radial-gradient(ellipse at center top, #c5e1a5 0%, #689f38 30%, #2e7d32 60%, #1b3d12 100%);
+    }
+    #start-screen::before {
+      content:""; position:absolute; inset:0;
+      background-image:
+        radial-gradient(circle at 20% 30%, rgba(255,255,255,.3) 0, transparent 4px),
+        radial-gradient(circle at 70% 60%, rgba(255,255,255,.2) 0, transparent 3px),
+        radial-gradient(circle at 40% 80%, rgba(255,255,255,.25) 0, transparent 3px);
+      pointer-events:none;
+    }
+    #start-art {
+      width:clamp(200px, 60vw, 300px);
+      height:clamp(200px, 60vw, 300px);
+      image-rendering: pixelated;
+      filter:drop-shadow(0 8px 16px rgba(0,0,0,.5));
+      animation:bob 2.6s ease-in-out infinite;
+      z-index:1;
+    }
+    @keyframes bob { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
+    #start-tag {
+      font-size:clamp(12px,3vw,18px); color:#fff8e1;
+      background:rgba(0,0,0,.45); padding:6px 16px; border-radius:4px;
+      letter-spacing:3px; text-transform:uppercase;
+      border:2px solid #fff8e1;
+      box-shadow:0 0 0 2px #000, 4px 4px 0 #000;
+      z-index:1;
+    }
+    #start-title {
+      font-size:clamp(28px,8vw,58px); color:#fff;
+      text-shadow:3px 3px 0 #ad1457, 6px 6px 0 #000;
+      text-align:center; padding:0 16px;
+      letter-spacing:2px; font-weight:bold; z-index:1;
+    }
+    #start-sub {
+      font-size:clamp(13px,3.4vw,20px); color:#fff8e1;
+      text-align:center; padding:0 22px; max-width:92vw;
+      text-shadow:2px 2px 0 #000; line-height:1.5; z-index:1;
+    }
+    #start-btn, #play-again-btn {
+      padding:clamp(12px,4vw,18px) clamp(30px,9vw,56px);
+      font-size:clamp(20px,5.5vw,32px);
+      background:#ad1457; color:#fff;
+      font-weight:bold; cursor:pointer; font-family:inherit;
+      border:none;
+      box-shadow:
+        0 0 0 4px #000,
+        6px 6px 0 #000,
+        inset 3px 3px 0 #f06292,
+        inset -3px -3px 0 #6a0033;
+      letter-spacing:2px; text-transform:uppercase;
+      transition:transform .12s ease;
+      z-index:1;
+    }
+    #start-btn:active, #play-again-btn:active {
+      transform:translate(3px,3px);
+      box-shadow:0 0 0 4px #000, 3px 3px 0 #000, inset 3px 3px 0 #f06292, inset -3px -3px 0 #6a0033;
+    }
+    @keyframes btnPulse {
+      0%,100%{transform:translateY(0)}
+      50%{transform:translateY(-4px)}
+    }
+    #start-btn { animation:btnPulse 1.4s ease-in-out infinite; }
+
+    /* HUD — friend roster */
+    #hud {
+      position:fixed; top:0; left:0; right:0; z-index:10;
+      display:flex; justify-content:center; align-items:center;
+      padding:clamp(6px,1.5vw,12px);
+      pointer-events:none; gap:clamp(4px,1.4vw,8px);
+      flex-wrap:nowrap;
+    }
+    .friend-slot {
+      font-size:clamp(20px,5.5vw,32px);
+      filter:grayscale(1) brightness(.45);
+      transition:filter .3s ease, transform .4s ease, background .3s ease, border-color .3s ease;
+      background:#1b3d12;
+      width:clamp(42px,10vw,58px);
+      height:clamp(42px,10vw,58px);
+      display:flex; align-items:center; justify-content:center;
+      border:3px solid #000;
+      box-shadow:3px 3px 0 #000, inset 2px 2px 0 rgba(255,255,255,.2);
+      image-rendering: pixelated;
+    }
+    .friend-slot.near {
+      filter:grayscale(.4) brightness(.85);
+      background:#558b2f;
+      animation:nearPulse 1.1s ease-in-out infinite;
+    }
+    @keyframes nearPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.15)} }
+    .friend-slot.got {
+      filter:none;
+      background:#fbc02d;
+      border-color:#fff;
+      animation:pop .75s ease;
+    }
+    @keyframes pop { 0%{transform:scale(1)} 30%{transform:scale(1.7)} 60%{transform:scale(.92)} 100%{transform:scale(1)} }
+
+    #berry-counter, #acorn-counter {
+      position:fixed; z-index:10;
+      font-size:clamp(15px,4vw,22px); color:#fff;
+      pointer-events:none;
+      background:#1b3d12;
+      padding:4px 10px;
+      border:3px solid #000;
+      box-shadow:3px 3px 0 #000;
+      font-family:'Courier New', monospace;
+      letter-spacing:1px;
+    }
+    #berry-counter { top:clamp(64px,15vw,86px); right:clamp(6px,1.5vw,12px); }
+    #acorn-counter { top:clamp(64px,15vw,86px); left:clamp(6px,1.5vw,12px); }
+
+    #hint {
+      position:fixed; bottom:clamp(82px,18vw,108px); left:0; right:0;
+      text-align:center; color:#fff;
+      font-size:clamp(13px,3.6vw,20px); z-index:10; pointer-events:none;
+      text-shadow:2px 2px 0 #000;
+      animation:hintFade 10s ease-in-out 6s forwards;
+    }
+    @keyframes hintFade { to{opacity:0} }
+
+    #find-flash, #pearl-flash, #voice-flash {
+      position:fixed; inset:0; pointer-events:none; z-index:8;
+      opacity:0; transition:opacity .35s ease;
+    }
+    #find-flash  { background:rgba(255,220,120,.55); }
+    #pearl-flash { background:rgba(255,255,255,.35); transition:opacity .2s ease; }
+    #voice-flash { background:rgba(186,104,200,.4); transition:opacity .25s ease; }
+    .show#find-flash, #find-flash.show,
+    #pearl-flash.show, #voice-flash.show { opacity:1; }
+
+    #friend-banner, #voice-banner {
+      position:fixed; left:50%; transform:translate(-50%,-50%) scale(.6);
+      font-size:clamp(22px,5.8vw,42px); color:#fff;
+      text-shadow:3px 3px 0 #000, 6px 6px 0 rgba(0,0,0,.4);
+      pointer-events:none; z-index:12; opacity:0;
+      font-weight:bold; text-align:center; padding:12px 22px;
+      border:4px solid #000; letter-spacing:2px;
+      transition:opacity .25s ease, transform .45s cubic-bezier(.2,1.4,.4,1);
+    }
+    #friend-banner { top:38%; background:#ec407a; box-shadow:8px 8px 0 #000; }
+    #voice-banner { top:30%; background:#7e57c2; box-shadow:8px 8px 0 #000;
+                    font-size:clamp(20px,5vw,36px); }
+    #friend-banner.show, #voice-banner.show { opacity:1; transform:translate(-50%,-50%) scale(1); }
+
+    #win-screen {
+      background:
+        linear-gradient(180deg, #fff176 0%, #f06292 30%, #7e57c2 65%, #1a0033 100%);
+    }
+    #win-title {
+      font-size:clamp(24px,6.5vw,48px); color:#fff;
+      text-shadow:3px 3px 0 #6a1b9a, 6px 6px 0 #000;
+      text-align:center; padding:0 16px;
+      letter-spacing:2px;
+    }
+    #win-friends { font-size:clamp(36px,10vw,64px); letter-spacing:5px;
+                   animation:wiggle 1.6s ease-in-out infinite; text-align:center; }
+    @keyframes wiggle { 0%,100%{transform:rotate(-4deg)} 50%{transform:rotate(4deg)} }
+    #win-sub { color:#fff; font-size:clamp(14px,4vw,22px);
+               text-shadow:2px 2px 0 #000; text-align:center; padding:0 16px; }
+
+    .confetti-piece {
+      position:fixed; pointer-events:none; z-index:25;
+      animation:confettiFall linear forwards;
+      image-rendering: pixelated;
+    }
+    @keyframes confettiFall { 0%{top:-20px;opacity:1} 100%{top:110vh;opacity:0} }
+
+    #back-btn, #mute-btn {
+      position:fixed; top:10px; z-index:25;
+      background:#1b3d12; color:#fff; border:3px solid #000;
+      width:44px; height:44px; font-size:20px; cursor:pointer;
+      box-shadow:3px 3px 0 #000;
+      font-family:inherit; font-weight:bold;
+    }
+    #back-btn { left:10px; }
+    #mute-btn { right:10px; }
+    #mute-btn.muted { background:#6d4c41; color:#999; }
+
+    /* Mic button — bottom center */
+    #mic-btn {
+      position:fixed; bottom:clamp(14px,3vw,24px); left:50%;
+      transform:translateX(-50%); z-index:25;
+      background:#7e57c2; color:#fff; border:4px solid #000;
+      width:clamp(70px,16vw,90px); height:clamp(70px,16vw,90px);
+      font-size:clamp(30px,8vw,40px); cursor:pointer;
+      box-shadow:4px 4px 0 #000, inset 3px 3px 0 #b39ddb, inset -3px -3px 0 #4527a0;
+      font-family:inherit; font-weight:bold;
+      border-radius:50%;
+      display:flex; align-items:center; justify-content:center;
+      transition:transform .12s ease, background .2s ease;
+    }
+    #mic-btn:active { transform:translateX(-50%) translateY(3px); }
+    #mic-btn.listening {
+      background:#e53935;
+      box-shadow:4px 4px 0 #000, inset 3px 3px 0 #ef9a9a, inset -3px -3px 0 #b71c1c,
+                 0 0 0 6px rgba(229,57,53,.4), 0 0 0 12px rgba(229,57,53,.15);
+      animation:micPulse 1s ease-in-out infinite;
+    }
+    @keyframes micPulse {
+      0%,100% { box-shadow:4px 4px 0 #000, inset 3px 3px 0 #ef9a9a, inset -3px -3px 0 #b71c1c,
+                          0 0 0 6px rgba(229,57,53,.4), 0 0 0 12px rgba(229,57,53,.15); }
+      50%     { box-shadow:4px 4px 0 #000, inset 3px 3px 0 #ef9a9a, inset -3px -3px 0 #b71c1c,
+                          0 0 0 12px rgba(229,57,53,.5), 0 0 0 24px rgba(229,57,53,.1); }
+    }
+    #mic-btn.disabled { background:#555; color:#888; cursor:not-allowed;
+                        box-shadow:4px 4px 0 #000; }
+
+    #mic-label {
+      position:fixed; bottom:clamp(96px,21vw,128px); left:50%;
+      transform:translateX(-50%); z-index:24;
+      font-size:clamp(11px,2.8vw,15px); color:#fff;
+      background:rgba(0,0,0,.55); padding:4px 10px;
+      border:2px solid #fff; letter-spacing:1px;
+      text-shadow:1px 1px 0 #000;
+      pointer-events:none; white-space:nowrap;
+      opacity:0; transition:opacity .25s ease;
+    }
+    #mic-label.show { opacity:1; }
+
+    #voice-hint {
+      position:fixed; top:clamp(120px,28vw,160px); left:50%;
+      transform:translateX(-50%); z-index:10;
+      font-size:clamp(11px,2.8vw,15px); color:#fff;
+      background:rgba(0,0,0,.55); padding:4px 10px;
+      border:2px solid #ce93d8; letter-spacing:1px;
+      text-shadow:1px 1px 0 #000;
+      pointer-events:none; max-width:90vw; text-align:center;
+      animation:hintFade 12s ease-in-out 8s forwards;
+    }
+
+    /* Heart meter (bond level) below each HUD slot */
+    .friend-slot { position:relative; }
+    .friend-slot .heart-row {
+      position:absolute; left:0; right:0; bottom:-10px;
+      display:flex; justify-content:center; gap:1px;
+      pointer-events:none;
+    }
+    .friend-slot .heart {
+      font-size:clamp(8px,2vw,11px);
+      filter:grayscale(1) opacity(.3);
+      line-height:1;
+    }
+    .friend-slot .heart.lit { filter:none; }
+
+    /* Wardrobe / Album / Companion buttons — top row beside back/mute */
+    .corner-btn {
+      position:fixed; z-index:25;
+      background:#1b3d12; color:#fff; border:3px solid #000;
+      width:44px; height:44px; font-size:20px; cursor:pointer;
+      box-shadow:3px 3px 0 #000;
+      font-family:inherit; font-weight:bold;
+      display:flex; align-items:center; justify-content:center;
+    }
+    #wardrobe-btn { top:60px; left:10px; }
+    #album-btn    { top:110px; left:10px; }
+    #companion-btn{ top:60px; right:10px; }
+
+    /* Pop-up panels */
+    .panel {
+      position:fixed; inset:8% 6%; z-index:30;
+      background:linear-gradient(180deg, #4a148c 0%, #1a0033 100%);
+      border:4px solid #000;
+      box-shadow:8px 8px 0 #000;
+      padding:14px;
+      overflow-y:auto;
+      display:none; flex-direction:column; gap:12px;
+      font-family:'Courier New', monospace; color:#fff;
+    }
+    .panel.show { display:flex; }
+    .panel h2 {
+      font-size:clamp(18px,4.5vw,28px); text-align:center;
+      color:#fff; letter-spacing:2px;
+      text-shadow:2px 2px 0 #000;
+    }
+    .panel .close-x {
+      position:absolute; top:6px; right:6px;
+      background:#ad1457; color:#fff; border:3px solid #000;
+      width:36px; height:36px; font-size:18px; cursor:pointer;
+      box-shadow:3px 3px 0 #000; font-family:inherit; font-weight:bold;
+    }
+    .grid {
+      display:grid; grid-template-columns:repeat(auto-fill, minmax(82px, 1fr));
+      gap:10px; padding:4px;
+    }
+    .card {
+      background:#fff8e1; color:#1a0033; border:3px solid #000;
+      box-shadow:3px 3px 0 #000;
+      padding:6px; text-align:center;
+      font-size:clamp(10px,2.6vw,14px);
+      cursor:pointer; user-select:none;
+      transition:transform .12s ease;
+      display:flex; flex-direction:column; gap:4px; align-items:center;
+    }
+    .card:active { transform:translate(2px,2px); }
+    .card.equipped { background:#fbc02d; border-color:#fff; box-shadow:3px 3px 0 #fff, 6px 6px 0 #000; }
+    .card.locked   { background:#3e2723; color:#888; cursor:not-allowed; }
+    .card .emoji   { font-size:clamp(22px,6vw,32px); line-height:1; }
+    .card .label   { font-weight:bold; }
+
+    /* Name input modal */
+    #name-modal {
+      position:fixed; inset:0; z-index:35;
+      background:rgba(0,0,0,.7);
+      display:none; align-items:center; justify-content:center;
+      padding:24px;
+    }
+    #name-modal.show { display:flex; }
+    #name-modal .inner {
+      background:#fff8e1; color:#1a0033;
+      border:4px solid #000; box-shadow:8px 8px 0 #000;
+      padding:20px; max-width:340px; width:100%;
+      display:flex; flex-direction:column; gap:14px; align-items:center;
+      font-family:'Courier New', monospace;
+    }
+    #name-modal h2 {
+      font-size:clamp(18px,5vw,26px); color:#ad1457; letter-spacing:2px;
+      text-align:center;
+    }
+    #name-modal p {
+      font-size:clamp(13px,3.4vw,16px); text-align:center;
+      color:#3e2723; line-height:1.4;
+    }
+    #name-input {
+      width:100%; padding:10px 14px; font-size:clamp(18px,5vw,24px);
+      border:3px solid #000; background:#fff;
+      font-family:inherit; text-align:center; letter-spacing:2px;
+      color:#1a0033;
+    }
+    #name-input:focus { outline:none; background:#fffde7; }
+    #name-ok {
+      padding:10px 24px; font-size:clamp(16px,4vw,22px);
+      background:#ad1457; color:#fff; border:none;
+      box-shadow:0 0 0 3px #000, 4px 4px 0 #000,
+                 inset 2px 2px 0 #f06292, inset -2px -2px 0 #6a0033;
+      font-family:inherit; font-weight:bold; letter-spacing:2px;
+      cursor:pointer;
+    }
+    #name-mic {
+      padding:8px 16px; font-size:clamp(14px,3.6vw,18px);
+      background:#7e57c2; color:#fff; border:3px solid #000;
+      box-shadow:3px 3px 0 #000; font-family:inherit;
+      cursor:pointer;
+    }
+    #name-mic.listening { background:#e53935; animation:micPulse 1s ease-in-out infinite; }
+
+    /* Bedtime overlay */
+    #bedtime-overlay {
+      position:fixed; inset:0; z-index:18;
+      background:radial-gradient(ellipse at center, rgba(40,30,90,0.4) 0%, rgba(10,5,30,0.85) 80%);
+      pointer-events:none; opacity:0; transition:opacity 1.2s ease;
+    }
+    #bedtime-overlay.show { opacity:1; pointer-events:auto; }
+    #bedtime-overlay .zzz {
+      position:absolute; color:#fff8e1; font-size:clamp(32px,8vw,52px);
+      font-weight:bold; text-shadow:2px 2px 0 #000;
+      animation:zzzFloat 4s ease-in-out infinite;
+    }
+    @keyframes zzzFloat {
+      0%   { transform:translate(0,0); opacity:0; }
+      20%  { opacity:1; }
+      100% { transform:translate(60px,-180px); opacity:0; }
+    }
+    #bedtime-overlay .tap-to-wake {
+      position:absolute; bottom:12%; left:50%; transform:translateX(-50%);
+      color:#fff; font-size:clamp(14px,3.6vw,18px);
+      background:rgba(0,0,0,.5); padding:6px 14px;
+      border:2px solid #fff; letter-spacing:2px;
+    }
+
+    /* Biome banner */
+    #biome-banner {
+      position:fixed; top:30%; left:50%; transform:translate(-50%,-50%);
+      z-index:14; color:#fff; font-size:clamp(20px,5vw,36px);
+      font-weight:bold; letter-spacing:3px; text-align:center;
+      background:#0d47a1; padding:12px 20px;
+      border:4px solid #000; box-shadow:8px 8px 0 #000;
+      text-shadow:2px 2px 0 #000;
+      opacity:0; pointer-events:none;
+      transition:opacity .25s ease;
+    }
+    #biome-banner.show { opacity:1; }
+
+    /* Tap ripple */
+    .tap-ring {
+      position:fixed; pointer-events:none; z-index:9;
+      border:3px solid #fff59d;
+      box-shadow:0 0 0 3px #000;
+      border-radius:0;
+      animation:tapFade .7s ease-out forwards;
+    }
+    @keyframes tapFade {
+      0% { opacity:1; transform:translate(-50%,-50%) scale(.2); }
+      100% { opacity:0; transform:translate(-50%,-50%) scale(1.6); }
+    }
+  </style>
+</head>
+<body>
+  <button id="back-btn" onclick="history.length>1?history.back():window.close()">←</button>
+  <button id="mute-btn" onclick="toggleMute()" style="display:none">♪</button>
+  <button id="wardrobe-btn" class="corner-btn" style="display:none" onclick="openPanel('wardrobe')">👗</button>
+  <button id="album-btn"    class="corner-btn" style="display:none" onclick="openPanel('album')">📔</button>
+  <button id="companion-btn" class="corner-btn" style="display:none" onclick="openPanel('companion')">🐭</button>
+
+  <div id="name-modal">
+    <div class="inner">
+      <h2>WHAT'S YOUR KITTY'S NAME?</h2>
+      <p>Tell us a magical name for your princess kitty!</p>
+      <input id="name-input" type="text" maxlength="14" placeholder="Whiskers" autocomplete="off">
+      <button id="name-mic" onclick="nameByVoice()">🎤 Say it!</button>
+      <button id="name-ok" onclick="confirmName()">▶ LET'S GO</button>
+    </div>
+  </div>
+
+  <div id="wardrobe-panel" class="panel">
+    <button class="close-x" onclick="closePanel('wardrobe')">✕</button>
+    <h2>👗 ROYAL WARDROBE</h2>
+    <div id="wardrobe-grid" class="grid"></div>
+    <div style="text-align:center; font-size:13px; color:#fff8e1; padding:0 8px;">
+      Find a friend to unlock their outfit piece!
+    </div>
+  </div>
+
+  <div id="album-panel" class="panel">
+    <button class="close-x" onclick="closePanel('album')">✕</button>
+    <h2>📔 FRIEND ALBUM</h2>
+    <div id="album-grid" class="grid"></div>
+    <div style="text-align:center; font-size:13px; color:#fff8e1; padding:0 8px;">
+      Tap a friend to hear them again!
+    </div>
+  </div>
+
+  <div id="companion-panel" class="panel">
+    <button class="close-x" onclick="closePanel('companion')">✕</button>
+    <h2>🐾 PICK YOUR COMPANION</h2>
+    <div id="companion-grid" class="grid"></div>
+  </div>
+
+  <div id="bedtime-overlay">
+    <div class="zzz" style="left:35%; top:55%;">Z</div>
+    <div class="zzz" style="left:45%; top:50%; animation-delay:1s;">Z</div>
+    <div class="zzz" style="left:55%; top:45%; animation-delay:2s;">Z</div>
+    <div class="tap-to-wake">Tap to wake up ✨</div>
+  </div>
+
+  <div id="biome-banner"></div>
+
+  <div id="start-screen" class="screen">
+    <div id="start-tag">Pixel Forest Edition</div>
+    <canvas id="start-art" width="80" height="80"></canvas>
+    <div id="start-title">PRINCESS WHISKERS</div>
+    <div id="start-sub">Tap to walk!<br>Find six royal friends + the Crystal Fairy!<br><b style="color:#ce93d8">🎤 Say "fox" — "bunny" — "sing" — "sleepy"</b><br><span style="color:#fff176">Wardrobe 👗 · Album 📔 · Pet 🐭 · Shake your phone!</span></div>
+    <button id="start-btn" onclick="startGame()">▶ EXPLORE</button>
+  </div>
+
+  <canvas id="game" style="display:none"></canvas>
+
+  <div id="hud" style="display:none">
+    <div class="friend-slot" id="slot-fox">🦊</div>
+    <div class="friend-slot" id="slot-bunny">🐰</div>
+    <div class="friend-slot" id="slot-owl">🦉</div>
+    <div class="friend-slot" id="slot-deer">🦌</div>
+    <div class="friend-slot" id="slot-squirrel">🐿️</div>
+    <div class="friend-slot" id="slot-bear">🐻</div>
+  </div>
+  <div id="berry-counter" style="display:none">🍓 0</div>
+  <div id="acorn-counter" style="display:none">🌰 0</div>
+
+  <div id="hint" style="display:none">Tap anywhere to walk there ✨</div>
+  <div id="voice-hint" style="display:none">🎤 Say a friend's name, "sing", "sleepy", or shake the phone!</div>
+
+  <div id="find-flash"></div>
+  <div id="pearl-flash"></div>
+  <div id="voice-flash"></div>
+  <div id="friend-banner"></div>
+  <div id="voice-banner"></div>
+
+  <button id="mic-btn" style="display:none" onclick="toggleListening()">🎤</button>
+  <div id="mic-label">Tap and say a name!</div>
+
+  <div id="win-screen" class="screen hidden">
+    <div id="win-title">YOU FOUND THE WHOLE FOREST!</div>
+    <div id="win-friends">🦊🐰🦉🦌🐿️🐻</div>
+    <div id="win-sub">Such a brave princess kitty!</div>
+    <button id="play-again-btn" onclick="restartGame()">▶ EXPLORE AGAIN</button>
+  </div>
+
+  <script>
+  // ═══════════════════════════════════════════════════════════════════════
+  //  PRINCESS WHISKERS — Pixel-art forest adventure with speech-to-text
+  // ═══════════════════════════════════════════════════════════════════════
+  //   • Top-down, tap-to-walk pixel cat
+  //   • 6 royal forest friends to find (fox, bunny, owl, deer, squirrel, bear)
+  //   • Magic berries + acorns to collect
+  //   • Speech recognition: say "fox!" to get a sparkle trail to the fox,
+  //     "meow" to make the cat purr, color names to bloom flowers, etc.
+  // ═══════════════════════════════════════════════════════════════════════
+
+  // Virtual viewport (portrait-ish)
+  const VW = 200;
+  const VH = 300;
+  // Map is much larger than mermaid version — camera follows
+  const MAP_W = 720;
+  const MAP_H = 920;
+
+  // Pixel palette
+  const P = {
+    '.': null, ' ': null,
+    // Skin / fur whites
+    's': '#fff5e6', 'S': '#ffe0b2', 'k': '#d7ccc8',
+    // Eyes / face
+    'e': '#1a1a1a', 'W': '#ffffff', 'M': '#c2185b', 'm': '#ec407a', 'z': '#ff8a80',
+    // Cat (calico) — orange + dark patches + cream
+    'C': '#ff8a65', 'c': '#ffab40', 'K': '#5d4037', 'q': '#fff8e1',
+    // Crown gold
+    'X': '#fbc02d', 'x': '#ffd54f', 'Y': '#fff59d',
+    // Pink dress/bow
+    'I': '#ad1457', 'i': '#ec407a', 'H': '#f48fb1', 'h': '#fce4ec',
+    // Grass
+    'g': '#4caf50', 'G': '#2e7d32', 'b': '#1b5e20', 'v': '#81c784', 'V': '#c5e1a5',
+    // Dirt path
+    't': '#a1887f', 'T': '#8d6e63', 'w': '#5d4037', 'd': '#d7ccc8',
+    // Tree bark
+    'B': '#6d4c41', '%': '#4e342e',
+    // Tree leaves (oak / pine)
+    'L': '#388e3c', 'l': '#66bb6a', 'j': '#1b5e20', 'J': '#a5d6a7',
+    // Willow yellow-green (uses @ for light to avoid q clash with cat cream)
+    'Q': '#9e9d24', '@': '#c0ca33',
+    // Pond water
+    '#': '#0d47a1', '~': '#1565c0', '=': '#1976d2', '-': '#42a5f5',
+    '*': '#90caf9', '+': '#bbdefb',
+    // Mushroom red cap / spots / stem
+    'R': '#c62828', 'F': '#fafafa', 'f': '#efebe9', 'u': '#bcaaa4',
+    // Flowers — vivid set
+    '1': '#ffffff', '0': '#000000',
+    '2': '#e53935', '3': '#ad1457', // red / dark pink
+    '4': '#fdd835', '5': '#fff176', // yellow
+    '6': '#f06292', '7': '#f8bbd0', // pink
+    '8': '#7e57c2', '9': '#ba68c8', // purple
+    'A': '#29b6f6', 'a': '#81d4fa', // blue
+    // Fox orange
+    'O': '#e65100', 'o': '#ff9800',
+    // Bunny / cream
+    'n': '#fafafa', 'N': '#e0e0e0',
+    // Owl brown
+    'U': '#6d4c41', 'u': '#a1887f',
+    // Deer tan
+    'D': '#a1887f', 'E': '#d7ccc8',
+    // Squirrel rust
+    'P': '#bf360c', 'p': '#ff7043',
+    // Bear dark brown
+    'Z': '#3e2723',
+    // Bird / butterfly accents
+    'y': '#ffeb3b',
+  };
+
+  // ═══════════════════════════════════════════════════════════════════════
+  //  CAT SPRITES (24×28) — Princess Whiskers — properly cat-shaped now
+  //  Triangle ears (pink-inside), big anime eyes, pink nose, whiskers,
+  //  calico body with cream belly, curling tail.
+  // ═══════════════════════════════════════════════════════════════════════
+
+  // DOWN — facing camera, sitting up, tail curls right
+  const CAT_DOWN_A = [
+    "........XxXxXxX.........",
+    ".......XxXYxYxXX........",
+    "........XXXXXXX.........",
+    ".....cc..........cc.....",
+    "....cHc..........cHc....",
+    "...cHHcc........ccHHc...",
+    "..ccccccccccccccccccc...",
+    ".cccsCsssCCCCCCsssCscc..",
+    ".cssssssssssssssssssss..",
+    ".cssKssWWeesssseeWWssKc.",
+    ".cssssWWeesssseeeWWsssc.",
+    ".cssssssssssssssssssss..",
+    ".csssss.zzsMmMszz.sssss.",
+    "K.csssss.zMmmMz.sssss.K.",
+    "KK..ccssssMMMMMsssscc.KK",
+    "....cccsssssssssscccc...",
+    "....cssCKKKKKKCsssc.....",
+    "....csKKsqqqqqsKKsc.....",
+    "....cssqqqqqqqqqssc.....",
+    "....cssqqqqqqqqqssc.....",
+    "....cssqqqqqqqqqssc.....",
+    "....cCsssssssssCCc......",
+    ".....csscccccccss.......",
+    ".....csscc..ccssc.......",
+    ".....sssc....csss.......",
+    ".....sss......sss....cc.",
+    "....................cCc.",
+    "...................cCCc.",
+  ].map(r=>r.padEnd(24,'.').substr(0,24));
+  const CAT_DOWN_B = [
+    "........XxXxXxX.........",
+    ".......XxXYxYxXX........",
+    "........XXXXXXX.........",
+    ".....cc..........cc.....",
+    "....cHc..........cHc....",
+    "...cHHcc........ccHHc...",
+    "..ccccccccccccccccccc...",
+    ".cccsCsssCCCCCCsssCscc..",
+    ".cssssssssssssssssssss..",
+    ".cssKssWWeesssseeWWssKc.",
+    ".cssssWWeesssseeeWWsssc.",
+    ".cssssssssssssssssssss..",
+    ".csssss.zzsMmMszz.sssss.",
+    "K.csssss.zMmmMz.sssss.K.",
+    "KK..ccssssMMMMMsssscc.KK",
+    "....cccsssssssssscccc...",
+    "....cssCKKKKKKCsssc.....",
+    "....csKKsqqqqqsKKsc.....",
+    "....cssqqqqqqqqqssc.....",
+    "....cssqqqqqqqqqssc.....",
+    "....cssqqqqqqqqqssc.....",
+    "....cCsssssssssCCc......",
+    ".....csscccccccss.......",
+    ".....csscc..ccssc.......",
+    ".....sssc....csss.......",
+    ".....sss......sss..cc...",
+    "..................cCc...",
+    ".................cCCcc..",
+  ].map(r=>r.padEnd(24,'.').substr(0,24));
+
+  // UP — back of head and ears, body, tail to one side
+  const CAT_UP_A = [
+    "........XxXxXxX.........",
+    ".......XxXYxYxXX........",
+    "........XXXXXXX.........",
+    ".....cc..........cc.....",
+    "....ccc..........ccc....",
+    "...cccc..........cccc...",
+    "..ccccccccccccccccccc...",
+    ".ccCCsssCCKKKKCCsssCCcc.",
+    ".cCCCKKKCCCCCCCCKKKCCCc.",
+    ".cCCKCCCCKKKKKCCCCCKCCc.",
+    ".cCCCCCCKKKsKKKCCCCCCCc.",
+    ".ccccccCCKKKKKCCccccccc.",
+    "....cCCCCsssssssCCCCc...",
+    "....cCCsKKqqqKKsCCc.....",
+    "....cKKsqqqqqqqsKKc.....",
+    "....cssqqqqqqqqqssc.....",
+    "....cssqqqqqqqqqssc.....",
+    "....cssqqqqqqqqqssc.....",
+    "....cCsssssssssCCc......",
+    ".....csscccccccss.......",
+    ".....csscc..ccssc.......",
+    ".....sssc....csss.......",
+    ".....sss......sss....cc.",
+    "....................cCc.",
+    "...................cCCc.",
+    "..................cCCcc.",
+    "..................cCcc..",
+    "........................",
+  ].map(r=>r.padEnd(24,'.').substr(0,24));
+  const CAT_UP_B = CAT_UP_A;
+
+  // SIDE — profile facing right, tail curling up behind
+  const CAT_SIDE_A = [
+    ".........XxXxX..........",
+    "........XxYxYxX.........",
+    ".........XXXXXX.........",
+    "......cc.....cc.........",
+    ".....cHc....cHc.........",
+    ".....cHc....cHc.........",
+    ".....cccccccccc.........",
+    "....cccsssCCCCccc.......",
+    "....csssssCCCCsscc......",
+    "....cssssssssssscCs.....",
+    "....csKWesssseesssCC....",
+    "....cssWesssseessssss...",
+    "....csssssssssssMmmM....",
+    "....cssszssssszsMMM.....",
+    "K....cssssssssMMMc......",
+    "KK....cccccccccccc......",
+    "......cCsssssssscccc....",
+    "......csKKKsKKKsssCc....",
+    "......cssqqqqqqqqssc....",
+    "......cssqqqqqqqqssc....",
+    "......cssqqqqqqqqssc....",
+    "......cCsssssssssCc.....",
+    ".......cscccccccc.......",
+    ".......cssccccssc.......",
+    "........ssc..csss.......",
+    "........sss..sss........",
+    "........................",
+    "........................",
+  ].map(r=>r.padEnd(24,'.').substr(0,24));
+  const CAT_SIDE_B = [
+    ".........XxXxX..........",
+    "........XxYxYxX.........",
+    ".........XXXXXX.........",
+    "......cc.....cc.........",
+    ".....cHc....cHc.........",
+    ".....cHc....cHc.........",
+    ".....cccccccccc.........",
+    "....cccsssCCCCccc.......",
+    "....csssssCCCCsscc......",
+    "....cssssssssssscCs.....",
+    "....csKWesssseesssCC....",
+    "....cssWesssseessssss...",
+    "....csssssssssssMmmM....",
+    "....cssszssssszsMMM.....",
+    "K....cssssssssMMMc...c..",
+    "KK....cccccccccccc..cCc.",
+    "......cCsssssssscccccCc.",
+    "......csKKKsKKKsssCcCcc.",
+    "......cssqqqqqqqqsscc...",
+    "......cssqqqqqqqqssc....",
+    "......cssqqqqqqqqssc....",
+    "......cCsssssssssCc.....",
+    ".......cscccccccc.......",
+    ".......cssccccssc.......",
+    "........sss..csss.......",
+    "........ssc..sss........",
+    "........................",
+    "........................",
+  ].map(r=>r.padEnd(24,'.').substr(0,24));
+
+  // ═══════════════════════════════════════════════════════════════════════
+  //  FRIEND SPRITES — all have little gold crowns/sparkles (princess theme)
+  // ═══════════════════════════════════════════════════════════════════════
+
+  // FOX (26×30) — orange with white belly, crown
+  function makeFox(o) {
+    return [
+      "........XxXxXxX...........",
+      ".......XxXYxYxXX..........",
+      "........XXXXXXX...........",
+      "......OO.........OO.......",
+      ".....OoO.........OoO......",
+      "....OoOOO.......OOOoO.....",
+      "....OOoooO.....OoooOO.....",
+      "...OOOoooOOOOOOOoooOOO....",
+      "...OOoooooOOOOOoooooOO....",
+      "..OOOoosooooooooooosOOO...",
+      "..OOoooosWeessWeesoooOO...",
+      "..OoooosseesseessooooO....",
+      "..Ooooosssssssssssoooo....",
+      "..OoooossssMMMsssssooo....",
+      "...OoosssMMMMMMMsssoO.....",
+      "...OOOosssssssssssOOO.....",
+      "....OOOOoooooooOOOOO......",
+      ".....OOOoooooooOOO........",
+      "......OOoooooooOO.........",
+      ".....OOoooooooooOO........",
+      "....OOoosssssssooOO.......",
+      "....OoosssssssssooO.......",
+      "....OoossssssssssoO.......",
+      ".....OoossssssssoO........",
+      ".....OOoosssssooOO........",
+      "......OOooooooooO."+(o?".":"O")+".......",
+      ".....OOoooo"+(o?"OOOO":"....")+"oOO......",
+      "....OOOOOO"+(o?"....":"OOOO")+"OOO......",
+      "..OOOO............OOOO....",
+      "..OO..............OOOO....",
+    ].map(r=>r.padEnd(26,'.').substr(0,26));
+  }
+  const FOX_A = makeFox(0);
+  const FOX_B = makeFox(1);
+
+  // BUNNY (22×32) — white with pink ears, blue dress, crown
+  function makeBunny(o) {
+    return [
+      "........XxXxXx........",
+      ".......XxXYxYxX.......",
+      "........XXXXXX........",
+      "....HH.........HH.....",
+      "....HHH.........HHH...",
+      "....HHHH.......HHHH...",
+      "...HHHHH.......HHHHH..",
+      "...HHHHHH.....HHHHHH..",
+      "...HHHHHH.....HHHHHH..",
+      "....nnnnnnnnnnnnnnn...",
+      "...nnnnnnnnnnnnnnnnn..",
+      "...nnnssssssssssnnnn..",
+      "..nnnssssssssssssnnn..",
+      "..nnssWeesssssWeessnn.",
+      "..nnsseeeesseeeeessnn.",
+      "..nnsssssssssssssssnn.",
+      "...nssssszzzzzsssssn..",
+      "...nssssMMMMMMMsssss..",
+      "....nnssssssssssssnn..",
+      "....AAAAAAAAAAAAAAA...",
+      "...AAaaAaaaaaaaaaAAA..",
+      "..AAaaaaaaaaaaaaaaaAA.",
+      "..AAaaa"+(o?"A":".")+"AaAaA"+(o?"A":".")+"aaaA..",
+      "..AAaaaaaaaaaaaaaaaA..",
+      "..AAaaaaa1111111aaaA..",
+      "..AAaaaaaaaaaaaaaaaA..",
+      "..AAAAaaaaaaaaaaaAAA..",
+      "...nnn............nnn.",
+      "...nnnn..........nnnn.",
+      "...nn..n.........n..n.",
+      "..nn...nn........nn.n.",
+      "..n......nn.....nn..n.",
+    ].map(r=>r.padEnd(22,'.').substr(0,22));
+  }
+  const BUNNY_A = makeBunny(0);
+  const BUNNY_B = makeBunny(1);
+
+  // OWL (24×26) — brown with big eyes, perched, crown
+  function makeOwl(o) {
+    return [
+      ".........XxXxXxX........",
+      "........XxXYxYxXX.......",
+      ".........XXXXXXX........",
+      "......UUUUUUUUUUUU......",
+      ".....UUUuuuuuuuuUUU.....",
+      "....UUUuuuuuuuuuuUUU....",
+      "....UuuuuuuuuuuuuuUU....",
+      "...UUuuuWWWWWWWWuuuUU...",
+      "...UuuuWWWeeWWWeeWUUU...",
+      "...UuuWWeeeWWeeeeWUU....",
+      "...UuuWWeeWWWeeWWWUU....",
+      "...UUuuWWWWWWWWWWUUU....",
+      "....UUuuuooooouuUUU.....",
+      ".....UuuuuooouuuUUU.....",
+      ".....UUuuuuuuuUUUU......",
+      ".....UUuuuuuuuuUUU......",
+      "....UUuuuJJJJJuuUUU.....",
+      "....UuuJJJJJJJJJuuU.....",
+      "....UuJJJJJJJJJJJuU.....",
+      "....UuJJJJJJJJJJJuU.....",
+      "....UuuJJJJJJJJJuuU.....",
+      ".....UUuuJJJJJuuUUU.....",
+      "......UUuuuuuuuUU"+(o?"o":".")+".......",
+      ".......UU"+(o?"oooo":"....")+"UU"+(o?".":"O")+"........",
+      "......OOO.....OOO.......",
+      ".....OO.........OO......",
+    ].map(r=>r.padEnd(24,'.').substr(0,24));
+  }
+  const OWL_A = makeOwl(0);
+  const OWL_B = makeOwl(1);
+
+  // DEER (28×34) — fawn with antlers, white spots, crown
+  function makeDeer(o) {
+    return [
+      "..........XxXxXxX...........",
+      ".........XxXYxYxXX..........",
+      "..........XXXXXXX...........",
+      "........K..........K........",
+      "........KKK.....KKK.........",
+      ".........KK.K.K.KK..........",
+      "........KKDKKDKKDKK.........",
+      "........KKDKDDDKDKK.........",
+      ".......KDDDDDDDDDDDK........",
+      "......DDDDDEEEEEDDDDD.......",
+      "......DDDEEsssssEEEDDD......",
+      "......DDEsssssssssEEDD......",
+      ".....DDEssWeessssWeessED....",
+      ".....DDEsseesseeeeessEED....",
+      ".....DDEsssssssssssssED.....",
+      ".....DEEssszzzzzssssED......",
+      "......DDEssMMMMMMMssED......",
+      ".......DDEsssssssEED........",
+      "........DDEEEEEEDD..........",
+      "........DDD....DDDD.........",
+      ".......DDDDDDDDDDDDD........",
+      "......DDDEEDDDEEDDDDDD......",
+      "......DDDEEEDDDEEEDDDD......",
+      ".....DDDD11DDD11DDDDDD......",
+      ".....DDDDDDDDDDDDDDDDD......",
+      "....DDDDD11DDDD11DDDDDD.....",
+      "....DDDDDDDDDDDDDDDDDDD.....",
+      "....DDDDDDD1111DDDDDDDD.....",
+      "....DDDDDDDDDDDDDDDDDDD.....",
+      "....DDDDDDDDDDDDDDDDDDD.....",
+      ".....DDD"+(o?"DD":""+"")+"DDDDDDDD"+(o?"DD":"")+"DDD......",
+      "....DDDD........DDDD........",
+      "....DD............DD........",
+      "...DD..............DD.......",
+    ].map(r=>r.padEnd(28,'.').substr(0,28));
+  }
+  const DEER_A = makeDeer(0);
+  const DEER_B = makeDeer(1);
+
+  // SQUIRREL (20×26) — rust with bushy tail, crown
+  function makeSquirrel(o) {
+    return [
+      ".......XxXxXxX......",
+      "......XxXYxYxXX.....",
+      ".......XXXXXXX......",
+      "....PPPPPPPPPPP.....",
+      "...PPppppppppppPP...",
+      "...PppppppppppppP...",
+      "..PppppssssssspppP..",
+      "..PpppssWeesWeessPP.",
+      "..PppssseessessssPP.",
+      "..PppssssssssssspP..",
+      "..PpppssMMMMMMsspP..",
+      "...PpppssssssspP....",
+      "...PPpppppppppPP....",
+      ".....PPPPPPPPPP"+(o?"P":".")+"....",
+      "......ppppppppP"+(o?"P":".")+"....",
+      "......ppsssssspP"+(o?"P":"")+"....",
+      "......psssssssspP...",
+      "......psssssssspP"+(o?"P":"")+"...",
+      "......ppssssssspPP..",
+      ".......pppsssspPP...",
+      "........pppppP"+(o?"PP":".")+"....",
+      "........PPPPPPP"+(o?"P":"")+"....",
+      "......PPP"+(o?"PPP":"...")+"PPP....",
+      "......PP....."+(o?"P":".")+"PP.....",
+      ".......ss...ss......",
+      ".......ss...ss......",
+    ].map(r=>r.padEnd(20,'.').substr(0,20));
+  }
+  const SQUIRREL_A = makeSquirrel(0);
+  const SQUIRREL_B = makeSquirrel(1);
+
+  // BEAR (28×32) — big brown bear, pink bow, crown
+  function makeBear(o) {
+    return [
+      "..........XxXxXxX...........",
+      ".........XxXYxYxXX..........",
+      "..........XXXXXXX...........",
+      "......ZZZZ........ZZZZ......",
+      ".....ZZUUZZ......ZZUUZZ.....",
+      ".....ZUUUUZ......ZUUUUZ.....",
+      ".....ZZUUZZ......ZZUUZZ.....",
+      "......ZZZZUUUUUUUUUZZZZ.....",
+      "......ZZUUUUUUUUUUUUUZZ.....",
+      ".....ZZUUUuuuuuuuuuUUUZZ....",
+      "....ZZUUuuussssssuuuUUUZZ...",
+      "....ZUUuusssssssssssuUUZZ...",
+      "....ZUUusssWeessWeessuUZZ...",
+      "....ZUUusseeeesseeeessuUZ...",
+      "....ZUUussssssEEssssssuUZ...",
+      "....ZUUusssEEEEEEEEsssuUZ...",
+      "....ZUUuussMMMMMMMMssuuUZ...",
+      ".....ZUUuusssssssssuuUUZ....",
+      "......ZZUUUUuuuuuuUUUUZ.....",
+      "......6HHH66HHHHH66HH6......",
+      "......H66666HHHH6666H.......",
+      "......6666H66666666H........",
+      ".....ZUUUUUUZZUUUUUUUUZ.....",
+      "....ZUUUUUUUUZZUUUUUUUUZZ...",
+      "...ZZUUUUUUUUZZUUUUUUUUUZZ..",
+      "...ZUUUUUUUUUZZUUUUUUUUUUZ..",
+      "...ZZUUUUUUUUUUUUUUUUUUUZZ..",
+      "....ZZZUUUUUUUUUUUUUUUZZZ...",
+      "......ZZZ"+(o?"ZZ":"")+"UUUUUU"+(o?"ZZ":"")+"ZZZZ.....",
+      "....ZZZZ..............ZZZZ..",
+      "....ZZ..................ZZ..",
+      "...ZZ....................ZZ.",
+    ].map(r=>r.padEnd(28,'.').substr(0,28));
+  }
+  const BEAR_A = makeBear(0);
+  const BEAR_B = makeBear(1);
+
+  // ═══════════════════════════════════════════════════════════════════════
+  //  TREES & SCENERY
+  // ═══════════════════════════════════════════════════════════════════════
+
+  // PINE TREE (16×30)
+  const PINE = [
+    ".......LL.......",
+    "......jLLj......",
+    ".....jLLLLj.....",
+    "....jLLJLLLj....",
+    "...jLLLLLLLLj...",
+    "....JLLLLLLJ....",
+    "...jLLLLLLLLj...",
+    "..jLLLLJLLLLLj..",
+    ".jLLLLLLLLLLLLj.",
+    "..jLLLLLLLLLLj..",
+    "...jLLLLLJLLj...",
+    "..jLLLLLLLLLLj..",
+    ".jLLLLLLLLLLLLj.",
+    "jLLLLLJLLLLLLLLj",
+    ".jLLLLLLLLLLLLj.",
+    "..jLLLLLLLLLLj..",
+    "...jLLLLLLLLj...",
+    "....jLLLLLLLj...",
+    ".....jLLLLLj....",
+    "......BBBB......",
+    "......B%%B......",
+    "......B%%B......",
+    "......B%%B......",
+    "......B%%B......",
+    "......B%%B......",
+    ".....BB%%BB.....",
+    "....BBwBBwBB....",
+    "....TTTTTTTT....",
+    "...TtttttttT....",
+    "...TttTtTtTT....",
+  ];
+
+  // OAK TREE (28×30) — broad round canopy
+  const OAK = [
+    "..........LLLLLL............",
+    ".........LLlllLLL...........",
+    "........LLLlllJlLLL.........",
+    ".......LLLllllJJllLL........",
+    "......LLLllllllLllJLL.......",
+    ".....LLLLlllJlllllllLL......",
+    "....LLLllllllllJllllLL......",
+    "....LLLllllJllllllllllL.....",
+    "...LLLllllllllllllJlllLL....",
+    "...LLLllllJllllJlllllllL....",
+    "...LLLllllllllllllllllLL....",
+    "....LLLllllllllllllllLL.....",
+    ".....LLLllllJllllllLLL......",
+    "......LLLLlllllllLLL........",
+    ".......LLLLLllllLLL.........",
+    "........LLLLLLLLLL..........",
+    "...........BBBB.............",
+    "..........BB%%BB............",
+    "..........B%%%%B............",
+    "..........B%%wwB............",
+    "..........Bw%%wB............",
+    "..........B%w%wB............",
+    "..........B%%%%B............",
+    "..........BBBBBB............",
+    ".........BBwBBwBB...........",
+    "........BBw%%%%wBB..........",
+    ".......TTTTTTTTTTTT.........",
+    "......TttttttttttttT........",
+    "......TttTtTtTtTtTtT........",
+    "......T....t..t.....T.......",
+  ];
+
+  // WILLOW (24×30) — drooping willow with yellow-green
+  function makeWillow(o) {
+    return [
+      "........QQQQQQQQ........",
+      ".......QQ@@@@@QQ........",
+      "......QQ@@@@@@@QQ.......",
+      ".....QQ@@@QQQ@@@QQ......",
+      "....QQ@@@QQQQQ@@@QQ.....",
+      "...QQ@@@QQQQQQQ@@@QQ....",
+      "..QQ@@QQQQ@@@QQQQ@@QQ...",
+      "..Q@@QQ@@@@@@@@@@Q@@Q...",
+      ".Q@QQ@@@@@@@@@@@@@Q@Q...",
+      ".QQ@@@@@@@@@@@@@@@@@Q...",
+      "..Q@@@@@QQQQQQ@@@@@@Q...",
+      "...@@@@QQQQQQQ@@@@@Q....",
+      "...@@@QQ"+(o?"@":"Q")+"QQ"+(o?"@":"Q")+"QQ@@@Q.....",
+      "....@@QQ.QQ.QQQ@@@Q.....",
+      "....@@Q...Q...Q@@@......",
+      "....@@Q.......@@@@......",
+      "....@@.........@@Q......",
+      "....@@.........@@.......",
+      "....@...........@.......",
+      "....@...........@.......",
+      "............BB..........",
+      "...........BB%B.........",
+      "...........B%%B.........",
+      "...........B%%B.........",
+      "...........B%%B.........",
+      "..........BB%%BB........",
+      ".........BB%wBwBB.......",
+      "........TTTTTTTTTT......",
+      "........TtttttttT.......",
+      "........TtTtTtTtT.......",
+    ].map(r=>r.padEnd(24,'.').substr(0,24));
+  }
+  const WILLOW_A = makeWillow(0);
+  const WILLOW_B = makeWillow(1);
+
+  // RED MUSHROOM (12×16)
+  const MUSH_RED = [
+    "....RRRR....",
+    "...RR22RR...",
+    "..R22F2FFR..",
+    ".R22FF22FF2.",
+    "R22F22222FR2",
+    "R2F22FF2222R",
+    "RR222222F2RR",
+    ".R222222F22R",
+    "..RR2222RR..",
+    "....ufff....",
+    "....uffu....",
+    "....ufuu....",
+    "....uffu....",
+    "...uffuuu...",
+    "..uuuffuuu..",
+    "............",
+  ];
+  const MUSH_WHITE = [
+    "....FFFF....",
+    "...FFffFF...",
+    "..FfRfRfRF..",
+    ".FffRfffRff.",
+    "FffRffffffFf",
+    "FfffRRfRfffF",
+    "FFfffRffffFF",
+    ".FffffffffF.",
+    "..FFffffFF..",
+    "....ufff....",
+    "....uffu....",
+    "....ufuu....",
+    "....uffu....",
+    "...uffuuu...",
+    "..uuuffuuu..",
+    "............",
+  ];
+
+  // FLOWER (small, 8×8) — colour determined by drawFlower
+  // Stem + leaf + 5-petal head
+  function makeFlower(cap, lit) {
+    return [
+      "..."+cap+cap+"...",
+      ".."+cap+lit+lit+cap+"..",
+      "."+cap+lit+"1"+lit+cap+".",
+      "."+cap+lit+lit+lit+cap+".",
+      "..."+cap+cap+"...",
+      "....g...",
+      "...gG...",
+      "..gG.G..",
+    ];
+  }
+  // Pre-build for all colours
+  const FLOWERS = {
+    red:    makeFlower('2','3'),
+    yellow: makeFlower('4','5'),
+    pink:   makeFlower('6','7'),
+    purple: makeFlower('8','9'),
+    blue:   makeFlower('A','a'),
+    white:  makeFlower('1','d'),
+  };
+  const FLOWER_COLORS = ['red','yellow','pink','purple','blue','white'];
+
+  // BUSH (16×10)
+  const BUSH = [
+    "....LLLLLLL.....",
+    "..LLLlllLLLLL...",
+    ".LLLLllJllLLLL..",
+    "LLLllllJllLLLLL.",
+    "LLLlllJllllJLLL.",
+    "LLlllJlllllllLL.",
+    ".LLllllllllllL..",
+    "..LLllJlllLLL...",
+    "...LLLLLLLLL....",
+    "....LLLLLLL.....",
+  ];
+
+  // TREEHOUSE (24×32) — wooden house in tree
+  const TREEHOUSE = [
+    ".........LLLL...........",
+    "........LLllLL..........",
+    ".......LLllJllL.........",
+    "......LLLllllllL........",
+    "......LLllJlllLLL.......",
+    ".......LLLllllLL........",
+    "........LLLLLLL.........",
+    ".......TTTTTTTTT........",
+    "......TTwwwwwwwTT.......",
+    "......TwwttwwttwT.......",
+    "......TwttwTwtttwT......",
+    "......TwwT11wwwwwT......",
+    "......TwwT11Twwwwww.....",
+    "......TwwT11Twwwww......",
+    "......TwwTTTwwwwww......",
+    "......TwwwwwwwwwwT......",
+    "......TwttwttttwwT......",
+    "......TwwwwwwwwwwT......",
+    ".......TTTTTTTTTT.......",
+    "..........BB............",
+    "..........BB............",
+    ".........BBBB...........",
+    "........BB%%BB..........",
+    "........B%%w%B..........",
+    ".......BBw%w%BB.........",
+    "......BBw%%%%wBB........",
+    "......Bw%%%ww%%wB.......",
+    ".....BBw%%wwww%%wBB.....",
+    "....TTTTTTTTTTTTTTTT....",
+    "...TtttttttttttttttT....",
+    "...TtTttTtTtTtTtTtTT....",
+    "..T................T....",
+  ];
+
+  // CASTLE / TOWER (kept small, 20×26)
+  const TOWER = [
+    "....nnnnnnnnnn......",
+    "...nnHHHHHHHHHn.....",
+    "...nHHHHHHHHHHHn....",
+    "...HHHHHHHHHHHHH....",
+    "....II......II......",
+    "....II.XX.XX.II.....",
+    "....IIIIIIIIIII.....",
+    "....InHHHHHHHnI.....",
+    "....InHnnnnnHnI.....",
+    "....InHnXXXnHnI.....",
+    "....InHnXXXnHnI.....",
+    "....InHnnnnnHnI.....",
+    "....InHHHHHHHnI.....",
+    "....InHnnnnnHnI.....",
+    "....InHnXwXnHnI.....",
+    "....InHnXwXnHnI.....",
+    "....InHnXwXnHnI.....",
+    "....InHnnnnnHnI.....",
+    "....InHHHHHHHnI.....",
+    "....IIIIIIIIIII.....",
+    "...VVVVVVVVVVVVV....",
+    "..VvVvVvVvVvVvVvV...",
+    ".VvVvVvVvVvVvVvVvV..",
+    "VVvVvVvVvVvVvVvVvVV.",
+    "....................",
+    "....................",
+  ];
+
+  // BUTTERFLY (10×8)
+  function makeButterfly(c1, c2, flap) {
+    const sprite = flap ? [
+      "...c1c1...",
+      "..c111c1..",
+      ".c1c2c11c.",
+      "c11c1c11c1",
+      "c11c1c111c",
+      ".c1c1c11c.",
+      "..c1.c1...",
+      "...0..0...",
+    ] : [
+      "....cc....",
+      "..c1cc1c..",
+      ".c11c1c11c",
+      "c1111c111c",
+      "c111c1111c",
+      ".cc1c1c1c.",
+      "...c..c...",
+      "...0..0...",
+    ];
+    // c → main, 1 → light
+    return sprite.map(r => r.replaceAll('c', c1).replaceAll('1', c2));
+  }
+
+  // FIREFLY (4×4)
+  const FIREFLY_A = [
+    ".55.",
+    "5y45",
+    "5455",
+    ".55.",
+  ];
+  const FIREFLY_B = [
+    "..5.",
+    ".5y5",
+    ".555",
+    "..5.",
+  ];
+
+  // FROG (12×8)
+  const FROG_A = [
+    "....gg....gg",
+    "...gGGgggGGg",
+    "..gGeWGGGeWg",
+    "..gGGGGGGGGg",
+    "..gGGGGMMGGg",
+    "..gGGGGGGGGg",
+    "...ggGGGGgg.",
+    ".gg........gg",
+  ];
+  const FROG_B = [
+    "....gg....gg",
+    "...gGGGGGGg.",
+    "..gGeWGeWGGg",
+    "..gGGGGGGGGg",
+    "..gGGGMMmMGg",
+    "...gGGGGGGg.",
+    "....gGGGGg..",
+    ".gg........gg",
+  ];
+
+  // BIRD (10×6) — flying
+  function makeBird(flap, c) {
+    return flap ? [
+      "..."+c+c+".....",
+      ".."+c+c+c+c+"....",
+      "."+c+c+c+c+c+c+c+"..",
+      "."+c+c+c+c+c+c+"...",
+      "..."+c+c+".....",
+      "..........",
+    ] : [
+      "..........",
+      "..."+c+c+".....",
+      ".."+c+c+c+c+c+"...",
+      "."+c+c+c+c+c+c+c+c+".",
+      "..."+c+c+".....",
+      "..........",
+    ];
+  }
+
+  // BERRY (6×6)
+  const BERRY_A = [
+    "..gg..",
+    ".g2g..",
+    "g222g.",
+    "g2W22g",
+    ".g222g",
+    "..gg..",
+  ];
+  const BERRY_B = [
+    "..gG..",
+    ".g3g..",
+    "g333g.",
+    "g3W33g",
+    ".g333g",
+    "..gg..",
+  ];
+
+  // ACORN (6×8)
+  const ACORN_A = [
+    "..ww..",
+    ".wwww.",
+    "wTTTTw",
+    "TTBBTT",
+    "BBBBBB",
+    ".BTTB.",
+    ".BBTB.",
+    "..BB..",
+  ];
+
+  // ═══════════════════════════════════════════════════════════════════════
+  //  SPRITE RENDERER
+  // ═══════════════════════════════════════════════════════════════════════
+  function drawSprite(ctx, sprite, x, y) {
+    const W = sprite[0].length;
+    const H = sprite.length;
+    for (let j = 0; j < H; j++) {
+      const row = sprite[j];
+      for (let i = 0; i < W; i++) {
+        const c = row[i];
+        if (!c || c === '.' || c === ' ') continue;
+        const col = P[c];
+        if (!col) continue;
+        ctx.fillStyle = col;
+        ctx.fillRect(x + i, y + j, 1, 1);
+      }
+    }
+  }
+  function drawSpriteFlipped(ctx, sprite, x, y) {
+    const W = sprite[0].length;
+    const H = sprite.length;
+    for (let j = 0; j < H; j++) {
+      const row = sprite[j];
+      for (let i = 0; i < W; i++) {
+        const c = row[W - 1 - i];
+        if (!c || c === '.' || c === ' ') continue;
+        const col = P[c];
+        if (!col) continue;
+        ctx.fillStyle = col;
+        ctx.fillRect(x + i, y + j, 1, 1);
+      }
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════
+  //  CONFIG + STATE
+  // ═══════════════════════════════════════════════════════════════════════
+  const CFG = {
+    walkSpeed: 56,
+    findDist: 22,
+    berryDist: 11,
+    acornDist: 11,
+    nearFriendDist: 60,
+  };
+
+  let gameActive = false;
+  let kitty = { x: MAP_W/2, y: MAP_H/2, dir: 'down', targetX: null, targetY: null, frameT: 0, purr: 0 };
+  let globalT = 0;
+  let foundCount = 0, berriesCollected = 0, acornsCollected = 0;
+  let trailTo = null;     // { x, y, kind } — when speech directs the cat
+  let voiceHighlightT = 0;
+  let voiceHighlightKind = null;
+
+  // Scene entities
+  let friends = [];
+  let berries = [];
+  let acorns = [];
+  let butterflies = [];
+  let fireflies = [];
+  let frogs = [];
+  let birds = [];
+  let trees = [];
+  let mushrooms = [];
+  let flowers = [];
+  let bushes = [];
+  let ponds = [];     // {cx,cy,rx,ry}
+  let paths = [];     // {x,y,w,h} dirt patches
+  let extraFlowers = []; // spawned by voice
+  let voiceSparkles = [];
+
+  let canvas, ctx, back, bctx;
+  let scale = 2;
+
+  // ═══════════════════════════════════════════════════════════════════════
+  //  AUDIO — Web Audio API
+  // ═══════════════════════════════════════════════════════════════════════
+  let audioCtx = null;
+  function au() { if (!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)(); return audioCtx; }
+  function tone(f, type, d, v=0.14, when=0) {
+    try {
+      const c=au(), o=c.createOscillator(), g=c.createGain();
+      o.connect(g); g.connect(c.destination);
+      o.type=type||'square'; o.frequency.value=f;
+      const t0 = c.currentTime + when;
+      g.gain.setValueAtTime(0.0001, t0);
+      g.gain.exponentialRampToValueAtTime(v, t0 + 0.01);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + d);
+      o.start(t0); o.stop(t0 + d + 0.02);
+    } catch(e) {}
+  }
+  function playTap() { tone(880, 'square', 0.06, 0.08); tone(1320, 'square', 0.04, 0.06, 0.04); }
+  function playBerry() { tone(1175,'square',0.10,0.08); tone(1568,'square',0.08,0.06, 0.05); tone(1976,'square',0.06,0.05, 0.1); }
+  function playAcorn() { tone(740,'square',0.08,0.07); tone(880,'triangle',0.10,0.06, 0.05); }
+  function playMeow() {
+    // Quick rising squeak
+    tone(523,'sawtooth',0.18,0.06);
+    tone(880,'sawtooth',0.18,0.06,0.06);
+    tone(659,'sawtooth',0.22,0.05,0.14);
+  }
+  function playPurr() {
+    // Low rumble
+    for (let i=0;i<5;i++) tone(70 + Math.random()*20,'sawtooth',0.12,0.04, i*0.06);
+  }
+  function playFind(kind) {
+    const scales = {
+      fox:      [523,659,784,988,1175],
+      bunny:    [587,740,880,1175,1397],
+      owl:      [392,523,659,784,988],
+      deer:     [440,587,740,880,1175],
+      squirrel: [659,784,988,1319,1568],
+      bear:     [330,440,523,659,784],
+    };
+    const notes = scales[kind] || scales.fox;
+    notes.forEach((f,i) => tone(f,'square',0.18,0.1, i*0.07));
+    [1760,1976,2349].forEach((f,i)=>tone(f,'triangle',0.1,0.05, 0.15 + i*0.04));
+  }
+  function playNearHint() { tone(1046,'square',0.08,0.05); }
+  function playVoiceHeard() {
+    // Sparkly heard-you chime
+    tone(1568,'triangle',0.12,0.06);
+    tone(2349,'triangle',0.12,0.05,0.08);
+  }
+  function playWin() {
+    const melody = [523,659,784,1047,988,1175,1319,1568,1760,2093];
+    melody.forEach((f,i) => tone(f,'square',0.22,0.1, i*0.1));
+    [131,196,262,330,392].forEach((f,i) => tone(f,'triangle',0.35,0.08, i*0.2));
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════
+  //  TEXT-TO-SPEECH — each friend has a distinct voice profile
+  //   Uses SpeechSynthesis API. Falls back silently on unsupported devices.
+  //   Tied to the music mute toggle so one button silences everything.
+  // ═══════════════════════════════════════════════════════════════════════
+  let TTS_ENABLED = true;
+  let TTS_VOICES = [];
+  function loadVoices() {
+    if (!('speechSynthesis' in window)) return;
+    TTS_VOICES = window.speechSynthesis.getVoices() || [];
+  }
+  if ('speechSynthesis' in window) {
+    loadVoices();
+    try { window.speechSynthesis.onvoiceschanged = loadVoices; } catch(e) {}
+  }
+
+  // Pick a voice once and remember it per "voiceKey" so each character
+  // sticks with the same voice across the session.
+  const VOICE_CACHE = {};
+  function pickVoice(key, prefer) {
+    if (VOICE_CACHE[key]) return VOICE_CACHE[key];
+    if (!TTS_VOICES.length) loadVoices();
+    if (!TTS_VOICES.length) return null;
+    const en = TTS_VOICES.filter(v => /^en/i.test(v.lang));
+    const pool = en.length ? en : TTS_VOICES;
+    // Try each "prefer" regex in order
+    for (const re of (prefer || [])) {
+      const m = pool.find(v => re.test(v.name));
+      if (m) { VOICE_CACHE[key] = m; return m; }
+    }
+    // Hash key → stable choice from remaining pool
+    let h = 0; for (let i=0;i<key.length;i++) h = (h*31 + key.charCodeAt(i)) | 0;
+    const v = pool[Math.abs(h) % pool.length];
+    VOICE_CACHE[key] = v;
+    return v;
+  }
+
+  function speak(text, opts) {
+    if (!TTS_ENABLED || !('speechSynthesis' in window)) return;
+    opts = opts || {};
+    try {
+      // Stop any in-flight speech so we don't overlap
+      window.speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(text);
+      u.pitch  = (opts.pitch  != null) ? opts.pitch  : 1.0;
+      u.rate   = (opts.rate   != null) ? opts.rate   : 1.0;
+      u.volume = (opts.volume != null) ? opts.volume : 1.0;
+      if (opts.voiceKey) {
+        const v = pickVoice(opts.voiceKey, opts.voicePrefer);
+        if (v) u.voice = v;
+      }
+      window.speechSynthesis.speak(u);
+    } catch(e) {}
+  }
+
+  // Per-friend voice profile + tiered dialogue (deepens with visit count).
+  // {name} is substituted with SAVE.kittyName.
+  const FRIEND_LINES = {
+    fox: {
+      pitch: 1.55, rate: 1.15,
+      voiceKey: 'fox',
+      voicePrefer: [/female/i, /samantha/i, /zira/i, /victoria/i],
+      lines: {
+        first:  ["Tee hee! Who are you, little kitty?", "Oh hello! I'm the foxy princess!"],
+        warm:   ["Tee hee! Hello again, {name}!", "I missed you, {name}! Let's play!"],
+        bond:   ["{name}, you are my best friend!", "I made you a sparkle, {name}! Take it!"],
+      },
+    },
+    bunny: {
+      pitch: 1.9, rate: 1.25,
+      voiceKey: 'bunny',
+      voicePrefer: [/female/i, /samantha/i, /tessa/i],
+      lines: {
+        first:  ["Hop hop! A new friend!", "Hello little kitty! I'm the bunny princess!"],
+        warm:   ["Hop hop, {name}! You came back!", "Yay, {name}, I love hopping with you!"],
+        bond:   ["{name}, you're my best bunny buddy!", "I saved a carrot just for {name}!"],
+      },
+    },
+    owl: {
+      pitch: 0.55, rate: 0.85,
+      voiceKey: 'owl',
+      voicePrefer: [/male/i, /daniel/i, /alex/i, /david/i],
+      lines: {
+        first:  ["Hoot, hoot. A young kitty I do not know.", "Welcome, little one. I am the wise owl."],
+        warm:   ["Hoot hoot, {name}. The forest knows your name.", "Welcome back, brave {name}."],
+        bond:   ["{name}, you are wise like me.", "The stars whispered your name, {name}."],
+      },
+    },
+    deer: {
+      pitch: 1.15, rate: 0.95,
+      voiceKey: 'deer',
+      voicePrefer: [/female/i, /karen/i, /serena/i, /moira/i],
+      lines: {
+        first:  ["Oh hello, gentle stranger.", "Hello little kitty. Be still and listen."],
+        warm:   ["Hello again, sweet {name}.", "The flowers told me {name} was coming."],
+        bond:   ["{name}, you are family to the forest now.", "Run with me, dear {name}."],
+      },
+    },
+    squirrel: {
+      pitch: 2.0, rate: 1.45,
+      voiceKey: 'squirrel',
+      voicePrefer: [/female/i, /child/i, /milena/i],
+      lines: {
+        first:  ["Squeak! A kitty! Hello hello hello!", "Hi hi hi! I'm squirrel!"],
+        warm:   ["Squeak squeak {name}! Want to race?", "{name}! {name}! Look at my acorns!"],
+        bond:   ["{name} is my super speedy friend!", "I named my biggest acorn after {name}!"],
+      },
+    },
+    bear: {
+      pitch: 0.3, rate: 0.78,
+      voiceKey: 'bear',
+      voicePrefer: [/male/i, /fred/i, /george/i, /james/i],
+      lines: {
+        first:  ["Grr-ello little kitty. I am the bear.", "Hello small one. Don't be afraid."],
+        warm:   ["Grr-ello {name}. Come for a hug.", "Hello {name}. The honey is sweet today."],
+        bond:   ["My best friend {name} has come back!", "{name}, you are the kindest kitty I know."],
+      },
+    },
+  };
+
+  function tierFor(kind) {
+    const visits = (SAVE.visits[kind] || 0);
+    if (visits >= 5) return 'bond';
+    if (visits >= 1) return 'warm';
+    return 'first';
+  }
+  function speakFriend(kind, lineOverride) {
+    const cfg = FRIEND_LINES[kind];
+    if (!cfg) return;
+    let line;
+    if (lineOverride) {
+      line = lineOverride;
+    } else {
+      const pool = cfg.lines[tierFor(kind)] || cfg.lines.first;
+      line = pool[Math.floor(Math.random() * pool.length)];
+    }
+    speak(withName(line), cfg);
+  }
+  function bumpVisit(kind) {
+    SAVE.visits[kind] = (SAVE.visits[kind] || 0) + 1;
+    if (!SAVE.stickers.includes(kind)) SAVE.stickers.push(kind);
+    saveWrite();
+  }
+
+  // Cat speaks back
+  const CAT_VOICE = {
+    pitch: 1.7, rate: 1.1, voiceKey: 'kitty',
+    voicePrefer: [/female/i, /samantha/i, /child/i],
+  };
+  const CAT_LINES = [
+    "Meow meow! Hello!",
+    "Purr purr. I love you!",
+    "Meow! I am Princess Whiskers!",
+  ];
+  function speakCat(line) {
+    speak(line || CAT_LINES[Math.floor(Math.random()*CAT_LINES.length)], CAT_VOICE);
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════
+  //  PERSISTENT SAVE — localStorage
+  //   Loaded once on game start. Mutated in-place and re-saved on change.
+  // ═══════════════════════════════════════════════════════════════════════
+  const SAVE_KEY = 'pw_save_v1';
+  const SAVE = {
+    kittyName: '',           // set on first launch
+    visits: {},              // per-friend visit count: { fox: 3, bunny: 1 }
+    wardrobe: {              // earned wardrobe + currently equipped
+      owned: [],             // array of item ids
+      hat: null,             // equipped item ids per slot
+      accessory: null,
+      cape: null,
+    },
+    stickers: [],            // friends ever met (kind ids)
+    companion: 'mouse',      // mouse | firefly | bunnyling
+    biomesUnlocked: ['forest'], // forest | cave  (cave unlocks after 4 friends found)
+    questDone: {},           // per-friend quest completion: { fox: true }
+    lastPlayed: 0,
+  };
+  function saveLoad() {
+    try {
+      const raw = localStorage.getItem(SAVE_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        Object.assign(SAVE, parsed);
+        // Defensive: ensure substructures exist
+        SAVE.visits      = SAVE.visits      || {};
+        SAVE.wardrobe    = SAVE.wardrobe    || { owned:[], hat:null, accessory:null, cape:null };
+        SAVE.wardrobe.owned = SAVE.wardrobe.owned || [];
+        SAVE.stickers    = SAVE.stickers    || [];
+        SAVE.biomesUnlocked = SAVE.biomesUnlocked || ['forest'];
+        SAVE.questDone   = SAVE.questDone   || {};
+      }
+    } catch(e) {}
+  }
+  function saveWrite() {
+    try {
+      SAVE.lastPlayed = Date.now();
+      localStorage.setItem(SAVE_KEY, JSON.stringify(SAVE));
+    } catch(e) {}
+  }
+  saveLoad();
+
+  // Cat-name substitution helper for TTS — replaces {name} with SAVE.kittyName
+  function withName(text) {
+    if (!text) return text;
+    const n = (SAVE.kittyName || 'princess kitty').trim();
+    return text.replace(/\{name\}/g, n);
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════
+  //  WARDROBE — outfit pieces earned from friends
+  //   Each friend gives one wardrobe item on first-time finding.
+  //   Sprites are tiny overlays drawn on top of the cat in drawKitty().
+  // ═══════════════════════════════════════════════════════════════════════
+  const WARDROBE = {
+    // slot: 'hat' (drawn replacing crown), 'accessory' (collar), 'cape' (back)
+    fox_hat:      { slot:'hat',       name:'Foxy Ears',    emoji:'🦊', fromFriend:'fox',
+                    drawDown:(c,sx,sy)=>{
+                      // Orange triangular ears with white inner — replace crown area
+                      const O=P.O, o=P.o, W='#fff';
+                      const px=(x,y,col)=>{c.fillStyle=col;c.fillRect(sx+x,sy+y,1,1);};
+                      for (let i=0;i<5;i++){ px(8-i,0+i,O); px(9-i,0+i,O); }
+                      for (let i=0;i<5;i++){ px(15+i,0+i,O); px(16+i,0+i,O); }
+                      px(7,3,o);px(8,3,o);px(8,4,W);
+                      px(16,3,o);px(15,3,o);px(15,4,W);
+                    }},
+    bunny_hat:    { slot:'hat',       name:'Bunny Ears',   emoji:'🐰', fromFriend:'bunny',
+                    drawDown:(c,sx,sy)=>{
+                      const N=P.n, H=P.H;
+                      const px=(x,y,col)=>{c.fillStyle=col;c.fillRect(sx+x,sy+y,1,1);};
+                      // Two long floppy ears
+                      for (let y=0;y<6;y++){ for(let x=0;x<3;x++){ px(7+x,y,N); px(14+x,y,N); } }
+                      px(8,1,H);px(8,2,H);px(8,3,H);
+                      px(15,1,H);px(15,2,H);px(15,3,H);
+                    }},
+    owl_hat:      { slot:'hat',       name:'Wise Cap',     emoji:'🦉', fromFriend:'owl',
+                    drawDown:(c,sx,sy)=>{
+                      // Tiny mortar-board / wizard cap
+                      const U=P.U, u=P.u, y=P.y;
+                      const px=(x,y2,col)=>{c.fillStyle=col;c.fillRect(sx+x,sy+y2,1,1);};
+                      for (let i=0;i<11;i++) px(7+i,4,U);
+                      for (let i=0;i<7;i++) { px(9+i,3,U); px(9+i,2,U); }
+                      for (let i=0;i<3;i++) px(11+i,1,U);
+                      px(12,0,y);
+                    }},
+    deer_acc:     { slot:'accessory', name:'Antler Crown', emoji:'🦌', fromFriend:'deer',
+                    drawDown:(c,sx,sy)=>{
+                      // Small antler arches over the crown
+                      const K=P.K;
+                      const px=(x,y,col)=>{c.fillStyle=col;c.fillRect(sx+x,sy+y,1,1);};
+                      px(6,1,K);px(5,2,K);px(4,3,K);px(4,1,K);
+                      px(17,1,K);px(18,2,K);px(19,3,K);px(19,1,K);
+                    }},
+    squirrel_acc: { slot:'accessory', name:'Nutty Collar', emoji:'🐿️', fromFriend:'squirrel',
+                    drawDown:(c,sx,sy)=>{
+                      // Brown collar with an acorn pendant — drawn at neck
+                      const B=P.B, w=P.w, T=P.T;
+                      const px=(x,y,col)=>{c.fillStyle=col;c.fillRect(sx+x,sy+y,1,1);};
+                      for (let i=0;i<10;i++) px(7+i,15,B);
+                      px(11,16,T);px(12,16,T);px(11,17,B);px(12,17,B);
+                    }},
+    bear_cape:    { slot:'cape',      name:'Royal Cape',   emoji:'🐻', fromFriend:'bear',
+                    drawDown:(c,sx,sy)=>{
+                      // Pink cape draped behind shoulders
+                      const I=P.I, i=P.i, X=P.X;
+                      const px=(x,y2,col)=>{c.fillStyle=col;c.fillRect(sx+x,sy+y2,1,1);};
+                      for (let y=15;y<22;y++) for (let x=2;x<22;x++){
+                        const inSide = (x<6 || x>17);
+                        if (inSide) px(x,y, (x+y)%2===0?I:i);
+                      }
+                      px(4,15,X);px(19,15,X);
+                    }},
+  };
+
+  function giveWardrobeForFriend(kind) {
+    const item = Object.values(WARDROBE).find(w => w.fromFriend === kind);
+    if (!item) return null;
+    const id = Object.keys(WARDROBE).find(k => WARDROBE[k] === item);
+    if (!SAVE.wardrobe.owned.includes(id)) {
+      SAVE.wardrobe.owned.push(id);
+      // Auto-equip if slot empty
+      if (!SAVE.wardrobe[item.slot]) SAVE.wardrobe[item.slot] = id;
+      saveWrite();
+      return item;
+    }
+    return null;
+  }
+
+  // sx, sy = top-left of cat sprite area
+  function drawWardrobeAt(c, sx, sy) {
+    for (const slot of ['cape','accessory','hat']) {
+      const id = SAVE.wardrobe[slot];
+      if (!id) continue;
+      const item = WARDROBE[id];
+      if (item && item.drawDown) item.drawDown(c, sx, sy);
+    }
+  }
+  // Side-view simplified hat: just a colored top stripe
+  function drawWardrobeHatSide(c, cx, cy, flip) {
+    const id = SAVE.wardrobe.hat;
+    if (!id) return;
+    const item = WARDROBE[id];
+    if (!item) return;
+    // Pick a representative color per hat
+    const colors = { fox_hat:'#ff9800', bunny_hat:'#fafafa', owl_hat:'#6d4c41' };
+    c.fillStyle = colors[id] || '#fff';
+    // Tiny hat blob above the head
+    for (let y = 0; y < 3; y++) for (let x = 0; x < 5; x++) c.fillRect(cx - 2 + x, cy - 27 + y, 1, 1);
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════
+  //  FETCH QUESTS — each friend wants a small thing
+  // ═══════════════════════════════════════════════════════════════════════
+  const QUESTS = {
+    fox:      { wants:'berry', need:3, emoji:'🍓', line:"Can you bring me three sweet berries?" },
+    bunny:    { wants:'berry', need:2, emoji:'🍓', line:"I'd love two yummy berries please!" },
+    owl:      { wants:'acorn', need:3, emoji:'🌰', line:"I need three acorns for my collection." },
+    deer:     { wants:'berry', need:4, emoji:'🍓', line:"Four berries would make me so happy!" },
+    squirrel: { wants:'acorn', need:5, emoji:'🌰', line:"Five acorns! I love acorns!" },
+    bear:     { wants:'berry', need:5, emoji:'🍓', line:"Five berries, little kitty? Pretty please?" },
+  };
+  // Per-friend quest progress (resets each session)
+  let questProgress = {};
+  function questPickup(kind) {
+    // Called when a berry or acorn is collected — credit it to nearby unfound-quest friends
+    for (const f of friends) {
+      if (!f.found || SAVE.questDone[f.kind]) continue;
+      const q = QUESTS[f.kind];
+      if (!q || q.wants !== kind) continue;
+      questProgress[f.kind] = (questProgress[f.kind] || 0) + 1;
+      if (questProgress[f.kind] >= q.need) {
+        // Complete!
+        SAVE.questDone[f.kind] = true;
+        saveWrite();
+        showVoiceBanner(f.label.split('!')[0] + ' is happy! 💕');
+        spawnSparkle(f.x, f.y, '#ff80ab', 36);
+        setTimeout(() => speakFriend(f.kind, "Thank you so much, " + (SAVE.kittyName || 'princess kitty') + "! You are the best!"), 200);
+        // Give wardrobe reward
+        const reward = giveWardrobeForFriend(f.kind);
+        if (reward) {
+          setTimeout(() => {
+            showBanner('NEW: ' + reward.name + ' ' + reward.emoji);
+            playFind(f.kind);
+          }, 1800);
+        }
+      }
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════
+  //  SING-ALONG — tap a found friend to play their song
+  //  Pre-authored note sequences in a friendly key, scheduled through music bus.
+  // ═══════════════════════════════════════════════════════════════════════
+  const SONGS = {
+    fox:      { notes:[523,659,784,659,523,784,659,523, 587,740,880,740,587,880,740,587], rate:0.18, line:"Foxy foxy in the trees, dancing in the summer breeze!" },
+    bunny:    { notes:[659,659,784,784,659,587,523, 659,659,784,784,880,784,659], rate:0.16, line:"Hop hop bunny, soft and round, hopping all around the ground!" },
+    owl:      { notes:[392,392,523,392,330,392, 440,440,523,440,392,440], rate:0.32, line:"Wise old owl up in the tree, watching everything you see." },
+    deer:     { notes:[523,587,659,523,587,659,784,659,587, 440,523,587,440,523,587], rate:0.24, line:"Gentle deer with eyes so kind, walks the forest, peace of mind." },
+    squirrel: { notes:[880,1047,880,1047,1175,1047,880,784, 880,1047,1319,1175,1047,880], rate:0.12, line:"Squirrel squirrel running fast, never gonna come in last!" },
+    bear:     { notes:[262,330,392,330,262, 220,262,330,392,330,262], rate:0.36, line:"Big brown bear with fluffy hair, gives the best big hugs to share!" },
+  };
+  let songPlaying = false;
+  function playSong(kind) {
+    if (songPlaying) return;
+    const s = SONGS[kind];
+    if (!s) return;
+    songPlaying = true;
+    speakFriend(kind, s.line);
+    // Schedule notes after TTS line (~2.5 s typical)
+    const startDelay = 2.2;
+    try {
+      const c = au();
+      const t0 = c.currentTime + startDelay;
+      s.notes.forEach((f, i) => {
+        // Bouncy square + sparkle triangle
+        musicTone(f,  'square',   s.rate * 1.6, 0.07, t0 + i*s.rate, 0.01);
+        musicTone(f*2,'triangle', s.rate * 0.9, 0.025, t0 + i*s.rate + 0.01, 0.008);
+      });
+      const totalDur = startDelay + s.notes.length * s.rate + 0.5;
+      setTimeout(() => { songPlaying = false; }, totalDur * 1000);
+    } catch(e) { songPlaying = false; }
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════
+  //  PET COMPANION — tiny familiar that lags behind the cat
+  // ═══════════════════════════════════════════════════════════════════════
+  const COMPANION_TYPES = {
+    mouse: {
+      name:'Mousy',
+      sprite: [
+        "....kkkk....",
+        "..kk.sk.kk..",
+        "..k.s.sM.k..",
+        "..kssWeses..",
+        "..kkssssssk.",
+        "...kkkkkk...",
+        "...........k",
+        ".........kkk",
+      ],
+      voice: { pitch:2.0, rate:1.4, voiceKey:'mouse' },
+      sound: () => { tone(2349,'square',0.05,0.06); tone(2793,'square',0.04,0.05,0.04); },
+      lines: ["Squeak!", "Squeaky squeak!", "Hi {name}!", "Cheese please!"],
+    },
+    firefly: {
+      name:'Sparkle',
+      sprite: [
+        "....yy......",
+        "...y4y......",
+        "...y4y4.....",
+        "....yy......",
+        "............",
+      ],
+      voice: { pitch:1.9, rate:1.2, voiceKey:'firefly' },
+      sound: () => { tone(1568,'triangle',0.08,0.05); tone(2093,'triangle',0.06,0.04,0.06); },
+      lines: ["Shimmer shimmer!", "Glow glow!", "Hi {name}!"],
+    },
+    bunnyling: {
+      name:'Buns',
+      sprite: [
+        "..nn....nn..",
+        "..nn....nn..",
+        "..HH....HH..",
+        ".nnnnnnnnnn.",
+        ".nsWeWeWesn.",
+        ".nsMmmmMMsn.",
+        ".nnnnnnnnnn.",
+        "..n.nn.nn.n.",
+      ],
+      voice: { pitch:2.0, rate:1.3, voiceKey:'bunnyling' },
+      sound: () => { tone(1175,'square',0.07,0.06); tone(1568,'square',0.06,0.05,0.06); },
+      lines: ["Hop hop!", "Hi {name}!", "Bouncy bouncy!"],
+    },
+  };
+  let companion = { x:0, y:0, vx:0, vy:0, dir:'right', frameT:0, idleT:0 };
+  function getCompanion() { return COMPANION_TYPES[SAVE.companion] || COMPANION_TYPES.mouse; }
+  function speakCompanion(line) {
+    const c = getCompanion();
+    if (!line) line = c.lines[Math.floor(Math.random()*c.lines.length)];
+    speak(withName(line), c.voice);
+    c.sound();
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════
+  //  DAY / NIGHT CYCLE
+  //   dayT 0..1 — 0=morning, 0.25=noon, 0.5=sunset, 0.75=midnight
+  //   Full cycle every ~5 min (300 s) so a single play covers ~1 cycle.
+  // ═══════════════════════════════════════════════════════════════════════
+  let dayT = 0.05;
+  let bedtimeMode = false;
+  function dayPhase() {
+    if (bedtimeMode) return 'night';
+    if (dayT < 0.4) return 'day';
+    if (dayT < 0.6) return 'sunset';
+    if (dayT < 0.9) return 'night';
+    return 'dawn';
+  }
+  // Sky tint applied as an overlay rect — lower alpha during day, darker at night.
+  function skyTint() {
+    if (bedtimeMode) return 'rgba(20,15,60,0.65)';
+    if (dayT < 0.4)   return 'rgba(255,235,160,0.02)';     // day — barely any tint
+    if (dayT < 0.55)  return 'rgba(255,150,80,0.25)';     // sunset orange
+    if (dayT < 0.6)   return 'rgba(180,80,80,0.35)';      // late sunset purple
+    if (dayT < 0.9)   return 'rgba(20,15,60,0.55)';       // night
+    return 'rgba(180,150,200,0.20)';                       // dawn
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════
+  //  TILT / SHAKE — DeviceMotion
+  // ═══════════════════════════════════════════════════════════════════════
+  let tiltX = 0;   // -1..1 (left/right tilt)
+  let shakeBoost = 0;  // decays
+  function setupMotion() {
+    if (!window.DeviceMotionEvent) return;
+    let lastShakeAt = 0;
+    const onMotion = (e) => {
+      const a = e.accelerationIncludingGravity || e.acceleration;
+      if (!a) return;
+      const ax = a.x || 0, ay = a.y || 0, az = a.z || 0;
+      const mag = Math.hypot(ax, ay, az);
+      // Tilt
+      tiltX = Math.max(-1, Math.min(1, (ax || 0) / 9.8));
+      // Shake
+      const now = performance.now();
+      if (mag > 22 && now - lastShakeAt > 700) {
+        lastShakeAt = now;
+        triggerShake();
+      }
+    };
+    // iOS 13+ requires permission via user gesture; startGame() is one.
+    if (typeof DeviceMotionEvent.requestPermission === 'function') {
+      try {
+        DeviceMotionEvent.requestPermission().then(state => {
+          if (state === 'granted') window.addEventListener('devicemotion', onMotion);
+        }).catch(() => {});
+      } catch(e) {}
+    } else {
+      window.addEventListener('devicemotion', onMotion);
+    }
+  }
+  function triggerShake() {
+    if (!gameActive || bedtimeMode) return;
+    shakeBoost = 1.2;
+    // Scatter butterflies — fling them around the cat
+    for (const bf of butterflies) {
+      const dx = bf.cx - kitty.x;
+      const dy = bf.cy - kitty.y;
+      const d = Math.hypot(dx,dy) || 1;
+      bf.cx += dx/d * 40;
+      bf.cy += dy/d * 40;
+      bf.phase += Math.random() * 2;
+    }
+    // Leaves fall — make some sparkles to read as confetti
+    for (let i=0;i<22;i++) {
+      sparkles.push({
+        x: kitty.x + (Math.random()-0.5)*120,
+        y: kitty.y - 80 + Math.random()*40,
+        vx: (Math.random()-0.5)*30,
+        vy: 25 + Math.random()*25,
+        life: 1.3 + Math.random()*0.5,
+        color: ['#aed581','#fdd835','#ff8a65','#f48fb1'][Math.floor(Math.random()*4)],
+      });
+    }
+    tone(440,'square',0.08,0.06);
+    tone(660,'square',0.08,0.06,0.06);
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════
+  //  CRYSTAL CAVE BIOME — alternate world, unlocked after 4 friends found
+  // ═══════════════════════════════════════════════════════════════════════
+  let currentBiome = 'forest';
+  // Crystal Fairy — unique to cave biome (added to friends in cave)
+  const CAVE_FRIEND = {
+    kind:'fairy', x: 360, y: 460, label:'Crystal Fairy! 🧚',
+    sprite: null, w:22, h:30, t:0, found:false, near:false,
+  };
+  // Crystal Fairy sprite (built once)
+  function makeFairy(o) {
+    return [
+      "........XxXxX.........",
+      ".......XxXYxYX........",
+      "........XXXXX.........",
+      ".......999.999........",
+      "......9999.9999.......",
+      ".....99ssss9999.......",
+      ".....9ssssss99........",
+      ".....9ssWesssss.......",
+      ".....9sseesssss.......",
+      ".....9ssszzss9........",
+      ".....99sMmMss9........",
+      "....999sssss999.......",
+      "..."+(o?"AAA":"AAa")+"888"+(o?"aAa":"aAA")+"....",
+      "..."+(o?"AAA":"AaA")+"898"+(o?"aaA":"AAa")+"....",
+      "..."+(o?"AaA":"Aaa")+"898"+(o?"AAa":"aaA")+"....",
+      ".....88888888.........",
+      ".....8888888..........",
+      "......6666............",
+      ".....66666............",
+      ".....66666............",
+      "......666.............",
+      "......6.6.............",
+      ".....6...6............",
+      "....66...66...........",
+    ].map(r=>r.padEnd(22,'.').substr(0,22));
+  }
+  const FAIRY_A = makeFairy(0);
+  const FAIRY_B = makeFairy(1);
+  CAVE_FRIEND.sprite = [FAIRY_A, FAIRY_B];
+
+  // Add fairy to FRIEND_LINES (cave-only friend)
+  FRIEND_LINES.fairy = {
+    pitch: 1.7, rate: 1.1,
+    voiceKey: 'fairy',
+    voicePrefer: [/female/i, /child/i, /tessa/i],
+    lines: {
+      first: ["Oh! A visitor in my crystal cave!", "Welcome, brave kitty!"],
+      warm:  ["Hi {name}! The crystals missed you!", "Welcome back to my cave, {name}!"],
+      bond:  ["{name}, my favorite cave friend!", "I made a crystal just for {name}!"],
+    },
+  };
+  QUESTS.fairy = { wants:'acorn', need:2, emoji:'💎', line:"Bring me two acorns and I'll give you crystal magic!" };
+  SONGS.fairy = { notes:[880,988,1175,988,880,1319,1175,988,880, 740,880,988,1175,1319,1175], rate:0.14, line:"Sparkle sparkle in the cave, crystal fairy dances brave!" };
+
+  // Portal entity (mushroom ring)
+  let portals = [];
+  function biomeUnlocked(name) { return SAVE.biomesUnlocked.includes(name); }
+  function unlockBiome(name) {
+    if (!biomeUnlocked(name)) {
+      SAVE.biomesUnlocked.push(name);
+      saveWrite();
+      showBanner('NEW PLACE: Crystal Cave 💎');
+      setTimeout(() => speakCat("A magic door appeared! Tap it to visit the crystal cave!"), 600);
+    }
+  }
+  function switchBiome(name) {
+    currentBiome = name;
+    if (name === 'cave') {
+      // Tint world, add fairy if not present
+      if (!friends.includes(CAVE_FRIEND)) {
+        CAVE_FRIEND.found = SAVE.visits.fairy > 0 ? false : false; // reset found in-session
+        CAVE_FRIEND.near = false;
+        CAVE_FRIEND.t = 0;
+        friends.push(CAVE_FRIEND);
+        // Add fairy slot to HUD if missing
+        ensureHudSlot('fairy', '🧚');
+      }
+      // Move kitty to cave entry
+      kitty.x = 100; kitty.y = MAP_H/2;
+      camX = kitty.x - VW/2; camY = kitty.y - VH/2;
+      showBanner('CRYSTAL CAVE 💎');
+      flash('voice-flash');
+    } else {
+      // forest — remove fairy from active scene but keep it in friends? Just keep.
+      kitty.x = MAP_W/2; kitty.y = MAP_H/2;
+      camX = kitty.x - VW/2; camY = kitty.y - VH/2;
+      showBanner('FOREST 🌳');
+    }
+  }
+  function ensureHudSlot(kind, emoji) {
+    const hud = document.getElementById('hud');
+    if (!hud) return;
+    if (document.getElementById('slot-' + kind)) return;
+    const slot = document.createElement('div');
+    slot.className = 'friend-slot';
+    slot.id = 'slot-' + kind;
+    slot.textContent = emoji;
+    hud.appendChild(slot);
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════
+  //  HEART METER — visit-count bond level shown under each HUD slot
+  // ═══════════════════════════════════════════════════════════════════════
+  function refreshHearts() {
+    document.querySelectorAll('.friend-slot').forEach(slot => {
+      const kind = slot.id.replace('slot-','');
+      let row = slot.querySelector('.heart-row');
+      if (!row) {
+        row = document.createElement('div');
+        row.className = 'heart-row';
+        for (let i = 0; i < 3; i++) {
+          const h = document.createElement('span');
+          h.className = 'heart';
+          h.textContent = '♥';
+          row.appendChild(h);
+        }
+        slot.appendChild(row);
+      }
+      const v = SAVE.visits[kind] || 0;
+      const lit = v >= 5 ? 3 : v >= 1 ? Math.min(3, Math.max(1, Math.ceil(v/2))) : 0;
+      row.querySelectorAll('.heart').forEach((h,i) => {
+        h.classList.toggle('lit', i < lit);
+      });
+    });
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════
+  //  PANELS — wardrobe, album, companion picker
+  // ═══════════════════════════════════════════════════════════════════════
+  function openPanel(which) {
+    if (which === 'wardrobe') populateWardrobe();
+    else if (which === 'album') populateAlbum();
+    else if (which === 'companion') populateCompanion();
+    document.getElementById(which + '-panel').classList.add('show');
+  }
+  function closePanel(which) {
+    document.getElementById(which + '-panel').classList.remove('show');
+  }
+  window.openPanel = openPanel; window.closePanel = closePanel;
+
+  function populateWardrobe() {
+    const grid = document.getElementById('wardrobe-grid');
+    grid.innerHTML = '';
+    // Group by slot — add a "remove" tile per slot
+    for (const slot of ['hat','accessory','cape']) {
+      const noneCard = document.createElement('div');
+      const equipped = SAVE.wardrobe[slot];
+      noneCard.className = 'card' + (!equipped ? ' equipped' : '');
+      noneCard.innerHTML = '<div class="emoji">∅</div><div class="label">No ' + slot + '</div>';
+      noneCard.onclick = () => { SAVE.wardrobe[slot] = null; saveWrite(); populateWardrobe(); };
+      grid.appendChild(noneCard);
+
+      for (const [id, item] of Object.entries(WARDROBE)) {
+        if (item.slot !== slot) continue;
+        const owned = SAVE.wardrobe.owned.includes(id);
+        const isEquipped = SAVE.wardrobe[slot] === id;
+        const card = document.createElement('div');
+        card.className = 'card' + (!owned ? ' locked' : isEquipped ? ' equipped' : '');
+        card.innerHTML = '<div class="emoji">' + (owned ? item.emoji : '🔒') + '</div>'
+                       + '<div class="label">' + (owned ? item.name : '???') + '</div>';
+        if (owned) card.onclick = () => {
+          SAVE.wardrobe[slot] = isEquipped ? null : id;
+          saveWrite(); populateWardrobe();
+          playBerry();
+        };
+        grid.appendChild(card);
+      }
+    }
+  }
+
+  function populateAlbum() {
+    const grid = document.getElementById('album-grid');
+    grid.innerHTML = '';
+    const allKinds = ['fox','bunny','owl','deer','squirrel','bear','fairy'];
+    const emojis = { fox:'🦊', bunny:'🐰', owl:'🦉', deer:'🦌', squirrel:'🐿️', bear:'🐻', fairy:'🧚' };
+    for (const kind of allKinds) {
+      const has = SAVE.stickers.includes(kind);
+      const card = document.createElement('div');
+      card.className = 'card' + (!has ? ' locked' : '');
+      card.innerHTML = '<div class="emoji">' + (has ? emojis[kind] : '❓') + '</div>'
+                     + '<div class="label">' + (has ? kind.toUpperCase() : '???') + '</div>'
+                     + '<div style="font-size:10px;color:#6a0033">'
+                     + (has ? '♥'.repeat(Math.min(3, Math.ceil((SAVE.visits[kind]||0)/2))) : '')
+                     + '</div>';
+      if (has) card.onclick = () => { speakFriend(kind); };
+      grid.appendChild(card);
+    }
+  }
+
+  function populateCompanion() {
+    const grid = document.getElementById('companion-grid');
+    grid.innerHTML = '';
+    for (const [id, c] of Object.entries(COMPANION_TYPES)) {
+      const card = document.createElement('div');
+      const isCurrent = SAVE.companion === id;
+      card.className = 'card' + (isCurrent ? ' equipped' : '');
+      card.innerHTML = '<div class="emoji">' + ({mouse:'🐭', firefly:'✨', bunnyling:'🐰'})[id] + '</div>'
+                     + '<div class="label">' + c.name + '</div>';
+      card.onclick = () => {
+        SAVE.companion = id;
+        saveWrite();
+        populateCompanion();
+        speakCompanion();
+      };
+      grid.appendChild(card);
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════
+  //  NAME INPUT — first-launch (or "change kitty name" from album)
+  // ═══════════════════════════════════════════════════════════════════════
+  function showNameModal() {
+    document.getElementById('name-input').value = SAVE.kittyName || '';
+    document.getElementById('name-modal').classList.add('show');
+    setTimeout(() => {
+      try { document.getElementById('name-input').focus(); } catch(e) {}
+    }, 200);
+  }
+  function hideNameModal() {
+    document.getElementById('name-modal').classList.remove('show');
+  }
+  function confirmName() {
+    const v = (document.getElementById('name-input').value || '').trim().substring(0, 14);
+    SAVE.kittyName = v || 'Whiskers';
+    saveWrite();
+    hideNameModal();
+    setTimeout(() => speakCat("Hello! I am princess " + SAVE.kittyName + "! Let's go!"), 250);
+  }
+  window.confirmName = confirmName;
+
+  function nameByVoice() {
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SR) { showMicLabel('Voice not supported'); return; }
+    const btn = document.getElementById('name-mic');
+    btn.classList.add('listening');
+    try { au().resume(); } catch(e) {}
+    const tempR = new SR();
+    tempR.continuous = false;
+    tempR.interimResults = false;
+    tempR.lang = 'en-US';
+    tempR.maxAlternatives = 1;
+    tempR.onresult = (ev) => {
+      const w = (ev.results[0]?.[0]?.transcript || '').trim().replace(/[^a-zA-Z ]/g,'').substring(0,14);
+      if (w) {
+        document.getElementById('name-input').value = w;
+        speakCat("Did you say " + w + "?");
+      }
+      btn.classList.remove('listening');
+    };
+    tempR.onerror = () => btn.classList.remove('listening');
+    tempR.onend = () => btn.classList.remove('listening');
+    try { tempR.start(); } catch(e) { btn.classList.remove('listening'); }
+  }
+  window.nameByVoice = nameByVoice;
+
+  // ═══════════════════════════════════════════════════════════════════════
+  //  BEDTIME
+  // ═══════════════════════════════════════════════════════════════════════
+  function enterBedtime() {
+    if (bedtimeMode) return;
+    bedtimeMode = true;
+    document.getElementById('bedtime-overlay').classList.add('show');
+    speakCat("Time for a sleepy nap. Goodnight!");
+    // Soft lullaby — slow pad swell
+    const c = au();
+    [220, 277, 330, 415].forEach((f,i) => musicTone(f, 'sine', 6.0, 0.04, c.currentTime + i*0.4, 1.5));
+    setTimeout(() => musicTone(440, 'triangle', 4.0, 0.03, c.currentTime + 2.0, 1.0), 0);
+    stopMusic();
+  }
+  function exitBedtime() {
+    if (!bedtimeMode) return;
+    bedtimeMode = false;
+    document.getElementById('bedtime-overlay').classList.remove('show');
+    if (MUSIC.enabled) startMusic();
+    setTimeout(() => speakCat("Good morning! Let's play!"), 400);
+  }
+  document.getElementById('bedtime-overlay').addEventListener('pointerdown', exitBedtime);
+  window.exitBedtime = exitBedtime;
+
+  function showBiomeBanner(text) {
+    const b = document.getElementById('biome-banner');
+    b.textContent = text;
+    b.classList.add('show');
+    setTimeout(() => b.classList.remove('show'), 1800);
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════
+  //  FOREST AMBIENT CHIPTUNE — bright pentatonic loop with bird-like trills
+  //   • C major / A minor friendly. Phrygian feel avoided — kept sunny.
+  //   • Pad + plucked melody + occasional bird-trill blip + bell chime.
+  // ═══════════════════════════════════════════════════════════════════════
+  const MUSIC = {
+    enabled: true,
+    bpm: 84,
+    barsScheduled: 0,
+    nextBarTime: 0,
+    timerId: null,
+    masterVol: 0.8,
+    busFilter: null,
+    busGain: null,
+    graphReady: false,
+  };
+  function ensureMusicGraph() {
+    if (MUSIC.graphReady) return;
+    const c = au();
+    MUSIC.busFilter = c.createBiquadFilter();
+    MUSIC.busFilter.type = 'lowpass';
+    MUSIC.busFilter.frequency.value = 3500;
+    MUSIC.busFilter.Q.value = 0.5;
+    MUSIC.busGain = c.createGain();
+    MUSIC.busGain.gain.value = 0.0001;
+    MUSIC.busFilter.connect(MUSIC.busGain);
+    MUSIC.busGain.connect(c.destination);
+    MUSIC.graphReady = true;
+  }
+  function beatDur() { return 60 / MUSIC.bpm / 2; }
+  function barDur()  { return beatDur() * 8; }
+  function musicTone(f, type, d, v, whenAbs, attack=0.04) {
+    try {
+      const c = au();
+      const o = c.createOscillator();
+      const g = c.createGain();
+      o.detune.value = (Math.random() - 0.5) * 4;
+      o.connect(g); g.connect(MUSIC.busFilter);
+      o.type = type || 'sine';
+      o.frequency.value = f;
+      g.gain.setValueAtTime(0.0001, whenAbs);
+      g.gain.exponentialRampToValueAtTime(v, whenAbs + attack);
+      g.gain.exponentialRampToValueAtTime(0.0001, whenAbs + d);
+      o.start(whenAbs);
+      o.stop(whenAbs + d + 0.1);
+    } catch(e) {}
+  }
+  // I - vi - IV - V in C major (bright, hopeful)
+  const F_CHORDS = [
+    // C: C3 E3 G3 C4 E4 G4 C5
+    { root:130.81, arp:[130.81,164.81,196.00,261.63,329.63,392.00,523.25] },
+    // Am: A2 C3 E3 A3 C4 E4 A4
+    { root:110.00, arp:[110.00,130.81,164.81,220.00,261.63,329.63,440.00] },
+    // F: F2 A2 C3 F3 A3 C4 F4
+    { root: 87.31, arp:[87.31,110.00,130.81,174.61,220.00,261.63,349.23] },
+    // G: G2 B2 D3 G3 B3 D4 G4
+    { root: 98.00, arp:[98.00,123.47,146.83,196.00,246.94,293.66,392.00] },
+  ];
+  // Bouncy pentatonic melody pattern (steps into chord tones)
+  const F_PATTERN = [0, 3, 4, 2, 5, 3, 4, 6];
+
+  function scheduleBar(chordIdx, barT, phraseBar) {
+    const ch = F_CHORDS[chordIdx];
+    const bd = beatDur();
+    const dur = barDur();
+
+    // Pad — soft sine on chord tones
+    [ch.root*2, ch.arp[3], ch.arp[5]].forEach(f => {
+      musicTone(f, 'sine', dur*1.05, 0.022, barT, 0.6);
+    });
+    // Bass — triangle root
+    musicTone(ch.root, 'triangle', dur*0.95, 0.07, barT, 0.15);
+    // Plucked melody — square with quick decay
+    for (let step=0; step<8; step++) {
+      const idx = F_PATTERN[(step + phraseBar) % 8];
+      const f = ch.arp[idx];
+      const v = 0.024 + (phraseBar%4===0 && step===0 ? 0.012 : 0);
+      musicTone(f, 'square', bd*1.4, v, barT + step*bd, 0.012);
+    }
+    // Bird-like trill chime every 2 bars
+    if (phraseBar % 2 === 1) {
+      const trillT = barT + bd*4;
+      const high = ch.arp[5] * 2;
+      for (let k=0;k<4;k++) {
+        const off = (k%2===0) ? 0 : 1.06;
+        musicTone(high * (1+off*0.05), 'triangle', 0.08, 0.018, trillT + k*0.06, 0.005);
+      }
+    }
+    // Bell sparkle on bar 0 of phrase
+    if (phraseBar === 0) {
+      const bell = ch.arp[6] * 2;
+      musicTone(bell, 'sine', 1.2, 0.025, barT + bd*2, 0.008);
+    }
+  }
+  function pumpMusic() {
+    if (!audioCtx || !MUSIC.enabled) return;
+    ensureMusicGraph();
+    const now = audioCtx.currentTime;
+    while (MUSIC.nextBarTime < now + 1.8) {
+      const chordIdx = MUSIC.barsScheduled % 4;
+      const phraseBar = MUSIC.barsScheduled % 8;
+      scheduleBar(chordIdx, MUSIC.nextBarTime, phraseBar);
+      MUSIC.nextBarTime += barDur();
+      MUSIC.barsScheduled++;
+    }
+  }
+  function startMusic() {
+    if (!audioCtx || MUSIC.timerId) return;
+    ensureMusicGraph();
+    const now = audioCtx.currentTime;
+    MUSIC.busGain.gain.cancelScheduledValues(now);
+    MUSIC.busGain.gain.setValueAtTime(MUSIC.busGain.gain.value, now);
+    MUSIC.busGain.gain.linearRampToValueAtTime(MUSIC.masterVol, now + 1.8);
+    MUSIC.nextBarTime = now + 0.6;
+    MUSIC.barsScheduled = 0;
+    pumpMusic();
+    MUSIC.timerId = setInterval(pumpMusic, 300);
+  }
+  function stopMusic() {
+    if (MUSIC.timerId) { clearInterval(MUSIC.timerId); MUSIC.timerId = null; }
+    if (MUSIC.busGain && audioCtx) {
+      const now = audioCtx.currentTime;
+      MUSIC.busGain.gain.cancelScheduledValues(now);
+      MUSIC.busGain.gain.setValueAtTime(MUSIC.busGain.gain.value, now);
+      MUSIC.busGain.gain.linearRampToValueAtTime(0.0001, now + 1.0);
+    }
+  }
+  function toggleMute() {
+    MUSIC.enabled = !MUSIC.enabled;
+    TTS_ENABLED = MUSIC.enabled;
+    const btn = document.getElementById('mute-btn');
+    if (btn) {
+      btn.classList.toggle('muted', !MUSIC.enabled);
+      btn.textContent = MUSIC.enabled ? '♪' : '𝄽';
+    }
+    if (MUSIC.enabled) {
+      startMusic();
+    } else {
+      stopMusic();
+      // Silence any in-flight speech immediately
+      if ('speechSynthesis' in window) {
+        try { window.speechSynthesis.cancel(); } catch(e) {}
+      }
+    }
+  }
+  window.toggleMute = toggleMute;
+
+  // ═══════════════════════════════════════════════════════════════════════
+  //  WORLD BUILDING
+  // ═══════════════════════════════════════════════════════════════════════
+  function rng(seed) { let s = seed; return () => { s = (s*1664525 + 1013904223) % 4294967296; return s / 4294967296; }; }
+
+  // Non-overlap helper
+  function tooClose(arr, x, y, minD) {
+    for (const a of arr) {
+      if (Math.hypot(a.x - x, a.y - y) < minD) return true;
+    }
+    return false;
+  }
+
+  function buildWorld() {
+    const r = rng(7);
+
+    friends = [
+      { kind:'fox',      biome:'forest', x:610, y:120, label:'Princess Fox! 🦊',       sprite:[FOX_A,FOX_B],         w:26, h:30, t:0, found:false, near:false },
+      { kind:'bunny',    biome:'forest', x:110, y:200, label:'Princess Bunny! 🐰',     sprite:[BUNNY_A,BUNNY_B],     w:22, h:32, t:0, found:false, near:false },
+      { kind:'owl',      biome:'forest', x:560, y:560, label:'Wise Owl Queen! 🦉',     sprite:[OWL_A,OWL_B],         w:24, h:26, t:0, found:false, near:false },
+      { kind:'deer',     biome:'forest', x:130, y:680, label:'Princess Deer! 🦌',      sprite:[DEER_A,DEER_B],       w:28, h:34, t:0, found:false, near:false },
+      { kind:'squirrel', biome:'forest', x:640, y:820, label:'Princess Squirrel! 🐿️',  sprite:[SQUIRREL_A,SQUIRREL_B], w:20, h:26, t:0, found:false, near:false },
+      { kind:'bear',     biome:'forest', x:340, y:400, label:'Princess Bear! 🐻',      sprite:[BEAR_A,BEAR_B],       w:28, h:32, t:0, found:false, near:false },
+    ];
+    CAVE_FRIEND.biome = 'cave';
+
+    // Ponds (water patches) — circular blobs
+    ponds = [
+      { cx:280, cy:280, rx:55, ry:32 },
+      { cx:500, cy:720, rx:70, ry:45 },
+    ];
+
+    // Winding dirt path tiles (rectangular segments — drawn as patches)
+    paths = [];
+    // central north-south meander
+    const pathPts = [
+      [360, 60], [340, 140], [380, 220], [330, 300],
+      [380, 380], [340, 460], [400, 540], [360, 620],
+      [400, 700], [340, 780], [380, 860],
+    ];
+    for (let i=0;i<pathPts.length-1;i++) {
+      const [x1,y1] = pathPts[i], [x2,y2] = pathPts[i+1];
+      const steps = 24;
+      for (let s=0;s<=steps;s++) {
+        const t = s/steps;
+        paths.push({ x: x1 + (x2-x1)*t, y: y1 + (y2-y1)*t, r: 10 });
+      }
+    }
+
+    // Trees — many, varied (pine, oak, willow)
+    trees = [];
+    const targetTrees = 50;
+    let attempts = 0;
+    while (trees.length < targetTrees && attempts++ < 600) {
+      const x = 18 + r()*(MAP_W-36);
+      const y = 30 + r()*(MAP_H-50);
+      // Avoid friends, ponds, paths, treehouse area
+      if (friends.some(f => Math.hypot(f.x-x, f.y-y) < 50)) continue;
+      if (ponds.some(p => Math.hypot(p.cx-x, p.cy-y) < Math.max(p.rx,p.ry)+18)) continue;
+      if (paths.some(p => Math.hypot(p.x-x, p.y-y) < 16)) continue;
+      if (tooClose(trees, x, y, 32)) continue;
+      const t = r();
+      const type = t < 0.5 ? 'pine' : (t < 0.8 ? 'oak' : 'willow');
+      trees.push({ type, x, y, sway: r()*Math.PI*2 });
+    }
+
+    // Special structures
+    trees.push({ type:'treehouse', x:560, y:160, sway:0 }); // by fox
+    trees.push({ type:'tower',     x:140, y:140, sway:0 });
+
+    // Mushrooms (clusters)
+    mushrooms = [];
+    for (let i=0;i<28;i++) {
+      const x = 15 + r()*(MAP_W-30);
+      const y = 25 + r()*(MAP_H-40);
+      if (ponds.some(p => Math.hypot(p.cx-x, p.cy-y) < Math.max(p.rx,p.ry)+8)) continue;
+      mushrooms.push({ type: r()<0.6?'red':'white', x, y });
+    }
+
+    // Flowers — colour-coded
+    flowers = [];
+    for (let i=0;i<70;i++) {
+      const x = 10 + r()*(MAP_W-20);
+      const y = 18 + r()*(MAP_H-30);
+      if (ponds.some(p => Math.hypot(p.cx-x, p.cy-y) < Math.max(p.rx,p.ry)+4)) continue;
+      flowers.push({
+        color: FLOWER_COLORS[Math.floor(r()*FLOWER_COLORS.length)],
+        x, y, t: r()*Math.PI*2,
+      });
+    }
+
+    // Bushes
+    bushes = [];
+    for (let i=0;i<18;i++) {
+      bushes.push({ x: 20 + r()*(MAP_W-40), y: 30 + r()*(MAP_H-60) });
+    }
+
+    // Berries (collectibles)
+    berries = [];
+    for (let i=0;i<20;i++) {
+      berries.push({
+        x: 25 + r()*(MAP_W-50),
+        y: 25 + r()*(MAP_H-50),
+        t: r()*Math.PI*2,
+        collected: false,
+      });
+    }
+
+    // Acorns
+    acorns = [];
+    for (let i=0;i<14;i++) {
+      acorns.push({
+        x: 25 + r()*(MAP_W-50),
+        y: 25 + r()*(MAP_H-50),
+        t: r()*Math.PI*2,
+        collected: false,
+      });
+    }
+
+    // Butterflies — wander in circles
+    const bPalettes = [
+      ['m','5'],['8','9'],['A','a'],['i','7'],['o','5'],['Q','y'],['6','1'],
+    ];
+    butterflies = [];
+    for (let i=0;i<22;i++) {
+      butterflies.push({
+        cx: 30 + r()*(MAP_W-60),
+        cy: 30 + r()*(MAP_H-60),
+        radius: 14 + r()*30,
+        speed: 0.5 + r()*0.7,
+        phase: r()*Math.PI*2,
+        pal: bPalettes[Math.floor(r()*bPalettes.length)],
+        bob: r(),
+      });
+    }
+
+    // Fireflies — slow drifters, mostly glow at "dusk"
+    fireflies = [];
+    for (let i=0;i<30;i++) {
+      fireflies.push({
+        x: r()*MAP_W,
+        y: r()*MAP_H,
+        vx: (r()-0.5)*6,
+        vy: (r()-0.5)*6,
+        blink: r()*Math.PI*2,
+      });
+    }
+
+    // Frogs — sit by ponds
+    frogs = [];
+    for (const p of ponds) {
+      for (let k=0;k<2;k++) {
+        const a = r()*Math.PI*2;
+        frogs.push({
+          x: p.cx + Math.cos(a)*(p.rx+8),
+          y: p.cy + Math.sin(a)*(p.ry+5),
+          phase: r()*Math.PI*2,
+          basePhase: r()*Math.PI*2,
+        });
+      }
+    }
+
+    // Birds — fly overhead
+    birds = [];
+    for (let i=0;i<6;i++) {
+      birds.push({
+        x: r()*MAP_W,
+        y: 30 + r()*100,
+        vx: 30 + r()*20,
+        flap: r()*Math.PI*2,
+        col: r()<0.5?'8':'A',
+      });
+    }
+
+    // Portals — only visible once unlocked
+    portals = [];
+    portals.push({ x: 580, y: 740, to: 'cave',   t:0 });
+    portals.push({ x:  90, y: 100, to: 'forest', t:0 }); // exit (used only in cave)
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════
+  //  CAMERA
+  // ═══════════════════════════════════════════════════════════════════════
+  let camX = 0, camY = 0;
+  function updateCamera() {
+    const tx = Math.round(kitty.x - VW / 2);
+    const ty = Math.round(kitty.y - VH / 2);
+    camX += (tx - camX) * 0.16;
+    camY += (ty - camY) * 0.16;
+    camX = Math.max(0, Math.min(MAP_W - VW, camX));
+    camY = Math.max(0, Math.min(MAP_H - VH, camY));
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════
+  //  INPUT
+  // ═══════════════════════════════════════════════════════════════════════
+  function bindInput() {
+    const onTap = (e) => {
+      if (!gameActive || bedtimeMode) return;
+      e.preventDefault();
+      const rect = canvas.getBoundingClientRect();
+      const cx = (e.clientX || (e.touches && e.touches[0].clientX)) - rect.left;
+      const cy = (e.clientY || (e.touches && e.touches[0].clientY)) - rect.top;
+      const vx = (cx / rect.width) * VW;
+      const vy = (cy / rect.height) * VH;
+      const mx = Math.round(vx + camX);
+      const my = Math.round(vy + camY);
+      // Tap on a FOUND friend → play their song instead of moving
+      for (const f of friends) {
+        if (!f.found) continue;
+        if (Math.hypot(f.x - mx, f.y - my) < 22) {
+          playSong(f.kind);
+          spawnSparkle(f.x, f.y, '#fff59d', 14);
+          return;
+        }
+      }
+      // Tap on a portal → walk into it (gets picked up by collision check)
+      for (const p of portals) {
+        if (Math.hypot(p.x - mx, p.y - my) < 18) {
+          kitty.targetX = p.x;
+          kitty.targetY = p.y;
+          trailTo = { x: p.x, y: p.y, kind: 'portal' };
+          playTap();
+          spawnTapRing(e.clientX || e.touches[0].clientX, e.clientY || e.touches[0].clientY);
+          return;
+        }
+      }
+      kitty.targetX = Math.max(14, Math.min(MAP_W - 14, mx));
+      kitty.targetY = Math.max(22, Math.min(MAP_H - 22, my));
+      trailTo = null; // manual tap overrides voice trail
+      playTap();
+      spawnTapRing(e.clientX || e.touches[0].clientX, e.clientY || e.touches[0].clientY);
+    };
+    canvas.addEventListener('pointerdown', onTap);
+  }
+  function spawnTapRing(cx, cy) {
+    const r = document.createElement('div');
+    r.className = 'tap-ring';
+    const s = 38;
+    r.style.left = cx + 'px';
+    r.style.top = cy + 'px';
+    r.style.width = s + 'px';
+    r.style.height = s + 'px';
+    document.body.appendChild(r);
+    setTimeout(() => r.remove(), 720);
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════
+  //  SPEECH RECOGNITION
+  //   Web Speech API — Chrome / Edge / Android Chrome WebView (varies).
+  //   Press-to-talk: tap mic to start, tap again to stop. Continuous mode.
+  // ═══════════════════════════════════════════════════════════════════════
+  let recognition = null;
+  let isListening = false;
+  let lastVoiceHandledAt = 0;
+
+  const VOICE_KEYWORDS = {
+    // Friends — map keyword → friend kind
+    fox:        { type:'friend', kind:'fox' },
+    foxy:       { type:'friend', kind:'fox' },
+    bunny:      { type:'friend', kind:'bunny' },
+    rabbit:     { type:'friend', kind:'bunny' },
+    hop:        { type:'friend', kind:'bunny' },
+    owl:        { type:'friend', kind:'owl' },
+    hoot:       { type:'friend', kind:'owl' },
+    deer:       { type:'friend', kind:'deer' },
+    fawn:       { type:'friend', kind:'deer' },
+    squirrel:   { type:'friend', kind:'squirrel' },
+    bear:       { type:'friend', kind:'bear' },
+    teddy:      { type:'friend', kind:'bear' },
+
+    // Cat sounds
+    kitty:      { type:'cat' },
+    cat:        { type:'cat' },
+    meow:       { type:'cat' },
+    purr:       { type:'cat' },
+    whiskers:   { type:'cat' },
+    princess:   { type:'cat' },
+
+    // Colours → flower bloom
+    red:        { type:'color', color:'red' },
+    yellow:     { type:'color', color:'yellow' },
+    pink:       { type:'color', color:'pink' },
+    purple:     { type:'color', color:'purple' },
+    blue:       { type:'color', color:'blue' },
+    white:      { type:'color', color:'white' },
+
+    // Scenery
+    tree:       { type:'tree' },
+    trees:      { type:'tree' },
+    flower:     { type:'flowers' },
+    flowers:    { type:'flowers' },
+    butterfly:  { type:'butterfly' },
+    butterflies:{ type:'butterfly' },
+    mushroom:   { type:'mushroom' },
+    mushrooms:  { type:'mushroom' },
+    bird:       { type:'bird' },
+    birds:      { type:'bird' },
+    sparkle:    { type:'sparkle' },
+    magic:      { type:'sparkle' },
+    jump:       { type:'jump' },
+
+    // Bedtime / day-night
+    sleepy:     { type:'sleep' },
+    sleep:      { type:'sleep' },
+    night:      { type:'sleep' },
+    nap:        { type:'sleep' },
+    bed:        { type:'sleep' },
+    wake:       { type:'wake' },
+    morning:    { type:'wake' },
+    hello:      { type:'wake' },
+
+    // Sing
+    sing:       { type:'sing' },
+    song:       { type:'sing' },
+
+    // Companion
+    mouse:      { type:'companion' },
+    mousy:      { type:'companion' },
+
+    // Cave biome
+    cave:       { type:'biome', biome:'cave' },
+    crystal:    { type:'biome', biome:'cave' },
+    forest:     { type:'biome', biome:'forest' },
+    door:       { type:'portal' },
+    portal:     { type:'portal' },
+  };
+
+  function setupSpeech() {
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SR) {
+      // Hide mic if not supported
+      const m = document.getElementById('mic-btn');
+      if (m) m.style.display = 'none';
+      const vh = document.getElementById('voice-hint');
+      if (vh) vh.style.display = 'none';
+      return;
+    }
+    recognition = new SR();
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.lang = 'en-US';
+    recognition.maxAlternatives = 3;
+
+    recognition.onresult = (ev) => {
+      // Look through results, take any result final or interim
+      for (let i = ev.resultIndex; i < ev.results.length; i++) {
+        const result = ev.results[i];
+        for (let j = 0; j < result.length; j++) {
+          const transcript = (result[j].transcript || '').toLowerCase().trim();
+          if (!transcript) continue;
+          // Split into words, look for keywords
+          const words = transcript.split(/\s+/);
+          for (const w of words) {
+            const cleaned = w.replace(/[^a-z]/g, '');
+            if (handleVoiceWord(cleaned)) return;
+          }
+        }
+      }
+    };
+    recognition.onerror = (ev) => {
+      // 'no-speech' or 'aborted' — just keep going if listening
+      if (isListening && ev.error !== 'not-allowed' && ev.error !== 'service-not-allowed') {
+        setTimeout(() => { try { recognition.start(); } catch(e) {} }, 300);
+      } else if (ev.error === 'not-allowed' || ev.error === 'service-not-allowed') {
+        // Permission denied — hide mic with a hint
+        isListening = false;
+        updateMicUI();
+        showMicLabel('Mic permission denied 🚫', 3000);
+      }
+    };
+    recognition.onend = () => {
+      // Auto-restart while listening flag is on (continuous mode is flaky on Android)
+      if (isListening) {
+        setTimeout(() => { try { recognition.start(); } catch(e) {} }, 250);
+      } else {
+        updateMicUI();
+      }
+    };
+  }
+
+  function toggleListening() {
+    if (!recognition) {
+      showMicLabel('Voice not supported here', 2500);
+      return;
+    }
+    if (isListening) {
+      isListening = false;
+      try { recognition.stop(); } catch(e) {}
+      updateMicUI();
+      showMicLabel('Mic off', 1500);
+    } else {
+      try { au().resume(); } catch(e) {}
+      isListening = true;
+      try { recognition.start(); } catch(e) {}
+      updateMicUI();
+      showMicLabel('Say an animal!', 2500);
+    }
+  }
+  window.toggleListening = toggleListening;
+
+  function updateMicUI() {
+    const btn = document.getElementById('mic-btn');
+    if (!btn) return;
+    btn.classList.toggle('listening', isListening);
+    btn.textContent = isListening ? '🎙️' : '🎤';
+  }
+
+  function showMicLabel(text, ms=1800) {
+    const lbl = document.getElementById('mic-label');
+    if (!lbl) return;
+    lbl.textContent = text;
+    lbl.classList.add('show');
+    clearTimeout(showMicLabel._t);
+    showMicLabel._t = setTimeout(() => lbl.classList.remove('show'), ms);
+  }
+
+  function handleVoiceWord(word) {
+    if (!gameActive) return false;
+    const def = VOICE_KEYWORDS[word];
+    if (!def) return false;
+    // Debounce repeated triggers
+    const now = performance.now();
+    if (now - lastVoiceHandledAt < 700) return false;
+    lastVoiceHandledAt = now;
+
+    switch (def.type) {
+      case 'friend': {
+        const f = friends.find(fr => fr.kind === def.kind);
+        if (!f) return false;
+        if (f.found) {
+          showVoiceBanner('Already found ' + def.kind + '!');
+          spawnSparkle(kitty.x, kitty.y, '#fff59d', 8);
+          playVoiceHeard();
+          // Friend says hi again
+          setTimeout(() => speakFriend(f.kind, 'Hi again, {name}!'), 250);
+          return true;
+        }
+        trailTo = { x: f.x, y: f.y, kind: def.kind };
+        kitty.targetX = f.x;
+        kitty.targetY = f.y;
+        voiceHighlightKind = def.kind;
+        voiceHighlightT = 5.0;
+        showVoiceBanner('Find the ' + def.kind + '! ✨');
+        flash('voice-flash');
+        playVoiceHeard();
+        // The friend calls out so kid hears their voice + direction
+        setTimeout(() => speakFriend(f.kind, "I'm over here, {name}!"), 350);
+        return true;
+      }
+      case 'cat': {
+        kitty.purr = 1.2;
+        spawnSparkle(kitty.x, kitty.y - 8, '#fff59d', 22);
+        spawnSparkle(kitty.x, kitty.y - 8, '#f06292', 14);
+        showVoiceBanner('Meow! 💕');
+        playMeow();
+        setTimeout(playPurr, 400);
+        setTimeout(() => speakCat(), 700);
+        return true;
+      }
+      case 'color': {
+        // Bloom flowers of that colour around kitty
+        const col = def.color;
+        for (let i=0;i<8;i++) {
+          const a = (i / 8) * Math.PI * 2 + Math.random()*0.3;
+          const d = 18 + Math.random()*22;
+          extraFlowers.push({
+            color: col,
+            x: kitty.x + Math.cos(a)*d,
+            y: kitty.y + Math.sin(a)*d,
+            t: 0,
+            life: 14, // seconds
+            growT: 0,
+          });
+        }
+        // Sparkle in colour
+        const sparkleCols = { red:'#e53935', yellow:'#fdd835', pink:'#f06292',
+                              purple:'#ba68c8', blue:'#29b6f6', white:'#fff' };
+        spawnSparkle(kitty.x, kitty.y, sparkleCols[col] || '#fff', 24);
+        showVoiceBanner(col.toUpperCase() + ' flowers! 🌸');
+        flash('voice-flash');
+        playVoiceHeard();
+        return true;
+      }
+      case 'flowers': {
+        for (const fl of flowers) {
+          voiceSparkles.push({ x: fl.x, y: fl.y - 4, life: 0.8 });
+        }
+        showVoiceBanner('Flowers sparkle! 🌷');
+        playVoiceHeard();
+        return true;
+      }
+      case 'tree': {
+        for (const tr of trees) {
+          if (tr.type === 'tower') continue;
+          voiceSparkles.push({ x: tr.x, y: tr.y - 14, life: 0.9 });
+        }
+        showVoiceBanner('Trees sparkle! 🌳');
+        playVoiceHeard();
+        return true;
+      }
+      case 'butterfly': {
+        // Spawn 6 new butterflies around kitty
+        const bPalettes = [['m','5'],['8','9'],['A','a'],['i','7'],['o','5'],['Q','y']];
+        for (let i=0;i<8;i++) {
+          butterflies.push({
+            cx: kitty.x + (Math.random()-0.5)*60,
+            cy: kitty.y + (Math.random()-0.5)*60,
+            radius: 14 + Math.random()*16,
+            speed: 0.6 + Math.random()*0.5,
+            phase: Math.random()*Math.PI*2,
+            pal: bPalettes[Math.floor(Math.random()*bPalettes.length)],
+            bob: Math.random(),
+            life: 12,
+          });
+        }
+        showVoiceBanner('Butterflies! 🦋');
+        playVoiceHeard();
+        return true;
+      }
+      case 'mushroom': {
+        for (const m of mushrooms) {
+          voiceSparkles.push({ x: m.x, y: m.y - 6, life: 0.8 });
+        }
+        showVoiceBanner('Mushroom magic! 🍄');
+        playVoiceHeard();
+        return true;
+      }
+      case 'bird': {
+        // Make all birds dive low
+        for (const b of birds) {
+          b.y = Math.min(b.y, kitty.y - 40);
+        }
+        showVoiceBanner('Birds! 🐦');
+        playVoiceHeard();
+        return true;
+      }
+      case 'sparkle': {
+        spawnSparkle(kitty.x, kitty.y, '#fff', 40);
+        spawnSparkle(kitty.x, kitty.y, '#fbc02d', 20);
+        showVoiceBanner('✨ MAGIC ✨');
+        flash('voice-flash');
+        playVoiceHeard();
+        return true;
+      }
+      case 'jump': {
+        kitty.purr = 0.8;
+        spawnSparkle(kitty.x, kitty.y + 8, '#fff', 14);
+        showVoiceBanner('Boing! 🐾');
+        tone(880,'square',0.08,0.08);
+        tone(1318,'square',0.08,0.08,0.08);
+        return true;
+      }
+      case 'sleep': {
+        showVoiceBanner('Nighty night 💤');
+        enterBedtime();
+        return true;
+      }
+      case 'wake': {
+        if (bedtimeMode) {
+          exitBedtime();
+          showVoiceBanner('Good morning! ☀️');
+          return true;
+        }
+        return false;
+      }
+      case 'sing': {
+        // Sing first found friend nearby
+        let nearest = null, nd = 9999;
+        for (const f of friends) {
+          if (!f.found) continue;
+          const d = Math.hypot(f.x - kitty.x, f.y - kitty.y);
+          if (d < nd) { nd = d; nearest = f; }
+        }
+        if (nearest && nd < 120) {
+          playSong(nearest.kind);
+          showVoiceBanner(nearest.kind.toUpperCase() + ' sings! 🎶');
+          return true;
+        } else {
+          showVoiceBanner('Find a friend first!');
+          return true;
+        }
+      }
+      case 'companion': {
+        speakCompanion();
+        spawnSparkle(companion.x, companion.y, '#fff', 8);
+        showVoiceBanner(getCompanion().name + ' says hi! 🐾');
+        return true;
+      }
+      case 'biome': {
+        if (def.biome === 'cave') {
+          if (!biomeUnlocked('cave')) {
+            showVoiceBanner('Find more friends first!');
+            return true;
+          }
+          switchBiome('cave');
+        } else {
+          switchBiome('forest');
+        }
+        return true;
+      }
+      case 'portal': {
+        // Open nearest portal
+        let nearest = null, nd = 9999;
+        for (const p of portals) {
+          const d = Math.hypot(p.x - kitty.x, p.y - kitty.y);
+          if (d < nd) { nd = d; nearest = p; }
+        }
+        if (nearest) {
+          kitty.targetX = nearest.x;
+          kitty.targetY = nearest.y;
+          trailTo = { x: nearest.x, y: nearest.y, kind: 'portal' };
+          showVoiceBanner('To the magic door! ✨');
+          return true;
+        }
+        return false;
+      }
+    }
+    return false;
+  }
+
+  function showVoiceBanner(text) {
+    const b = document.getElementById('voice-banner');
+    b.textContent = text;
+    b.classList.add('show');
+    clearTimeout(showVoiceBanner._t);
+    showVoiceBanner._t = setTimeout(() => b.classList.remove('show'), 1500);
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════
+  //  RENDER — ground / props / kitty / overlays
+  // ═══════════════════════════════════════════════════════════════════════
+  function drawGround() {
+    const c = bctx;
+    if (currentBiome === 'cave') { drawCaveGround(); return; }
+    const t = globalT * 0.8;
+    // Base grass — dark
+    c.fillStyle = P.G;
+    c.fillRect(0, 0, VW, VH);
+
+    // Mid-tone grass tufts (Perlin-ish dither)
+    c.fillStyle = P.g;
+    for (let y = 0; y < VH; y += 3) {
+      for (let x = 0; x < VW; x += 3) {
+        const wx = x + camX, wy = y + camY;
+        const n = Math.sin(wx*0.16 + t*0.4) + Math.cos(wy*0.18 + t*0.3);
+        if (n > 0.4) c.fillRect(x, y, 1, 1);
+      }
+    }
+    // Light grass highlights
+    c.fillStyle = P.v;
+    for (let y = 1; y < VH; y += 4) {
+      for (let x = 1; x < VW; x += 4) {
+        const wx = x + camX, wy = y + camY;
+        const n = Math.sin(wx*0.22 + t) * Math.cos(wy*0.16 + t*0.7);
+        if (n > 0.55) c.fillRect(x, y, 1, 1);
+      }
+    }
+    // Bright grass blades
+    c.fillStyle = P.V;
+    for (let y = 2; y < VH; y += 7) {
+      for (let x = 2; x < VW; x += 7) {
+        const wx = x + camX, wy = y + camY;
+        const n = Math.sin(wx*0.34 + t*1.5) + Math.cos(wy*0.28 + t*0.9);
+        if (n > 1.5) c.fillRect(x, y, 1, 1);
+      }
+    }
+
+    // Ponds — water blobs
+    for (const p of ponds) {
+      const sx = p.cx - camX, sy = p.cy - camY;
+      for (let dy = -p.ry; dy <= p.ry; dy++) {
+        for (let dx = -p.rx; dx <= p.rx; dx++) {
+          const n = (dx*dx)/(p.rx*p.rx) + (dy*dy)/(p.ry*p.ry);
+          if (n < 1) {
+            // ripple shimmer
+            const wx = p.cx + dx, wy = p.cy + dy;
+            const sh = Math.sin(wx*0.3 + t*2.4) + Math.cos(wy*0.25 + t*2.0);
+            c.fillStyle = sh > 1.2 ? P['+'] : (sh > 0.2 ? P['-'] : (sh > -0.5 ? P['='] : P['~']));
+            c.fillRect(sx + dx, sy + dy, 1, 1);
+          } else if (n < 1.08) {
+            // dithered shoreline
+            if ((dx + dy + Math.floor(t)) % 2 === 0) {
+              c.fillStyle = P['*'];
+              c.fillRect(sx + dx, sy + dy, 1, 1);
+            }
+          } else if (n < 1.2) {
+            // muddy edge
+            if ((dx + dy) % 3 === 0) {
+              c.fillStyle = P.T;
+              c.fillRect(sx + dx, sy + dy, 1, 1);
+            }
+          }
+        }
+      }
+    }
+
+    // Dirt path patches
+    for (const p of paths) {
+      const sx = Math.round(p.x - camX), sy = Math.round(p.y - camY);
+      if (sx < -20 || sx > VW+20 || sy < -20 || sy > VH+20) continue;
+      // Soft circular dirt
+      for (let dy = -p.r; dy <= p.r; dy++) {
+        for (let dx = -p.r; dx <= p.r; dx++) {
+          const d2 = dx*dx + dy*dy;
+          if (d2 <= p.r*p.r) {
+            const dith = (dx*7 + dy*11) & 3;
+            c.fillStyle = dith === 0 ? P.T : (dith === 1 ? P.t : (dith === 2 ? P.t : P.d));
+            c.fillRect(sx + dx, sy + dy, 1, 1);
+          }
+        }
+      }
+    }
+  }
+
+  function drawCaveGround() {
+    const c = bctx;
+    const t = globalT * 0.7;
+    // Deep cave background — dark purple
+    c.fillStyle = '#1a0033';
+    c.fillRect(0, 0, VW, VH);
+    // Cave floor tones — dithered indigo
+    c.fillStyle = '#311b92';
+    for (let y = 0; y < VH; y += 3) {
+      for (let x = 0; x < VW; x += 3) {
+        const wx = x + camX, wy = y + camY;
+        const n = Math.sin(wx*0.14 + t*0.3) + Math.cos(wy*0.16 + t*0.2);
+        if (n > 0.3) c.fillRect(x, y, 1, 1);
+      }
+    }
+    // Crystal sparkles randomly scattered (glowing patches)
+    c.fillStyle = '#7e57c2';
+    for (let y = 1; y < VH; y += 5) {
+      for (let x = 1; x < VW; x += 5) {
+        const wx = x + camX, wy = y + camY;
+        const n = Math.sin(wx*0.22 + t) * Math.cos(wy*0.16 + t*0.7);
+        if (n > 0.55) c.fillRect(x, y, 1, 1);
+      }
+    }
+    // Twinkling crystals
+    c.fillStyle = '#ce93d8';
+    for (let y = 2; y < VH; y += 8) {
+      for (let x = 2; x < VW; x += 8) {
+        const wx = x + camX, wy = y + camY;
+        const sparkle = Math.sin(wx*0.5 + wy*0.3 + t*3) + Math.cos(wy*0.4 + t*2);
+        if (sparkle > 1.6) {
+          c.fillRect(x, y, 1, 1);
+          if (Math.random() > 0.5) c.fillRect(x+1, y, 1, 1);
+        }
+      }
+    }
+    // Ponds become underground crystal pools
+    for (const p of ponds) {
+      const sx = p.cx - camX, sy = p.cy - camY;
+      for (let dy = -p.ry; dy <= p.ry; dy++) {
+        for (let dx = -p.rx; dx <= p.rx; dx++) {
+          const n = (dx*dx)/(p.rx*p.rx) + (dy*dy)/(p.ry*p.ry);
+          if (n < 1) {
+            const wx = p.cx + dx, wy = p.cy + dy;
+            const sh = Math.sin(wx*0.3 + t*2.4) + Math.cos(wy*0.25 + t*2.0);
+            c.fillStyle = sh > 1.2 ? '#fff' : (sh > 0.2 ? '#ce93d8' : (sh > -0.5 ? '#7e57c2' : '#4527a0'));
+            c.fillRect(sx + dx, sy + dy, 1, 1);
+          }
+        }
+      }
+    }
+    // Path patches → crystal walkways
+    for (const p of paths) {
+      const sx = Math.round(p.x - camX), sy = Math.round(p.y - camY);
+      if (sx < -20 || sx > VW+20 || sy < -20 || sy > VH+20) continue;
+      for (let dy = -p.r; dy <= p.r; dy++) {
+        for (let dx = -p.r; dx <= p.r; dx++) {
+          const d2 = dx*dx + dy*dy;
+          if (d2 <= p.r*p.r) {
+            const dith = (dx*7 + dy*11) & 3;
+            c.fillStyle = dith === 0 ? '#4527a0' : (dith === 1 ? '#5e35b1' : (dith === 2 ? '#7e57c2' : '#9575cd'));
+            c.fillRect(sx + dx, sy + dy, 1, 1);
+          }
+        }
+      }
+    }
+  }
+
+  function drawProps() {
+    const items = [];
+    for (const b of bushes)       items.push({ y: b.y + 6, kind:'bush', data:b });
+    for (const tr of trees)       items.push({ y: tr.y + (tr.type==='pine'?28:tr.type==='oak'?28:tr.type==='willow'?28:tr.type==='treehouse'?30:24), kind:'tree', data:tr });
+    for (const m of mushrooms)    items.push({ y: m.y + 8, kind:'mush', data:m });
+    for (const fl of flowers)     items.push({ y: fl.y + 6, kind:'flower', data:fl });
+    for (const fl of extraFlowers)items.push({ y: fl.y + 6, kind:'extraFlower', data:fl });
+    for (const f of friends) {
+      if (f.biome && f.biome !== currentBiome) continue;
+      items.push({ y: f.y + f.h, kind:'friend', data:f });
+    }
+    for (const fg of frogs)       items.push({ y: fg.y + 6, kind:'frog', data:fg });
+    for (const b of berries)      items.push({ y: b.y + 6, kind:'berry', data:b });
+    for (const a of acorns)       items.push({ y: a.y + 6, kind:'acorn', data:a });
+    for (const p of portals) {
+      // Only show portals relevant to current biome and only if unlocked
+      if (currentBiome === 'forest' && p.to === 'cave' && biomeUnlocked('cave')) {
+        items.push({ y: p.y + 6, kind:'portal', data:p });
+      } else if (currentBiome === 'cave' && p.to === 'forest') {
+        items.push({ y: p.y + 6, kind:'portal', data:p });
+      }
+    }
+    // Companion entity
+    items.push({ y: companion.y + 8, kind:'companion', data: companion });
+    for (const bf of butterflies) {
+      const fy = bf.cy + Math.sin(bf.phase)*bf.radius;
+      items.push({ y: fy + 5, kind:'butterfly', data:bf });
+    }
+    items.push({ y: kitty.y + 24, kind:'kitty', data: kitty });
+
+    items.sort((a,b)=>a.y-b.y);
+    for (const it of items) drawProp(it);
+  }
+
+  function drawProp(it) {
+    const c = bctx;
+    const d = it.data;
+    const sx = Math.round((d.x ?? d.cx) - camX);
+    const sy = Math.round((d.y ?? d.cy) - camY);
+    if (sx < -80 || sx > VW + 80 || sy < -80 || sy > VH + 80) return;
+
+    switch (it.kind) {
+      case 'bush': drawSprite(c, BUSH, sx - 8, sy - 8); break;
+      case 'tree': {
+        const sway = (Math.sin(globalT*0.6 + d.sway) + tiltX*2 + shakeBoost*2)*1;
+        if (d.type === 'pine')     drawSprite(c, PINE,    Math.round(sx - 8 + sway), sy - 28);
+        else if (d.type === 'oak') drawSprite(c, OAK,     Math.round(sx - 14 + sway*0.6), sy - 28);
+        else if (d.type === 'willow') {
+          const frame = (Math.floor(globalT*1.5 + d.sway) + (shakeBoost > 0.3 ? 1 : 0)) % 2;
+          drawSprite(c, frame ? WILLOW_B : WILLOW_A, Math.round(sx - 12 + sway), sy - 28);
+        }
+        else if (d.type === 'treehouse') drawSprite(c, TREEHOUSE, sx - 12, sy - 30);
+        else if (d.type === 'tower') drawSprite(c, TOWER, sx - 10, sy - 24);
+        break;
+      }
+      case 'mush': {
+        drawSprite(c, d.type === 'red' ? MUSH_RED : MUSH_WHITE, sx - 6, sy - 14);
+        // Sparkle pulse on voice trigger
+        break;
+      }
+      case 'flower': {
+        const sway = Math.sin(globalT*1.4 + d.t) > 0 ? 0 : 1;
+        const sprite = FLOWERS[d.color];
+        drawSprite(c, sprite, sx - 3 + sway*0, sy - 6);
+        break;
+      }
+      case 'extraFlower': {
+        // Grow-in animation
+        const g = Math.min(1, d.growT * 4);
+        const sprite = FLOWERS[d.color];
+        if (g >= 1) {
+          drawSprite(c, sprite, sx - 3, sy - 6);
+        } else {
+          // Partial: only draw bottom rows
+          const partial = sprite.slice(Math.floor((1-g) * sprite.length));
+          drawSprite(c, partial, sx - 3, sy - 6 + (sprite.length - partial.length));
+        }
+        break;
+      }
+      case 'friend': drawFriend(c, d, sx, sy); break;
+      case 'frog': {
+        const frame = Math.floor(globalT*1.4 + d.basePhase) % 2;
+        drawSprite(c, frame ? FROG_B : FROG_A, sx - 6, sy - 6);
+        break;
+      }
+      case 'berry': {
+        if (d.collected) break;
+        const frame = Math.floor(globalT*3) % 2;
+        const bob = Math.sin(globalT*2 + d.t)*1;
+        drawSprite(c, frame ? BERRY_B : BERRY_A, sx - 3, sy - 4 + bob);
+        break;
+      }
+      case 'acorn': {
+        if (d.collected) break;
+        const bob = Math.sin(globalT*2 + d.t)*1;
+        drawSprite(c, ACORN_A, sx - 3, sy - 6 + bob);
+        break;
+      }
+      case 'butterfly': {
+        const cx = d.cx - camX;
+        const cy = d.cy - camY;
+        const angle = globalT * d.speed + d.phase;
+        const fx = Math.round(cx + Math.cos(angle)*d.radius);
+        const fy = Math.round(cy + Math.sin(angle)*d.radius + Math.sin(globalT*3 + d.bob)*3);
+        const flap = Math.floor(globalT*8 + d.bob*5) % 2;
+        const sprite = makeButterfly(d.pal[0], d.pal[1], flap);
+        drawSprite(c, sprite, fx - 5, fy - 4);
+        break;
+      }
+      case 'portal': drawPortal(c, d, sx, sy); break;
+      case 'companion': drawCompanion(c, d, sx, sy); break;
+      case 'kitty': drawKitty(c, sx, sy); break;
+    }
+  }
+
+  function drawPortal(c, p, sx, sy) {
+    // Mushroom ring with pulsing glow center
+    const t = globalT + p.t;
+    const pulse = (Math.sin(t*3) * 0.5 + 0.5);
+    // Outer ring of 6 mushrooms
+    for (let i = 0; i < 8; i++) {
+      const a = (i / 8) * Math.PI * 2 + t * 0.3;
+      const rx = Math.round(Math.cos(a) * 14);
+      const ry = Math.round(Math.sin(a) * 7);
+      // Tiny mushroom dot
+      c.fillStyle = (i % 2 === 0) ? '#c62828' : '#fafafa';
+      c.fillRect(sx + rx - 1, sy + ry - 1, 3, 2);
+      c.fillStyle = '#efebe9';
+      c.fillRect(sx + rx, sy + ry + 1, 1, 2);
+    }
+    // Glowing center vortex
+    const cr = 4 + Math.floor(pulse * 3);
+    for (let dy = -cr; dy <= cr; dy++) {
+      for (let dx = -cr; dx <= cr; dx++) {
+        const d2 = dx*dx + dy*dy;
+        if (d2 <= cr*cr) {
+          const n = (d2 / (cr*cr));
+          c.fillStyle = (n < 0.3) ? '#fff' : (n < 0.6) ? '#ce93d8' : '#7e57c2';
+          if (((dx + dy + Math.floor(t*4)) % 3) !== 0) c.fillRect(sx + dx, sy + dy, 1, 1);
+        }
+      }
+    }
+    // Sparkles every now and then
+    if (Math.random() < 0.08) {
+      sparkles.push({ x: p.x + (Math.random()-0.5)*30, y: p.y - 4, vx:(Math.random()-0.5)*20, vy:-30, life:0.9, color:'#ce93d8' });
+    }
+  }
+
+  function drawCompanion(c, comp, sx, sy) {
+    const def = getCompanion();
+    const sprite = def.sprite;
+    const bob = Math.sin(globalT * 4 + comp.idleT) * 1;
+    const flip = comp.dir === 'left';
+    if (flip) drawSpriteFlipped(c, sprite, sx - 6, sy - 6 + bob);
+    else      drawSprite(c, sprite, sx - 6, sy - 6 + bob);
+  }
+
+  function drawFriend(ctx, f, sx, sy) {
+    const frame = Math.floor(globalT*2) % 2;
+    const sprite = f.sprite[frame];
+    const ox = Math.floor(f.w/2);
+    const oy = f.h;
+    // Halo if near / found / voice-highlighted
+    const highlighted = (voiceHighlightKind === f.kind && voiceHighlightT > 0);
+    if (f.found || f.near || highlighted) {
+      const ang = globalT * (highlighted ? 5 : 4);
+      const t = Math.sin(ang) * 0.5 + 0.5;
+      const haloSize = 2 + Math.floor(t * 2);
+      ctx.fillStyle = f.found ? '#fff59d'
+                     : highlighted ? '#ba68c8'
+                     : 'rgba(255,245,157,0.4)';
+      const cx = sx, cy = sy - oy/2;
+      const rad = Math.max(f.w, f.h)/2 + haloSize;
+      for (let a = 0; a < Math.PI*2; a += 0.25) {
+        ctx.fillRect(cx + Math.round(Math.cos(a)*rad), cy + Math.round(Math.sin(a)*rad), 1, 1);
+      }
+    }
+    drawSprite(ctx, sprite, sx - ox, sy - oy);
+  }
+
+  function drawKitty(ctx, sx, sy) {
+    const frame = Math.floor(kitty.frameT*6) % 2;
+    let sprite;
+    let flip = false;
+    if (kitty.dir === 'down') sprite = frame ? CAT_DOWN_B : CAT_DOWN_A;
+    else if (kitty.dir === 'up') sprite = frame ? CAT_UP_B : CAT_UP_A;
+    else if (kitty.dir === 'left')  { sprite = frame ? CAT_SIDE_B : CAT_SIDE_A; }
+    else if (kitty.dir === 'right') { sprite = frame ? CAT_SIDE_B : CAT_SIDE_A; flip = true; }
+    // Sleeping pose — small "zzz" emerges
+    const sleepOff = bedtimeMode ? 2 : 0;
+    // Purr — slight scale bounce (drawn by offset)
+    const purrOff = kitty.purr > 0 ? Math.sin(globalT*16) * 1 : 0;
+    if (flip) drawSpriteFlipped(ctx, sprite, sx - 12, sy - 28 + purrOff + sleepOff);
+    else      drawSprite(ctx, sprite, sx - 12, sy - 28 + purrOff + sleepOff);
+    // Wardrobe layers (only down-facing has full detailed wardrobe)
+    if (kitty.dir === 'down' || kitty.dir === 'up') {
+      // Down view supports detailed wardrobe; pass relative offset
+      drawWardrobeAt(ctx, sx - 12, sy - 28 + purrOff + sleepOff);
+    } else {
+      // Side view: just put hat at top
+      drawWardrobeHatSide(ctx, sx, sy, flip);
+    }
+    if (bedtimeMode) {
+      // Floating Z
+      const zx = sx + 6, zy = sy - 32 - (globalT * 8 % 12);
+      ctx.fillStyle = '#fff8e1';
+      ctx.fillRect(zx, zy, 3, 1);
+      ctx.fillRect(zx+2, zy+1, 1, 1);
+      ctx.fillRect(zx+1, zy+2, 1, 1);
+      ctx.fillRect(zx, zy+3, 3, 1);
+    }
+
+    // Purr hearts
+    if (kitty.purr > 0) {
+      for (let k=0;k<3;k++) {
+        const hx = sx + Math.sin(globalT*4 + k*2)*4;
+        const hy = sy - 26 - (globalT*8 + k*5) % 16;
+        ctx.fillStyle = '#f06292';
+        ctx.fillRect(hx, hy, 1, 1);
+        ctx.fillRect(hx+1, hy, 1, 1);
+        ctx.fillRect(hx-1, hy+1, 1, 1);
+        ctx.fillRect(hx+2, hy+1, 1, 1);
+        ctx.fillRect(hx, hy+2, 1, 1);
+      }
+    }
+  }
+
+  // ── Fireflies (overlay) ──
+  function drawFireflies(dt) {
+    const c = bctx;
+    // Soft dusk shimmer brightness for fireflies — they're nearly always-on
+    for (const f of fireflies) {
+      f.x += f.vx*dt; f.y += f.vy*dt;
+      if (f.x < 0) f.x = MAP_W; if (f.x > MAP_W) f.x = 0;
+      if (f.y < 0) f.y = MAP_H; if (f.y > MAP_H) f.y = 0;
+      if (Math.random() < 0.005) { f.vx = (Math.random()-0.5)*8; f.vy = (Math.random()-0.5)*8; }
+      f.blink += dt*2.4;
+      const sx = Math.round(f.x - camX), sy = Math.round(f.y - camY);
+      if (sx < -4 || sx > VW+4 || sy < -4 || sy > VH+4) continue;
+      const on = Math.sin(f.blink) > -0.2;
+      if (on) {
+        const sprite = (Math.floor(globalT*4) % 2) ? FIREFLY_B : FIREFLY_A;
+        drawSprite(c, sprite, sx - 1, sy - 1);
+      }
+    }
+  }
+
+  // ── Birds (sky layer, drawn high) ──
+  function drawBirds(dt) {
+    const c = bctx;
+    for (const b of birds) {
+      b.x += b.vx * dt;
+      b.flap += dt * 8;
+      if (b.x > MAP_W + 20) b.x = -10;
+      const sx = Math.round(b.x - camX), sy = Math.round(b.y - camY);
+      if (sx < -10 || sx > VW+10 || sy < -10 || sy > VH+10) continue;
+      const flap = Math.floor(b.flap) % 2;
+      const sprite = makeBird(flap, b.col);
+      drawSprite(c, sprite, sx - 5, sy - 3);
+    }
+  }
+
+  // ── Sparkles ──
+  let sparkles = [];
+  function spawnSparkle(x, y, color='#fff59d', count=8) {
+    for (let i = 0; i < count; i++) {
+      const a = Math.random()*Math.PI*2;
+      const sp = 20 + Math.random()*60;
+      sparkles.push({
+        x, y,
+        vx: Math.cos(a)*sp,
+        vy: Math.sin(a)*sp - 12,
+        life: 0.8 + Math.random()*0.5,
+        color,
+      });
+    }
+  }
+  function drawSparkles(dt) {
+    const c = bctx;
+    for (let i = sparkles.length-1; i >= 0; i--) {
+      const s = sparkles[i];
+      s.life -= dt;
+      if (s.life <= 0) { sparkles.splice(i, 1); continue; }
+      s.x += s.vx*dt;
+      s.y += s.vy*dt;
+      s.vy += 40*dt;
+      const sx = Math.round(s.x - camX), sy = Math.round(s.y - camY);
+      if (sx < 0 || sx > VW || sy < 0 || sy > VH) continue;
+      const size = s.life > 0.5 ? 2 : 1;
+      c.fillStyle = s.color;
+      c.fillRect(sx, sy, size, size);
+      c.fillStyle = '#fff';
+      c.fillRect(sx, sy, 1, 1);
+    }
+    // Voice sparkles (highlight pulses on world props)
+    for (let i = voiceSparkles.length-1; i >= 0; i--) {
+      const v = voiceSparkles[i];
+      v.life -= dt;
+      if (v.life <= 0) { voiceSparkles.splice(i, 1); continue; }
+      const sx = Math.round(v.x - camX), sy = Math.round(v.y - camY);
+      if (sx < -4 || sx > VW+4 || sy < -4 || sy > VH+4) continue;
+      const r = Math.floor((1 - v.life) * 6);
+      c.fillStyle = '#fff59d';
+      for (let a = 0; a < Math.PI*2; a += 0.7) {
+        c.fillRect(sx + Math.round(Math.cos(a)*r), sy + Math.round(Math.sin(a)*r), 1, 1);
+      }
+      if (v.life > 0.4) {
+        c.fillStyle = '#fff';
+        c.fillRect(sx, sy, 1, 1);
+      }
+    }
+  }
+
+  // ── Voice trail (sparkle path from kitty to target friend) ──
+  function drawVoiceTrail() {
+    if (!trailTo) return;
+    const c = bctx;
+    const dx = trailTo.x - kitty.x;
+    const dy = trailTo.y - kitty.y;
+    const d = Math.hypot(dx, dy);
+    if (d < 4) { trailTo = null; return; }
+    const steps = Math.min(40, Math.floor(d / 8));
+    for (let i = 1; i <= steps; i++) {
+      const t = i / (steps + 1);
+      const x = kitty.x + dx*t;
+      const y = kitty.y + dy*t;
+      const sx = Math.round(x - camX);
+      const sy = Math.round(y - camY);
+      if (sx < 0 || sx > VW || sy < 0 || sy > VH) continue;
+      const phase = globalT*4 - i*0.3;
+      const intensity = (Math.sin(phase) + 1) * 0.5;
+      c.fillStyle = intensity > 0.5 ? '#ba68c8' : '#ce93d8';
+      c.fillRect(sx, sy, 1, 1);
+      if (intensity > 0.7) {
+        c.fillStyle = '#fff';
+        c.fillRect(sx, sy-1, 1, 1);
+      }
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════
+  //  GAME LOOP
+  // ═══════════════════════════════════════════════════════════════════════
+  let lastT = 0;
+  function animate(now) {
+    requestAnimationFrame(animate);
+    if (!gameActive) return;
+    const dt = Math.min(0.05, (now - lastT) / 1000 || 0);
+    lastT = now;
+    globalT += dt;
+    kitty.frameT += dt;
+    if (kitty.purr > 0) kitty.purr = Math.max(0, kitty.purr - dt);
+    if (voiceHighlightT > 0) voiceHighlightT -= dt;
+    else voiceHighlightKind = null;
+    if (shakeBoost > 0) shakeBoost = Math.max(0, shakeBoost - dt * 0.8);
+
+    // Day / night cycle — full loop every 5 min (300s)
+    if (!bedtimeMode) dayT = (dayT + dt / 300) % 1;
+
+    // Pause world updates during bedtime so the cat truly rests
+    if (bedtimeMode) {
+      // Still render so the overlay shows the sleeping cat
+      bctx.clearRect(0, 0, VW, VH);
+      drawGround();
+      drawProps();
+      drawSparkles(dt);
+      ctx.imageSmoothingEnabled = false;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(back, 0, 0, VW, VH, 0, 0, canvas.width, canvas.height);
+      return;
+    }
+
+    // Companion follows kitty with a slight lag
+    const tcx = kitty.x - 16 * (kitty.dir === 'right' ? 1 : kitty.dir === 'left' ? -1 : 0);
+    const tcy = kitty.y - (kitty.dir === 'up' ? -10 : kitty.dir === 'down' ? -10 : 0) + 4;
+    const dcx = tcx - companion.x;
+    const dcy = tcy - companion.y;
+    const dcd = Math.hypot(dcx, dcy);
+    if (dcd > 1) {
+      const csp = Math.min(60, dcd * 3);
+      companion.x += dcx / dcd * csp * dt;
+      companion.y += dcy / dcd * csp * dt;
+      companion.dir = dcx > 0 ? 'right' : 'left';
+    }
+    companion.idleT += dt;
+    // Random companion chirp every ~22s
+    if (Math.random() < dt / 22 && !songPlaying) {
+      speakCompanion();
+    }
+
+    // Move kitty toward target
+    if (kitty.targetX !== null) {
+      const dx = kitty.targetX - kitty.x;
+      const dy = kitty.targetY - kitty.y;
+      const d = Math.hypot(dx, dy);
+      if (d < 1.5) {
+        kitty.targetX = null;
+        kitty.targetY = null;
+      } else {
+        const vx = dx / d * CFG.walkSpeed * dt;
+        const vy = dy / d * CFG.walkSpeed * dt;
+        kitty.x += vx;
+        kitty.y += vy;
+        if (Math.abs(dx) > Math.abs(dy)) kitty.dir = dx > 0 ? 'right' : 'left';
+        else kitty.dir = dy > 0 ? 'down' : 'up';
+      }
+    }
+    kitty.x = Math.max(14, Math.min(MAP_W - 14, kitty.x));
+    kitty.y = Math.max(22, Math.min(MAP_H - 22, kitty.y));
+
+    updateCamera();
+
+    // Bird auto wrap
+    // (handled in drawBirds)
+
+    // Berries pickup
+    for (const b of berries) {
+      if (b.collected) continue;
+      b.t += dt;
+      const d = Math.hypot(b.x - kitty.x, b.y - kitty.y);
+      if (d < CFG.berryDist) {
+        b.collected = true;
+        berriesCollected++;
+        updateBerryCounter();
+        playBerry();
+        flash('pearl-flash');
+        spawnSparkle(b.x, b.y, '#e91e63', 14);
+        questPickup('berry');
+      }
+    }
+    // Acorns pickup
+    for (const a of acorns) {
+      if (a.collected) continue;
+      a.t += dt;
+      const d = Math.hypot(a.x - kitty.x, a.y - kitty.y);
+      if (d < CFG.acornDist) {
+        a.collected = true;
+        acornsCollected++;
+        updateAcornCounter();
+        playAcorn();
+        spawnSparkle(a.x, a.y, '#8d6e63', 10);
+        questPickup('acorn');
+      }
+    }
+
+    // Portal collision — walk-into magic door
+    for (const p of portals) {
+      p.t += dt;
+      // Only the relevant portal for current biome can be entered
+      const isCurrent = (currentBiome === 'forest' && p.to === 'cave' && biomeUnlocked('cave'))
+                      || (currentBiome === 'cave'   && p.to === 'forest');
+      if (!isCurrent) continue;
+      const d = Math.hypot(p.x - kitty.x, p.y - kitty.y);
+      if (d < 14) {
+        switchBiome(p.to);
+        spawnSparkle(kitty.x, kitty.y, '#ce93d8', 40);
+        spawnSparkle(kitty.x, kitty.y, '#fff', 20);
+        kitty.targetX = null; kitty.targetY = null;
+        trailTo = null;
+        flash('voice-flash');
+        // Sound
+        tone(523,'triangle',0.2,0.08);
+        tone(880,'triangle',0.2,0.08, 0.1);
+        tone(1319,'triangle',0.3,0.08, 0.2);
+        break;
+      }
+    }
+
+    // Friends
+    for (const f of friends) {
+      if (f.biome && f.biome !== currentBiome) continue;
+      f.t += dt;
+      if (!f.found) {
+        const d = Math.hypot(f.x - kitty.x, f.y - kitty.y);
+        const wasNear = f.near;
+        f.near = d < CFG.nearFriendDist;
+        const slot = document.getElementById('slot-' + f.kind);
+        if (slot) slot.classList.toggle('near', f.near);
+        if (f.near && !wasNear) playNearHint();
+        if (d < CFG.findDist) {
+          f.found = true;
+          foundCount++;
+          markFriendFound(f.kind);
+          showBanner(f.label);
+          playFind(f.kind);
+          spawnSparkle(f.x, f.y, '#ffd700', 32);
+          flash('find-flash');
+          if (trailTo && trailTo.kind === f.kind) trailTo = null;
+          // Persistent: bump visit count + add sticker + give wardrobe item
+          bumpVisit(f.kind);
+          refreshHearts();
+          const gifted = giveWardrobeForFriend(f.kind);
+          if (gifted) {
+            setTimeout(() => {
+              showBanner('NEW: ' + gifted.name + ' ' + gifted.emoji);
+              spawnSparkle(kitty.x, kitty.y, '#fbc02d', 18);
+            }, 1900);
+          }
+          // After 4 forest friends found, unlock cave biome
+          if (foundCount === 4 && currentBiome === 'forest') {
+            setTimeout(() => unlockBiome('cave'), 2100);
+          }
+          // Friend speaks after the find chime so they don't talk over each other
+          setTimeout(() => speakFriend(f.kind), 950);
+          // Tell child about quest (only first time)
+          if (!SAVE.questDone[f.kind] && QUESTS[f.kind]) {
+            setTimeout(() => speakFriend(f.kind, QUESTS[f.kind].line), 2400);
+          }
+          // Win when all 6 forest friends found (fairy is bonus)
+          const forestFound = friends.filter(fr => fr.biome === 'forest' && fr.found).length;
+          if (forestFound >= 6) {
+            setTimeout(() => winGame(), 1700);
+          }
+        }
+      }
+    }
+
+    // Extra (voice-spawned) flowers
+    for (let i = extraFlowers.length-1; i >= 0; i--) {
+      const ef = extraFlowers[i];
+      ef.t += dt; ef.growT += dt; ef.life -= dt;
+      if (ef.life <= 0) extraFlowers.splice(i, 1);
+    }
+    // Butterflies that have a life (voice-spawned) decay
+    for (let i = butterflies.length-1; i >= 0; i--) {
+      if (butterflies[i].life !== undefined) {
+        butterflies[i].life -= dt;
+        // Wander
+        butterflies[i].cx += Math.cos(globalT + i)*8 * dt;
+        butterflies[i].cy += Math.sin(globalT*0.8 + i)*8 * dt;
+        if (butterflies[i].life <= 0) butterflies.splice(i,1);
+      }
+    }
+
+    // RENDER
+    bctx.clearRect(0, 0, VW, VH);
+    drawGround();
+    drawVoiceTrail();
+    drawBirds(dt);
+    drawProps();
+    drawFireflies(dt);
+    drawSparkles(dt);
+    // Day/night tint overlay
+    const tint = skyTint();
+    if (tint) {
+      bctx.fillStyle = tint;
+      bctx.fillRect(0, 0, VW, VH);
+    }
+
+    ctx.imageSmoothingEnabled = false;
+    ctx.mozImageSmoothingEnabled = false;
+    ctx.webkitImageSmoothingEnabled = false;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(back, 0, 0, VW, VH, 0, 0, canvas.width, canvas.height);
+
+    // Target marker on top
+    if (kitty.targetX !== null) {
+      const sx = Math.round(kitty.targetX - camX);
+      const sy = Math.round(kitty.targetY - camY);
+      if (Math.floor(globalT*6) % 2 === 0) {
+        ctx.fillStyle = trailTo ? '#ce93d8' : '#fff59d';
+        ctx.fillRect(sx*scale - 1, sy*scale - 6*scale, 2*scale, 2*scale);
+        ctx.fillRect(sx*scale - 6*scale, sy*scale - 1, 2*scale, 2*scale);
+        ctx.fillRect(sx*scale - 1, sy*scale + 4*scale, 2*scale, 2*scale);
+        ctx.fillRect(sx*scale + 4*scale, sy*scale - 1, 2*scale, 2*scale);
+      }
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════
+  //  FLOW / HELPERS
+  // ═══════════════════════════════════════════════════════════════════════
+  function flash(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.classList.add('show');
+    setTimeout(() => el.classList.remove('show'), 320);
+  }
+  function updateBerryCounter() {
+    document.getElementById('berry-counter').textContent = '🍓 ' + berriesCollected;
+  }
+  function updateAcornCounter() {
+    document.getElementById('acorn-counter').textContent = '🌰 ' + acornsCollected;
+  }
+  function markFriendFound(kind) {
+    const el = document.getElementById('slot-' + kind);
+    if (el) { el.classList.add('got'); el.classList.remove('near'); }
+  }
+  function showBanner(text) {
+    const b = document.getElementById('friend-banner');
+    b.textContent = text;
+    b.classList.add('show');
+    setTimeout(() => b.classList.remove('show'), 1500);
+  }
+
+  function initCanvas() {
+    canvas = document.getElementById('game');
+    canvas.style.display = 'block';
+    ctx = canvas.getContext('2d');
+    back = document.createElement('canvas');
+    back.width = VW;
+    back.height = VH;
+    bctx = back.getContext('2d');
+    resize();
+    window.addEventListener('resize', resize);
+  }
+  function resize() {
+    const sw = window.innerWidth;
+    const sh = window.innerHeight;
+    scale = Math.max(1, Math.min(Math.floor(sw / VW), Math.floor(sh / VH)));
+    canvas.width = VW * scale;
+    canvas.height = VH * scale;
+    canvas.style.width = (VW * scale) + 'px';
+    canvas.style.height = (VH * scale) + 'px';
+    canvas.style.position = 'fixed';
+    canvas.style.left = '50%';
+    canvas.style.top = '50%';
+    canvas.style.transform = 'translate(-50%, -50%)';
+  }
+
+  function startGame() {
+    try { au().resume(); } catch(e) {}
+    document.getElementById('start-screen').classList.add('hidden');
+
+    // First launch — ask for name
+    if (!SAVE.kittyName) {
+      showNameModal();
+      // The rest of the start logic runs once name is confirmed
+      const origConfirm = window.confirmName;
+      window.confirmName = function() {
+        origConfirm();
+        finishStart();
+      };
+    } else {
+      finishStart();
+    }
+  }
+  function finishStart() {
+    document.getElementById('hud').style.display = 'flex';
+    document.getElementById('berry-counter').style.display = 'block';
+    document.getElementById('acorn-counter').style.display = 'block';
+    document.getElementById('hint').style.display = 'block';
+    document.getElementById('voice-hint').style.display = 'block';
+    document.getElementById('mute-btn').style.display = 'block';
+    document.getElementById('wardrobe-btn').style.display = 'flex';
+    document.getElementById('album-btn').style.display = 'flex';
+    document.getElementById('companion-btn').style.display = 'flex';
+
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (SR) document.getElementById('mic-btn').style.display = 'flex';
+
+    if (!canvas) {
+      initCanvas();
+      buildWorld();
+      kitty.x = MAP_W / 2;
+      kitty.y = MAP_H / 2;
+      camX = kitty.x - VW / 2;
+      camY = kitty.y - VH / 2;
+      companion.x = kitty.x - 14;
+      companion.y = kitty.y + 4;
+      bindInput();
+      setupSpeech();
+      setupMotion();
+      // Pre-populate panels
+      populateWardrobe(); populateAlbum(); populateCompanion();
+      refreshHearts();
+      requestAnimationFrame(animate);
+    }
+    gameActive = true;
+    lastT = performance.now();
+    [523,659,784,988,1175].forEach((f,i) => tone(f,'square',0.2,0.1, i*0.07));
+    startMusic();
+    const greet = SAVE.stickers.length > 0
+      ? "Hello again! Let's find more forest friends!"
+      : "Hello! Help me find the forest friends!";
+    setTimeout(() => speakCat(greet), 600);
+  }
+  window.startGame = startGame;
+
+  function winGame() {
+    gameActive = false;
+    document.getElementById('hud').style.display = 'none';
+    document.getElementById('berry-counter').style.display = 'none';
+    document.getElementById('acorn-counter').style.display = 'none';
+    document.getElementById('mic-btn').style.display = 'none';
+    document.getElementById('wardrobe-btn').style.display = 'none';
+    document.getElementById('album-btn').style.display = 'none';
+    document.getElementById('companion-btn').style.display = 'none';
+    document.getElementById('win-screen').classList.remove('hidden');
+    if (isListening && recognition) { isListening = false; try { recognition.stop(); } catch(e){} }
+    stopMusic();
+    playWin();
+    spawnConfetti();
+    setTimeout(spawnConfetti, 700);
+    setTimeout(spawnConfetti, 1500);
+    setTimeout(() => speakCat("You found everyone! You are the best princess kitty!"), 1100);
+  }
+  function restartGame() {
+    foundCount = 0;
+    berriesCollected = 0;
+    acornsCollected = 0;
+    updateBerryCounter();
+    updateAcornCounter();
+    kitty.x = MAP_W / 2;
+    kitty.y = MAP_H / 2;
+    kitty.targetX = null; kitty.targetY = null;
+    trailTo = null;
+    voiceHighlightKind = null;
+    extraFlowers = [];
+    sparkles = [];
+    voiceSparkles = [];
+    for (const f of friends) { f.found = false; f.near = false; f.t = 0; }
+    for (const b of berries) { b.collected = false; }
+    for (const a of acorns) { a.collected = false; }
+    document.querySelectorAll('.friend-slot').forEach(s => { s.classList.remove('got'); s.classList.remove('near'); });
+    document.getElementById('win-screen').classList.add('hidden');
+    document.getElementById('hud').style.display = 'flex';
+    document.getElementById('berry-counter').style.display = 'block';
+    document.getElementById('acorn-counter').style.display = 'block';
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (SR) document.getElementById('mic-btn').style.display = 'flex';
+    document.getElementById('wardrobe-btn').style.display = 'flex';
+    document.getElementById('album-btn').style.display = 'flex';
+    document.getElementById('companion-btn').style.display = 'flex';
+    // Reset session-only quest progress
+    questProgress = {};
+    refreshHearts();
+    gameActive = true;
+    lastT = performance.now();
+    if (MUSIC.enabled) startMusic();
+  }
+  window.restartGame = restartGame;
+
+  function spawnConfetti() {
+    const colors = ['#ff80ab','#ffd700','#4fc3f7','#ba68c8','#ffca28','#f06292','#7e57c2','#aed581','#26a69a','#ff9800'];
+    for (let i=0; i<80; i++) {
+      const p = document.createElement('div');
+      p.className = 'confetti-piece';
+      const size = 6 + Math.floor(Math.random() * 4) * 3;
+      p.style.width  = size + 'px';
+      p.style.height = size + 'px';
+      p.style.left   = (Math.random() * 100) + 'vw';
+      p.style.background = colors[Math.floor(Math.random() * colors.length)];
+      p.style.animationDuration = (2.4 + Math.random() * 2.6) + 's';
+      document.body.appendChild(p);
+      setTimeout(() => p.remove(), 5500);
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════
+  //  START-SCREEN ART — kitty surrounded by forest
+  // ═══════════════════════════════════════════════════════════════════════
+  (function(){
+    const artCanvas = document.getElementById('start-art');
+    artCanvas.width = 80;
+    artCanvas.height = 80;
+    const c = artCanvas.getContext('2d');
+    c.imageSmoothingEnabled = false;
+    const off = document.createElement('canvas');
+    off.width = 64; off.height = 64;
+    const oc = off.getContext('2d');
+
+    // Grass bg
+    oc.fillStyle = '#2e7d32';
+    oc.fillRect(0,0,64,64);
+    oc.fillStyle = '#4caf50';
+    for (let i=0;i<40;i++) oc.fillRect(Math.floor(Math.random()*64), Math.floor(Math.random()*64), 1, 1);
+    oc.fillStyle = '#81c784';
+    for (let i=0;i<20;i++) oc.fillRect(Math.floor(Math.random()*64), Math.floor(Math.random()*64), 1, 1);
+    oc.fillStyle = '#c5e1a5';
+    for (let i=0;i<6;i++) oc.fillRect(Math.floor(Math.random()*64), Math.floor(Math.random()*64), 1, 1);
+
+    // Mini tree behind (just the leaves)
+    drawSprite(oc, OAK, 4, 0);
+    drawSprite(oc, PINE, 44, 0);
+    // A flower or two
+    drawSprite(oc, FLOWERS.pink, 6, 50);
+    drawSprite(oc, FLOWERS.yellow, 54, 52);
+    drawSprite(oc, MUSH_RED, 44, 46);
+    // Kitty centered
+    drawSprite(oc, CAT_DOWN_A, 20, 30);
+
+    c.drawImage(off, 0, 0, 64, 64, 0, 0, 80, 80);
+
+    // Decorative sparkle bubbles around start screen
+    const s = document.getElementById('start-screen');
+    for (let i = 0; i < 14; i++) {
+      const b = document.createElement('div');
+      b.className = 'tap-ring';
+      b.style.animation = 'none';
+      b.style.border = '2px solid rgba(255,255,255,0.45)';
+      b.style.boxShadow = '0 0 0 2px #000';
+      const size = 6 + Math.random() * 16;
+      b.style.left = (Math.random()*100)+'vw';
+      b.style.top  = (Math.random()*100)+'vh';
+      b.style.width = size+'px';
+      b.style.height = size+'px';
+      b.style.position = 'absolute';
+      b.style.zIndex = '0';
+      b.style.transform = 'translate(-50%, -50%)';
+      s.appendChild(b);
+    }
+  })();
+  </script>
+</body>
+</html>

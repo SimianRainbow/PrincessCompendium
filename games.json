@@ -298,5 +298,17 @@
     "version": "1.0.0",
     "category": "other",
     "path": "games/025-princess-sort/index.html"
+  },
+  {
+    "id": "026-princess-whiskers",
+    "title": "Princess Whiskers",
+    "description": "Royal kitty RPG — name your cat, wardrobe, talking animals, songs, day/night, crystal cave!",
+    "icon": "🐱",
+    "ageMin": 2,
+    "ageMax": 5,
+    "skill": "full RPG: speech I/O, persistent bonds, quests, biomes, wardrobe, companion",
+    "version": "2.0.0",
+    "category": "adventure",
+    "path": "games/026-princess-whiskers/index.html"
   }
 ]
