@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Royal Weather 🌦️</title>
+  <style>
+    * { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+    body {
+      min-height:100vh; display:flex; flex-direction:column;
+      align-items:center; font-family:Georgia,serif;
+      overflow:hidden; user-select:none;
+    }
+
+    /* ── Header ── */
+    #header {
+      position:fixed; top:0; left:0; right:0; z-index:20;
+      display:flex; align-items:center; justify-content:space-between;
+      padding:clamp(8px,2vw,12px) 16px;
+      background:rgba(0,0,0,.22); backdrop-filter:blur(4px);
+    }
+    #tier-badge {
+      font-size:clamp(12px,3.5vw,17px);
+      background:rgba(255,255,255,.3); border-radius:20px;
+      padding:3px 11px; color:#fff; font-weight:bold;
+      text-shadow:0 1px 3px rgba(0,0,0,.5);
+    }
+    #round-label { font-size:clamp(12px,3vw,16px); color:rgba(255,255,255,.9); font-weight:bold; text-shadow:0 1px 3px rgba(0,0,0,.4); }
+    #score-row { font-size:clamp(16px,4vw,22px); min-width:28px; text-align:right; }
+
+    /* ── Scene ── */
+    #scene {
+      position:relative; width:100vw;
+      height:clamp(220px,44vh,380px);
+      display:flex; align-items:flex-end; justify-content:center;
+      padding-bottom:clamp(8px,2vh,16px);
+      overflow:hidden;
+      margin-top:clamp(44px,10vw,56px);
+      transition:background .8s ease;
+    }
+
+    /* Ground */
+    #ground { position:absolute; bottom:0; left:0; right:0; height:clamp(38px,8vh,58px); background:linear-gradient(#5d4037,#4e342e); z-index:1; }
+    #grass  { position:absolute; bottom:clamp(36px,7.5vh,56px); left:0; right:0; height:clamp(10px,2vh,16px); background:linear-gradient(#66bb6a,#43a047); border-radius:8px 8px 0 0; z-index:2; transition:background .8s; }
+
+    /* Scenery */
+    #castle-el { position:absolute; bottom:clamp(46px,10vh,72px); right:clamp(8px,4vw,36px); z-index:3; font-size:clamp(36px,9vw,54px); }
+    #tree-el   { position:absolute; bottom:clamp(46px,10vh,72px); left:clamp(8px,4vw,36px);  z-index:3; font-size:clamp(32px,8vw,50px); }
+
+    /* Princess */
+    #princess-el {
+      position:relative; z-index:5;
+      font-size:clamp(54px,14vw,80px);
+      margin-bottom:clamp(4px,1.5vh,12px);
+      animation:prinBob 2.2s ease-in-out infinite;
+    }
+    @keyframes prinBob { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-5px)} }
+
+    /* Sun */
+    #sun-el {
+      position:absolute; top:clamp(28px,7vh,56px); right:clamp(36px,9vw,72px);
+      width:clamp(48px,12vw,76px); height:clamp(48px,12vw,76px);
+      background:radial-gradient(circle,#FFD700 40%,#FFA500);
+      border-radius:50%;
+      box-shadow:0 0 clamp(18px,5vw,36px) #FFD700;
+      animation:sunGlow 2.5s ease-in-out infinite;
+      z-index:2;
+    }
+    @keyframes sunGlow { 0%,100%{box-shadow:0 0 20px #FFD700} 50%{box-shadow:0 0 50px #FFD700,0 0 80px rgba(255,215,0,.4)} }
+
+    /* Clouds */
+    .cloud-puff {
+      position:absolute; border-radius:50px; z-index:3;
+    }
+    .cloud-puff::before {
+      content:''; position:absolute;
+      width:45%; height:80%; border-radius:50%;
+      background:inherit; top:-38%; left:15%;
+    }
+    .cloud-puff::after {
+      content:''; position:absolute;
+      width:35%; height:65%; border-radius:50%;
+      background:inherit; top:-28%; left:48%;
+    }
+
+    /* Rain */
+    .rain-drop {
+      position:absolute; width:2px; border-radius:2px;
+      background:linear-gradient(transparent,#64b5f6,#1565c0);
+      animation:rainFall linear infinite;
+      z-index:4;
+    }
+    @keyframes rainFall { 0%{top:-30px;opacity:0} 8%{opacity:.85} 92%{opacity:.85} 100%{top:105%;opacity:0} }
+
+    /* Snow */
+    .snow-flake {
+      position:absolute; color:#fff;
+      text-shadow:0 0 6px rgba(173,216,230,.9);
+      animation:snowFall linear infinite;
+      z-index:4;
+    }
+    @keyframes snowFall { 0%{top:-30px;opacity:0} 8%{opacity:1} 92%{opacity:1} 100%{top:105%;opacity:0} }
+
+    /* Wind leaves */
+    .wind-leaf {
+      position:absolute; z-index:4;
+      animation:leafBlow linear infinite;
+    }
+    @keyframes leafBlow { from{transform:translateX(-60px) translateY(0) rotate(0)} to{transform:translateX(105vw) translateY(var(--dy,0px)) rotate(720deg)} }
+
+    /* ── Prompt ── */
+    #prompt {
+      font-size:clamp(18px,5vw,28px); color:#fff; text-align:center;
+      padding:clamp(8px,2vw,14px) 20px;
+      text-shadow:0 2px 8px rgba(0,0,0,.55);
+      background:rgba(0,0,0,.28); border-radius:14px;
+      margin:clamp(6px,1.5vw,10px) 16px;
+      width:calc(100% - 32px); max-width:480px;
+    }
+
+    /* ── Choices ── */
+    #choices {
+      display:flex; flex-wrap:wrap; justify-content:center;
+      gap:clamp(8px,2.5vw,14px); padding:0 12px clamp(8px,2vw,12px);
+      width:100%; max-width:500px;
+    }
+    .choice-btn {
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      gap:2px;
+      flex:1 1 clamp(100px,38vw,150px);
+      max-width:clamp(130px,42vw,170px);
+      min-height:clamp(82px,18vw,100px);
+      background:rgba(255,255,255,.22);
+      border:3px solid rgba(255,255,255,.5);
+      border-radius:18px;
+      cursor:pointer;
+      box-shadow:0 4px 14px rgba(0,0,0,.22);
+      transition:transform .1s;
+    }
+    .choice-btn:active { transform:scale(.93); }
+    .choice-emoji { font-size:clamp(30px,8vw,42px); line-height:1.1; }
+    .choice-label { font-size:clamp(12px,3vw,15px); color:#fff; font-weight:bold; text-shadow:0 1px 3px rgba(0,0,0,.5); }
+    .choice-btn.correct-flash { animation:correctPulse .5s ease-out; }
+    .choice-btn.wrong-flash   { animation:wrongShake .4s ease-out; }
+    @keyframes correctPulse { 0%{transform:scale(1)} 40%{transform:scale(1.1);box-shadow:0 0 30px rgba(255,255,255,.85)} 100%{transform:scale(1)} }
+    @keyframes wrongShake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-10px)} 75%{transform:translateX(10px)} }
+
+    /* ── Sparkles ── */
+    .sparkle-p { position:fixed; pointer-events:none; z-index:50; font-size:clamp(14px,3.5vw,20px); animation:sparklePop .7s ease-out forwards; }
+    @keyframes sparklePop { 0%{transform:translate(0,0) scale(1);opacity:1} 100%{transform:translate(var(--tx),var(--ty)) scale(0);opacity:0} }
+
+    /* ── Celebrate overlay ── */
+    #celebrate-overlay {
+      position:fixed; inset:0; background:rgba(0,0,0,.55);
+      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px;
+      z-index:99; opacity:0; pointer-events:none; transition:opacity .3s;
+    }
+    #celebrate-overlay.show { opacity:1; pointer-events:all; }
+    #celebrate-text { font-size:clamp(26px,7vw,52px); color:#fff; text-shadow:0 0 20px #ffd700; text-align:center; padding:0 20px; }
+    #celebrate-icon { font-size:clamp(48px,14vw,80px); }
+    #next-btn { padding:clamp(14px,3.5vw,20px) clamp(28px,7vw,50px); font-size:clamp(18px,5vw,26px); border-radius:50px; border:none; background:linear-gradient(135deg,#ffd700,#ff9800); color:#5d2e00; font-weight:bold; cursor:pointer; font-family:inherit; }
+
+    .confetti-bit { position:fixed; width:10px; height:10px; border-radius:50%; animation:cfFall linear forwards; pointer-events:none; z-index:100; }
+    @keyframes cfFall { 0%{top:-20px;opacity:1} 100%{top:110vh;opacity:.2} }
+  </style>
+</head>
+<body>
+  <div id="header">
+    <div id="tier-badge">Easy 🌸</div>
+    <div id="round-label">1 / 9</div>
+    <div id="score-row"></div>
+  </div>
+
+  <div id="scene">
+    <div id="sun-el"></div>
+    <div id="tree-el">🌳</div>
+    <div id="castle-el">🏰</div>
+    <div id="ground"></div>
+    <div id="grass"></div>
+    <div id="princess-el">👸</div>
+  </div>
+
+  <div id="prompt">What's the weather? 🌤️</div>
+  <div id="choices"></div>
+
+  <div id="celebrate-overlay">
+    <div id="celebrate-text"></div>
+    <div id="celebrate-icon"></div>
+    <button id="next-btn" onclick="nextRound()">Next ➡️</button>
+  </div>
+
+<script>
+  /* ── Weather definitions ─────────────────────────────── */
+  const WEATHERS = [
+    {
+      id:'sunny', emoji:'☀️', name:'Sunny',
+      bg:'linear-gradient(180deg,#87CEEB 0%,#FFF8DC 100%)',
+      grass:'linear-gradient(#66bb6a,#43a047)',
+      setup(){
+        show('sun-el');
+        mkCloud(false); mkCloud(false);
+      }
+    },
+    {
+      id:'rainy', emoji:'🌧️', name:'Rainy',
+      bg:'linear-gradient(180deg,#546E7A 0%,#90A4AE 100%)',
+      grass:'linear-gradient(#388e3c,#2e7d32)',
+      setup(){
+        hide('sun-el');
+        for(let i=0;i<20;i++) mkRain();
+        for(let i=0;i<3;i++) mkCloud(true);
+      }
+    },
+    {
+      id:'snowy', emoji:'❄️', name:'Snowy',
+      bg:'linear-gradient(180deg,#B3D9F5 0%,#E8F4FD 100%)',
+      grass:'linear-gradient(#E0EEF9,#C8DFF0)',
+      setup(){
+        hide('sun-el');
+        for(let i=0;i<18;i++) mkSnow();
+        for(let i=0;i<2;i++) mkCloud(true);
+      }
+    },
+    {
+      id:'cloudy', emoji:'☁️', name:'Cloudy',
+      bg:'linear-gradient(180deg,#607D8B 0%,#B0BEC5 100%)',
+      grass:'linear-gradient(#558b2f,#33691e)',
+      setup(){
+        hide('sun-el');
+        for(let i=0;i<5;i++) mkCloud(true);
+      }
+    },
+    {
+      id:'rainbow', emoji:'🌈', name:'Rainbow',
+      bg:'linear-gradient(180deg,#87CEEB 0%,#E0F7FA 100%)',
+      grass:'linear-gradient(#66bb6a,#43a047)',
+      setup(){
+        show('sun-el');
+        document.getElementById('sun-el').style.opacity='.6';
+        mkRainbow();
+        mkCloud(false);
+      }
+    },
+    {
+      id:'windy', emoji:'💨', name:'Windy',
+      bg:'linear-gradient(180deg,#90A4AE 0%,#CFD8DC 100%)',
+      grass:'linear-gradient(#558b2f,#33691e)',
+      setup(){
+        hide('sun-el');
+        document.getElementById('tree-el').textContent='🎋';
+        for(let i=0;i<3;i++) mkCloud(true);
+        for(let i=0;i<12;i++) mkLeaf();
+      }
+    },
+  ];
+
+  /* ── Scene helpers ───────────────────────────────────── */
+  const scene = document.getElementById('scene');
+  function show(id){ const el=document.getElementById(id); el.style.display='block'; el.style.opacity='1'; }
+  function hide(id){ document.getElementById(id).style.display='none'; }
+  function wx(cls){ const el=document.createElement('div'); el.className='wx-fx'+(cls?' '+cls:''); return el; }
+
+  function mkRain(){
+    const el=wx('rain-drop');
+    el.style.left=Math.random()*100+'vw';
+    el.style.height=(10+Math.random()*14)+'px';
+    el.style.animationDuration=(.42+Math.random()*.38)+'s';
+    el.style.animationDelay=(Math.random()*1.2)+'s';
+    scene.appendChild(el);
+  }
+  function mkSnow(){
+    const el=wx('snow-flake');
+    el.textContent=['❄','✦','❅'][Math.floor(Math.random()*3)];
+    el.style.fontSize=(10+Math.random()*12)+'px';
+    el.style.left=Math.random()*100+'vw';
+    el.style.animationDuration=(1.8+Math.random()*2)+'s';
+    el.style.animationDelay=(Math.random()*2.5)+'s';
+    scene.appendChild(el);
+  }
+  function mkLeaf(){
+    const el=wx('wind-leaf');
+    el.textContent=['🍃','🍂','🌿','🍁'][Math.floor(Math.random()*4)];
+    el.style.fontSize=(14+Math.random()*12)+'px';
+    el.style.top=(5+Math.random()*80)+'%';
+    el.style.setProperty('--dy',(Math.random()-0.5)*80+'px');
+    el.style.animationDuration=(1.2+Math.random()*1.5)+'s';
+    el.style.animationDelay=(Math.random()*2)+'s';
+    scene.appendChild(el);
+  }
+  function mkCloud(dark){
+    const el=wx('cloud-puff');
+    const w=55+Math.random()*75;
+    el.style.width=w+'px'; el.style.height=Math.round(w*.42)+'px';
+    el.style.top=(4+Math.random()*38)+'%';
+    el.style.left=(Math.random()*78)+'%';
+    el.style.background=dark?'rgba(170,175,185,.88)':'rgba(255,255,255,.92)';
+    scene.appendChild(el);
+  }
+  function mkRainbow(){
+    const el=wx('');
+    el.style.cssText='position:absolute;bottom:20%;left:50%;transform:translateX(-50%);z-index:2;pointer-events:none;';
+    el.innerHTML=`<svg viewBox="0 0 280 140" style="width:clamp(170px,52vw,270px);height:auto;display:block;">
+      <path d="M10,140 A130,130 0 0,1 270,140" fill="none" stroke="#FF2222" stroke-width="8" opacity=".9"/>
+      <path d="M20,140 A120,120 0 0,1 260,140" fill="none" stroke="#FF8800" stroke-width="8" opacity=".9"/>
+      <path d="M30,140 A110,110 0 0,1 250,140" fill="none" stroke="#FFEE00" stroke-width="8" opacity=".9"/>
+      <path d="M40,140 A100,100 0 0,1 240,140" fill="none" stroke="#00BB00" stroke-width="8" opacity=".9"/>
+      <path d="M50,140 A 90, 90 0 0,1 230,140" fill="none" stroke="#1166FF" stroke-width="8" opacity=".9"/>
+      <path d="M60,140 A 80, 80 0 0,1 220,140" fill="none" stroke="#8800EE" stroke-width="8" opacity=".9"/>
+    </svg>`;
+    scene.appendChild(el);
+  }
+
+  function clearEffects(){
+    scene.querySelectorAll('.wx-fx').forEach(el=>el.remove());
+    show('sun-el');
+    document.getElementById('tree-el').textContent='🌳';
+  }
+
+  function applyWeather(w){
+    clearEffects();
+    scene.style.background=w.bg;
+    document.getElementById('grass').style.background=w.grass;
+    w.setup();
+  }
+
+  /* ── Tiers ───────────────────────────────────────────── */
+  const TIERS = [
+    { label:'Easy 🌸',   ids:['sunny','rainy','snowy'],                          choices:2 },
+    { label:'Medium 🌟', ids:['sunny','rainy','snowy','cloudy'],                  choices:3 },
+    { label:'Hard 👑',   ids:['sunny','rainy','snowy','cloudy','rainbow','windy'],choices:4 },
+  ];
+  function getTier(r){ return r<=3?TIERS[0]:r<=6?TIERS[1]:TIERS[2]; }
+
+  /* ── Audio ───────────────────────────────────────────── */
+  let audioCtx=null;
+  function getAudio(){ if(!audioCtx) audioCtx=new(window.AudioContext||window.webkitAudioContext)(); return audioCtx; }
+  function tone(f,t,d,v=.15){ try{ const c=getAudio(),o=c.createOscillator(),g=c.createGain(); o.connect(g);g.connect(c.destination); o.type=t||'sine';o.frequency.value=f;g.gain.setValueAtTime(v,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+d);o.start();o.stop(c.currentTime+d); }catch(e){} }
+  function playCorrect(){ [523,659,784,1047].forEach((f,i)=>setTimeout(()=>tone(f,'sine',.2),i*80)); }
+  function playWrong(){ tone(200,'sawtooth',.25,.1); }
+  function playCelebrate(){ [523,587,659,698,784,880,988,1047].forEach((f,i)=>setTimeout(()=>tone(f,'sine',.25),i*70)); }
+
+  /* ── State ───────────────────────────────────────────── */
+  let score=0, round=0, currentWeather=null, locked=false;
+  const TOTAL=9;
+
+  function updateScore(){ document.getElementById('score-row').innerHTML=Array.from({length:score},()=>'⭐').join(''); }
+
+  function shuffle(arr){ const a=[...arr]; for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]; } return a; }
+
+  /* ── Choices ─────────────────────────────────────────── */
+  function buildChoices(correct, tier){
+    const pool=tier.ids.map(id=>WEATHERS.find(w=>w.id===id));
+    const wrong=shuffle(pool.filter(w=>w.id!==correct.id)).slice(0,tier.choices-1);
+    const all=shuffle([correct,...wrong]);
+    const box=document.getElementById('choices');
+    box.innerHTML='';
+    all.forEach(w=>{
+      const btn=document.createElement('button');
+      btn.className='choice-btn';
+      btn.innerHTML=`<span class="choice-emoji">${w.emoji}</span><span class="choice-label">${w.name}</span>`;
+      btn.onclick=()=>handleChoice(btn, w.id===correct.id, correct);
+      box.appendChild(btn);
+    });
+  }
+
+  /* ── Sparkle burst ───────────────────────────────────── */
+  function sparkleBurst(btn){
+    const r=btn.getBoundingClientRect();
+    const cx=r.left+r.width/2, cy=r.top+r.height/2;
+    const sparks=['✨','⭐','💫','🌟','💖','🌈'];
+    for(let i=0;i<10;i++){
+      const el=document.createElement('div'); el.className='sparkle-p';
+      el.textContent=sparks[i%sparks.length];
+      el.style.left=cx+'px'; el.style.top=cy+'px';
+      const angle=Math.random()*Math.PI*2, dist=50+Math.random()*80;
+      el.style.setProperty('--tx',Math.cos(angle)*dist+'px');
+      el.style.setProperty('--ty',Math.sin(angle)*dist+'px');
+      el.style.animationDelay=Math.random()*.15+'s';
+      document.body.appendChild(el);
+      setTimeout(()=>el.remove(),950);
+    }
+  }
+
+  /* ── Tap handler ─────────────────────────────────────── */
+  function handleChoice(btn, correct, correctW){
+    if(locked) return; locked=true;
+    if(correct){
+      sparkleBurst(btn); playCorrect(); score++; updateScore();
+      btn.classList.add('correct-flash');
+      setTimeout(()=>{
+        btn.classList.remove('correct-flash');
+        const msgs=['Right! 🎉',`${correctW.name}! 🌟`,'Correct! ✨','You got it! 💖'];
+        document.getElementById('celebrate-text').textContent=msgs[Math.floor(Math.random()*msgs.length)];
+        document.getElementById('celebrate-icon').textContent=correctW.emoji;
+        document.getElementById('celebrate-overlay').classList.add('show');
+        playCelebrate(); confettiBurst();
+      },500);
+    } else {
+      btn.classList.add('wrong-flash'); playWrong();
+      setTimeout(()=>{ btn.classList.remove('wrong-flash'); locked=false; },450);
+    }
+  }
+
+  /* ── Next round ──────────────────────────────────────── */
+  function nextRound(){
+    document.getElementById('celebrate-overlay').classList.remove('show');
+    if(round>=TOTAL){ endGame(); return; }
+    round++; locked=false;
+
+    const tier=getTier(round);
+    document.getElementById('tier-badge').textContent=tier.label;
+    document.getElementById('round-label').textContent=round+' / '+TOTAL;
+
+    const pool=tier.ids.map(id=>WEATHERS.find(w=>w.id===id));
+    currentWeather=pool[Math.floor(Math.random()*pool.length)];
+    applyWeather(currentWeather);
+    buildChoices(currentWeather, tier);
+  }
+
+  /* ── End game ────────────────────────────────────────── */
+  function endGame(){
+    document.getElementById('celebrate-text').textContent=`${score} of 9 stars! 👑 Amazing!`;
+    document.getElementById('celebrate-icon').textContent=Array.from({length:Math.min(score,9)},()=>'⭐').join('')||'🌸';
+    document.getElementById('next-btn').textContent='Play Again 🔄';
+    document.getElementById('next-btn').onclick=()=>{ score=0;round=0;updateScore();nextRound();document.getElementById('celebrate-overlay').classList.remove('show'); };
+    document.getElementById('celebrate-overlay').classList.add('show');
+    playCelebrate(); confettiBurst();
+  }
+
+  /* ── Confetti ────────────────────────────────────────── */
+  function confettiBurst(){
+    const cols=['#ffd700','#ff69b4','#00cfff','#7fff00','#ff6347','#da70d6'];
+    for(let i=0;i<35;i++){
+      const el=document.createElement('div'); el.className='confetti-bit';
+      el.style.left=Math.random()*100+'vw';
+      el.style.background=cols[Math.floor(Math.random()*cols.length)];
+      el.style.animationDuration=(1.2+Math.random()*1.6)+'s';
+      el.style.animationDelay=(Math.random()*.4)+'s';
+      document.body.appendChild(el);
+      setTimeout(()=>el.remove(),2800);
+    }
+  }
+
+  updateScore();
+  nextRound();
+</script>
+</body>
+</html>

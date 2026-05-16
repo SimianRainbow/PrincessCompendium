@@ -1,9 +1,9 @@
 # Princess Compendium — Status
 
 ## Last update run
-Date: 2026-05-13
-- Improved: `012-pattern-princess` → v1.1.0 (fixed buggy pattern logic to use cycle-based generation; added tier badge Easy🌸/Medium🌟/Hard👑; expanded to 9 rounds; added 3-item themes for Hard tier; added ABC and ABBC patterns for Hard rounds 7-9; expanded 2-item theme pool from 12 to 18 themes)
-- Added: `025-princess-sort` (sorting by category — one item shown at a time, tap the correct bucket 🐾Animals/🍭Sweets/🌸Flowers; 3 tiers across 9 rounds; item flies toward correct bucket on sort; sparkle bursts + confetti; item deduplication within session)
+Date: 2026-05-16
+- Improved: `008-more-or-less` → v1.1.0 (tier badge Easy🌸/Medium🌟/Hard👑; 9 rounds; LESS questions added for Medium+Hard tiers; sparkle burst on correct tap; 4-note ascending correct sound; `locked` state prevents double-tap; round counter; 12-item pool)
+- Added: `027-royal-weather` (weather recognition — animated scene shows sunny/rainy/snowy/cloudy/rainbow/windy; child taps correct weather button; 2 choices Easy → 3 Medium → 4 Hard; princess + castle + tree in scene; rain/snow/leaf particle animations; sparkle burst + confetti on correct)
 
 ## Improvement history
 
@@ -18,19 +18,31 @@ Date: 2026-05-13
 | 2026-05-07 | 010-royal-orchestra | +2 instruments (Flute/Piano), 3 tiers, sparkle bursts, tier badge, round-win melody | 1.1.0 |
 | 2026-05-10 | 005-princess-says | 3 tiers, 24-item pool (colours+animals+foods), 2×3 Hard grid, sparkle bursts | 1.1.0 |
 | 2026-05-13 | 012-pattern-princess | Fixed pattern logic, ABC+ABBC patterns, 3-item themes, tier badge, 9 rounds | 1.1.0 |
+| 2026-05-16 | 008-more-or-less | Tier badge, LESS questions, sparkle burst, 9 rounds, locked state, round counter | 1.1.0 |
 
 ## Games due for improvement (all at v1.0.0)
 
 Priority candidates — pick whichever has the clearest improvement path:
 
-- **008-more-or-less** — could add a "how many more?" question type for higher rounds
+- **006-fairy-tale-tap** — more story branches, clearer choice visuals, tier badge
+- **011-princess-quest** — smoother controls, obstacle variety, difficulty tiers
+- **013-magic-leaf** — more character encounters, tier badge, sparkle on collection
+- **015-mermaid-lagoon-v2** — tier badge, more NPC variety
+- **018-size-sort** — sparkle burst, richer audio, tier badge
+- **019-feelings-faces** — sparkle burst, richer audio, tier badge
+- **020-opposites** — sparkle burst, richer audio, tier badge
+- **021-body-parts** — sparkle burst, richer audio
+- **022-magic-adding** — sparkle burst, richer audio, tier badge
+- **023-spatial-princess** — sparkle burst, richer audio
+- **024-rhyme-time** — sparkle burst, richer audio
+- **025-princess-sort** — sparkle burst, richer audio
 
 ## Skills not yet covered
 
 See `CLAUDE.md` for the full prioritised list. Top 3 to build next:
-1. Seasons / weather (match the weather to the scene)
-2. Sight words (tap the word that matches the picture, ages 4-5)
-3. Simple addition — already covered by 022-magic-adding (check CLAUDE.md list)
+1. Sight words (tap the word that matches the picture, ages 4-5)
+2. Sorting by size (big vs small, biggest/smallest — pre-maths) — covered by 018 but could expand
+3. Body parts extension (left/right, front/back for older toddlers)
 
 ## Next game ID
-`026-<slug>`
+`028-<slug>`
