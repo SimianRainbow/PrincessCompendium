@@ -1,9 +1,9 @@
 # Princess Compendium — Status
 
 ## Last update run
-Date: 2026-05-16
-- Improved: `008-more-or-less` → v1.1.0 (tier badge Easy🌸/Medium🌟/Hard👑; 9 rounds; LESS questions added for Medium+Hard tiers; sparkle burst on correct tap; 4-note ascending correct sound; `locked` state prevents double-tap; round counter; 12-item pool)
-- Added: `027-royal-weather` (weather recognition — animated scene shows sunny/rainy/snowy/cloudy/rainbow/windy; child taps correct weather button; 2 choices Easy → 3 Medium → 4 Hard; princess + castle + tree in scene; rain/snow/leaf particle animations; sparkle burst + confetti on correct)
+Date: 2026-05-19
+- Improved: `021-body-parts` → v1.1.0 (named tier labels 🌸 Easy/🌟 Medium/👑 Hard; added knee body part (11 total); emoji sparkle burst on correct answer; round counter display; varied prompt phrasing; celebration overlay shows body part name + emoji; 4-note ascending correct sound)
+- Added: `028-sight-words` (sight word reading — large emoji picture shown; child taps matching word; Easy=2 choices 3-letter words; Medium=3 choices 4-letter words; Hard=4 choices 5-letter princess words; sparkle burst + confetti on correct; 9 rounds total)
 
 ## Improvement history
 
@@ -19,6 +19,7 @@ Date: 2026-05-16
 | 2026-05-10 | 005-princess-says | 3 tiers, 24-item pool (colours+animals+foods), 2×3 Hard grid, sparkle bursts | 1.1.0 |
 | 2026-05-13 | 012-pattern-princess | Fixed pattern logic, ABC+ABBC patterns, 3-item themes, tier badge, 9 rounds | 1.1.0 |
 | 2026-05-16 | 008-more-or-less | Tier badge, LESS questions, sparkle burst, 9 rounds, locked state, round counter | 1.1.0 |
+| 2026-05-19 | 021-body-parts | Named tier badges, knee added, emoji sparkles, round counter, prompt variety, part reinforcement in celebration | 1.1.0 |
 
 ## Games due for improvement (all at v1.0.0)
 
@@ -31,7 +32,7 @@ Priority candidates — pick whichever has the clearest improvement path:
 - **018-size-sort** — sparkle burst, richer audio, tier badge
 - **019-feelings-faces** — sparkle burst, richer audio, tier badge
 - **020-opposites** — sparkle burst, richer audio, tier badge
-- **021-body-parts** — sparkle burst, richer audio
+- ~~**021-body-parts**~~ — ✅ done v1.1.0
 - **022-magic-adding** — sparkle burst, richer audio, tier badge
 - **023-spatial-princess** — sparkle burst, richer audio
 - **024-rhyme-time** — sparkle burst, richer audio
@@ -40,9 +41,9 @@ Priority candidates — pick whichever has the clearest improvement path:
 ## Skills not yet covered
 
 See `CLAUDE.md` for the full prioritised list. Top 3 to build next:
-1. Sight words (tap the word that matches the picture, ages 4-5)
+1. ~~Sight words~~ — ✅ covered by `028-sight-words`
 2. Sorting by size (big vs small, biggest/smallest — pre-maths) — covered by 018 but could expand
 3. Body parts extension (left/right, front/back for older toddlers)
 
 ## Next game ID
-`028-<slug>`
+`029-<slug>`
