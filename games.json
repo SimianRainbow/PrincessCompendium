@@ -223,7 +223,7 @@
     "ageMin": 2,
     "ageMax": 5,
     "skill": "emotions & feelings",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "category": "other",
     "path": "games/019-feelings-faces/index.html"
   },
@@ -334,5 +334,17 @@
     "version": "1.0.0",
     "category": "letters",
     "path": "games/028-sight-words/index.html"
+  },
+  {
+    "id": "029-colour-mixing",
+    "title": "Colour Cauldron",
+    "description": "Mix two magical potions and tap the colour they make — Red+Blue=Purple, and more!",
+    "icon": "🧪",
+    "ageMin": 3,
+    "ageMax": 5,
+    "skill": "colour mixing & art science",
+    "version": "1.0.0",
+    "category": "colours-shapes",
+    "path": "games/029-colour-mixing/index.html"
   }
 ]
