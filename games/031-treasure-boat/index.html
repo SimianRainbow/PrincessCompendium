@@ -239,18 +239,84 @@ function playWin() {
   [131, 196, 262, 330].forEach((f, i) => tone(f, 'sine', 0.5, 0.08, i * 0.25));
 }
 
-// Gentle ambient sea music — slow major arpeggio loop, lightly scheduled.
-let musicTimer = null;
-const MUSIC_NOTES = [261.63, 329.63, 392.0, 523.25, 392.0, 329.63];
-let musicIdx = 0;
-function musicTick() {
-  if (muted) return;
-  const f = MUSIC_NOTES[musicIdx % MUSIC_NOTES.length];
-  tone(f, 'sine', 0.9, 0.045);
-  tone(f / 2, 'triangle', 1.1, 0.03);
-  musicIdx++;
+// Jaunty sea-shanty loop in a 6/8 lilt with princess sparkle.
+//  • oom-pah-pah bass on the two main beats of each bar
+//  • a singable D-major melody (I–IV–V–I–vi–IV–V–I, 8 bars)
+//  • twinkly high flourishes at each phrase start
+// A look-ahead scheduler keeps timing tight against the audio clock.
+let musicGain = null, shantyTimer = null;
+let nextNoteTime = 0, musicStep = 0;
+const EIGHTH = 0.18;                 // seconds per 8th note (≈110 bpm, 6/8)
+const NOTE = {
+  D2:73.42, G2:98.00, A2:110.00, B2:123.47,
+  Fs3:184.99, A3:220.00, B3:246.94, D4:293.66, E4:329.63,
+  Fs4:369.99, G4:392.00, A4:440.00, B4:493.88, Cs5:554.37, D5:587.33,
+  E5:659.25, Fs5:739.99, G5:783.99, A5:880.00,
+  D6:1174.66, Fs6:1479.98, A6:1760.00, D7:2349.32,
+};
+const _ = 0;                         // rest
+const MELODY = [                     // 8 bars × 6 eighth-notes
+  [NOTE.D5,_,NOTE.D5,NOTE.Fs5,_,NOTE.A5],
+  [NOTE.G5,_,NOTE.D5,_,NOTE.B4,_],
+  [NOTE.E5,_,NOTE.Cs5,_,NOTE.A4,_],
+  [NOTE.Fs5,_,NOTE.E5,NOTE.D5,_,_],
+  [NOTE.B4,_,NOTE.D5,_,NOTE.Fs5,_],
+  [NOTE.B4,_,NOTE.D5,_,NOTE.G5,_],
+  [NOTE.A5,_,NOTE.E5,_,NOTE.Cs5,_],
+  [NOTE.Fs5,_,NOTE.E5,_,NOTE.D5,_],
+];
+const BASS = [
+  {root:NOTE.D2, pah:NOTE.A3}, {root:NOTE.G2, pah:NOTE.D4},
+  {root:NOTE.A2, pah:NOTE.E4}, {root:NOTE.D2, pah:NOTE.A3},
+  {root:NOTE.B2, pah:NOTE.Fs3}, {root:NOTE.G2, pah:NOTE.D4},
+  {root:NOTE.A2, pah:NOTE.E4}, {root:NOTE.D2, pah:NOTE.A3},
+];
+function mVoice(f, type, t0, dur, peak, attack = 0.012) {
+  if (muted || !f) return;
+  try {
+    const c = au(), o = c.createOscillator(), g = c.createGain();
+    o.type = type; o.frequency.value = f;
+    o.connect(g); g.connect(musicGain || c.destination);
+    g.gain.setValueAtTime(0.0001, t0);
+    g.gain.exponentialRampToValueAtTime(peak, t0 + attack);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+    o.start(t0); o.stop(t0 + dur + 0.03);
+  } catch (e) {}
 }
-function startMusic() { if (!musicTimer) musicTimer = setInterval(musicTick, 900); }
+function sparkleRun(t0) {
+  [NOTE.D6, NOTE.Fs6, NOTE.A6, NOTE.D7].forEach((f, i) =>
+    mVoice(f, 'triangle', t0 + i * 0.06, 0.18, 0.05, 0.006));
+}
+function scheduleStep(step, t0) {
+  const bar = Math.floor(step / 6) % 8, slot = step % 6;
+  const b = BASS[bar];
+  if (slot === 0 || slot === 3) {            // "oom" on the two main beats
+    mVoice(b.root, 'triangle', t0, 0.34, 0.14);
+    mVoice(b.root * 2, 'sine', t0, 0.22, 0.045);
+  } else {                                   // "pah" on the offbeats
+    mVoice(b.pah, 'triangle', t0, 0.16, 0.055);
+  }
+  const m = MELODY[bar][slot];
+  if (m) { mVoice(m, 'triangle', t0, 0.30, 0.10); mVoice(m, 'sine', t0, 0.30, 0.04); }
+  if (slot === 0 && (bar === 0 || bar === 4)) sparkleRun(t0);
+  else if (slot === 0 && (bar === 2 || bar === 6)) mVoice(NOTE.D6, 'sine', t0, 0.5, 0.05, 0.005);
+}
+function shantyScheduler() {
+  const c = au();
+  while (nextNoteTime < c.currentTime + 0.14) {
+    scheduleStep(musicStep, nextNoteTime);
+    nextNoteTime += EIGHTH;
+    musicStep = (musicStep + 1) % 48;
+  }
+}
+function startMusic() {
+  const c = au();
+  if (!musicGain) { musicGain = c.createGain(); musicGain.gain.value = 0.62; musicGain.connect(c.destination); }
+  if (!shantyTimer) {
+    nextNoteTime = c.currentTime + 0.1; musicStep = 0;
+    shantyTimer = setInterval(shantyScheduler, 25);
+  }
+}
 function toggleMute() {
   muted = !muted;
   document.getElementById('mute-btn').classList.toggle('muted', muted);

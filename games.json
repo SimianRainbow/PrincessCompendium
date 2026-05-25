@@ -367,7 +367,7 @@
     "ageMin": 2,
     "ageMax": 5,
     "skill": "exploration, kindness & treasure hunting",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "category": "adventure",
     "path": "games/031-treasure-boat/index.html"
   }
