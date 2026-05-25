@@ -358,5 +358,17 @@
     "version": "1.0.0",
     "category": "play",
     "path": "games/030-princess-pairs/index.html"
+  },
+  {
+    "id": "031-treasure-boat",
+    "title": "Treasure Boat",
+    "description": "Sail with Prince Eric and Kitty, tap islands to dig for treasure, and make friends with the dragon and Ursula — no fighting!",
+    "icon": "⛵",
+    "ageMin": 2,
+    "ageMax": 5,
+    "skill": "exploration, kindness & treasure hunting",
+    "version": "1.0.0",
+    "category": "adventure",
+    "path": "games/031-treasure-boat/index.html"
   }
 ]

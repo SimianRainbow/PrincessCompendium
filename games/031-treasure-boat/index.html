@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Treasure Boat ⛵</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&display=swap" rel="stylesheet">
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; user-select:none; }
+    html, body { width:100%; height:100%; overflow:hidden; }
+    body {
+      background:#6ec6ff; touch-action:none;
+      font-family:'Baloo 2', system-ui, sans-serif; color:#fff;
+    }
+    canvas { display:block; width:100vw; height:100vh; }
+
+    /* ── Overlay screens ── */
+    .screen {
+      position:fixed; inset:0; z-index:20;
+      display:flex; flex-direction:column;
+      align-items:center; justify-content:center;
+      gap:clamp(14px,4vw,28px); padding:6vw; text-align:center;
+    }
+    .screen.hidden { display:none; }
+
+    #start-screen {
+      background:linear-gradient(180deg,#bde0fe 0%,#7fc7ff 45%,#4aa3e8 100%);
+    }
+    .big-emoji {
+      font-size:clamp(90px,30vw,180px);
+      filter:drop-shadow(0 10px 14px rgba(0,40,90,.35));
+      animation:bob 2.4s ease-in-out infinite;
+    }
+    @keyframes bob { 0%,100%{transform:translateY(0) rotate(-4deg)} 50%{transform:translateY(-16px) rotate(4deg)} }
+    .title {
+      font-size:clamp(34px,10vw,72px); font-weight:800; color:#fff; line-height:1.05;
+      text-shadow:0 4px 0 #2f7fc0, 0 7px 10px rgba(0,0,0,.25);
+    }
+    .subtitle {
+      font-size:clamp(16px,4.6vw,26px); font-weight:600; color:#11476f;
+      max-width:90vw; line-height:1.35;
+    }
+    .big-btn {
+      font-family:inherit; font-weight:800; cursor:pointer; border:none;
+      font-size:clamp(24px,7vw,40px); color:#fff;
+      padding:clamp(16px,5vw,26px) clamp(34px,11vw,64px);
+      border-radius:999px;
+      background:linear-gradient(180deg,#ff8fc4 0%,#ff5fa8 60%,#e23f8e 100%);
+      box-shadow:0 8px 0 #b32e6e, 0 14px 22px rgba(0,0,0,.28);
+      letter-spacing:1px; transition:transform .1s ease, box-shadow .1s ease;
+      animation:pulse 1.5s ease-in-out infinite;
+      min-width:64px; min-height:90px;
+    }
+    .big-btn:active { transform:translateY(6px); box-shadow:0 2px 0 #b32e6e, 0 6px 12px rgba(0,0,0,.28); }
+    @keyframes pulse { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-7px)} }
+
+    /* ── HUD ── */
+    #hud {
+      position:fixed; top:0; left:0; right:0; z-index:10;
+      display:flex; justify-content:center; align-items:center; gap:14px;
+      padding:calc(10px + env(safe-area-inset-top)) 12px 10px;
+      pointer-events:none;
+    }
+    #treasure-count {
+      font-size:clamp(20px,5.5vw,32px); font-weight:800; color:#fff;
+      background:rgba(20,70,120,.55); border:3px solid #fff;
+      padding:4px 18px; border-radius:999px;
+      text-shadow:0 2px 3px rgba(0,0,0,.35);
+    }
+    #voyage-pips { display:flex; gap:8px; }
+    .pip {
+      width:clamp(26px,7vw,40px); height:clamp(26px,7vw,40px);
+      border-radius:50%; background:rgba(255,255,255,.35);
+      border:3px solid #fff; display:flex; align-items:center; justify-content:center;
+      font-size:clamp(14px,3.6vw,22px);
+    }
+    .pip.done { background:#ffd54a; }
+
+    /* ── Floating action buttons over canvas ── */
+    .float-btns {
+      position:fixed; left:0; right:0; bottom:calc(20px + env(safe-area-inset-bottom));
+      z-index:12; display:flex; flex-wrap:wrap; gap:14px;
+      justify-content:center; align-items:center; padding:0 14px;
+    }
+    .float-btns.hidden { display:none; }
+    .choice-btn {
+      font-family:inherit; font-weight:800; cursor:pointer; border:4px solid #fff;
+      font-size:clamp(19px,5vw,28px); color:#fff;
+      padding:clamp(14px,4vw,20px) clamp(20px,6vw,34px);
+      border-radius:26px; min-width:120px; min-height:96px;
+      box-shadow:0 7px 0 rgba(0,0,0,.25), 0 12px 18px rgba(0,0,0,.25);
+      transition:transform .1s ease, box-shadow .1s ease;
+      display:flex; flex-direction:column; align-items:center; gap:4px;
+    }
+    .choice-btn .em { font-size:clamp(34px,9vw,52px); line-height:1; }
+    .choice-btn:active { transform:translateY(5px); box-shadow:0 2px 0 rgba(0,0,0,.25); }
+    .choice-btn.gift { background:linear-gradient(180deg,#ff9a62,#ef6b2e); }
+    .choice-btn.sing { background:linear-gradient(180deg,#8ad1ff,#3aa0e8); }
+    .choice-btn.sail { background:linear-gradient(180deg,#7ee08a,#36b14a); }
+    .choice-btn.next { background:linear-gradient(180deg,#ffd25e,#f5a623); }
+
+    /* ── Speech banner ── */
+    #banner {
+      position:fixed; top:18%; left:50%; transform:translate(-50%,-50%) scale(.5);
+      z-index:14; pointer-events:none; opacity:0;
+      font-size:clamp(22px,6vw,40px); font-weight:800; color:#fff;
+      background:linear-gradient(180deg,#ff8fc4,#e23f8e);
+      padding:14px 28px; border-radius:24px; border:5px solid #fff;
+      box-shadow:0 10px 24px rgba(0,0,0,.3); text-align:center; max-width:88vw;
+      text-shadow:0 2px 3px rgba(0,0,0,.3);
+      transition:opacity .25s ease, transform .4s cubic-bezier(.2,1.5,.4,1);
+    }
+    #banner.show { opacity:1; transform:translate(-50%,-50%) scale(1); }
+
+    /* ── Top corner buttons ── */
+    #back-btn, #mute-btn {
+      position:fixed; top:calc(8px + env(safe-area-inset-top)); z-index:25;
+      width:50px; height:50px; border-radius:50%;
+      background:rgba(20,70,120,.5); color:#fff; border:3px solid #fff;
+      font-size:22px; cursor:pointer; font-family:inherit; font-weight:800;
+    }
+    #back-btn { left:10px; }
+    #mute-btn { right:10px; }
+    #mute-btn.muted { opacity:.5; }
+
+    #win-screen { background:linear-gradient(180deg,#ffe6a0 0%,#ffc24a 45%,#ff9ec4 100%); }
+    #win-screen .subtitle { color:#7a3d12; }
+    .win-treasures { font-size:clamp(46px,13vw,90px); letter-spacing:4px; animation:wiggle 1.4s ease-in-out infinite; }
+    @keyframes wiggle { 0%,100%{transform:rotate(-5deg)} 50%{transform:rotate(5deg)} }
+
+    .confetti {
+      position:fixed; top:-20px; z-index:30; pointer-events:none;
+      font-size:26px; animation:fall linear forwards;
+    }
+    @keyframes fall { to { transform:translateY(110vh) rotate(540deg); opacity:.2; } }
+  </style>
+</head>
+<body>
+  <button id="back-btn" onclick="history.length>1?history.back():window.close()">←</button>
+  <button id="mute-btn" class="muted" onclick="toggleMute()">♪</button>
+
+  <!-- START -->
+  <div id="start-screen" class="screen">
+    <div class="big-emoji">⛵</div>
+    <div class="title">Treasure<br>Boat</div>
+    <div class="subtitle">Sail with Prince Eric and Kitty! Tap an island to visit it, dig for treasure, and make new friends. 💎</div>
+    <button class="big-btn" onclick="startGame()">▶ Set Sail!</button>
+  </div>
+
+  <!-- GAME CANVAS -->
+  <canvas id="game" style="display:none"></canvas>
+
+  <!-- HUD -->
+  <div id="hud" style="display:none">
+    <div id="treasure-count">💎 0</div>
+    <div id="voyage-pips"></div>
+  </div>
+
+  <!-- Floating buttons (kind choices / sail-on / next) -->
+  <div id="float-btns" class="float-btns hidden"></div>
+
+  <!-- Speech banner -->
+  <div id="banner"></div>
+
+  <!-- WIN -->
+  <div id="win-screen" class="screen hidden">
+    <div class="win-treasures">👑💎🏆💰⭐</div>
+    <div class="title" style="color:#fff;text-shadow:0 4px 0 #c87a14">Treasure<br>Hooray!</div>
+    <div id="win-sub" class="subtitle">You collected all the treasure and made lots of friends!</div>
+    <button class="big-btn" onclick="restartGame()">▶ Sail Again!</button>
+  </div>
+
+<script>
+"use strict";
+// ════════════════════════════════════════════════════════════════════
+//  TREASURE BOAT — sail, dig for treasure, befriend the "scary" ones.
+//  Single file. Canvas + emoji art. Web Audio only. Toddler-first.
+// ════════════════════════════════════════════════════════════════════
+
+const canvas = document.getElementById('game');
+const ctx = canvas.getContext('2d');
+let W = 0, H = 0, DPR = 1;
+let U = 10;                       // base unit ~ scales with screen
+
+function resize() {
+  DPR = Math.min(window.devicePixelRatio || 1, 2.5);
+  W = window.innerWidth; H = window.innerHeight;
+  canvas.width = Math.round(W * DPR);
+  canvas.height = Math.round(H * DPR);
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  U = Math.min(W, H) / 38;
+  placeIslands();                 // keep islands proportional on rotate/resize
+}
+window.addEventListener('resize', resize);
+
+// ──────────────────────────────────────────────────────────────────
+//  AUDIO (Web Audio API only)
+// ──────────────────────────────────────────────────────────────────
+let audioCtx = null, muted = false;
+function au() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return audioCtx;
+}
+function tone(f, type, d, v = 0.16, when = 0) {
+  if (muted) return;
+  try {
+    const c = au(), o = c.createOscillator(), g = c.createGain();
+    o.connect(g); g.connect(c.destination);
+    o.type = type || 'sine'; o.frequency.value = f;
+    const t0 = c.currentTime + when;
+    g.gain.setValueAtTime(0.0001, t0);
+    g.gain.exponentialRampToValueAtTime(v, t0 + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + d);
+    o.start(t0); o.stop(t0 + d + 0.03);
+  } catch (e) {}
+}
+function arpUp(base, n, type = 'triangle') {
+  const scale = [0, 2, 4, 7, 9, 12, 14, 16, 19];
+  for (let i = 0; i < n; i++) tone(base * Math.pow(2, scale[i] / 12), type, 0.22, 0.14, i * 0.07);
+}
+function playSplash() { tone(420, 'sine', 0.12, 0.08); tone(300, 'sine', 0.16, 0.06, 0.05); }
+function playArrive() { tone(660, 'triangle', 0.14, 0.12); tone(880, 'triangle', 0.16, 0.1, 0.08); }
+function playDig(step) { tone(300 + step * 120, 'square', 0.09, 0.09); tone(150 + step * 60, 'sine', 0.12, 0.07); }
+function playTreasure() {
+  arpUp(523.25, 8, 'triangle');
+  [1568, 2093].forEach((f, i) => tone(f, 'sine', 0.3, 0.07, 0.5 + i * 0.1));
+}
+function playFriend() {
+  [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => tone(f, 'sine', 0.4, 0.13, i * 0.1));
+}
+function playVoyage() {
+  [523.25, 659.25, 783.99, 1046.5, 783.99, 1046.5, 1318.5].forEach((f, i) =>
+    tone(f, 'triangle', 0.26, 0.13, i * 0.12));
+}
+function playWin() {
+  const m = [523, 659, 784, 1047, 988, 1175, 1319, 1568, 1319, 1568, 2093];
+  m.forEach((f, i) => tone(f, 'triangle', 0.28, 0.13, i * 0.13));
+  [131, 196, 262, 330].forEach((f, i) => tone(f, 'sine', 0.5, 0.08, i * 0.25));
+}
+
+// Gentle ambient sea music — slow major arpeggio loop, lightly scheduled.
+let musicTimer = null;
+const MUSIC_NOTES = [261.63, 329.63, 392.0, 523.25, 392.0, 329.63];
+let musicIdx = 0;
+function musicTick() {
+  if (muted) return;
+  const f = MUSIC_NOTES[musicIdx % MUSIC_NOTES.length];
+  tone(f, 'sine', 0.9, 0.045);
+  tone(f / 2, 'triangle', 1.1, 0.03);
+  musicIdx++;
+}
+function startMusic() { if (!musicTimer) musicTimer = setInterval(musicTick, 900); }
+function toggleMute() {
+  muted = !muted;
+  document.getElementById('mute-btn').classList.toggle('muted', muted);
+}
+
+// ──────────────────────────────────────────────────────────────────
+//  GAME STATE
+// ──────────────────────────────────────────────────────────────────
+let mode = 'start';               // start | sail | island | locked
+let treasures = 0;
+let voyageIdx = 0;
+let islands = [];                 // current voyage's islands
+let activeIsland = null;
+let t = 0;                        // global time (seconds-ish)
+
+const boat = { x: 0, y: 0, tx: 0, ty: 0, sailing: false, face: 1, bob: 0, dockTarget: null };
+
+// Each voyage: a list of island descriptors. type drives the interaction.
+// rx,ry are relative (0..1) positions inside the sea area.
+const VOYAGES = [
+  // Voyage 1 — easy: an intro chest + a friendly dragon
+  [
+    { rx: 0.28, ry: 0.34, type: 'treasure', digs: 2, emoji: '🌴' },
+    { rx: 0.74, ry: 0.62, type: 'dragon',   digs: 0, emoji: '🐉' },
+  ],
+  // Voyage 2 — medium: two chests + befriend Ursula (no fighting!)
+  [
+    { rx: 0.24, ry: 0.30, type: 'treasure', digs: 3, emoji: '🌴' },
+    { rx: 0.76, ry: 0.34, type: 'ursula',   digs: 0, emoji: '🐙' },
+    { rx: 0.50, ry: 0.70, type: 'treasure', digs: 3, emoji: '🏝️' },
+  ],
+  // Voyage 3 — bigger: chest, dragon friend, Ursula friend, grand chest
+  [
+    { rx: 0.22, ry: 0.32, type: 'treasure', digs: 3, emoji: '🏝️' },
+    { rx: 0.78, ry: 0.30, type: 'dragon',   digs: 0, emoji: '🐉' },
+    { rx: 0.26, ry: 0.72, type: 'ursula',   digs: 0, emoji: '🐙' },
+    { rx: 0.74, ry: 0.74, type: 'treasure', digs: 4, emoji: '🌴' },
+  ],
+];
+
+// Sea area where islands live (leave room for HUD + bottom buttons)
+function seaRect() {
+  return { x: W * 0.07, y: H * 0.16, w: W * 0.86, h: H * 0.64 };
+}
+function placeIslands() {
+  if (!islands.length) return;
+  const s = seaRect();
+  for (const isl of islands) {
+    isl.x = s.x + isl.rx * s.w;
+    isl.y = s.y + isl.ry * s.h;
+    isl.r = U * 3.4;              // island radius
+  }
+}
+
+function loadVoyage() {
+  islands = VOYAGES[voyageIdx].map(d => ({ ...d, done: false, x: 0, y: 0, r: 0, wob: 0 }));
+  placeIslands();
+  // Boat starts near bottom-centre
+  boat.x = W / 2; boat.y = H * 0.86;
+  boat.tx = boat.x; boat.ty = boat.y; boat.sailing = false; boat.dockTarget = null;
+  renderPips();
+}
+
+function renderPips() {
+  const pips = document.getElementById('voyage-pips');
+  pips.innerHTML = '';
+  for (let i = 0; i < VOYAGES.length; i++) {
+    const d = document.createElement('div');
+    d.className = 'pip' + (i < voyageIdx ? ' done' : '');
+    d.textContent = i < voyageIdx ? '⭐' : (i === voyageIdx ? '⛵' : '·');
+    pips.appendChild(d);
+  }
+}
+function updateTreasureHud() {
+  document.getElementById('treasure-count').textContent = '💎 ' + treasures;
+}
+
+// ──────────────────────────────────────────────────────────────────
+//  PARTICLES (sparkles, treasure burst, hearts)
+// ──────────────────────────────────────────────────────────────────
+let parts = [];
+function spawnBurst(x, y, emojis, n, spread = 5) {
+  for (let i = 0; i < n; i++) {
+    const a = Math.random() * Math.PI * 2;
+    const sp = (0.4 + Math.random()) * spread;
+    parts.push({
+      x, y,
+      vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - spread * 0.6,
+      em: emojis[(Math.random() * emojis.length) | 0],
+      size: U * (1.6 + Math.random()), life: 1, rot: Math.random() * 6, vr: (Math.random() - 0.5) * 0.3,
+    });
+  }
+}
+function spawnSparkles(x, y, n = 10) { spawnBurst(x, y, ['✨', '⭐', '💫'], n, 4); }
+function updateParts(dt) {
+  for (const p of parts) {
+    p.x += p.vx; p.y += p.vy; p.vy += 0.25; p.rot += p.vr;
+    p.life -= dt * 0.7;
+  }
+  parts = parts.filter(p => p.life > 0);
+}
+function drawParts() {
+  for (const p of parts) {
+    ctx.save();
+    ctx.globalAlpha = Math.max(0, Math.min(1, p.life));
+    ctx.translate(p.x, p.y); ctx.rotate(p.rot);
+    ctx.font = p.size + 'px serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(p.em, 0, 0);
+    ctx.restore();
+  }
+}
+
+// DOM confetti for big celebrations
+function confetti(n = 40) {
+  const ems = ['💎', '👑', '⭐', '💰', '🌟', '🎉', '💛', '💙'];
+  for (let i = 0; i < n; i++) {
+    const e = document.createElement('div');
+    e.className = 'confetti';
+    e.textContent = ems[(Math.random() * ems.length) | 0];
+    e.style.left = Math.random() * 100 + 'vw';
+    e.style.fontSize = (18 + Math.random() * 22) + 'px';
+    const dur = 2.4 + Math.random() * 2;
+    e.style.animationDuration = dur + 's';
+    e.style.animationDelay = (Math.random() * 0.6) + 's';
+    document.body.appendChild(e);
+    setTimeout(() => e.remove(), (dur + 1) * 1000);
+  }
+}
+
+// ──────────────────────────────────────────────────────────────────
+//  BANNER + FLOAT BUTTONS
+// ──────────────────────────────────────────────────────────────────
+let bannerTimer = null;
+function banner(text, ms = 1800) {
+  const b = document.getElementById('banner');
+  b.textContent = text; b.classList.add('show');
+  clearTimeout(bannerTimer);
+  if (ms > 0) bannerTimer = setTimeout(() => b.classList.remove('show'), ms);
+}
+function hideBanner() { document.getElementById('banner').classList.remove('show'); }
+
+const fbox = document.getElementById('float-btns');
+function showButtons(defs) {
+  fbox.innerHTML = '';
+  for (const d of defs) {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn ' + d.cls;
+    btn.innerHTML = `<span class="em">${d.em}</span><span>${d.label}</span>`;
+    btn.onclick = () => { d.onClick(); };
+    fbox.appendChild(btn);
+  }
+  fbox.classList.remove('hidden');
+}
+function hideButtons() { fbox.classList.add('hidden'); fbox.innerHTML = ''; }
+
+// ──────────────────────────────────────────────────────────────────
+//  DRAWING — SEA, BOAT, ISLANDS
+// ──────────────────────────────────────────────────────────────────
+function drawSea() {
+  const g = ctx.createLinearGradient(0, 0, 0, H);
+  g.addColorStop(0, '#bfe6ff');
+  g.addColorStop(0.18, '#8fd3ff');
+  g.addColorStop(0.5, '#4fa8e8');
+  g.addColorStop(1, '#2f7fc8');
+  ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+
+  // Sun
+  ctx.save();
+  ctx.globalAlpha = 0.9;
+  ctx.font = (U * 5) + 'px serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText('☀️', W * 0.86, H * 0.08 + Math.sin(t * 0.6) * U * 0.2);
+  ctx.restore();
+
+  // Animated wave lines
+  ctx.strokeStyle = 'rgba(255,255,255,.35)';
+  ctx.lineWidth = Math.max(2, U * 0.18);
+  for (let row = 0; row < 7; row++) {
+    const baseY = H * 0.22 + row * H * 0.11;
+    ctx.beginPath();
+    for (let x = -20; x <= W + 20; x += U) {
+      const y = baseY + Math.sin(x * 0.012 + t * 1.2 + row) * U * 0.5;
+      x === -20 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+  }
+}
+
+function drawIsland(isl) {
+  const x = isl.x, y = isl.y, r = isl.r;
+  const wob = Math.sin(t * 1.5 + (isl.rx + isl.ry) * 9) * U * 0.18;
+
+  // Glow halo to attract a tap (only when not done)
+  if (!isl.done) {
+    const pulse = 0.5 + 0.5 * Math.sin(t * 3);
+    ctx.save();
+    ctx.globalAlpha = 0.25 + pulse * 0.25;
+    ctx.fillStyle = '#fff7c2';
+    ctx.beginPath(); ctx.arc(x, y + wob, r * (1.5 + pulse * 0.25), 0, Math.PI * 2); ctx.fill();
+    ctx.restore();
+  }
+
+  // Shadow on water
+  ctx.save();
+  ctx.globalAlpha = 0.18; ctx.fillStyle = '#0a3a66';
+  ctx.beginPath(); ctx.ellipse(x, y + r * 0.55 + wob, r * 1.15, r * 0.4, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.restore();
+
+  // Sand mound
+  ctx.fillStyle = '#f6dca0';
+  ctx.beginPath(); ctx.ellipse(x, y + r * 0.35 + wob, r * 1.05, r * 0.62, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#ecc983';
+  ctx.beginPath(); ctx.ellipse(x, y + r * 0.5 + wob, r * 1.05, r * 0.34, 0, 0, Math.PI * 2); ctx.fill();
+
+  // Feature emoji
+  ctx.font = (r * 1.7) + 'px serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+  ctx.fillText(isl.done ? '⭐' : isl.emoji, x, y - r * 0.1 + wob);
+
+  // Tiny label of what's here for the grown-up; gentle, non-distracting
+  if (!isl.done) {
+    ctx.font = '700 ' + (U * 0.95) + 'px Baloo 2, sans-serif';
+    ctx.fillStyle = 'rgba(20,70,120,.85)';
+    const tag = isl.type === 'dragon' ? 'friend!' : isl.type === 'ursula' ? 'friend!' : 'dig!';
+    ctx.fillText(tag, x, y + r * 1.25 + wob);
+  }
+}
+
+function drawBoat() {
+  const bx = boat.x, by = boat.y + Math.sin(t * 2.2) * U * 0.4;
+  const f = boat.face;
+  ctx.save();
+  ctx.translate(bx, by);
+  ctx.scale(f, 1);
+  ctx.rotate(Math.sin(t * 2.2) * 0.05);
+
+  const s = U;  // boat scale
+
+  // Wake when sailing
+  if (boat.sailing) {
+    ctx.save();
+    ctx.globalAlpha = 0.5; ctx.fillStyle = '#fff';
+    ctx.beginPath();
+    ctx.ellipse(-s * 3.2, s * 1.0, s * 1.6, s * 0.5, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  // Sail (triangle)
+  ctx.fillStyle = '#fff';
+  ctx.beginPath();
+  ctx.moveTo(0, -s * 4.4);
+  ctx.lineTo(0, -s * 0.4);
+  ctx.lineTo(s * 2.4, -s * 0.6);
+  ctx.closePath(); ctx.fill();
+  ctx.fillStyle = '#ff8fc4';
+  ctx.beginPath();
+  ctx.moveTo(0, -s * 3.0);
+  ctx.lineTo(0, -s * 0.4);
+  ctx.lineTo(s * 1.7, -s * 0.55);
+  ctx.closePath(); ctx.fill();
+  // Mast
+  ctx.strokeStyle = '#8a5a2b'; ctx.lineWidth = s * 0.32;
+  ctx.beginPath(); ctx.moveTo(0, -s * 4.6); ctx.lineTo(0, s * 0.8); ctx.stroke();
+  // Flag
+  ctx.fillStyle = '#ffd54a';
+  ctx.beginPath();
+  ctx.moveTo(0, -s * 4.6); ctx.lineTo(s * 1.2, -s * 4.2); ctx.lineTo(0, -s * 3.8);
+  ctx.closePath(); ctx.fill();
+
+  // Hull
+  ctx.fillStyle = '#9a5a2c';
+  ctx.beginPath();
+  ctx.moveTo(-s * 2.6, s * 0.6);
+  ctx.quadraticCurveTo(0, s * 2.6, s * 2.6, s * 0.6);
+  ctx.closePath(); ctx.fill();
+  ctx.fillStyle = '#7a4420';
+  ctx.fillRect(-s * 2.6, s * 0.4, s * 5.2, s * 0.45);
+
+  // Passengers: Prince Eric + Kitty (counter-flip so they always face us)
+  ctx.scale(f, 1);
+  ctx.font = (s * 1.7) + 'px serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+  ctx.fillText('🤴', -s * 0.9 * f, -s * 0.1);
+  ctx.fillText('🐱', s * 0.9 * f, 0);
+
+  ctx.restore();
+}
+
+// Bouncing arrow hinting the nearest undone island
+function drawHintArrow() {
+  const target = islands.find(i => !i.done);
+  if (!target) return;
+  const dx = target.x - boat.x, dy = target.y - boat.y;
+  const d = Math.hypot(dx, dy) || 1;
+  if (d < target.r * 1.6) return;
+  const ax = boat.x + dx / d * U * 4.5;
+  const ay = boat.y + dy / d * U * 4.5 + Math.sin(t * 4) * U * 0.5;
+  ctx.save();
+  ctx.translate(ax, ay);
+  ctx.rotate(Math.atan2(dy, dx) + Math.PI / 2);
+  ctx.fillStyle = 'rgba(255,255,255,.92)';
+  ctx.strokeStyle = 'rgba(20,70,120,.6)'; ctx.lineWidth = U * 0.2;
+  ctx.beginPath();
+  ctx.moveTo(0, -U * 1.3); ctx.lineTo(U, U * 0.8); ctx.lineTo(0, U * 0.2); ctx.lineTo(-U, U * 0.8);
+  ctx.closePath(); ctx.fill(); ctx.stroke();
+  ctx.restore();
+}
+
+// ──────────────────────────────────────────────────────────────────
+//  ISLAND CLOSE-UP SCENE
+// ──────────────────────────────────────────────────────────────────
+let islandState = null;  // { phase, digsLeft, shake, ... }
+
+function drawIslandScene() {
+  // Sky + sea + beach
+  const g = ctx.createLinearGradient(0, 0, 0, H);
+  g.addColorStop(0, '#cdeaff'); g.addColorStop(0.4, '#8fd3ff'); g.addColorStop(0.55, '#4fa8e8'); g.addColorStop(0.7, '#2f7fc8');
+  ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+  // Sun
+  ctx.font = (U * 4) + 'px serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText('☀️', W * 0.82, H * 0.12);
+
+  // Beach
+  const beachY = H * 0.62;
+  ctx.fillStyle = '#f6dca0';
+  ctx.beginPath();
+  ctx.moveTo(0, beachY + Math.sin(0) * 0);
+  ctx.quadraticCurveTo(W * 0.5, beachY - U * 2, W, beachY);
+  ctx.lineTo(W, H); ctx.lineTo(0, H); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = '#ecc983';
+  ctx.fillRect(0, beachY + U * 1.5, W, H);
+
+  // Palms
+  ctx.font = (U * 5) + 'px serif'; ctx.textBaseline = 'alphabetic';
+  ctx.fillText('🌴', W * 0.16, beachY + U * 1.2);
+  ctx.fillText('🌴', W * 0.86, beachY + U * 0.6);
+
+  const cx = W * 0.5, cy = H * 0.66;
+  const isl = activeIsland;
+  const sh = islandState.shake > 0 ? (Math.random() - 0.5) * islandState.shake : 0;
+
+  if (isl.type === 'treasure') {
+    if (islandState.phase === 'dig') {
+      // X spot + mound, big and pulsing
+      const pulse = 1 + Math.sin(t * 5) * 0.05;
+      ctx.save(); ctx.translate(cx + sh, cy);
+      ctx.font = (U * 7 * pulse) + 'px serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText('❌', 0, -U * 0.5);
+      ctx.restore();
+      // progress shovels
+      ctx.font = (U * 2.4) + 'px serif';
+      for (let i = 0; i < isl.digs; i++) {
+        ctx.globalAlpha = i < (isl.digs - islandState.digsLeft) ? 1 : 0.3;
+        ctx.fillText('⛏️', cx - (isl.digs - 1) * U * 1.6 / 2 + i * U * 1.6, cy + U * 5);
+      }
+      ctx.globalAlpha = 1;
+    } else { // opened
+      const pop = Math.min(1, islandState.popT * 3);
+      ctx.save(); ctx.translate(cx, cy - U * 0.5);
+      ctx.font = (U * 8 * (0.6 + pop * 0.4)) + 'px serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText('🧰', 0, 0);
+      ctx.restore();
+    }
+  } else if (isl.type === 'dragon') {
+    const bobY = Math.sin(t * 2) * U * 0.5;
+    // treasure pile
+    ctx.font = (U * 3.5) + 'px serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText('💰', cx - U * 4, cy + U * 2);
+    ctx.fillText('💎', cx + U * 4, cy + U * 2.2);
+    // dragon (friendly!)
+    ctx.font = (U * 9) + 'px serif';
+    ctx.fillText(islandState.phase === 'happy' ? '🐉' : '🐲', cx + sh, cy - U + bobY);
+    // heart when happy
+    if (islandState.phase === 'happy') {
+      ctx.font = (U * 3) + 'px serif';
+      ctx.fillText('💛', cx + U * 3, cy - U * 4 + bobY);
+    }
+  } else if (isl.type === 'ursula') {
+    const bobY = Math.sin(t * 1.8) * U * 0.4;
+    ctx.font = (U * 9) + 'px serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText('🐙', cx + sh, cy - U + bobY);
+    // mood face above her
+    ctx.font = (U * 3.4) + 'px serif';
+    ctx.fillText(islandState.phase === 'happy' ? '😊' : '😠', cx, cy - U * 5.2 + bobY);
+    if (islandState.phase === 'happy') {
+      ctx.font = (U * 2.6) + 'px serif';
+      ctx.fillText('💖', cx + U * 3.5, cy - U * 4 + bobY);
+      ctx.fillText('💖', cx - U * 3.5, cy - U * 4.5 + bobY);
+    }
+  }
+}
+
+// ──────────────────────────────────────────────────────────────────
+//  INTERACTION FLOW
+// ──────────────────────────────────────────────────────────────────
+function enterIsland(isl) {
+  mode = 'island';
+  activeIsland = isl;
+  hideButtons();
+  islandState = { phase: '', digsLeft: isl.digs, shake: 0, popT: 0 };
+
+  if (isl.type === 'treasure') {
+    islandState.phase = 'dig';
+    banner(isl.digs > 3 ? 'Big treasure! Dig! ⛏️' : 'Tap to dig! ⛏️', 1600);
+  } else if (isl.type === 'dragon') {
+    islandState.phase = 'meet';
+    banner('A friendly dragon! 🐉', 1800);
+    showButtons([{ cls: 'sing', em: '👋', label: 'Say hello', onClick: dragonHello }]);
+  } else if (isl.type === 'ursula') {
+    islandState.phase = 'meet';
+    banner('Ursula looks grumpy. Be kind — no fighting!', 2400);
+    showButtons([
+      { cls: 'gift', em: '🎁', label: 'Give a gift', onClick: () => calmUrsula('gift') },
+      { cls: 'sing', em: '🎵', label: 'Sing a song', onClick: () => calmUrsula('sing') },
+    ]);
+  }
+}
+
+function onIslandTap(x, y) {
+  const isl = activeIsland;
+  if (isl.type !== 'treasure' || islandState.phase !== 'dig') return;
+  // any tap digs
+  islandState.digsLeft--;
+  islandState.shake = U * 0.8;
+  playDig(isl.digs - islandState.digsLeft);
+  spawnBurst(W * 0.5, H * 0.66, ['🟤', '💛', '✨'], 8, 3);
+  if (islandState.digsLeft <= 0) openChest();
+}
+
+function openChest() {
+  islandState.phase = 'open'; islandState.popT = 0;
+  playTreasure();
+  const gain = activeIsland.digs >= 4 ? 5 : 3;
+  awardTreasure(gain, W * 0.5, H * 0.6, 'Treasure! 💎');
+}
+
+function dragonHello() {
+  hideButtons();
+  islandState.phase = 'happy';
+  islandState.shake = U * 0.5;
+  playFriend();
+  banner('The dragon shares his gold! 💛', 2000);
+  spawnBurst(W * 0.5, H * 0.5, ['💛', '💖', '✨', '💎'], 16, 5);
+  setTimeout(() => awardTreasure(3, W * 0.5, H * 0.5, ''), 700);
+}
+
+function calmUrsula(kind) {
+  hideButtons();
+  islandState.phase = 'happy';
+  playFriend();
+  if (kind === 'gift') { banner('You gave a gift! Ursula smiles! 😊', 2200); spawnBurst(W * 0.5, H * 0.5, ['🎁', '💖', '✨'], 14, 5); }
+  else { tone(523, 'sine', 0.3, 0.1); tone(659, 'sine', 0.3, 0.1, 0.15); tone(784, 'sine', 0.4, 0.1, 0.3); banner('You sang a song! Ursula smiles! 😊', 2200); spawnBurst(W * 0.5, H * 0.5, ['🎵', '💖', '✨'], 14, 5); }
+  setTimeout(() => awardTreasure(2, W * 0.5, H * 0.5, 'A new friend! 🐙💖', ['🫧', '💖', '💎']), 800);
+}
+
+// Award treasure, then offer the Sail On button.
+function awardTreasure(amount, x, y, msg, ems) {
+  treasures += amount;
+  updateTreasureHud();
+  spawnBurst(x, y - U * 2, ems || ['💎', '👑', '💰', '⭐'], 18, 6);
+  confetti(22);
+  if (msg) banner(msg, 1800);
+  activeIsland.done = true;
+  setTimeout(showSailOn, 1100);
+}
+
+function showSailOn() {
+  const remaining = islands.filter(i => !i.done).length;
+  showButtons([{
+    cls: 'sail', em: '⛵',
+    label: remaining > 0 ? 'Sail on!' : 'Sail home!',
+    onClick: leaveIsland,
+  }]);
+}
+
+function leaveIsland() {
+  hideButtons(); hideBanner();
+  const remaining = islands.filter(i => !i.done);
+  if (remaining.length === 0) {
+    voyageComplete();
+  } else {
+    mode = 'sail';
+    activeIsland = null; islandState = null;
+    boat.sailing = false; boat.dockTarget = null;
+    boat.tx = boat.x; boat.ty = boat.y;
+  }
+}
+
+function voyageComplete() {
+  mode = 'locked';
+  playVoyage(); confetti(50);
+  voyageIdx++;
+  renderPips();
+  if (voyageIdx >= VOYAGES.length) {
+    setTimeout(winGame, 900);
+    banner('All treasure found! 🏆', 1600);
+    return;
+  }
+  banner('Voyage complete! 🎉', 1800);
+  setTimeout(() => {
+    showButtons([{
+      cls: 'next', em: '🗺️', label: 'Next voyage!',
+      onClick: () => { hideButtons(); hideBanner(); loadVoyage(); mode = 'sail'; activeIsland = null; islandState = null; },
+    }]);
+  }, 1200);
+}
+
+function winGame() {
+  mode = 'locked';
+  hideButtons();
+  document.getElementById('hud').style.display = 'none';
+  canvas.style.display = 'none';
+  document.getElementById('win-sub').textContent =
+    `You collected ${treasures} treasures and made lots of friends!`;
+  document.getElementById('win-screen').classList.remove('hidden');
+  playWin(); confetti(80);
+}
+
+// ──────────────────────────────────────────────────────────────────
+//  INPUT
+// ──────────────────────────────────────────────────────────────────
+function pointerXY(e) {
+  const r = canvas.getBoundingClientRect();
+  const p = (e.touches && e.touches[0]) || e;
+  return { x: p.clientX - r.left, y: p.clientY - r.top };
+}
+function onTap(e) {
+  if (mode === 'sail') {
+    const { x, y } = pointerXY(e);
+    // Did they tap an undone island? sail straight to it & dock.
+    let hit = null;
+    for (const isl of islands) {
+      if (isl.done) continue;
+      if (Math.hypot(isl.x - x, isl.y - y) < isl.r * 1.8) { hit = isl; break; }
+    }
+    if (hit) {
+      boat.dockTarget = hit;
+      // approach point just below the island
+      boat.tx = hit.x; boat.ty = hit.y + hit.r * 0.9;
+    } else {
+      boat.dockTarget = null;
+      boat.tx = Math.max(U * 2, Math.min(W - U * 2, x));
+      boat.ty = Math.max(H * 0.12, Math.min(H * 0.92, y));
+    }
+    if (Math.abs(boat.tx - boat.x) > 2) boat.face = boat.tx > boat.x ? 1 : -1;
+    boat.sailing = true;
+    playSplash();
+  } else if (mode === 'island') {
+    const { x, y } = pointerXY(e);
+    onIslandTap(x, y);
+  }
+}
+canvas.addEventListener('pointerdown', onTap);
+
+// ──────────────────────────────────────────────────────────────────
+//  MAIN LOOP
+// ──────────────────────────────────────────────────────────────────
+let last = 0;
+function frame(now) {
+  const dt = Math.min(0.05, (now - last) / 1000 || 0); last = now;
+  t += dt;
+
+  if (mode === 'sail' || mode === 'locked') {
+    // Boat movement
+    if (boat.sailing) {
+      const dx = boat.tx - boat.x, dy = boat.ty - boat.y;
+      const d = Math.hypot(dx, dy);
+      const sp = U * 14 * dt;
+      if (d <= sp) {
+        boat.x = boat.tx; boat.y = boat.ty; boat.sailing = false;
+        if (boat.dockTarget && !boat.dockTarget.done) {
+          const dock = boat.dockTarget; boat.dockTarget = null;
+          playArrive();
+          mode = 'locked';
+          setTimeout(() => enterIsland(dock), 250);
+        }
+      } else {
+        boat.x += dx / d * sp; boat.y += dy / d * sp;
+      }
+    }
+    drawSea();
+    for (const isl of islands) drawIsland(isl);
+    if (!boat.sailing && mode === 'sail') drawHintArrow();
+    drawBoat();
+    updateParts(dt); drawParts();
+  } else if (mode === 'island') {
+    if (islandState.shake > 0) islandState.shake = Math.max(0, islandState.shake - dt * U * 4);
+    if (islandState.phase === 'open') islandState.popT += dt;
+    drawIslandScene();
+    updateParts(dt); drawParts();
+  }
+
+  requestAnimationFrame(frame);
+}
+
+// ──────────────────────────────────────────────────────────────────
+//  START / RESTART
+// ──────────────────────────────────────────────────────────────────
+function startGame() {
+  au(); startMusic();
+  document.getElementById('start-screen').classList.add('hidden');
+  canvas.style.display = 'block';
+  document.getElementById('hud').style.display = 'flex';
+  resize();
+  treasures = 0; voyageIdx = 0;
+  updateTreasureHud();
+  loadVoyage();
+  mode = 'sail';
+}
+function restartGame() {
+  document.getElementById('win-screen').classList.add('hidden');
+  startGame();
+}
+
+// init
+resize();
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>
