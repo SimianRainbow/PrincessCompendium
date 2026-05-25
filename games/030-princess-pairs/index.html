@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Princess Pairs 🌸</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+    body {
+      background: linear-gradient(160deg, #fce4ec 0%, #f3e5f5 50%, #e8eaf6 100%);
+      min-height:100vh; width:100vw; overflow:hidden;
+      font-family:'Fredoka One', Georgia, serif; user-select:none; position:relative;
+    }
+
+    /* floating bg sparkles */
+    .bg-gem { position:fixed; pointer-events:none; animation:floatUp linear infinite; opacity:.12; font-size:clamp(16px,4.5vw,28px); }
+    @keyframes floatUp { 0%{transform:translateY(110vh) rotate(0deg)} 100%{transform:translateY(-15vh) rotate(360deg)} }
+
+    /* header */
+    #header {
+      position:fixed; top:0; left:0; right:0; z-index:10;
+      padding:clamp(8px,2vw,14px) clamp(12px,3vw,20px);
+      display:flex; justify-content:space-between; align-items:center;
+    }
+    #tier-badge {
+      font-size:clamp(13px,3.2vw,18px); padding:5px 15px; border-radius:20px; font-weight:bold;
+    }
+    .tier-easy   { background:linear-gradient(135deg,#a5d6a7,#66bb6a); color:#1b5e20; }
+    .tier-medium { background:linear-gradient(135deg,#ffe082,#ffd54f); color:#5a3000; }
+    .tier-hard   { background:linear-gradient(135deg,#ce93d8,#ab47bc); color:#fff; }
+    #pairs-left { font-size:clamp(13px,3.2vw,18px); color:#6a1b9a; font-weight:bold; }
+
+    /* progress bar */
+    #progress-wrap {
+      position:fixed; top:clamp(46px,10vw,68px); left:0; right:0;
+      padding:0 clamp(12px,3vw,20px); z-index:10;
+    }
+    #progress-track { background:rgba(0,0,0,.1); border-radius:20px; height:clamp(8px,2vw,12px); overflow:hidden; }
+    #progress-fill  { height:100%; border-radius:20px; background:linear-gradient(90deg,#e040fb,#f48fb1); transition:width .35s ease; width:0%; box-shadow:0 0 8px rgba(224,64,251,.3); }
+
+    /* prompt */
+    #prompt-wrap {
+      position:fixed; top:clamp(64px,14vw,92px); left:0; right:0; z-index:10;
+      text-align:center; padding:clamp(6px,1.5vw,10px) 16px;
+    }
+    #prompt-text { font-size:clamp(18px,4.5vw,30px); color:#6a1b9a; }
+
+    /* card grid */
+    #grid-wrap {
+      position:fixed; left:clamp(8px,2vw,18px); right:clamp(8px,2vw,18px);
+      top:clamp(104px,23vw,146px); bottom:clamp(8px,2vw,18px);
+      display:flex; align-items:center; justify-content:center;
+    }
+    #card-grid {
+      display:grid;
+      gap:clamp(7px,1.8vw,12px);
+      width:100%; height:100%;
+    }
+
+    /* card */
+    .card {
+      perspective: 600px;
+      cursor:pointer;
+      min-width:0; min-height:0;
+    }
+    .card-inner {
+      width:100%; height:100%;
+      position:relative;
+      transform-style: preserve-3d;
+      transition: transform .35s ease;
+      border-radius:16px;
+    }
+    .card.flipped .card-inner  { transform: rotateY(180deg); }
+    .card.matched .card-inner  { transform: rotateY(180deg); }
+
+    .card-face {
+      position:absolute; inset:0;
+      border-radius:16px;
+      display:flex; align-items:center; justify-content:center;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+    }
+    .card-back {
+      background: linear-gradient(135deg, #ce93d8, #ab47bc);
+      border:3px solid rgba(255,255,255,.5);
+      box-shadow:0 4px 16px rgba(150,50,200,.2);
+      font-size:clamp(24px,7vw,48px);
+    }
+    .card-front {
+      background: rgba(255,255,255,.85);
+      border:3px solid rgba(180,80,220,.3);
+      box-shadow:0 4px 16px rgba(150,50,200,.15);
+      transform: rotateY(180deg);
+      font-size:clamp(28px,8vw,56px);
+    }
+    .card.matched .card-front {
+      background: rgba(200,255,200,.75);
+      border-color: rgba(60,180,90,.5);
+    }
+    .card.wrong-flash .card-front {
+      animation: wrongFlash .4s ease-out;
+    }
+    @keyframes wrongFlash {
+      0%,100% { background:rgba(255,255,255,.85); }
+      50%      { background:rgba(255,180,180,.65); }
+    }
+
+    /* sparkles */
+    .sparkle { position:fixed; pointer-events:none; z-index:50; border-radius:50%; animation:sparkleOut .7s ease-out forwards; }
+    @keyframes sparkleOut { 0%{transform:scale(0);opacity:1} 100%{transform:scale(1.6);opacity:0} }
+
+    /* overlays */
+    .overlay {
+      position:fixed; inset:0; background:rgba(250,240,255,.93);
+      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px;
+      z-index:99; opacity:0; pointer-events:none; transition:opacity .4s;
+    }
+    .overlay.show { opacity:1; pointer-events:all; }
+    .ov-emoji { font-size:clamp(64px,17vw,108px); }
+    .ov-title { font-size:clamp(26px,7vw,50px); color:#6a1b9a; text-align:center; padding:0 20px; }
+    .ov-sub   { font-size:clamp(15px,4vw,22px); color:#7b1fa2; text-align:center; padding:0 20px; opacity:.85; }
+    .btn-next {
+      padding:clamp(14px,4vw,20px) clamp(32px,8vw,56px); font-size:clamp(20px,5vw,28px);
+      border-radius:50px; border:none; background:linear-gradient(135deg,#e040fb,#ab47bc);
+      color:#fff; font-weight:bold; cursor:pointer; font-family:inherit;
+      min-height:64px; min-width:180px; touch-action:manipulation;
+    }
+
+    .confetti { position:fixed; pointer-events:none; z-index:100; border-radius:3px; animation:cfFall linear forwards; }
+    @keyframes cfFall { 0%{top:-20px;opacity:1;transform:rotate(0deg)} 100%{top:110vh;opacity:.2;transform:rotate(720deg)} }
+  </style>
+</head>
+<body>
+
+  <div id="header">
+    <div id="tier-badge" class="tier-easy">Easy</div>
+    <div id="pairs-left">🌸 0 / 0</div>
+    <div style="font-size:clamp(26px,7vw,44px)">👸</div>
+  </div>
+  <div id="progress-wrap">
+    <div id="progress-track"><div id="progress-fill"></div></div>
+  </div>
+  <div id="prompt-wrap">
+    <div id="prompt-text">Find the matching pairs! 💖</div>
+  </div>
+
+  <div id="grid-wrap"><div id="card-grid"></div></div>
+
+  <div class="overlay" id="round-overlay">
+    <div class="ov-emoji" id="ov-emoji">🌸</div>
+    <div class="ov-title" id="ov-title">You found them all!</div>
+    <div class="ov-sub"   id="ov-sub">Ready for more?</div>
+    <button class="btn-next" id="round-btn">Next Round ➡️</button>
+  </div>
+
+  <div class="overlay" id="end-overlay">
+    <div class="ov-emoji">👑</div>
+    <div class="ov-title">Memory Champion!</div>
+    <div class="ov-sub">You matched every pair! ✨</div>
+    <button class="btn-next" onclick="startGame()">Play Again 🌸</button>
+  </div>
+
+<script>
+  // ── Audio ─────────────────────────────────────────────────────────────────
+  let audioCtx = null;
+  function getAudio() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); return audioCtx; }
+  function tone(f, type, d, v = .17) {
+    try {
+      const c = getAudio(), o = c.createOscillator(), g = c.createGain();
+      o.connect(g); g.connect(c.destination);
+      o.type = type; o.frequency.value = f;
+      g.gain.setValueAtTime(v, c.currentTime);
+      g.gain.exponentialRampToValueAtTime(.001, c.currentTime + d);
+      o.start(); o.stop(c.currentTime + d);
+    } catch(e) {}
+  }
+  function playFlip()     { tone(660,'sine',.1,.1); }
+  function playMatch()    { [523,659,784,1047].forEach((f,i) => setTimeout(() => tone(f,'sine',.18,.2), i*60)); }
+  function playWrong()    { tone(280,'sawtooth',.16,.12); setTimeout(() => tone(240,'sawtooth',.14,.1), 150); }
+  function playRoundWin() { [523,659,784,1047,1319].forEach((f,i) => setTimeout(() => tone(f,'triangle',.28,.22), i*80)); }
+  function playFinalWin() { [523,659,784,1047,784,1047,1319].forEach((f,i) => setTimeout(() => tone(f,'sine',.32,.22), i*90)); }
+
+  // ── All princess emoji items ───────────────────────────────────────────────
+  const ALL_ITEMS = [
+    '👑','💎','🌸','⭐','🦄','🏰','🎀','🌙','🌈','🦋',
+    '💐','🍭','🌺','🧁','🎠','🌟','🪄','🪸','🧚','🐚',
+    '🌷','🍄','🎪','🌻','🐝','🧸','🍓','🎵','💫','🌊',
+  ];
+
+  // ── Tiers ─────────────────────────────────────────────────────────────────
+  const TIERS = [
+    { label:'Easy',   cls:'tier-easy',   pairs:4,  cols:4, rows:2 },
+    { label:'Medium', cls:'tier-medium', pairs:6,  cols:4, rows:3 },
+    { label:'Hard',   cls:'tier-hard',   pairs:9,  cols:6, rows:3 },
+  ];
+
+  let tierIdx = 0;
+  let cards = [], flipped = [], matchedCount = 0, totalPairs = 0, busy = false;
+
+  function shuffle(a) {
+    const b = [...a];
+    for (let i=b.length-1; i>0; i--) { const j=Math.floor(Math.random()*(i+1)); [b[i],b[j]]=[b[j],b[i]]; }
+    return b;
+  }
+
+  // ── BG decoration ─────────────────────────────────────────────────────────
+  function makeBgGems() {
+    const gems = ['💫','✨','🌟','⭐','💎','🌸'];
+    for (let i=0; i<9; i++) {
+      const el = document.createElement('div'); el.className='bg-gem';
+      el.textContent = gems[i % gems.length];
+      el.style.left = (5 + Math.random()*90) + 'vw';
+      el.style.animationDuration = (9 + Math.random()*13) + 's';
+      el.style.animationDelay    = -(Math.random()*13) + 's';
+      document.body.appendChild(el);
+    }
+  }
+
+  // ── Build grid ────────────────────────────────────────────────────────────
+  function buildGrid() {
+    const t = TIERS[tierIdx];
+    const items = shuffle(ALL_ITEMS).slice(0, t.pairs);
+    const deck  = shuffle([...items, ...items]);
+
+    const badge = document.getElementById('tier-badge');
+    badge.textContent = t.label;
+    badge.className   = 'tier-badge ' + t.cls;
+
+    totalPairs   = t.pairs;
+    matchedCount = 0;
+    flipped      = [];
+    busy         = false;
+    cards        = [];
+
+    updateHUD();
+
+    const grid = document.getElementById('card-grid');
+    grid.innerHTML = '';
+    grid.style.gridTemplateColumns = `repeat(${t.cols}, 1fr)`;
+    grid.style.gridTemplateRows    = `repeat(${t.rows}, 1fr)`;
+
+    deck.forEach((emoji, idx) => {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.dataset.emoji = emoji;
+      card.dataset.idx   = idx;
+      card.innerHTML = `
+        <div class="card-inner">
+          <div class="card-face card-back">🌸</div>
+          <div class="card-face card-front">${emoji}</div>
+        </div>`;
+      card.addEventListener('pointerdown', () => onCardTap(card));
+      grid.appendChild(card);
+      cards.push(card);
+    });
+  }
+
+  function updateHUD() {
+    const t = TIERS[tierIdx];
+    document.getElementById('pairs-left').textContent = '🌸 ' + matchedCount + ' / ' + totalPairs;
+    document.getElementById('progress-fill').style.width = (matchedCount / totalPairs * 100) + '%';
+
+    const msgs = [
+      'Find the matching pairs! 💖',
+      'Where is the match? ✨',
+      'Tap to flip! 💫',
+      'Can you remember? 👑',
+    ];
+    document.getElementById('prompt-text').textContent = msgs[matchedCount % msgs.length];
+  }
+
+  function onCardTap(card) {
+    if (busy) return;
+    if (card.classList.contains('flipped') || card.classList.contains('matched')) return;
+
+    card.classList.add('flipped');
+    playFlip();
+    flipped.push(card);
+
+    if (flipped.length === 2) {
+      busy = true;
+      const [a, b] = flipped;
+      if (a.dataset.emoji === b.dataset.emoji) {
+        // Match!
+        setTimeout(() => {
+          a.classList.add('matched'); b.classList.add('matched');
+          a.classList.remove('flipped'); b.classList.remove('flipped');
+          playMatch();
+          burst(a); burst(b);
+          matchedCount++;
+          flipped = [];
+          busy    = false;
+          updateHUD();
+          if (matchedCount === totalPairs) {
+            setTimeout(roundComplete, 500);
+          }
+        }, 350);
+      } else {
+        // No match — flip back
+        setTimeout(() => {
+          a.classList.add('wrong-flash'); b.classList.add('wrong-flash');
+          playWrong();
+          setTimeout(() => {
+            a.classList.remove('flipped','wrong-flash');
+            b.classList.remove('flipped','wrong-flash');
+            flipped = [];
+            busy    = false;
+          }, 420);
+        }, 500);
+      }
+    }
+  }
+
+  function roundComplete() {
+    if (tierIdx < TIERS.length - 1) {
+      playRoundWin();
+      confetti();
+      const next = TIERS[tierIdx + 1];
+      document.getElementById('ov-emoji').textContent = '🎉';
+      document.getElementById('ov-title').textContent = 'All pairs found!';
+      document.getElementById('ov-sub').textContent   = next.label + ' round — ' + next.pairs + ' pairs!';
+      document.getElementById('round-btn').onclick = () => {
+        document.getElementById('round-overlay').classList.remove('show');
+        tierIdx++;
+        buildGrid();
+      };
+      document.getElementById('round-overlay').classList.add('show');
+    } else {
+      playFinalWin();
+      confetti();
+      document.getElementById('end-overlay').classList.add('show');
+    }
+  }
+
+  function startGame() {
+    document.getElementById('end-overlay').classList.remove('show');
+    document.getElementById('round-overlay').classList.remove('show');
+    tierIdx = 0;
+    buildGrid();
+  }
+
+  // ── Burst sparkles on match ───────────────────────────────────────────────
+  function burst(card) {
+    const r  = card.getBoundingClientRect();
+    const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+    const cols = ['#e040fb','#f48fb1','#ffd700','#fff','#ab47bc','#ff8a65','#80deea','#a5d6a7'];
+    const emojis = ['✨','💫','🌟','💎'];
+    for (let i = 0; i < 14; i++) {
+      const el  = document.createElement('div'); el.className = 'sparkle';
+      const a   = Math.random() * Math.PI * 2;
+      const dist= 25 + Math.random() * 65;
+      const sz  = 7 + Math.random() * 10;
+      if (i < 3) {
+        el.style.cssText = `left:${cx+Math.cos(a)*dist}px;top:${cy+Math.sin(a)*dist}px;font-size:${14+Math.random()*10}px;background:none;border-radius:0;`;
+        el.textContent = emojis[i % emojis.length];
+      } else {
+        el.style.cssText = `left:${cx+Math.cos(a)*dist-sz/2}px;top:${cy+Math.sin(a)*dist-sz/2}px;width:${sz}px;height:${sz}px;background:${cols[i%cols.length]}`;
+      }
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 750);
+    }
+  }
+
+  function confetti() {
+    const cols = ['#e040fb','#ffd700','#fff','#f48fb1','#ce93d8','#b2ebf2','#a5d6a7'];
+    for (let i = 0; i < 45; i++) {
+      const el = document.createElement('div'); el.className = 'confetti';
+      const sz = 6 + Math.random() * 10;
+      el.style.cssText = `left:${Math.random()*100}vw;width:${sz}px;height:${sz}px;background:${cols[i%cols.length]};animation-duration:${1.4+Math.random()*2}s;animation-delay:${Math.random()*.5}s`;
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 3500);
+    }
+  }
+
+  makeBgGems();
+  startGame();
+</script>
+</body>
+</html>

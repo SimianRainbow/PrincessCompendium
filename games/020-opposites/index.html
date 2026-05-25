@@ -4,80 +4,91 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>Opposite Kingdom 🔄</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
   <style>
     * { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
     body {
-      background: linear-gradient(160deg, #4a0080 0%, #9b1dba 40%, #e91e8c 80%, #ff6eb4 100%);
-      height:100vh; width:100vw; overflow:hidden;
-      font-family:Georgia,serif; user-select:none;
-      display:flex; flex-direction:column;
+      background: linear-gradient(160deg, #fce4ec 0%, #f3e5f5 50%, #e8eaf6 100%);
+      min-height:100vh; width:100vw; overflow:hidden;
+      font-family:'Fredoka One', Georgia, serif; user-select:none; position:relative;
     }
 
-    #top-bar {
-      padding:clamp(10px,2.5vw,18px) clamp(12px,3vw,20px);
-      display:flex; align-items:center; justify-content:space-between; gap:8px;
-      flex-shrink:0;
+    /* floating bg gems */
+    .bg-gem { position:fixed; pointer-events:none; animation:floatUp linear infinite; opacity:.13; font-size:clamp(18px,5vw,30px); }
+    @keyframes floatUp { 0%{transform:translateY(110vh) rotate(0deg)} 100%{transform:translateY(-15vh) rotate(360deg)} }
+
+    /* header */
+    #header {
+      position:fixed; top:0; left:0; right:0; z-index:10;
+      padding:clamp(10px,2.5vw,16px) clamp(14px,4vw,24px);
+      display:flex; justify-content:space-between; align-items:center;
     }
-    #score-row { font-size:clamp(18px,5vw,28px); min-width:50px; }
     #tier-badge {
-      background:rgba(255,255,255,.2); border:2px solid rgba(255,255,255,.4);
-      border-radius:16px; padding:5px 12px;
-      font-size:clamp(11px,2.8vw,16px); color:#fff; font-weight:bold;
-      white-space:nowrap;
+      font-size:clamp(13px,3.2vw,18px); padding:6px 16px; border-radius:20px; font-weight:bold;
+      transition: background .4s, color .4s;
     }
+    .tier-easy   { background:linear-gradient(135deg,#a5d6a7,#66bb6a); color:#1b5e20; }
+    .tier-medium { background:linear-gradient(135deg,#ffe082,#ffd54f); color:#5a3000; }
+    .tier-hard   { background:linear-gradient(135deg,#ce93d8,#ab47bc); color:#fff; }
+    #round-counter { font-size:clamp(14px,3.5vw,20px); color:#6a1b9a; font-weight:bold; }
 
-    #main-content {
-      flex:1; display:flex; flex-direction:column;
-      align-items:center; justify-content:center;
-      padding:clamp(8px,2vw,18px) clamp(12px,3vw,20px);
-      gap:clamp(14px,3.5vw,24px);
-      min-height:0;
+    /* progress bar */
+    #progress-wrap {
+      position:fixed; top:clamp(50px,11vw,74px); left:0; right:0;
+      padding:0 clamp(14px,4vw,24px); z-index:10;
     }
+    #progress-track { background:rgba(0,0,0,.1); border-radius:20px; height:clamp(9px,2.2vw,13px); overflow:hidden; }
+    #progress-fill  { height:100%; border-radius:20px; background:linear-gradient(90deg,#e040fb,#f48fb1); transition:width .35s ease; width:0%; box-shadow:0 0 8px rgba(224,64,251,.3); }
 
+    /* prompt */
     #prompt-label {
-      font-size:clamp(15px,4vw,22px); color:rgba(255,255,255,.92);
-      font-weight:bold; text-align:center; letter-spacing:.5px;
+      position:fixed; top:clamp(72px,15vw,100px); left:0; right:0; z-index:10;
+      font-size:clamp(15px,3.8vw,22px); color:#6a1b9a;
+      text-align:center; padding:clamp(8px,2vw,14px) 16px;
     }
 
     #prompt-card {
-      background:rgba(255,255,255,.2); border:3px solid rgba(255,255,255,.5);
-      border-radius:28px; padding:clamp(14px,3.5vw,24px) clamp(22px,5.5vw,36px);
-      display:flex; flex-direction:column; align-items:center; gap:8px;
-      box-shadow:0 8px 32px rgba(0,0,0,.2);
+      position:fixed; z-index:10;
+      left:50%; transform:translateX(-50%);
+      top:clamp(108px,24vw,150px);
+      background:rgba(255,255,255,.7); border:3px solid rgba(180,80,220,.35);
+      border-radius:28px; padding:clamp(12px,3vw,20px) clamp(20px,5vw,32px);
+      display:flex; flex-direction:column; align-items:center; gap:6px;
+      box-shadow:0 6px 24px rgba(150,50,200,.18);
     }
-    #prompt-emoji { font-size:clamp(60px,16vw,100px); line-height:1; }
-    #prompt-word {
-      font-size:clamp(20px,5.5vw,34px); color:#fff; font-weight:bold;
-      text-shadow:0 2px 8px rgba(0,0,0,.25); letter-spacing:2px;
-      text-transform:uppercase;
+    #prompt-emoji { font-size:clamp(54px,14vw,90px); line-height:1; }
+    #prompt-word  {
+      font-size:clamp(18px,5vw,30px); color:#6a1b9a; font-weight:bold;
+      letter-spacing:2px; text-transform:uppercase;
     }
 
+    /* choices */
     #choices-grid {
+      position:fixed; left:clamp(10px,3vw,20px); right:clamp(10px,3vw,20px);
+      bottom:clamp(12px,3vw,24px);
       display:grid; grid-template-columns:1fr 1fr;
       gap:clamp(10px,2.5vw,16px);
-      width:100%; max-width:460px;
     }
 
     .choice-btn {
-      background:rgba(255,255,255,.18); border:3px solid rgba(255,255,255,.45);
-      border-radius:24px; padding:clamp(12px,3vw,20px) clamp(8px,2vw,14px);
+      background:rgba(255,255,255,.65); border:3px solid rgba(180,80,220,.25);
+      border-radius:24px; padding:clamp(10px,2.5vw,18px) clamp(8px,2vw,14px);
       display:flex; flex-direction:column; align-items:center; gap:6px;
       cursor:pointer; touch-action:manipulation; font-family:inherit;
-      transition:transform .08s, background .1s;
-      min-height:clamp(110px,25vw,145px);
+      transition:transform .08s;
+      min-height:clamp(100px,22vw,135px);
+      box-shadow:0 4px 16px rgba(150,50,200,.1);
     }
     .choice-btn:active { transform:scale(.93); }
-    .choice-btn .ce { font-size:clamp(40px,11vw,68px); line-height:1; }
+    .choice-btn .ce { font-size:clamp(36px,10vw,62px); line-height:1; }
     .choice-btn .cw {
-      font-size:clamp(13px,3.2vw,19px); color:#fff; font-weight:bold;
-      text-shadow:0 1px 4px rgba(0,0,0,.2); letter-spacing:1px;
-      text-transform:uppercase;
+      font-size:clamp(13px,3.2vw,19px); color:#6a1b9a; font-weight:bold;
+      letter-spacing:1px; text-transform:uppercase;
     }
 
-    .choice-btn.correct {
-      background:rgba(80,255,120,.3); border-color:rgba(100,255,140,.8);
-    }
-    .choice-btn.wrong { animation:wobble .32s ease-out; }
+    .choice-btn.correct { background:rgba(144,238,144,.4); border-color:rgba(60,180,90,.6); }
+    .choice-btn.wrong   { animation:wobble .32s ease-out; background:rgba(255,180,180,.4); }
 
     @keyframes wobble {
       0%   { transform:scale(1) rotate(0); }
@@ -87,259 +98,281 @@
       100% { transform:scale(1) rotate(0); }
     }
 
-    /* Centre a lone last button in the 2-col grid */
+    /* centre lone last button */
     .choice-btn:last-child:nth-child(odd) {
-      grid-column: 1 / -1;
-      max-width: 48%;
-      margin: 0 auto;
+      grid-column: 1 / -1; max-width: 48%; margin: 0 auto;
     }
 
-    #celebrate-overlay {
-      position:fixed; inset:0; background:rgba(0,0,0,.6);
-      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:18px;
-      z-index:99; opacity:0; pointer-events:none; transition:opacity .3s;
+    /* sparkles */
+    .sparkle { position:fixed; pointer-events:none; z-index:50; border-radius:50%; animation:sparkleOut .7s ease-out forwards; }
+    @keyframes sparkleOut { 0%{transform:scale(0);opacity:1} 100%{transform:scale(1.6);opacity:0} }
+
+    /* overlays */
+    .overlay {
+      position:fixed; inset:0; background:rgba(250,240,255,.92);
+      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px;
+      z-index:99; opacity:0; pointer-events:none; transition:opacity .4s;
     }
-    #celebrate-overlay.show { opacity:1; pointer-events:all; }
-    #celebrate-big  { font-size:clamp(68px,18vw,110px); line-height:1; }
-    #celebrate-text { font-size:clamp(26px,7.5vw,50px); color:#fff; text-shadow:0 0 20px #ffd700; text-align:center; padding:0 16px; font-weight:bold; }
-    #celebrate-pair { font-size:clamp(17px,4.5vw,26px); color:#ffd700; text-align:center; font-weight:bold; }
-    #next-btn {
-      padding:clamp(14px,4vw,20px) clamp(32px,8vw,56px);
-      font-size:clamp(20px,5vw,28px); border-radius:50px; border:none;
-      background:linear-gradient(135deg,#ffd700,#ff9800);
-      color:#5d2e00; font-weight:bold; cursor:pointer;
-      font-family:inherit; touch-action:manipulation;
+    .overlay.show { opacity:1; pointer-events:all; }
+    .ov-emoji { font-size:clamp(64px,17vw,108px); }
+    .ov-title { font-size:clamp(26px,7vw,50px); color:#6a1b9a; text-align:center; padding:0 20px; }
+    .ov-pair  { font-size:clamp(22px,5.5vw,36px); color:#9c27b0; text-align:center; padding:0 20px; }
+    .ov-sub   { font-size:clamp(15px,4vw,22px); color:#7b1fa2; text-align:center; padding:0 20px; opacity:.8; }
+    .btn-next {
+      padding:clamp(14px,4vw,20px) clamp(32px,8vw,56px); font-size:clamp(20px,5vw,28px);
+      border-radius:50px; border:none; background:linear-gradient(135deg,#e040fb,#ab47bc);
+      color:#fff; font-weight:bold; cursor:pointer; font-family:inherit;
+      min-height:64px; min-width:180px; touch-action:manipulation;
     }
 
-    .confetti-piece {
-      position:fixed; width:10px; height:10px; border-radius:50%;
-      animation:confettiFall linear forwards; pointer-events:none; z-index:100;
-    }
-    @keyframes confettiFall { 0%{top:-20px;opacity:1} 100%{top:110vh;opacity:.2} }
+    .confetti { position:fixed; pointer-events:none; z-index:100; border-radius:3px; animation:cfFall linear forwards; }
+    @keyframes cfFall { 0%{top:-20px;opacity:1;transform:rotate(0deg)} 100%{top:110vh;opacity:.2;transform:rotate(720deg)} }
   </style>
 </head>
 <body>
 
-  <div id="top-bar">
-    <div id="score-row"></div>
-    <div id="tier-badge">⭐ Easy</div>
+  <div id="header">
+    <div id="tier-badge" class="tier-easy">Easy</div>
+    <div id="round-counter">1 / 18</div>
+    <div style="font-size:clamp(28px,7vw,46px)">👸</div>
+  </div>
+  <div id="progress-wrap">
+    <div id="progress-track"><div id="progress-fill"></div></div>
   </div>
 
-  <div id="main-content">
-    <div id="prompt-label">👸 Find the OPPOSITE of…</div>
-    <div id="prompt-card">
-      <div id="prompt-emoji">🔥</div>
-      <div id="prompt-word">Hot</div>
-    </div>
-    <div id="choices-grid"></div>
+  <div id="prompt-label">👑 Find the OPPOSITE of…</div>
+  <div id="prompt-card">
+    <div id="prompt-emoji">🔥</div>
+    <div id="prompt-word">Hot</div>
   </div>
 
-  <div id="celebrate-overlay">
-    <div id="celebrate-big">✨</div>
-    <div id="celebrate-text">Amazing! 💫</div>
-    <div id="celebrate-pair"></div>
-    <button id="next-btn" onclick="nextRound()">Next ➡️</button>
+  <div id="choices-grid"></div>
+
+  <div class="overlay" id="round-overlay">
+    <div class="ov-emoji" id="ov-emoji">✨</div>
+    <div class="ov-title" id="ov-title">Amazing!</div>
+    <div class="ov-pair"  id="ov-pair"></div>
+    <div class="ov-sub"   id="ov-sub"></div>
+    <button class="btn-next" id="round-btn">Next ➡️</button>
+  </div>
+
+  <div class="overlay" id="end-overlay">
+    <div class="ov-emoji">👑</div>
+    <div class="ov-title">Opposites Champion!</div>
+    <div class="ov-sub">You know them all! ✨</div>
+    <button class="btn-next" onclick="startGame()">Play Again 🔄</button>
   </div>
 
 <script>
-  // 12 opposite pairs, grouped easy → hard
+  // ── Audio ────────────────────────────────────────────────────────────────
+  let audioCtx = null;
+  function getAudio() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); return audioCtx; }
+  function tone(f, type, d, v = .17) {
+    try {
+      const c = getAudio(), o = c.createOscillator(), g = c.createGain();
+      o.connect(g); g.connect(c.destination);
+      o.type = type; o.frequency.value = f;
+      g.gain.setValueAtTime(v, c.currentTime);
+      g.gain.exponentialRampToValueAtTime(.001, c.currentTime + d);
+      o.start(); o.stop(c.currentTime + d);
+    } catch(e) {}
+  }
+  function playCorrect()  { [523,659,784,1047].forEach((f,i) => setTimeout(() => tone(f,'sine',.18,.2), i*65)); }
+  function playWrong()    { tone(260,'sawtooth',.18,.14); setTimeout(() => tone(210,'sawtooth',.15,.11), 170); }
+  function playRoundWin() { [523,659,784,1047,1319].forEach((f,i) => setTimeout(() => tone(f,'triangle',.28,.22), i*80)); }
+  function playFinalWin() { [523,659,784,1047,784,1047,1319].forEach((f,i) => setTimeout(() => tone(f,'sine',.32,.22), i*90)); }
+
+  // ── 18 opposite pairs, easy → medium → hard ──────────────────────────────
   const PAIRS = [
-    // Easy — very visual, toddler-obvious
+    // Easy (0-5)
     { a:{e:'🔥',w:'Hot'},    b:{e:'❄️',w:'Cold'} },
     { a:{e:'☀️',w:'Day'},    b:{e:'🌙',w:'Night'} },
     { a:{e:'⬆️',w:'Up'},     b:{e:'⬇️',w:'Down'} },
     { a:{e:'😊',w:'Happy'},  b:{e:'😢',w:'Sad'} },
-    // Medium
+    { a:{e:'🌧️',w:'Wet'},   b:{e:'🏜️',w:'Dry'} },
     { a:{e:'🐘',w:'Big'},    b:{e:'🐭',w:'Small'} },
+    // Medium (6-11)
     { a:{e:'🐎',w:'Fast'},   b:{e:'🐢',w:'Slow'} },
-    { a:{e:'🌊',w:'Wet'},    b:{e:'🏜️',w:'Dry'} },
     { a:{e:'😴',w:'Asleep'}, b:{e:'😃',w:'Awake'} },
-    // Hard — more abstract
+    { a:{e:'🌞',w:'Sunny'},  b:{e:'🌧️',w:'Rainy'} },
+    { a:{e:'🍦',w:'Cold'},   b:{e:'♨️',w:'Hot'} },
+    { a:{e:'🌸',w:'Soft'},   b:{e:'🪨',w:'Hard'} },
+    { a:{e:'🧊',w:'Cold'},   b:{e:'🔥',w:'Hot'} },
+    // Hard (12-17)
     { a:{e:'🔊',w:'Loud'},   b:{e:'🤫',w:'Quiet'} },
-    { a:{e:'🪶',w:'Light'},  b:{e:'🪨',w:'Heavy'} },
+    { a:{e:'🪶',w:'Light'},  b:{e:'🏋️',w:'Heavy'} },
     { a:{e:'📖',w:'Open'},   b:{e:'📕',w:'Closed'} },
-    { a:{e:'🌸',w:'Soft'},   b:{e:'💎',w:'Hard'} },
+    { a:{e:'🌑',w:'Dark'},   b:{e:'💡',w:'Bright'} },
+    { a:{e:'🧹',w:'Clean'},  b:{e:'🗑️',w:'Messy'} },
+    { a:{e:'🐣',w:'Young'},  b:{e:'👴',w:'Old'} },
   ];
 
-  // Audio
-  let audioCtx = null;
-  function getAudio() {
-    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    return audioCtx;
-  }
-  function tone(f, t, d, v = .15) {
-    try {
-      const c = getAudio(), o = c.createOscillator(), g = c.createGain();
-      o.connect(g); g.connect(c.destination);
-      o.type = t || 'sine'; o.frequency.value = f;
-      g.gain.setValueAtTime(v, c.currentTime);
-      g.gain.exponentialRampToValueAtTime(.001, c.currentTime + d);
-      o.start(); o.stop(c.currentTime + d);
-    } catch (e) {}
-  }
-  function playCorrect()   { [523,659,784,1047].forEach((f,i) => setTimeout(() => tone(f,'sine',.2,.18), i*70)); }
-  function playWrong()     { tone(220,'sawtooth',.22,.12); setTimeout(() => tone(190,'sawtooth',.18,.1), 180); }
-  function playCelebrate() { [523,659,784,1047,1318,1568].forEach((f,i) => setTimeout(() => tone(f,'sine',.25,.2), i*70)); }
-  function playStart()     { tone(440,'sine',.14,.1); setTimeout(() => tone(523,'sine',.14,.09), 110); }
+  const TOTAL = 18;
+  const TIER_BREAKS = [6, 12]; // first 6 = easy, next 6 = medium, last 6 = hard
 
-  // Game state
-  let score = 0, round = 0;
-  const TOTAL = 12;
-  let usedPairs = new Set();
-  let currentPair = null, promptSide = null, correctEmoji = '';
-  let locked = false;
+  // ── State ─────────────────────────────────────────────────────────────────
+  let round = 0, locked = false;
+  let sequence = [];
 
   function shuffle(a) {
     const b = [...a];
-    for (let i = b.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [b[i], b[j]] = [b[j], b[i]];
-    }
+    for (let i = b.length-1; i>0; i--) { const j = Math.floor(Math.random()*(i+1)); [b[i],b[j]]=[b[j],b[i]]; }
     return b;
   }
-  function rand(n) { return Math.floor(Math.random() * n); }
 
-  function updateScore() {
-    document.getElementById('score-row').textContent = Array.from({ length: score }, () => '⭐').join('');
+  function getTierInfo(r) {
+    if (r < TIER_BREAKS[0]) return { label:'Easy',   cls:'tier-easy',   choices:2 };
+    if (r < TIER_BREAKS[1]) return { label:'Medium', cls:'tier-medium', choices:3 };
+    return                         { label:'Hard',   cls:'tier-hard',   choices:4 };
   }
 
-  function getTier() {
-    if (round <= 4) return { pairCount: 4,  choices: 2, label: '⭐ Easy' };
-    if (round <= 8) return { pairCount: 8,  choices: 3, label: '⭐⭐ Medium' };
-    return              { pairCount: 12, choices: 4, label: '⭐⭐⭐ Hard' };
+  // ── BG decoration ─────────────────────────────────────────────────────────
+  function makeBgGems() {
+    const gems = ['💫','✨','🌟','⭐','💎','🌸','🔄'];
+    for (let i = 0; i < 9; i++) {
+      const el = document.createElement('div'); el.className = 'bg-gem';
+      el.textContent = gems[i % gems.length];
+      el.style.left = (5 + Math.random() * 90) + 'vw';
+      el.style.animationDuration = (9 + Math.random() * 13) + 's';
+      el.style.animationDelay    = -(Math.random() * 13) + 's';
+      document.body.appendChild(el);
+    }
   }
 
-  function nextRound() {
-    document.getElementById('celebrate-overlay').classList.remove('show');
+  // ── Game flow ─────────────────────────────────────────────────────────────
+  function startGame() {
+    document.getElementById('end-overlay').classList.remove('show');
+    document.getElementById('round-overlay').classList.remove('show');
+    round = 0; locked = false;
+    // Shuffle pairs within each tier block
+    const easy   = shuffle(PAIRS.slice(0, 6));
+    const medium = shuffle(PAIRS.slice(6, 12));
+    const hard   = shuffle(PAIRS.slice(12, 18));
+    sequence = [...easy, ...medium, ...hard];
+    nextQuestion();
+  }
+
+  function nextQuestion() {
+    document.getElementById('round-overlay').classList.remove('show');
     if (round >= TOTAL) { endGame(); return; }
-    round++;
     locked = false;
 
-    const { pairCount, choices, label } = getTier();
-    document.getElementById('tier-badge').textContent = label;
-    updateScore();
+    const { label, cls, choices } = getTierInfo(round);
+    const badge = document.getElementById('tier-badge');
+    badge.textContent = label;
+    badge.className   = 'tier-badge ' + cls;
+    document.getElementById('round-counter').textContent = (round + 1) + ' / ' + TOTAL;
+    document.getElementById('progress-fill').style.width = (round / TOTAL * 100) + '%';
 
-    // Pick a pair not yet used this game (within allowed tier range)
-    const available = Array.from({ length: pairCount }, (_, i) => i).filter(i => !usedPairs.has(i));
-    if (available.length === 0) usedPairs.clear();
-    const pool = available.length > 0 ? available : Array.from({ length: pairCount }, (_, i) => i);
-    const pIdx = pool[rand(pool.length)];
-    usedPairs.add(pIdx);
-
-    currentPair = PAIRS[pIdx];
-    promptSide = Math.random() < 0.5 ? 'a' : 'b';
-    const prompt  = currentPair[promptSide];
-    const correct = currentPair[promptSide === 'a' ? 'b' : 'a'];
-    correctEmoji = correct.e;
+    const pair       = sequence[round];
+    const promptSide = Math.random() < .5 ? 'a' : 'b';
+    const prompt     = pair[promptSide];
+    const correct    = pair[promptSide === 'a' ? 'b' : 'a'];
 
     document.getElementById('prompt-emoji').textContent = prompt.e;
     document.getElementById('prompt-word').textContent  = prompt.w;
 
-    // Build distractor pool from all other pairs (both sides)
+    // Distractors from other pairs
     const distractors = [];
-    PAIRS.forEach((p, i) => {
-      if (i === pIdx) return;
+    sequence.forEach((p, i) => {
+      if (p === pair) return;
       [p.a, p.b].forEach(side => {
         if (side.e !== prompt.e && side.e !== correct.e) distractors.push(side);
       });
     });
     const wrongChoices = shuffle(distractors).slice(0, choices - 1);
-    const allChoices = shuffle([correct, ...wrongChoices]);
+    const allChoices   = shuffle([correct, ...wrongChoices]);
 
-    // Build buttons
     const grid = document.getElementById('choices-grid');
     grid.innerHTML = '';
     allChoices.forEach(choice => {
       const btn = document.createElement('button');
       btn.className = 'choice-btn';
       btn.innerHTML = `<span class="ce">${choice.e}</span><span class="cw">${choice.w}</span>`;
-      btn.addEventListener('pointerdown', () => handleChoice(btn, choice.e === correctEmoji));
+      btn.addEventListener('pointerdown', () => handleChoice(btn, choice.e === correct.e, pair, promptSide));
       grid.appendChild(btn);
     });
-
-    playStart();
   }
 
-  function handleChoice(btn, isCorrect) {
+  function handleChoice(btn, isCorrect, pair, promptSide) {
     if (locked) return;
     if (isCorrect) {
       locked = true;
       btn.classList.add('correct');
-      score++;
-      updateScore();
-      const rect = btn.getBoundingClientRect();
-      sparkle(rect.left + rect.width / 2, rect.top + rect.height / 2);
       playCorrect();
+      burst(btn);
+      const prompt   = pair[promptSide];
+      const opposite = pair[promptSide === 'a' ? 'b' : 'a'];
+      round++;
+
       setTimeout(() => {
-        const opposite = currentPair[promptSide === 'a' ? 'b' : 'a'];
-        const prompt   = currentPair[promptSide];
-        const msgs = ['Amazing! 💫', 'Brilliant! 👑', 'You got it! ✨', 'Yes! 🌟', 'Wonderful! 🌸', 'Great job! 🎀'];
-        document.getElementById('celebrate-text').textContent = msgs[rand(msgs.length)];
-        document.getElementById('celebrate-big').textContent  = opposite.e;
-        document.getElementById('celebrate-pair').textContent = `${prompt.e} ${prompt.w}  ↔  ${opposite.e} ${opposite.w}`;
-        document.getElementById('celebrate-overlay').classList.add('show');
-        playCelebrate();
-        confettiBurst();
+        const msgs = ['Amazing! 💫','Brilliant! 👑','You got it! ✨','Yes! 🌟','Wonderful! 🌸','Great job! 🎀','Perfect! 💎'];
+        document.getElementById('ov-emoji').textContent = opposite.e;
+        document.getElementById('ov-title').textContent = msgs[Math.floor(Math.random()*msgs.length)];
+        document.getElementById('ov-pair').textContent  = prompt.e + ' ' + prompt.w + '  ↔  ' + opposite.e + ' ' + opposite.w;
+
+        if (round < TOTAL) {
+          const { label } = getTierInfo(round);
+          const prevLabel = getTierInfo(round - 1).label;
+          document.getElementById('ov-sub').textContent = (label !== prevLabel)
+            ? '🎉 ' + label + ' round now!'
+            : 'Keep going! ' + (TOTAL - round) + ' more to go!';
+          document.getElementById('round-btn').onclick = nextQuestion;
+          document.getElementById('round-overlay').classList.add('show');
+          playRoundWin();
+          confetti();
+        } else {
+          endGame();
+        }
       }, 420);
     } else {
       btn.classList.add('wrong');
       playWrong();
-      setTimeout(() => btn.classList.remove('wrong'), 330);
+      setTimeout(() => btn.classList.remove('wrong'), 320);
     }
   }
 
   function endGame() {
-    document.getElementById('celebrate-big').textContent  = score >= 10 ? '🏆' : '🌸';
-    document.getElementById('celebrate-text').textContent = `${score} / ${TOTAL} ⭐ Excellent!`;
-    document.getElementById('celebrate-pair').textContent = 'You know your opposites! 🎀';
-    const btn = document.getElementById('next-btn');
-    btn.textContent = 'Play Again 🔄';
-    btn.onclick = () => {
-      score = 0; round = 0;
-      usedPairs.clear();
-      updateScore();
-      btn.textContent = 'Next ➡️';
-      btn.onclick = nextRound;
-      nextRound();
-    };
-    document.getElementById('celebrate-overlay').classList.add('show');
-    playCelebrate();
-    confettiBurst();
+    playFinalWin();
+    confetti();
+    document.getElementById('end-overlay').classList.add('show');
   }
 
-  function sparkle(x, y) {
-    const cols = ['#ffd700','#ff69b4','#00cfff','#aaffaa','#ff8c00','#da70d6','#ffffff'];
-    for (let i = 0; i < 16; i++) {
-      const el = document.createElement('div');
-      const sz = 7 + Math.random() * 8;
-      el.style.cssText = `position:fixed;left:${x}px;top:${y}px;width:${sz}px;height:${sz}px;border-radius:50%;background:${cols[i % cols.length]};pointer-events:none;z-index:200;`;
+  function burst(btn) {
+    const r  = btn.getBoundingClientRect();
+    const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+    const cols = ['#e040fb','#f48fb1','#ffd700','#fff','#ab47bc','#ff8a65','#80deea','#a5d6a7'];
+    const emojis = ['✨','💫','⭐','🌸','💎'];
+    for (let i = 0; i < 18; i++) {
+      const el  = document.createElement('div'); el.className = 'sparkle';
+      const a   = Math.random() * Math.PI * 2;
+      const dist= 30 + Math.random() * 80;
+      const sz  = 7 + Math.random() * 11;
+      if (i < 4) {
+        // emoji sparkle
+        el.style.cssText = `left:${cx+Math.cos(a)*dist}px;top:${cy+Math.sin(a)*dist}px;font-size:${16+Math.random()*10}px;background:none;border-radius:0;`;
+        el.textContent = emojis[i % emojis.length];
+      } else {
+        el.style.cssText = `left:${cx+Math.cos(a)*dist-sz/2}px;top:${cy+Math.sin(a)*dist-sz/2}px;width:${sz}px;height:${sz}px;background:${cols[i%cols.length]}`;
+      }
       document.body.appendChild(el);
-      const angle = (i / 16) * Math.PI * 2;
-      const dist  = 35 + Math.random() * 60;
-      const tx = Math.cos(angle) * dist, ty = Math.sin(angle) * dist;
-      el.animate(
-        [{ transform:'translate(-50%,-50%) scale(1.3)', opacity:1 },
-         { transform:`translate(calc(-50% + ${tx}px),calc(-50% + ${ty}px)) scale(0)`, opacity:0 }],
-        { duration: 480 + Math.random() * 200, easing: 'ease-out' }
-      ).onfinish = () => el.remove();
+      setTimeout(() => el.remove(), 750);
     }
   }
 
-  function confettiBurst() {
-    const cols = ['#ffd700','#ff69b4','#00cfff','#7fff00','#ff6347','#da70d6'];
-    for (let i = 0; i < 35; i++) {
-      const el = document.createElement('div');
-      el.className = 'confetti-piece';
-      el.style.left = Math.random() * 100 + 'vw';
-      el.style.background = cols[rand(cols.length)];
-      el.style.animationDuration = (1.2 + Math.random() * 1.6) + 's';
-      el.style.animationDelay = (Math.random() * .5) + 's';
+  function confetti() {
+    const cols = ['#e040fb','#ffd700','#fff','#f48fb1','#ce93d8','#b2ebf2','#a5d6a7'];
+    for (let i = 0; i < 45; i++) {
+      const el = document.createElement('div'); el.className = 'confetti';
+      const sz = 6 + Math.random() * 10;
+      el.style.cssText = `left:${Math.random()*100}vw;width:${sz}px;height:${sz}px;background:${cols[i%cols.length]};animation-duration:${1.4+Math.random()*2}s;animation-delay:${Math.random()*.5}s`;
       document.body.appendChild(el);
-      setTimeout(() => el.remove(), 2800);
+      setTimeout(() => el.remove(), 3500);
     }
   }
 
-  nextRound();
+  makeBgGems();
+  startGame();
 </script>
 </body>
 </html>
