@@ -211,7 +211,7 @@
     "ageMin": 2,
     "ageMax": 5,
     "skill": "sorting by size",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "category": "colours-shapes",
     "path": "games/018-size-sort/index.html"
   },
@@ -358,6 +358,18 @@
     "version": "1.0.0",
     "category": "play",
     "path": "games/030-princess-pairs/index.html"
+  },
+  {
+    "id": "032-princess-countdown",
+    "title": "Princess Countdown",
+    "description": "Count backwards with Princess to light the royal fireworks — tap what comes next from 10 down to 0!",
+    "icon": "🎆",
+    "ageMin": 2,
+    "ageMax": 5,
+    "skill": "counting backwards / number sequence",
+    "version": "1.0.0",
+    "category": "numbers",
+    "path": "games/032-princess-countdown/index.html"
   },
   {
     "id": "031-treasure-boat",

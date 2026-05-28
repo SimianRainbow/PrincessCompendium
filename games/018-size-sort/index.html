@@ -14,11 +14,9 @@
       font-family:'Fredoka One', Georgia, serif; user-select:none; position:relative;
     }
 
-    /* Floating background gems */
     .bg-gem { position:fixed; pointer-events:none; animation:floatUp linear infinite; opacity:.15; font-size:clamp(18px,5vw,32px); }
     @keyframes floatUp { 0%{transform:translateY(110vh) rotate(0deg)} 100%{transform:translateY(-15vh) rotate(360deg)} }
 
-    /* Header */
     #header {
       position:fixed; top:0; left:0; right:0; z-index:10;
       padding:clamp(10px,2.5vw,16px) clamp(14px,4vw,24px);
@@ -31,7 +29,8 @@
     .tier-medium { background:linear-gradient(135deg,#ffe082,#ffd54f); color:#5a3000; }
     .tier-hard   { background:linear-gradient(135deg,#ce93d8,#ab47bc); color:#fff; }
 
-    /* Progress bar */
+    #round-counter { font-size:clamp(15px,3.8vw,22px); color:#7b1fa2; font-weight:bold; }
+
     #progress-wrap {
       position:fixed; top:clamp(52px,12vw,76px); left:0; right:0;
       padding:0 clamp(14px,4vw,24px); z-index:10;
@@ -39,7 +38,6 @@
     #progress-track { background:rgba(0,0,0,.1); border-radius:20px; height:clamp(10px,2.5vw,14px); overflow:hidden; }
     #progress-fill  { height:100%; border-radius:20px; background:linear-gradient(90deg,#e040fb,#f48fb1); transition:width .35s ease; width:0%; box-shadow:0 0 8px rgba(224,64,251,.35); }
 
-    /* Prompt */
     #prompt-wrap {
       position:fixed; top:clamp(74px,16vw,100px); left:0; right:0; z-index:10;
       text-align:center; padding:clamp(10px,2.5vw,16px) 16px;
@@ -49,7 +47,6 @@
       text-shadow:0 2px 6px rgba(106,27,154,.15); line-height:1.2;
     }
 
-    /* Arena */
     #arena {
       position:fixed; left:0; right:0;
       top:clamp(138px,32vw,190px); bottom:clamp(10px,3vw,24px);
@@ -80,11 +77,10 @@
       60%{transform:translateX(-8px)} 80%{transform:translateX(8px)} 100%{transform:translateX(0)}
     }
 
-    /* Sparkles */
-    .sparkle { position:fixed; pointer-events:none; z-index:50; border-radius:50%; animation:sparkleOut .7s ease-out forwards; }
+    .sparkle       { position:fixed; pointer-events:none; z-index:50; border-radius:50%; animation:sparkleOut .7s ease-out forwards; }
+    .sparkle-emoji { position:fixed; pointer-events:none; z-index:50; animation:sparkleOut .7s ease-out forwards; }
     @keyframes sparkleOut { 0%{transform:scale(0);opacity:1} 100%{transform:scale(1.5);opacity:0} }
 
-    /* Overlays */
     .overlay {
       position:fixed; inset:0; background:rgba(250,240,255,.9);
       display:flex; flex-direction:column; align-items:center; justify-content:center; gap:18px;
@@ -109,6 +105,7 @@
 
   <div id="header">
     <div id="tier-badge" class="tier-easy">Easy</div>
+    <div id="round-counter">1 / 6</div>
     <div style="font-size:clamp(30px,8vw,52px)">👸</div>
   </div>
   <div id="progress-wrap">
@@ -136,37 +133,43 @@
   // ── Audio ────────────────────────────────────────────────────────────────
   let audioCtx = null;
   function getAudio() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); return audioCtx; }
-  function tone(f, type, d, v = .18) {
+  function tone(f, type, d, v=.18) {
     try {
-      const c = getAudio(), o = c.createOscillator(), g = c.createGain();
+      const c=getAudio(), o=c.createOscillator(), g=c.createGain();
       o.connect(g); g.connect(c.destination);
-      o.type = type; o.frequency.value = f;
+      o.type=type; o.frequency.value=f;
       g.gain.setValueAtTime(v, c.currentTime);
-      g.gain.exponentialRampToValueAtTime(.001, c.currentTime + d);
-      o.start(); o.stop(c.currentTime + d);
+      g.gain.exponentialRampToValueAtTime(.001, c.currentTime+d);
+      o.start(); o.stop(c.currentTime+d);
     } catch(e) {}
   }
-  function playCorrect()  { [523,659,784,1047].forEach((f,i) => setTimeout(() => tone(f,'sine',.15,.2), i*65)); }
-  function playWrong()    { tone(280,'sawtooth',.18,.15); setTimeout(() => tone(230,'sawtooth',.15,.12), 160); }
-  function playRoundWin() { [523,659,784,1047,1319].forEach((f,i) => setTimeout(() => tone(f,'triangle',.3,.22), i*85)); }
-  function playFinalWin() { [523,659,784,1047,784,1047,1319].forEach((f,i) => setTimeout(() => tone(f,'sine',.32,.22), i*95)); }
+  function playCorrect()  { [523,659,784,1047].forEach((f,i)=>setTimeout(()=>tone(f,'sine',.15,.2),i*65)); }
+  function playWrong()    { tone(280,'sawtooth',.18,.15); setTimeout(()=>tone(230,'sawtooth',.15,.12),160); }
+  function playRoundWin() { [523,659,784,1047,1319].forEach((f,i)=>setTimeout(()=>tone(f,'triangle',.3,.22),i*85)); }
+  function playFinalWin() { [523,659,784,1047,784,1047,1319].forEach((f,i)=>setTimeout(()=>tone(f,'sine',.32,.22),i*95)); }
 
   // ── Config ───────────────────────────────────────────────────────────────
-  const ITEMS = ['👑','💎','⭐','🌸','💖','🍄','🌙','🦋','🌺','🏆','🎀','🌈','🎪','🍭','🦄'];
+  const ITEMS = [
+    '👑','💎','⭐','🌸','💖','🍄','🌙','🦋','🌺','🏆',
+    '🎀','🌈','🎪','🍭','🦄','🌻','🍓','🐝','🦢','🌷',
+    '🍰','🎠','🌊','🦩','🐬'
+  ];
 
-  // ratio = big/small emoji size. count = number of buttons.
   const TIERS = [
     { label:'Easy',   cls:'tier-easy',   count:2, ratio:3.0, questions:6  },
     { label:'Medium', cls:'tier-medium', count:2, ratio:2.0, questions:8  },
     { label:'Hard',   cls:'tier-hard',   count:3, ratio:1.7, questions:10 },
   ];
 
-  // Largest emoji font-size (px) — scales with screen width
-  const BIG_PX = Math.min(window.innerWidth * 0.21, 92);
+  const TIER_MSGS = [
+    { emoji:'🌟', title:'Size Star! ⭐',  sub:'Nailed Easy! Medium is next — the sizes are closer together!' },
+    { emoji:'💎', title:'Gem Wizard! 🔮', sub:'Medium done! Hard has THREE sizes to sort — you\'ve got this!' },
+  ];
 
+  const BIG_PX = Math.min(window.innerWidth * 0.21, 92);
   let tierIdx = 0, qDone = 0, locked = false;
 
-  // ── Background decoration ────────────────────────────────────────────────
+  // ── Background ───────────────────────────────────────────────────────────
   function makeBgGems() {
     const gems = ['💫','✨','🌟','⭐','💎','🌸'];
     for (let i = 0; i < 10; i++) {
@@ -193,32 +196,23 @@
     locked = false;
     updateHUD();
 
-    // Rotate through items so each question looks fresh
-    const emoji = ITEMS[(qDone * 3 + tierIdx * 5) % ITEMS.length];
-
-    // Easy always asks "big"; others alternate
+    const emoji = ITEMS[(qDone * 3 + tierIdx * 7) % ITEMS.length];
     const askBig = (tierIdx === 0) ? true : (Math.random() < .5);
 
-    // Build prompt text
     const promptText = t.count === 3
       ? (askBig ? 'Tap the BIGGEST! 🔮' : 'Tap the SMALLEST! 🔮')
       : (askBig ? 'Tap the BIG one! 🔮' : 'Tap the SMALL one! 🔮');
     document.getElementById('prompt-text').textContent = promptText;
 
-    // Generate sizes array (px for emoji font-size)
     const sizes = genSizes(t.count, t.ratio);
-
-    // Correct index: biggest or smallest
     const targetPx   = askBig ? Math.max(...sizes) : Math.min(...sizes);
-    const correctIdx  = sizes.indexOf(targetPx);
+    const correctIdx = sizes.indexOf(targetPx);
 
-    // Build buttons
     const arena = document.getElementById('arena');
     arena.innerHTML = '';
     sizes.forEach((sz, i) => {
       const btn = document.createElement('button');
       btn.className = 'item-btn';
-      // Button must always be at least 110×110 regardless of emoji size
       const side = Math.max(sz + 32, 110);
       btn.style.minWidth  = side + 'px';
       btn.style.minHeight = side + 'px';
@@ -234,7 +228,6 @@
     if (count === 2) {
       return Math.random() < .5 ? [big, small] : [small, big];
     }
-    // 3 items: big, mid, small — shuffled
     const mid = Math.round((big + small) / 2);
     const arr = [big, mid, small];
     for (let i = arr.length - 1; i > 0; i--) {
@@ -263,15 +256,20 @@
   function burst(btn) {
     const r  = btn.getBoundingClientRect();
     const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
-    const cols = ['#e040fb','#f48fb1','#ffd700','#fff','#ab47bc','#ff8a65','#80deea'];
-    for (let i = 0; i < 16; i++) {
-      const el   = document.createElement('div'); el.className = 'sparkle';
-      const a    = Math.random() * Math.PI * 2;
-      const dist = 28 + Math.random() * 70;
-      const sz   = 6 + Math.random() * 10;
+    const cols   = ['#e040fb','#f48fb1','#ffd700','#fff','#ab47bc','#ff8a65','#80deea'];
+    const emojis = ['✨','💫','⭐','🌸','💖','🌟'];
+    for (let i = 0; i < 14; i++) {
+      const el = document.createElement('div'); el.className = 'sparkle';
+      const a = Math.random() * Math.PI * 2, dist = 30 + Math.random() * 75, sz = 6 + Math.random() * 10;
       el.style.cssText = `left:${cx+Math.cos(a)*dist-sz/2}px;top:${cy+Math.sin(a)*dist-sz/2}px;width:${sz}px;height:${sz}px;background:${cols[i%cols.length]}`;
-      document.body.appendChild(el);
-      setTimeout(() => el.remove(), 750);
+      document.body.appendChild(el); setTimeout(() => el.remove(), 750);
+    }
+    for (let i = 0; i < 6; i++) {
+      const el = document.createElement('div'); el.className = 'sparkle-emoji';
+      const a = Math.random() * Math.PI * 2, dist = 40 + Math.random() * 65;
+      el.style.cssText = `left:${cx+Math.cos(a)*dist}px;top:${cy+Math.sin(a)*dist}px;font-size:${20+Math.random()*10}px`;
+      el.textContent = emojis[i % emojis.length];
+      document.body.appendChild(el); setTimeout(() => el.remove(), 750);
     }
   }
 
@@ -280,6 +278,7 @@
     const badge = document.getElementById('tier-badge');
     badge.textContent = t.label;
     badge.className   = t.cls;
+    document.getElementById('round-counter').textContent = `${qDone + 1} / ${t.questions}`;
     document.getElementById('progress-fill').style.width = (qDone / t.questions * 100) + '%';
   }
 
@@ -287,10 +286,10 @@
     playRoundWin();
     confetti();
     if (tierIdx < TIERS.length - 1) {
-      const next = TIERS[tierIdx + 1];
-      document.getElementById('ov-emoji').textContent = '🌸';
-      document.getElementById('ov-title').textContent = 'Amazing! 🎉';
-      document.getElementById('ov-sub').textContent   = next.label + ' round — ' + next.questions + ' questions!';
+      const m = TIER_MSGS[tierIdx];
+      document.getElementById('ov-emoji').textContent = m.emoji;
+      document.getElementById('ov-title').textContent = m.title;
+      document.getElementById('ov-sub').textContent   = m.sub;
       document.getElementById('round-btn').onclick = () => {
         document.getElementById('round-overlay').classList.remove('show');
         tierIdx++; qDone = 0; locked = false;

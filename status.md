@@ -1,9 +1,9 @@
 # Princess Compendium — Status
 
 ## Last update run
-Date: 2026-05-25
-- Improved: `020-opposites` → v1.1.0 (Fredoka One font; progress bar; colour-coded tier badge Easy/Medium/Hard; round counter X/18; expanded from 12 → 18 pairs; larger sparkle burst with emoji sparkles; pastel princess background; tier-transition celebration message)
-- Added: `030-princess-pairs` — "Princess Pairs" teaching memory & concentration; flip cards to find matching princess emoji pairs; Easy=4 pairs (4×2 grid), Medium=6 pairs (4×3), Hard=9 pairs (6×3); sparkle burst on each match; confetti + melody on round win; 3D card-flip CSS animation
+Date: 2026-05-28
+- Improved: `018-size-sort` → v1.1.0 (added round counter X/Y in header; emoji sparkles ✨💫⭐ in burst alongside coloured dots; expanded ITEMS pool from 15 → 25 emojis; richer tier-transition messages with specific encouragement)
+- Added: `032-princess-countdown` — "Princess Countdown" teaching counting backwards; orb shows current number, child taps the next countdown number from 3 choices; Easy 5→0, Medium 7→0, Hard 10→0; sparkle + emoji burst on each correct tap; fanfare + confetti on countdown complete
 
 ## Improvement history
 
@@ -22,6 +22,7 @@ Date: 2026-05-25
 | 2026-05-19 | 021-body-parts | Named tier badges, knee added, emoji sparkles, round counter, prompt variety, part reinforcement in celebration | 1.1.0 |
 | 2026-05-22 | 019-feelings-faces | Fredoka font, single tier badge, progress bar, locked state, 4-note correct sound, bigger sparkle burst, emotion name in celebration, 28 scenarios | 1.1.0 |
 | 2026-05-25 | 020-opposites | Fredoka font, progress bar, colour-coded tier badge, round counter X/18, 18 pairs (was 12), emoji sparkles in burst, pastel BG, tier-change message | 1.1.0 |
+| 2026-05-28 | 018-size-sort | Round counter X/Y, emoji sparkles in burst, 25-item pool (was 15), richer tier-transition messages | 1.1.0 |
 
 ## Games due for improvement (all at v1.0.0)
 
@@ -31,7 +32,7 @@ Priority candidates — pick whichever has the clearest improvement path:
 - **011-princess-quest** — smoother controls, obstacle variety, difficulty tiers
 - **013-magic-leaf** — more character encounters, tier badge, sparkle on collection
 - **015-mermaid-lagoon-v2** — tier badge, more NPC variety
-- **018-size-sort** — sparkle burst, richer audio, tier badge
+- ~~**018-size-sort**~~ — ✅ done v1.1.0
 - ~~**019-feelings-faces**~~ — ✅ done v1.1.0
 - ~~**020-opposites**~~ — ✅ done v1.1.0
 - ~~**021-body-parts**~~ — ✅ done v1.1.0
@@ -49,4 +50,4 @@ See `CLAUDE.md` for the full prioritised list. Top 3 to build next:
 4. Body parts extension (left/right, front/back for older toddlers)
 
 ## Next game ID
-`031-<slug>`
+`033-<slug>`
