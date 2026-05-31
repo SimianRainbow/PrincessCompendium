@@ -4,13 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>Magic Adding ✨</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
   <style>
     * { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
     body {
       background: linear-gradient(160deg, #4e0d3a 0%, #c2185b 45%, #f8bbd0 100%);
       min-height:100vh; display:flex; flex-direction:column;
       align-items:center; justify-content:center;
-      font-family:Georgia,serif; overflow:hidden; user-select:none;
+      font-family:'Fredoka One', Georgia, serif; overflow:hidden; user-select:none;
       padding:8px;
     }
     #tier-badge {
@@ -19,8 +20,17 @@
       border-radius:20px; padding:4px 16px; color:#fff;
       border:1px solid rgba(255,255,255,.4); z-index:10; white-space:nowrap;
     }
-    #score-row { position:fixed; top:16px; right:20px; font-size:clamp(18px,5vw,28px); }
-    #title { font-size:clamp(20px,5.5vw,32px); color:#fff; text-shadow:0 2px 8px rgba(0,0,0,.4); margin-top:54px; margin-bottom:20px; text-align:center; }
+    #round-counter {
+      position:fixed; top:14px; right:16px;
+      font-size:clamp(14px,3.5vw,18px); color:rgba(255,255,255,.9);
+      z-index:10; white-space:nowrap; background:rgba(255,255,255,.15);
+      border-radius:20px; padding:4px 12px; border:1px solid rgba(255,255,255,.3);
+    }
+    #title {
+      font-size:clamp(20px,5.5vw,32px); color:#fff;
+      text-shadow:0 2px 8px rgba(0,0,0,.4);
+      margin-top:58px; margin-bottom:16px; text-align:center;
+    }
 
     #problem-area {
       display:flex; align-items:center; justify-content:center;
@@ -55,7 +65,7 @@
       background:rgba(255,255,255,.18);
       box-shadow:0 4px 16px rgba(0,0,0,.25), inset 0 2px 0 rgba(255,255,255,.25);
       display:flex; align-items:center; justify-content:center;
-      transition:transform .1s;
+      transition:transform .1s; font-family:'Fredoka One', Georgia, serif;
     }
     .ans-btn:active { transform:scale(.9); }
     .ans-btn .ans-num {
@@ -67,25 +77,36 @@
     @keyframes correctPulse { 0%{transform:scale(1)} 40%{transform:scale(1.2);box-shadow:0 0 40px rgba(255,255,255,.7)} 100%{transform:scale(1)} }
     @keyframes wrongShake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-12px)} 60%{transform:translateX(12px)} }
 
+    #tier-toast {
+      position:fixed; top:50%; left:50%; transform:translate(-50%,-50%) scale(0);
+      background:rgba(255,215,0,.96); border-radius:24px; padding:18px 32px;
+      font-size:clamp(20px,5.5vw,34px); color:#5d2e00;
+      text-align:center; z-index:200; pointer-events:none;
+      box-shadow:0 8px 32px rgba(0,0,0,.3);
+      transition:transform .25s cubic-bezier(.34,1.56,.64,1);
+    }
+    #tier-toast.show { transform:translate(-50%,-50%) scale(1); }
+
     #celebrate-overlay {
       position:fixed; inset:0; background:rgba(0,0,0,.6);
       display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px;
       z-index:99; opacity:0; pointer-events:none; transition:opacity .3s;
     }
     #celebrate-overlay.show { opacity:1; pointer-events:all; }
-    #celebrate-text { font-size:clamp(30px,8vw,58px); color:#fff; text-shadow:0 0 20px #ffd700; text-align:center; padding:0 20px; }
-    #celebrate-sub { font-size:clamp(24px,6vw,42px); color:#ffe082; text-align:center; }
-    #next-btn { padding:clamp(14px,4vw,20px) clamp(32px,8vw,56px); font-size:clamp(18px,5vw,26px); border-radius:50px; border:none; background:linear-gradient(135deg,#ffd700,#ff9800); color:#5d2e00; font-weight:bold; cursor:pointer; font-family:inherit; box-shadow:0 4px 16px rgba(255,180,0,.5); }
+    #celebrate-text { font-size:clamp(28px,7.5vw,54px); color:#fff; text-shadow:0 0 20px #ffd700; text-align:center; padding:0 20px; }
+    #celebrate-sub { font-size:clamp(20px,5vw,34px); color:#ffe082; text-align:center; }
+    #next-btn { padding:clamp(14px,4vw,20px) clamp(32px,8vw,56px); font-size:clamp(18px,5vw,26px); border-radius:50px; border:none; background:linear-gradient(135deg,#ffd700,#ff9800); color:#5d2e00; font-weight:bold; cursor:pointer; font-family:'Fredoka One',inherit; box-shadow:0 4px 16px rgba(255,180,0,.5); }
 
     .confetti-piece { position:fixed; width:10px; height:10px; border-radius:50%; animation:confettiFall linear forwards; pointer-events:none; z-index:100; }
     @keyframes confettiFall { 0%{top:-20px;opacity:1} 100%{top:110vh;opacity:.2} }
-    .sparkle { position:fixed; pointer-events:none; z-index:101; font-size:clamp(18px,4vw,26px); animation:sparklePop .7s ease-out forwards; }
+    .sparkle { position:fixed; pointer-events:none; z-index:101; font-size:clamp(18px,4.5vw,28px); animation:sparklePop .75s ease-out forwards; }
     @keyframes sparklePop { 0%{opacity:1;transform:scale(0) rotate(0)} 60%{opacity:1;transform:scale(1.3) rotate(20deg)} 100%{opacity:0;transform:scale(1.8) rotate(40deg)} }
   </style>
 </head>
 <body>
   <div id="tier-badge">⭐ Easy</div>
-  <div id="score-row"></div>
+  <div id="round-counter">1 / 9</div>
+  <div id="tier-toast"></div>
   <div id="title">Magic Adding ✨</div>
 
   <div id="problem-area">
@@ -112,12 +133,12 @@
   const HARD_POOL  = [[3,3],[2,4],[4,2],[3,4],[4,3],[2,5],[5,2],[4,4],[3,5],[5,3]];
 
   const TIER_META = [
-    { label:'⭐ Easy',   pool:EASY_POOL  },
-    { label:'⭐⭐ Good',  pool:MED_POOL   },
+    { label:'⭐ Easy',    pool:EASY_POOL  },
+    { label:'⭐⭐ Good',   pool:MED_POOL   },
     { label:'⭐⭐⭐ Wow!', pool:HARD_POOL  },
   ];
 
-  let tierProblems, score=0, round=0;
+  let tierProblems, round=0;
   const TOTAL=9;
 
   function shuffle(a){ const b=[...a]; for(let i=b.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]]; } return b; }
@@ -126,10 +147,11 @@
     tierProblems=TIER_META.map(t=>shuffle([...t.pool]).slice(0,3));
   }
 
+  function getTierIndex(r){ return r<=3?0:r<=6?1:2; }
   function getProblemAndTier(r){
-    if(r<=3) return {tier:TIER_META[0], prob:tierProblems[0][r-1]};
-    if(r<=6) return {tier:TIER_META[1], prob:tierProblems[1][r-4]};
-    return {tier:TIER_META[2], prob:tierProblems[2][r-7]};
+    const ti=getTierIndex(r);
+    const pi=ti===0?r-1:ti===1?r-4:r-7;
+    return {tier:TIER_META[ti], prob:tierProblems[ti][pi]};
   }
 
   let audioCtx=null;
@@ -140,40 +162,48 @@
   function playCelebrate(){ [523,587,659,698,784,880,1047].forEach((f,i)=>setTimeout(()=>tone(f,'sine',.22),i*70)); }
 
   function sparkleBurst(x,y){
-    const emojis=['✨','💫','⭐','🌟','💖'];
-    for(let i=0;i<9;i++){
+    const emojis=['✨','💫','⭐','🌟','💖','🌸','👑','🎉'];
+    for(let i=0;i<14;i++){
       const el=document.createElement('div'); el.className='sparkle';
       el.textContent=emojis[Math.floor(Math.random()*emojis.length)];
-      const angle=Math.random()*360, dist=60+Math.random()*90;
+      const angle=Math.random()*360, dist=50+Math.random()*110;
       el.style.left=(x+Math.cos(angle*Math.PI/180)*dist)+'px';
       el.style.top=(y+Math.sin(angle*Math.PI/180)*dist)+'px';
-      el.style.animationDelay=(Math.random()*.25)+'s';
-      document.body.appendChild(el); setTimeout(()=>el.remove(),950);
+      el.style.animationDelay=(Math.random()*.3)+'s';
+      document.body.appendChild(el); setTimeout(()=>el.remove(),1050);
     }
   }
 
-  function updateScore(){ document.getElementById('score-row').innerHTML=Array.from({length:score},()=>'⭐').join(''); }
+  function showTierToast(msg){
+    const t=document.getElementById('tier-toast');
+    t.textContent=msg; t.classList.add('show');
+    setTimeout(()=>t.classList.remove('show'),1900);
+  }
 
-  let currentAnswer=0;
+  let currentAnswer=0, currentA=0, currentB=0;
 
   function nextRound(){
     document.getElementById('celebrate-overlay').classList.remove('show');
     if(round>=TOTAL){ endGame(); return; }
     round++;
 
+    if(round===4) showTierToast('Level Up! ⭐⭐ Good!');
+    if(round===7) showTierToast('Amazing! ⭐⭐⭐ Wow!');
+
+    document.getElementById('round-counter').textContent=`${round} / ${TOTAL}`;
+
     const {tier,prob}=getProblemAndTier(round);
     document.getElementById('tier-badge').textContent=tier.label;
 
     const icon=ICONS[(round-1)%ICONS.length];
     const [a,b]=prob;
-    currentAnswer=a+b;
+    currentA=a; currentB=b; currentAnswer=a+b;
 
     const op1=document.getElementById('op1');
     const op2=document.getElementById('op2');
     op1.innerHTML=Array.from({length:a},()=>`<span>${icon}</span>`).join('');
     op2.innerHTML=Array.from({length:b},()=>`<span>${icon}</span>`).join('');
 
-    // Distractors: pick 2 values near the answer that are not the answer
     const sum=currentAnswer;
     const candidates=[];
     for(let d=-3;d<=3;d++){
@@ -196,12 +226,13 @@
 
   function handleTap(btn,n){
     if(n===currentAnswer){
-      btn.classList.add('correct-flash'); playCorrect(); score++; updateScore();
+      btn.classList.add('correct-flash'); playCorrect();
       const r=btn.getBoundingClientRect();
       sparkleBurst(r.left+r.width/2, r.top+r.height/2);
       setTimeout(()=>{
         btn.classList.remove('correct-flash');
-        const msgs=[`${currentAnswer}! 🎉`,`Yes! ${currentAnswer}! ✨`,`${currentAnswer}! Amazing! 💖`,`That's ${currentAnswer}! 👑`];
+        const eq=`${currentA} + ${currentB} = ${currentAnswer}`;
+        const msgs=[`${eq}! 🎉`,`Yes! ${eq}! ✨`,`${eq}! Amazing! 💖`,`${eq}! 👑`];
         document.getElementById('celebrate-text').textContent=msgs[Math.floor(Math.random()*msgs.length)];
         document.getElementById('celebrate-sub').textContent='';
         document.getElementById('celebrate-overlay').classList.add('show');
@@ -214,12 +245,11 @@
   }
 
   function endGame(){
-    document.getElementById('celebrate-text').textContent=`You got ${score} stars! 👑`;
+    document.getElementById('celebrate-text').textContent='Adding Star! 👑✨';
     document.getElementById('celebrate-sub').textContent='Amazing adding! 🌟';
     document.getElementById('next-btn').textContent='Play Again 🔄';
     document.getElementById('next-btn').onclick=()=>{
-      score=0; round=0; updateScore();
-      initGame();
+      round=0; initGame();
       document.getElementById('celebrate-overlay').classList.remove('show');
       nextRound();
     };
@@ -229,13 +259,13 @@
 
   function confettiBurst(){
     const cols=['#ffd700','#ff69b4','#00cfff','#7fff00','#ff6347','#da70d6'];
-    for(let i=0;i<30;i++){
+    for(let i=0;i<35;i++){
       const el=document.createElement('div'); el.className='confetti-piece';
       el.style.left=Math.random()*100+'vw';
       el.style.background=cols[Math.floor(Math.random()*cols.length)];
       el.style.animationDuration=(1.2+Math.random()*1.6)+'s';
       el.style.animationDelay=(Math.random()*.4)+'s';
-      document.body.appendChild(el); setTimeout(()=>el.remove(),2600);
+      document.body.appendChild(el); setTimeout(()=>el.remove(),2700);
     }
   }
 
