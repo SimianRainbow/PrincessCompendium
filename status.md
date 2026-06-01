@@ -1,9 +1,9 @@
 # Princess Compendium — Status
 
 ## Last update run
-Date: 2026-05-31
-- Improved: `022-magic-adding` → v1.1.0 (Fredoka One font; round counter X/9 in header; tier-transition toast at rounds 4 & 7; celebrate overlay now shows full equation e.g. "2 + 3 = 5!"; sparkle burst expanded from 9 → 14 particles; 35 confetti pieces on completion)
-- Added: `033-left-right` — "Left & Right" teaching left/right directional awareness; Easy tier shows big LEFT👈/RIGHT👉 labels; Medium has small labels; Hard has 3 items (left/middle/right) with no labels; 9 rounds with sparkle bursts and confetti
+Date: 2026-06-01
+- Improved: `023-spatial-princess` → v1.1.0 (Fredoka One font; round counter X/18 in header; tier-transition toast when advancing Easy→Medium→Hard; 2 extra targets 🎀🪄 and 3 extra containers; sparkle burst expanded to 16 particles; 32 confetti pieces on round win)
+- Added: `034-princess-sequence` — "Princess Story Order" teaching sequencing & ordinal concepts (FIRST/NEXT/LAST); 9 stories (morning, garden, caterpillar, baking, rainbow, frog prince, magic egg, mermaid, starry night); Easy tier shows step labels, Medium/Hard hide them; gold numbered badge pops onto each card when tapped correctly
 
 ## Improvement history
 
@@ -24,6 +24,7 @@ Date: 2026-05-31
 | 2026-05-25 | 020-opposites | Fredoka font, progress bar, colour-coded tier badge, round counter X/18, 18 pairs (was 12), emoji sparkles in burst, pastel BG, tier-change message | 1.1.0 |
 | 2026-05-28 | 018-size-sort | Round counter X/Y, emoji sparkles in burst, 25-item pool (was 15), richer tier-transition messages | 1.1.0 |
 | 2026-05-31 | 022-magic-adding | Fredoka font, round counter, tier-transition toast, equation in celebrate ("2+3=5!"), 14 sparkles | 1.1.0 |
+| 2026-06-01 | 023-spatial-princess | Fredoka font, round counter X/18, tier-transition toast, 2 extra targets + 3 containers, 16 sparkles | 1.1.0 |
 
 ## Games due for improvement (all at v1.0.0)
 
@@ -38,7 +39,7 @@ Priority candidates — pick whichever has the clearest improvement path:
 - ~~**020-opposites**~~ — ✅ done v1.1.0
 - ~~**021-body-parts**~~ — ✅ done v1.1.0
 - ~~**022-magic-adding**~~ — ✅ done v1.1.0
-- **023-spatial-princess** — sparkle burst, richer audio
+- ~~**023-spatial-princess**~~ — ✅ done v1.1.0
 - **024-rhyme-time** — sparkle burst, richer audio
 - **025-princess-sort** — sparkle burst, richer audio
 
@@ -50,6 +51,7 @@ See `CLAUDE.md` for the full prioritised list. Top 3 to build next:
 3. Sorting by size (big vs small, biggest/smallest — pre-maths) — covered by 018 but could expand
 4. ~~Body parts extension (left/right)~~ — ✅ covered by `033-left-right`
 5. Front/back body awareness (further extension)
+6. ~~Sequencing / ordinal concepts~~ — ✅ covered by `034-princess-sequence`
 
 ## Next game ID
-`034-<slug>`
+`035-<slug>`

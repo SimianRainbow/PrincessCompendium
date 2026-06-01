@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Princess Story Order 📖</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+    body {
+      background: linear-gradient(155deg, #4a148c 0%, #7b1fa2 50%, #ce93d8 100%);
+      min-height:100vh; display:flex; flex-direction:column;
+      align-items:center; font-family:'Fredoka One',Georgia,serif;
+      overflow:hidden; user-select:none; padding-bottom:12px;
+    }
+
+    #header {
+      width:100%; display:flex; justify-content:space-between; align-items:center;
+      padding:clamp(10px,2.5vw,16px) clamp(14px,3.5vw,22px) 0;
+    }
+    #tier-badge {
+      font-size:clamp(13px,3.2vw,18px);
+      background:rgba(255,255,255,.2); border:1.5px solid rgba(255,255,255,.4);
+      border-radius:20px; padding:4px 12px; color:#fff;
+    }
+    #round-counter {
+      font-size:clamp(13px,3.2vw,17px); color:rgba(255,255,255,.85);
+    }
+    #score-row { font-size:clamp(16px,4vw,24px); }
+
+    #princess-area {
+      display:flex; flex-direction:column; align-items:center;
+      margin-top:clamp(6px,1.5vw,12px);
+    }
+    #princess-face {
+      font-size:clamp(36px,10vw,60px);
+      animation:float 3s ease-in-out infinite;
+    }
+    @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-7px)} }
+
+    #prompt-area {
+      background:rgba(255,255,255,.95); border-radius:22px;
+      padding:clamp(8px,2.5vw,14px) clamp(14px,4vw,24px);
+      margin:clamp(6px,2vw,12px) 16px;
+      text-align:center; box-shadow:0 4px 20px rgba(0,0,0,.2);
+    }
+    #prompt-label {
+      font-size:clamp(11px,2.8vw,15px); color:#7b1fa2; margin-bottom:2px;
+    }
+    #prompt-step {
+      font-size:clamp(22px,6vw,36px); color:#4a148c; font-weight:bold;
+      text-transform:uppercase; letter-spacing:2px;
+    }
+    #prompt-step .step-word { color:#ad1457; }
+
+    #cards-area {
+      display:flex; gap:clamp(8px,2.5vw,16px); justify-content:center;
+      padding:clamp(6px,2vw,12px) 12px;
+      flex:1; align-items:center;
+    }
+
+    .story-card {
+      width:clamp(96px,26vw,130px); height:clamp(110px,30vw,150px);
+      border-radius:20px; border:3px solid rgba(255,255,255,.4);
+      background:rgba(255,255,255,.18);
+      box-shadow:0 4px 16px rgba(0,0,0,.25), inset 0 2px 0 rgba(255,255,255,.3);
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      gap:clamp(4px,1.2vw,8px); cursor:pointer; position:relative;
+      transition:transform .1s, border-color .2s, background .2s;
+    }
+    .story-card:active:not(.answered) { transform:scale(.9); }
+    .story-card.answered { cursor:default; border-color:rgba(255,215,0,.7); background:rgba(255,215,0,.25); }
+    .story-card.wrong-shake { animation:wrongShake .38s ease-out; }
+    @keyframes wrongShake {
+      0%,100%{transform:translateX(0)}
+      25%{transform:translateX(-10px)}
+      75%{transform:translateX(10px)}
+    }
+
+    .card-emoji { font-size:clamp(44px,12vw,68px); line-height:1; pointer-events:none; }
+    .card-label {
+      font-size:clamp(10px,2.6vw,14px); color:#fff; font-weight:bold;
+      text-shadow:0 1px 3px rgba(0,0,0,.5); pointer-events:none;
+      text-align:center; padding:0 4px;
+    }
+
+    .order-badge {
+      position:absolute; top:-10px; left:-10px;
+      width:clamp(28px,7.5vw,40px); height:clamp(28px,7.5vw,40px);
+      border-radius:50%; background:linear-gradient(135deg,#ffd700,#ff9800);
+      border:2px solid #fff; display:flex; align-items:center; justify-content:center;
+      font-size:clamp(14px,4vw,20px); font-weight:bold; color:#4a0000;
+      box-shadow:0 2px 8px rgba(255,150,0,.5);
+      animation:badgePop .35s cubic-bezier(.34,1.56,.64,1);
+    }
+    @keyframes badgePop { from{transform:scale(0)} to{transform:scale(1)} }
+
+    /* Tier-transition toast */
+    #tier-toast {
+      position:fixed; top:68px; left:50%; transform:translateX(-50%) translateY(-20px);
+      background:linear-gradient(135deg,#ffd700,#ff9800); color:#4a0000;
+      border-radius:24px; padding:10px 24px;
+      font-size:clamp(14px,3.5vw,19px);
+      box-shadow:0 4px 16px rgba(255,150,0,.4);
+      opacity:0; pointer-events:none; z-index:20;
+      transition:opacity .3s, transform .3s;
+      white-space:nowrap;
+    }
+    #tier-toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+    .sparkle {
+      position:fixed; font-size:clamp(12px,3.5vw,20px);
+      pointer-events:none; z-index:50;
+      animation:sparkleFly ease-out forwards;
+    }
+    @keyframes sparkleFly {
+      0%   { transform:translate(0,0) scale(1.2); opacity:1; }
+      100% { transform:translate(var(--tx),var(--ty)) scale(.1); opacity:0; }
+    }
+
+    #celebrate-overlay {
+      position:fixed; inset:0; background:rgba(0,0,0,.55);
+      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px;
+      z-index:99; opacity:0; pointer-events:none; transition:opacity .3s;
+    }
+    #celebrate-overlay.show { opacity:1; pointer-events:all; }
+    #celebrate-icon { font-size:clamp(64px,18vw,110px); }
+    #celebrate-text {
+      font-size:clamp(24px,6.5vw,48px); color:#fff;
+      text-shadow:0 0 20px #ffd700; text-align:center; padding:0 16px;
+    }
+    #celebrate-sub {
+      font-size:clamp(16px,4.5vw,26px); color:#ffd700;
+      text-shadow:0 0 10px rgba(255,215,0,.6); text-align:center;
+    }
+    #next-btn {
+      padding:clamp(14px,4vw,20px) clamp(32px,8vw,56px);
+      font-size:clamp(20px,5vw,28px); border-radius:50px; border:none;
+      background:linear-gradient(135deg,#ffd700,#ff9800);
+      color:#4a0000; font-weight:bold; cursor:pointer;
+      font-family:'Fredoka One',inherit;
+      box-shadow:0 4px 16px rgba(255,180,0,.5);
+    }
+    .confetti-piece {
+      position:fixed; border-radius:50%;
+      animation:confettiFall linear forwards;
+      pointer-events:none; z-index:100;
+    }
+    @keyframes confettiFall { 0%{top:-20px;opacity:1} 100%{top:110vh;opacity:.2} }
+  </style>
+</head>
+<body>
+
+  <div id="header">
+    <div id="tier-badge">⭐ Easy</div>
+    <div id="round-counter">1 / 9</div>
+    <div id="score-row"></div>
+  </div>
+
+  <div id="princess-area">
+    <div id="princess-face">👸</div>
+    <div id="prompt-area">
+      <div id="prompt-label">Tap what happens</div>
+      <div id="prompt-step"><span class="step-word">FIRST</span> 1️⃣</div>
+    </div>
+  </div>
+
+  <div id="cards-area"></div>
+
+  <div id="tier-toast"></div>
+
+  <div id="celebrate-overlay">
+    <div id="celebrate-icon">🌟</div>
+    <div id="celebrate-text">You got the order!</div>
+    <div id="celebrate-sub"></div>
+    <button id="next-btn" onclick="nextRound()">Next ➡️</button>
+  </div>
+
+<script>
+  /* ── Audio ── */
+  let audioCtx=null;
+  function getAudio(){ if(!audioCtx) audioCtx=new(window.AudioContext||window.webkitAudioContext)(); return audioCtx; }
+  function tone(f,t,d,v=.15){
+    try{
+      const c=getAudio(),o=c.createOscillator(),g=c.createGain();
+      o.connect(g);g.connect(c.destination);
+      o.type=t||'sine';o.frequency.value=f;
+      g.gain.setValueAtTime(v,c.currentTime);
+      g.gain.exponentialRampToValueAtTime(.001,c.currentTime+d);
+      o.start();o.stop(c.currentTime+d);
+    }catch(e){}
+  }
+  function playStep(n){ const freqs=[523,659,784]; tone(freqs[n]||784,'sine',.2,.2); }
+  function playWrong(){ tone(220,'sawtooth',.2,.1); }
+  function playCelebrate(){ [523,659,784,880,1047,1175].forEach((f,i)=>setTimeout(()=>tone(f,'sine',.22,.18),i*70)); }
+  function playTierUp(){ [392,494,587,740,880,1047].forEach((f,i)=>setTimeout(()=>tone(f,'sine',.22,.18),i*80)); }
+
+  /* ── Story data ── */
+  // Each story: [step0, step1, step2] in correct order
+  // Each step: { emoji, label (shown in Easy tier) }
+  const STORIES = [
+    { name:'Morning Magic', steps:[
+      { emoji:'😴', label:'Sleeping' },
+      { emoji:'🍳', label:'Breakfast' },
+      { emoji:'👸', label:'Ready!' },
+    ]},
+    { name:'Garden Grow', steps:[
+      { emoji:'🌱', label:'Plant seed' },
+      { emoji:'🌿', label:'Sprout' },
+      { emoji:'🌸', label:'Flower!' },
+    ]},
+    { name:'Caterpillar', steps:[
+      { emoji:'🐛', label:'Caterpillar' },
+      { emoji:'🫘', label:'Cocoon' },
+      { emoji:'🦋', label:'Butterfly!' },
+    ]},
+    { name:'Baking Day', steps:[
+      { emoji:'🥣', label:'Mix it' },
+      { emoji:'🎂', label:'Bake it' },
+      { emoji:'🍰', label:'Eat cake!' },
+    ]},
+    { name:'Rainy Day', steps:[
+      { emoji:'🌧️', label:'Rain clouds' },
+      { emoji:'🌈', label:'Rainbow' },
+      { emoji:'☀️', label:'Sunshine!' },
+    ]},
+    { name:'Frog Prince', steps:[
+      { emoji:'🐸', label:'Frog' },
+      { emoji:'🪄', label:'Magic!' },
+      { emoji:'🤴', label:'Prince!' },
+    ]},
+    { name:'Magic Egg', steps:[
+      { emoji:'🥚', label:'Egg' },
+      { emoji:'🐣', label:'Hatching' },
+      { emoji:'🐥', label:'Chick!' },
+    ]},
+    { name:'Mermaid Treasure', steps:[
+      { emoji:'🧜‍♀️', label:'Swimming' },
+      { emoji:'💎', label:'Find gem' },
+      { emoji:'👑', label:'Crown!' },
+    ]},
+    { name:'Starry Night', steps:[
+      { emoji:'🌅', label:'Sunrise' },
+      { emoji:'🌤️', label:'Daytime' },
+      { emoji:'🌙', label:'Night' },
+    ]},
+  ];
+
+  /* ── Tiers ── */
+  const TIERS = [
+    { label:'⭐ Easy',   showLabels:true,  rounds:[0,1,2] },
+    { label:'⭐⭐ Medium', showLabels:false, rounds:[3,4,5] },
+    { label:'⭐⭐⭐ Hard', showLabels:false, rounds:[6,7,8] },
+  ];
+  const TIER_TOASTS = [
+    null,
+    '⭐⭐ Medium — no more hints! 🧐',
+    '⭐⭐⭐ Hard — you can do it! 💪',
+  ];
+  const STEP_WORDS = ['FIRST 1️⃣','NEXT 2️⃣','LAST 3️⃣'];
+
+  let tierIdx=0, roundNum=0, stepIdx=0, score=0;
+  let currentStory=null, shuffledOrder=[], showLabels=true;
+
+  function updateScore(){ document.getElementById('score-row').innerHTML=Array.from({length:score},()=>'⭐').join(''); }
+  function updateTier(){ document.getElementById('tier-badge').textContent=TIERS[tierIdx].label; }
+  function updateRound(){ document.getElementById('round-counter').textContent=`${roundNum+1} / 9`; }
+
+  function buildRound(){
+    const tier=TIERS[tierIdx];
+    currentStory=STORIES[tier.rounds[roundNum - tierIdx*3]];
+    showLabels=tier.showLabels;
+
+    // Shuffle card positions
+    shuffledOrder=[0,1,2];
+    shuffle(shuffledOrder);
+
+    stepIdx=0;
+    updatePrompt();
+    renderCards();
+  }
+
+  function updatePrompt(){
+    document.getElementById('prompt-step').innerHTML=
+      `<span class="step-word">${STEP_WORDS[stepIdx]}</span>`;
+  }
+
+  function renderCards(){
+    const area=document.getElementById('cards-area');
+    area.innerHTML='';
+    shuffledOrder.forEach((storyIdx,cardPos)=>{
+      const step=currentStory.steps[storyIdx];
+      const card=document.createElement('div');
+      card.className='story-card';
+      card.dataset.idx=storyIdx;
+      card.innerHTML=`<span class="card-emoji">${step.emoji}</span>`
+        +(showLabels?`<span class="card-label">${step.label}</span>`:'');
+      card.addEventListener('pointerdown',()=>onCardTap(card, storyIdx));
+      area.appendChild(card);
+    });
+  }
+
+  function onCardTap(card, storyIdx){
+    if(card.classList.contains('answered')) return;
+    if(storyIdx===stepIdx){
+      // Correct
+      card.classList.add('answered');
+      const badge=document.createElement('div');
+      badge.className='order-badge';
+      badge.textContent=['1','2','3'][stepIdx];
+      card.appendChild(badge);
+      sparkleBurst(card);
+      playStep(stepIdx);
+      stepIdx++;
+      if(stepIdx===3){
+        score++;
+        updateScore();
+        setTimeout(showCelebrate, 500);
+      } else {
+        updatePrompt();
+      }
+    } else {
+      card.classList.add('wrong-shake');
+      playWrong();
+      setTimeout(()=>card.classList.remove('wrong-shake'),400);
+    }
+  }
+
+  function showCelebrate(){
+    const msgs=['Great order! 🌟','You got it! 👑','So clever! ✨','Amazing! 🌸','Story star! 💫'];
+    const subs=['First → Next → Last!','You know the order!','What a smart princess!'];
+    document.getElementById('celebrate-icon').textContent='📖';
+    document.getElementById('celebrate-text').textContent=msgs[Math.floor(Math.random()*msgs.length)];
+    document.getElementById('celebrate-sub').textContent=subs[Math.floor(Math.random()*subs.length)];
+    const isLastRoundOfTier=(roundNum%3===2);
+    if(isLastRoundOfTier && tierIdx<TIERS.length-1){
+      document.getElementById('celebrate-text').textContent='Level up! 👑';
+      document.getElementById('celebrate-icon').textContent='👑✨';
+      playTierUp();
+    } else {
+      playCelebrate();
+    }
+    document.getElementById('next-btn').textContent=
+      (roundNum>=8)?'Play Again 🔄':'Next ➡️';
+    document.getElementById('next-btn').onclick=nextRound;
+    document.getElementById('celebrate-overlay').classList.add('show');
+    confettiBurst();
+  }
+
+  function showTierToast(msg){
+    const el=document.getElementById('tier-toast');
+    el.textContent=msg;
+    el.classList.add('show');
+    setTimeout(()=>el.classList.remove('show'),2400);
+  }
+
+  function nextRound(){
+    document.getElementById('celebrate-overlay').classList.remove('show');
+
+    if(roundNum>=8){
+      // Restart
+      roundNum=0; tierIdx=0; score=0; stepIdx=0;
+      updateScore(); updateTier(); updateRound();
+      buildRound(); return;
+    }
+
+    roundNum++;
+    const newTierIdx=Math.floor(roundNum/3);
+    if(newTierIdx!==tierIdx){
+      tierIdx=newTierIdx;
+      updateTier();
+      if(TIER_TOASTS[tierIdx]) setTimeout(()=>showTierToast(TIER_TOASTS[tierIdx]),400);
+    }
+    updateRound();
+    buildRound();
+  }
+
+  function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]; } }
+
+  function sparkleBurst(el){
+    const rect=el.getBoundingClientRect();
+    const cx=rect.left+rect.width/2, cy=rect.top+rect.height/2;
+    const icons=['✨','🌸','⭐','💫','💖','🌟'];
+    for(let i=0;i<14;i++){
+      const s=document.createElement('div'); s.className='sparkle';
+      s.textContent=icons[Math.floor(Math.random()*icons.length)];
+      const angle=(i/14)*Math.PI*2, dist=55+Math.random()*75;
+      s.style.setProperty('--tx',Math.cos(angle)*dist+'px');
+      s.style.setProperty('--ty',Math.sin(angle)*dist-15+'px');
+      s.style.left=(cx-10)+'px'; s.style.top=(cy-10)+'px';
+      s.style.animationDuration=(0.45+Math.random()*0.5)+'s';
+      s.style.animationDelay=(Math.random()*0.08)+'s';
+      document.body.appendChild(s); setTimeout(()=>s.remove(),1100);
+    }
+  }
+
+  function confettiBurst(){
+    const cols=['#ffd700','#ff69b4','#c0a0ff','#80deea','#a5d6a7','#ff8a65'];
+    for(let i=0;i<36;i++){
+      const el=document.createElement('div'); el.className='confetti-piece';
+      const sz=8+Math.random()*8;
+      el.style.width=sz+'px'; el.style.height=sz+'px';
+      el.style.left=Math.random()*100+'vw';
+      el.style.background=cols[Math.floor(Math.random()*cols.length)];
+      el.style.animationDuration=(1.2+Math.random()*1.8)+'s';
+      el.style.animationDelay=(Math.random()*.5)+'s';
+      document.body.appendChild(el); setTimeout(()=>el.remove(),3000);
+    }
+  }
+
+  updateTier(); updateRound();
+  buildRound();
+</script>
+</body>
+</html>

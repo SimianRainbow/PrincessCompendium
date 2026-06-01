@@ -4,13 +4,15 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>Princess Hideaway 🗺️</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
   <style>
     * { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
     body {
       background: linear-gradient(160deg, #fff0f6 0%, #fce4ec 50%, #f8bbd0 100%);
       min-height:100vh; display:flex; flex-direction:column;
       align-items:center; justify-content:center;
-      font-family:Georgia,serif; overflow:hidden; user-select:none;
+      font-family:'Fredoka One',Georgia,serif; overflow:hidden; user-select:none;
     }
 
     #status-bar {
@@ -22,6 +24,11 @@
       font-size:clamp(13px,3.2vw,18px);
       background:rgba(255,105,180,.18); border:1.5px solid rgba(255,105,180,.35);
       border-radius:20px; padding:4px 12px; color:#c2185b;
+    }
+    #round-counter {
+      font-size:clamp(13px,3.2vw,17px);
+      color:#ad1457; background:rgba(255,255,255,.55);
+      border-radius:20px; padding:4px 12px;
     }
     #score-row { font-size:clamp(18px,4.5vw,26px); }
 
@@ -36,7 +43,6 @@
       font-size:clamp(24px,6.5vw,36px);
     }
 
-    /* Scene stage */
     #scene-stage {
       position:relative;
       width:clamp(220px,60vw,280px);
@@ -53,7 +59,6 @@
       line-height:1;
       transform:translate(-50%,-50%);
       left:50%; top:50%;
-      transition:none;
     }
     #scene-target {
       position:absolute;
@@ -65,11 +70,9 @@
     #scene-target.behind { z-index:0; opacity:.55; font-size:clamp(36px,9vw,46px); }
     #scene-container { z-index:1; }
 
-    /* Wobble on wrong */
     @keyframes wobble { 0%,100%{transform:translate(-50%,-50%) rotate(0)} 25%{transform:translate(-50%,-50%) rotate(-10deg)} 75%{transform:translate(-50%,-50%) rotate(10deg)} }
     .wobble-anim { animation:wobble .4s ease; }
 
-    /* Choices */
     #choices {
       display:flex; gap:clamp(10px,2.5vw,16px);
       flex-wrap:wrap; justify-content:center;
@@ -80,7 +83,7 @@
       border-radius:20px; border:3px solid #f48fb1;
       background:linear-gradient(135deg,#fff0f6,#fce4ec);
       color:#880e4f; font-size:clamp(16px,4.5vw,22px);
-      font-family:Georgia,serif; font-weight:bold; cursor:pointer;
+      font-family:'Fredoka One',Georgia,serif; font-weight:bold; cursor:pointer;
       display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px;
       box-shadow:0 4px 12px rgba(255,105,180,.2);
       transition:transform .08s, background .1s;
@@ -91,11 +94,22 @@
     .choice-btn.correct-flash { background:linear-gradient(135deg,#a5d6a7,#66bb6a); border-color:#388e3c; color:#1b5e20; }
     .choice-btn.wrong-flash   { background:linear-gradient(135deg,#ffcdd2,#ef9a9a); border-color:#c62828; }
 
-    /* Sparkle */
+    /* Tier-transition toast */
+    #tier-toast {
+      position:fixed; top:64px; left:50%; transform:translateX(-50%) translateY(-20px);
+      background:linear-gradient(135deg,#f48fb1,#e91e8c); color:#fff;
+      border-radius:24px; padding:10px 24px;
+      font-size:clamp(15px,3.8vw,20px);
+      box-shadow:0 4px 16px rgba(233,30,140,.35);
+      opacity:0; pointer-events:none; z-index:20;
+      transition:opacity .3s, transform .3s;
+      white-space:nowrap;
+    }
+    #tier-toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
     .spark { position:fixed; pointer-events:none; border-radius:50%; animation:sparkFly .75s ease-out forwards; z-index:50; }
     @keyframes sparkFly { 0%{opacity:1;transform:scale(1)} 100%{opacity:0;transform:scale(0) translate(var(--dx),var(--dy))} }
 
-    /* Celebrate overlay */
     #celebrate-overlay {
       position:fixed; inset:0; background:rgba(255,240,246,.82);
       display:flex; flex-direction:column; align-items:center; justify-content:center; gap:18px;
@@ -104,7 +118,7 @@
     #celebrate-overlay.show { opacity:1; pointer-events:all; }
     #celebrate-text { font-size:clamp(26px,7vw,50px); color:#880e4f; text-align:center; padding:0 16px; text-shadow:0 0 16px #ff69b4; }
     #celebrate-icon { font-size:clamp(54px,15vw,88px); }
-    #next-btn { padding:clamp(13px,3.5vw,18px) clamp(28px,7vw,50px); font-size:clamp(18px,4.5vw,26px); border-radius:50px; border:none; background:linear-gradient(135deg,#f48fb1,#e91e8c); color:#fff; font-weight:bold; cursor:pointer; font-family:inherit; box-shadow:0 4px 14px rgba(233,30,140,.35); }
+    #next-btn { padding:clamp(13px,3.5vw,18px) clamp(28px,7vw,50px); font-size:clamp(18px,4.5vw,26px); border-radius:50px; border:none; background:linear-gradient(135deg,#f48fb1,#e91e8c); color:#fff; font-weight:bold; cursor:pointer; font-family:'Fredoka One',inherit; box-shadow:0 4px 14px rgba(233,30,140,.35); }
     .confetti-piece { position:fixed; width:10px; height:10px; border-radius:50%; animation:confettiFall linear forwards; pointer-events:none; z-index:100; }
     @keyframes confettiFall { 0%{top:-20px;opacity:1} 100%{top:110vh;opacity:.2} }
   </style>
@@ -113,6 +127,7 @@
 
   <div id="status-bar">
     <div id="tier-badge">⭐ Easy</div>
+    <div id="round-counter">1 / 18</div>
     <div id="score-row"></div>
   </div>
 
@@ -125,6 +140,8 @@
 
   <div id="choices"></div>
 
+  <div id="tier-toast"></div>
+
   <div id="celebrate-overlay">
     <div id="celebrate-icon">🌸</div>
     <div id="celebrate-text">Amazing!</div>
@@ -132,7 +149,6 @@
   </div>
 
 <script>
-  /* ── Audio ── */
   let audioCtx=null;
   function getAudio(){ if(!audioCtx) audioCtx=new(window.AudioContext||window.webkitAudioContext)(); return audioCtx; }
   function playTone(f,type,dur,vol=.15){
@@ -150,10 +166,10 @@
   function playRoundWin(){
     [523,587,659,784,1047].forEach((f,i)=>setTimeout(()=>playTone(f,'sine',.2,.18),i*85));
   }
+  function playTierUp(){
+    [392,494,587,740,880,1047].forEach((f,i)=>setTimeout(()=>playTone(f,'sine',.22,.18),i*80));
+  }
 
-  /* ── Spatial positions ── */
-  // Positions expressed as % of stage (target center) and z-index hint
-  // Stage is 100x100 units; container fixed at 50,50
   const POSITIONS = {
     'in':      { label:'in',       emoji:'📥', x:50, y:50,  behind:false },
     'on':      { label:'on',       emoji:'⬆️', x:50, y:14,  behind:false },
@@ -162,25 +178,30 @@
     'behind':  { label:'behind',   emoji:'🫣', x:50, y:50,  behind:true  },
   };
 
-  /* ── Tiers ── */
   const TIERS = [
     { label:'⭐ Easy',    positions:['in','on','under'],               choices:2, rounds:6  },
     { label:'⭐⭐ Medium', positions:['in','on','under','next to'],      choices:3, rounds:6  },
     { label:'⭐⭐⭐ Hard',  positions:['in','on','under','next to','behind'], choices:3, rounds:6 },
   ];
+  const TOTAL_ROUNDS = TIERS.reduce((s,t)=>s+t.rounds,0); // 18
+
+  const TIER_TOASTS = [
+    null,
+    '⭐⭐ Level up! Now: next to! ↔️',
+    '⭐⭐⭐ Almost a princess wizard! 🧙‍♀️',
+  ];
+
   let tierIdx=0, roundsInTier=0, totalRounds=0, score=0;
 
-  /* ── Items ── */
-  const TARGETS   = ['💎','⭐','👑','💖','🌸','🦋','🍭'];
-  const CONTAINERS= ['🎁','🧺','🪣','🏰','🪑'];
+  const TARGETS   = ['💎','⭐','👑','💖','🌸','🦋','🍭','🎀','🪄'];
+  const CONTAINERS= ['🎁','🧺','🪣','🏰','🪑','🛋️','📦','🪞'];
   let currentTarget='💎', currentContainer='🎁', currentPos='in';
 
   function getTargetName(emoji){
-    const map={'💎':'gem','⭐':'star','👑':'crown','💖':'heart','🌸':'flower','🦋':'butterfly','🍭':'sweet'};
+    const map={'💎':'gem','⭐':'star','👑':'crown','💖':'heart','🌸':'flower','🦋':'butterfly','🍭':'sweet','🎀':'bow','🪄':'wand'};
     return map[emoji]||'gem';
   }
 
-  /* ── Scene ── */
   function setScene(pos, targetEmoji, containerEmoji){
     const p=POSITIONS[pos];
     const stage=document.getElementById('scene-stage');
@@ -191,16 +212,13 @@
     tgt.classList.toggle('behind', p.behind);
     tgt.style.left=(p.x/100*stW)+'px';
     tgt.style.top=(p.y/100*stH)+'px';
-    // z-index: behind means go below container (z:0), else above (z:2)
     tgt.style.zIndex=p.behind?0:2;
 
     document.getElementById('scene-container').textContent=containerEmoji;
     document.getElementById('target-name').textContent=getTargetName(targetEmoji);
   }
 
-  /* ── Choices ── */
   function buildChoices(correctPos, allPositions, numChoices){
-    // Pick distractors from same tier pool
     const distractors=allPositions.filter(p=>p!==correctPos);
     shuffle(distractors);
     const chosen=[correctPos,...distractors.slice(0,numChoices-1)];
@@ -229,20 +247,15 @@
       sparkleBurst(btn);
       score++; updateScore();
       roundsInTier++; totalRounds++;
+      updateRoundCounter();
       setTimeout(()=>{
         const tier=TIERS[tierIdx];
-        if(roundsInTier>=tier.rounds && tierIdx<TIERS.length-1){
-          showCelebrate(true);
-        } else if(roundsInTier>=tier.rounds && tierIdx===TIERS.length-1){
-          showCelebrate(true);
-        } else {
-          showCelebrate(false);
-        }
+        const isTierEnd=roundsInTier>=tier.rounds;
+        showCelebrate(isTierEnd);
       },600);
     } else {
       btn.classList.add('wrong-flash');
       playWrong();
-      // Wobble the target
       const tgt=document.getElementById('scene-target');
       tgt.classList.remove('wobble-anim');
       void tgt.offsetWidth;
@@ -254,7 +267,7 @@
   function showCelebrate(isTierWin){
     if(isTierWin) playRoundWin(); else playCorrect();
     const msgs=isTierWin
-      ? ['Level up! 👑','You\'re a princess! 🌸','So clever! ✨','Magical! 🦋']
+      ? ['Level up! 👑','Princess wizard! 🌸','So clever! ✨','Magical! 🦋','Superstar! 💫']
       : ['Great job! 🌟','Well done! 💖','Brilliant! 🎀','Wonderful! 🌸'];
     document.getElementById('celebrate-text').textContent=msgs[Math.floor(Math.random()*msgs.length)];
     document.getElementById('celebrate-icon').textContent=isTierWin?'👑✨':'🌸';
@@ -262,17 +275,24 @@
     confettiBurst();
   }
 
+  function showTierToast(msg){
+    const el=document.getElementById('tier-toast');
+    el.textContent=msg;
+    el.classList.add('show');
+    setTimeout(()=>el.classList.remove('show'),2200);
+  }
+
   function nextRound(){
     document.getElementById('celebrate-overlay').classList.remove('show');
-    // Advance tier if needed
     const tier=TIERS[tierIdx];
     if(roundsInTier>=tier.rounds && tierIdx<TIERS.length-1){
       tierIdx++; roundsInTier=0;
       updateTierBadge();
+      if(TIER_TOASTS[tierIdx]) setTimeout(()=>showTierToast(TIER_TOASTS[tierIdx]),400);
+      playTierUp();
     } else if(roundsInTier>=tier.rounds){
-      // Reset for replay
-      tierIdx=0; roundsInTier=0; score=0; updateScore();
-      updateTierBadge();
+      tierIdx=0; roundsInTier=0; totalRounds=0; score=0;
+      updateScore(); updateTierBadge(); updateRoundCounter();
     }
     buildRound();
   }
@@ -286,23 +306,24 @@
     currentContainer=CONTAINERS[Math.floor(Math.random()*CONTAINERS.length)];
     setScene(currentPos, currentTarget, currentContainer);
     buildChoices(currentPos, positions, tier.choices);
-    // Remove wobble
     document.getElementById('scene-target').classList.remove('wobble-anim');
   }
 
   function updateScore(){ document.getElementById('score-row').innerHTML=Array.from({length:score},()=>'⭐').join(''); }
   function updateTierBadge(){ document.getElementById('tier-badge').textContent=TIERS[tierIdx].label; }
+  function updateRoundCounter(){
+    document.getElementById('round-counter').textContent=`${totalRounds+1} / ${TOTAL_ROUNDS}`;
+  }
 
   function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]; } }
 
-  /* ── Sparkle ── */
   function sparkleBurst(el){
     const rect=el.getBoundingClientRect();
     const cx=rect.left+rect.width/2, cy=rect.top+rect.height/2;
-    const colors=['#ffd700','#ff69b4','#ff8a65','#fff176','#ce93d8'];
-    for(let i=0;i<14;i++){
+    const colors=['#ffd700','#ff69b4','#ff8a65','#fff176','#ce93d8','#80deea','#f48fb1'];
+    for(let i=0;i<16;i++){
       const s=document.createElement('div'); s.className='spark';
-      const angle=Math.random()*360, dist=45+Math.random()*65;
+      const angle=Math.random()*360, dist=50+Math.random()*70;
       const dx=Math.cos(angle*Math.PI/180)*dist+'px';
       const dy=Math.sin(angle*Math.PI/180)*dist+'px';
       s.style.cssText=`left:${cx}px;top:${cy}px;width:${7+Math.random()*9}px;height:${7+Math.random()*9}px;background:${colors[i%colors.length]};--dx:${dx};--dy:${dy}`;
@@ -312,8 +333,8 @@
   }
 
   function confettiBurst(){
-    const cols=['#ffd700','#ff69b4','#ce93d8','#80deea','#a5d6a7'];
-    for(let i=0;i<28;i++){
+    const cols=['#ffd700','#ff69b4','#ce93d8','#80deea','#a5d6a7','#f48fb1','#fff9c4'];
+    for(let i=0;i<32;i++){
       const el=document.createElement('div'); el.className='confetti-piece';
       el.style.left=Math.random()*100+'vw';
       el.style.background=cols[Math.floor(Math.random()*cols.length)];
@@ -323,7 +344,6 @@
     }
   }
 
-  /* ── Init ── */
   buildRound();
 </script>
 </body>
