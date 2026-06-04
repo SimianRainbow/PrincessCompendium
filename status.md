@@ -1,9 +1,9 @@
 # Princess Compendium — Status
 
 ## Last update run
-Date: 2026-06-01
-- Improved: `023-spatial-princess` → v1.1.0 (Fredoka One font; round counter X/18 in header; tier-transition toast when advancing Easy→Medium→Hard; 2 extra targets 🎀🪄 and 3 extra containers; sparkle burst expanded to 16 particles; 32 confetti pieces on round win)
-- Added: `034-princess-sequence` — "Princess Story Order" teaching sequencing & ordinal concepts (FIRST/NEXT/LAST); 9 stories (morning, garden, caterpillar, baking, rainbow, frog prince, magic egg, mermaid, starry night); Easy tier shows step labels, Medium/Hard hide them; gold numbered badge pops onto each card when tapped correctly
+Date: 2026-06-04
+- Improved: `024-rhyme-time` → v1.1.0 (Fredoka One font; round counter X/12 in header; tier-transition toast Easy→Medium→Hard; expanded from 9 to 12 rounds with 4 pairs per tier; rounds shuffled within tiers each playthrough for replay variety; 16 sparkles; ⭐ N score display; play-again onclick bug fixed)
+- Added: `035-front-back` — "Princess Front & Back" teaching front/back body awareness; 9 rounds (3 Easy: nose/bottom/mouth, 3 Medium: eyes/spine/knees, 3 Hard: toes/heels/teeth); two big tap buttons FRONT 😊 / BACK 🔄; fun body-part fact shown in celebration overlay; tier-transition toast; 16 sparkles; Fredoka font
 
 ## Improvement history
 
@@ -25,6 +25,7 @@ Date: 2026-06-01
 | 2026-05-28 | 018-size-sort | Round counter X/Y, emoji sparkles in burst, 25-item pool (was 15), richer tier-transition messages | 1.1.0 |
 | 2026-05-31 | 022-magic-adding | Fredoka font, round counter, tier-transition toast, equation in celebrate ("2+3=5!"), 14 sparkles | 1.1.0 |
 | 2026-06-01 | 023-spatial-princess | Fredoka font, round counter X/18, tier-transition toast, 2 extra targets + 3 containers, 16 sparkles | 1.1.0 |
+| 2026-06-04 | 024-rhyme-time | Fredoka font, round counter X/12, tier-transition toast, 4th pair per tier, shuffled tiers, 16 sparkles | 1.1.0 |
 
 ## Games due for improvement (all at v1.0.0)
 
@@ -40,7 +41,7 @@ Priority candidates — pick whichever has the clearest improvement path:
 - ~~**021-body-parts**~~ — ✅ done v1.1.0
 - ~~**022-magic-adding**~~ — ✅ done v1.1.0
 - ~~**023-spatial-princess**~~ — ✅ done v1.1.0
-- **024-rhyme-time** — sparkle burst, richer audio
+- ~~**024-rhyme-time**~~ — ✅ done v1.1.0
 - **025-princess-sort** — sparkle burst, richer audio
 
 ## Skills not yet covered
@@ -50,8 +51,8 @@ See `CLAUDE.md` for the full prioritised list. Top 3 to build next:
 2. ~~Colour mixing~~ — ✅ covered by `029-colour-mixing`
 3. Sorting by size (big vs small, biggest/smallest — pre-maths) — covered by 018 but could expand
 4. ~~Body parts extension (left/right)~~ — ✅ covered by `033-left-right`
-5. Front/back body awareness (further extension)
+5. ~~Front/back body awareness~~ — ✅ covered by `035-front-back`
 6. ~~Sequencing / ordinal concepts~~ — ✅ covered by `034-princess-sequence`
 
 ## Next game ID
-`035-<slug>`
+`036-<slug>`
