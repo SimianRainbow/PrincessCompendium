@@ -1,9 +1,9 @@
 # Princess Compendium — Status
 
 ## Last update run
-Date: 2026-06-04
-- Improved: `024-rhyme-time` → v1.1.0 (Fredoka One font; round counter X/12 in header; tier-transition toast Easy→Medium→Hard; expanded from 9 to 12 rounds with 4 pairs per tier; rounds shuffled within tiers each playthrough for replay variety; 16 sparkles; ⭐ N score display; play-again onclick bug fixed)
-- Added: `035-front-back` — "Princess Front & Back" teaching front/back body awareness; 9 rounds (3 Easy: nose/bottom/mouth, 3 Medium: eyes/spine/knees, 3 Hard: toes/heels/teeth); two big tap buttons FRONT 😊 / BACK 🔄; fun body-part fact shown in celebration overlay; tier-transition toast; 16 sparkles; Fredoka font
+Date: 2026-06-07
+- Improved: `006-fairy-tale-tap` → v1.1.0 (Fredoka One font; expanded from 1 story to 3 complete stories with tier badges 🌸/🌟/👑; added Enchanted Forest as 3rd path in Story 1; Story 2 — The Dragon's Secret (new); Story 3 — The Starlight Kingdom with 3-way first choice; sparkle burst on every choice button tap; tier-transition toast between stories; story counter "Story X / 3"; confetti + sparkle on story endings)
+- Added: `036-princess-takeaway` — "Princess Take Away" teaching simple subtraction; dragon steals gems one by one with animation; player taps how many remain; 9 rounds, 3 tiers (Easy 2-5 gems −1, Medium 2-7 gems −1-2, Hard 2-10 gems −1-5); equation display "N − X = ?"; 16 sparkles on correct; Fredoka font; tier-transition toast
 
 ## Improvement history
 
@@ -26,12 +26,13 @@ Date: 2026-06-04
 | 2026-05-31 | 022-magic-adding | Fredoka font, round counter, tier-transition toast, equation in celebrate ("2+3=5!"), 14 sparkles | 1.1.0 |
 | 2026-06-01 | 023-spatial-princess | Fredoka font, round counter X/18, tier-transition toast, 2 extra targets + 3 containers, 16 sparkles | 1.1.0 |
 | 2026-06-04 | 024-rhyme-time | Fredoka font, round counter X/12, tier-transition toast, 4th pair per tier, shuffled tiers, 16 sparkles | 1.1.0 |
+| 2026-06-07 | 006-fairy-tale-tap | Fredoka font, 3 complete stories, Forest path, sparkle on choices, tier badge, story counter, tier toast | 1.1.0 |
 
 ## Games due for improvement (all at v1.0.0)
 
 Priority candidates — pick whichever has the clearest improvement path:
 
-- **006-fairy-tale-tap** — more story branches, clearer choice visuals, tier badge
+- ~~**006-fairy-tale-tap**~~ — ✅ done v1.1.0
 - **011-princess-quest** — smoother controls, obstacle variety, difficulty tiers
 - **013-magic-leaf** — more character encounters, tier badge, sparkle on collection
 - **015-mermaid-lagoon-v2** — tier badge, more NPC variety
@@ -53,6 +54,7 @@ See `CLAUDE.md` for the full prioritised list. Top 3 to build next:
 4. ~~Body parts extension (left/right)~~ — ✅ covered by `033-left-right`
 5. ~~Front/back body awareness~~ — ✅ covered by `035-front-back`
 6. ~~Sequencing / ordinal concepts~~ — ✅ covered by `034-princess-sequence`
+7. ~~Simple subtraction~~ — ✅ covered by `036-princess-takeaway`
 
 ## Next game ID
-`036-<slug>`
+`037-<slug>`
