@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Princess Day 🌙</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+    body {
+      background: linear-gradient(155deg, #4a148c 0%, #880e4f 100%);
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      align-items: center;
+      font-family: 'Fredoka One', cursive;
+      overflow: hidden; user-select: none;
+      padding-bottom: 14px;
+    }
+
+    #header {
+      width: 100%; display: flex;
+      justify-content: space-between; align-items: center;
+      padding: 14px 18px 0;
+      flex-shrink: 0;
+    }
+    #tier-badge {
+      font-size: clamp(13px, 3.5vw, 18px);
+      color: #fff;
+      background: rgba(255,255,255,0.2);
+      padding: 5px 14px; border-radius: 20px;
+    }
+    #round-label {
+      font-size: clamp(13px, 3.2vw, 17px);
+      color: rgba(255,255,255,0.85);
+    }
+
+    #scene-wrap {
+      width: 100%; max-width: 440px;
+      padding: 12px 16px 0;
+      flex-shrink: 0;
+    }
+    #scene {
+      position: relative;
+      border-radius: 26px;
+      overflow: hidden;
+      height: clamp(180px, 46vw, 240px);
+      box-shadow: 0 6px 28px rgba(0,0,0,0.45);
+      transition: background 0.7s ease;
+    }
+
+    #sky-elements { position: absolute; inset: 0; pointer-events: none; }
+    .sky-el {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      user-select: none;
+      line-height: 1;
+    }
+
+    #castle-row {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      display: flex; align-items: flex-end; justify-content: center;
+      padding-bottom: 4px; gap: 4px;
+    }
+    #castle-emoji   { font-size: clamp(50px, 13vw, 72px); }
+    #princess-emoji { font-size: clamp(36px, 10vw, 55px); animation: sway 2.6s ease-in-out infinite; }
+    @keyframes sway { 0%,100%{transform:rotate(-5deg)} 50%{transform:rotate(5deg)} }
+
+    #scene-ground {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      height: 26px; border-radius: 0 0 26px 26px;
+      display: flex; align-items: center; justify-content: space-around;
+      padding: 0 12px;
+      font-size: 18px;
+      transition: background 0.7s;
+    }
+
+    #prompt {
+      font-size: clamp(17px, 4.5vw, 24px);
+      color: #fff; text-align: center;
+      padding: 10px 16px 0;
+      text-shadow: 0 2px 6px rgba(0,0,0,0.35);
+      flex-shrink: 0;
+    }
+
+    #buttons-wrap {
+      width: 100%; max-width: 440px;
+      padding: 10px 16px 0;
+      display: grid;
+      gap: clamp(8px, 2.2vw, 12px);
+      flex-shrink: 0;
+    }
+    .g2 { grid-template-columns: 1fr 1fr; }
+    .g3 { grid-template-columns: 1fr 1fr 1fr; }
+    .g4 { grid-template-columns: 1fr 1fr; }
+
+    .time-btn {
+      min-height: clamp(88px, 22vw, 110px);
+      border-radius: 20px;
+      border: 3px solid rgba(255,255,255,0.3);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 6px; cursor: pointer;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.28);
+      transition: transform 0.1s, opacity 0.2s;
+    }
+    .time-btn:active { transform: scale(0.92); }
+    .btn-icon  { font-size: clamp(26px, 7vw, 38px); pointer-events: none; }
+    .btn-label {
+      font-size: clamp(13px, 3.4vw, 17px);
+      color: #fff;
+      text-shadow: 0 1px 4px rgba(0,0,0,0.4);
+      pointer-events: none;
+    }
+    .time-btn.wobble { animation: wobble 0.42s ease-out; }
+    @keyframes wobble {
+      0%,100%{transform:translateX(0)}
+      20%{transform:translateX(-12px)}
+      60%{transform:translateX(12px)}
+      80%{transform:translateX(-6px)}
+    }
+    .time-btn.locked { opacity: 0.45; pointer-events: none; }
+
+    .sparkle {
+      position: fixed; pointer-events: none; z-index: 50;
+      font-size: clamp(12px, 3.5vw, 20px);
+      animation: sFly ease-out forwards;
+    }
+    @keyframes sFly {
+      0%   { transform: translate(0,0) scale(1.2); opacity: 1; }
+      100% { transform: translate(var(--tx), var(--ty)) scale(0.1); opacity: 0; }
+    }
+
+    #celebrate-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.55);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 18px;
+      z-index: 99; opacity: 0; pointer-events: none; transition: opacity 0.35s;
+    }
+    #celebrate-overlay.show { opacity: 1; pointer-events: all; }
+    #celebrate-emoji { font-size: clamp(64px,18vw,110px); }
+    #celebrate-text {
+      font-size: clamp(24px, 6.5vw, 44px);
+      color: #fff; text-shadow: 0 0 20px #ffd700;
+      text-align: center; padding: 0 16px;
+    }
+    #next-btn {
+      padding: clamp(14px,4vw,20px) clamp(32px,8vw,56px);
+      font-size: clamp(20px,5vw,28px);
+      border-radius: 50px; border: none;
+      background: linear-gradient(135deg,#ffd700,#ff9800);
+      color: #5d2e00; font-weight: bold; cursor: pointer;
+      font-family: inherit;
+      box-shadow: 0 4px 16px rgba(255,180,0,0.5);
+    }
+
+    #tier-toast {
+      position: fixed; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      z-index: 95; pointer-events: none;
+      opacity: 0; transition: opacity 0.3s;
+    }
+    #tier-toast.show { opacity: 1; }
+    #tier-toast-inner {
+      background: rgba(0,0,0,0.78);
+      border-radius: 24px; padding: 22px 44px;
+      font-size: clamp(22px, 6.5vw, 38px);
+      color: #fff; text-align: center;
+      text-shadow: 0 0 20px gold;
+      box-shadow: 0 0 0 4px rgba(255,215,0,0.4);
+    }
+
+    .confetti-piece {
+      position: fixed; border-radius: 50%;
+      animation: cFall linear forwards;
+      pointer-events: none; z-index: 100;
+    }
+    @keyframes cFall { 0%{top:-20px;opacity:1} 100%{top:110vh;opacity:.2} }
+  </style>
+</head>
+<body>
+
+  <div id="header">
+    <div id="tier-badge">🌸 Easy</div>
+    <div id="round-label">Round 1 / 9</div>
+  </div>
+
+  <div id="scene-wrap">
+    <div id="scene">
+      <div id="sky-elements"></div>
+      <div id="scene-ground"></div>
+      <div id="castle-row">
+        <div id="castle-emoji">🏰</div>
+        <div id="princess-emoji">👸</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="prompt">What time of day is it? ☀️</div>
+
+  <div id="buttons-wrap" class="g2"></div>
+
+  <div id="celebrate-overlay">
+    <div id="celebrate-emoji">🌟</div>
+    <div id="celebrate-text">Amazing!</div>
+    <button id="next-btn" onclick="nextRound()">Next ➡️</button>
+  </div>
+
+  <div id="tier-toast">
+    <div id="tier-toast-inner"></div>
+  </div>
+
+<script>
+  /* ── audio ───────────────────────────────────────────── */
+  let audioCtx = null;
+  function getAudio() { if (!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)(); return audioCtx; }
+  function tone(f, t, d, v) {
+    try {
+      const ctx=getAudio(), o=ctx.createOscillator(), g=ctx.createGain();
+      o.connect(g); g.connect(ctx.destination);
+      o.type=t||'sine'; o.frequency.value=f;
+      g.gain.setValueAtTime(v||0.15, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime+d);
+      o.start(); o.stop(ctx.currentTime+d);
+    } catch(e) {}
+  }
+  function playCorrect()   { [523,659,784,1047].forEach((f,i)=>setTimeout(()=>tone(f,'sine',0.18,0.16),i*85)); }
+  function playWrong()     { tone(220,'sawtooth',0.18,0.08); }
+  function playCelebrate() { [523,659,784,880,1047,1175,1319].forEach((f,i)=>setTimeout(()=>tone(f,'sine',0.22,0.17),i*65)); }
+  function playTierUp()    { [660,880,1047,1320].forEach((f,i)=>setTimeout(()=>tone(f,'triangle',0.25,0.18),i*100)); }
+
+  /* ── time-of-day definitions ──────────────────────────── */
+  const TIME_DEFS = {
+    morning: {
+      label: 'Morning',
+      btnEmoji: '🌅',
+      btnBg: 'rgba(230,100,20,0.38)',
+      btnBorder: 'rgba(255,190,60,0.55)',
+      skyGrad: 'linear-gradient(to bottom, #b71c1c 0%, #e64a19 25%, #ff7043 55%, #ffcc80 80%, #fff9c4 100%)',
+      elements: [
+        { e:'☀️', x:18, y:65, sz:50 },
+        { e:'🐦', x:62, y:38, sz:26 },
+        { e:'🐦', x:74, y:25, sz:21 },
+      ],
+      groundColor: '#a5d6a7',
+      groundEmoji: ['🌸','🌼','🌱','🌸','🌱'],
+    },
+    afternoon: {
+      label: 'Afternoon',
+      btnEmoji: '☀️',
+      btnBg: 'rgba(21,101,192,0.38)',
+      btnBorder: 'rgba(100,180,255,0.55)',
+      skyGrad: 'linear-gradient(to bottom, #0d47a1 0%, #1565c0 30%, #42a5f5 70%, #bbdefb 100%)',
+      elements: [
+        { e:'☀️', x:52, y:12, sz:60 },
+        { e:'⛅', x:76, y:30, sz:38 },
+        { e:'🌤️', x:22, y:22, sz:32 },
+      ],
+      groundColor: '#66bb6a',
+      groundEmoji: ['🌻','🌿','🌻','🌿','🌻'],
+    },
+    evening: {
+      label: 'Evening',
+      btnEmoji: '🌇',
+      btnBg: 'rgba(136,14,79,0.45)',
+      btnBorder: 'rgba(255,110,50,0.55)',
+      skyGrad: 'linear-gradient(to bottom, #4a148c 0%, #880e4f 20%, #c62828 45%, #ff5722 70%, #ffab40 100%)',
+      elements: [
+        { e:'🌅', x:50, y:65, sz:52 },
+        { e:'🌙', x:78, y:14, sz:30 },
+        { e:'⭐', x:22, y:20, sz:24 },
+      ],
+      groundColor: '#8d6e63',
+      groundEmoji: ['🍂','🍁','🌿','🍂','🍁'],
+    },
+    night: {
+      label: 'Night',
+      btnEmoji: '🌙',
+      btnBg: 'rgba(13,27,75,0.65)',
+      btnBorder: 'rgba(120,140,255,0.55)',
+      skyGrad: 'linear-gradient(to bottom, #01030f 0%, #050d2d 35%, #0d1b4b 65%, #1a237e 100%)',
+      elements: [
+        { e:'🌙', x:72, y:14, sz:54 },
+        { e:'⭐', x:18, y:22, sz:26 },
+        { e:'✨', x:43, y:28, sz:22 },
+        { e:'⭐', x:60, y:38, sz:18 },
+        { e:'✨', x:30, y:45, sz:16 },
+      ],
+      groundColor: '#1a2035',
+      groundEmoji: ['🌙','✨','🌙','✨','🌙'],
+    },
+  };
+
+  /* ── tiers ───────────────────────────────────────────── */
+  const TIERS = [
+    { label:'🌸 Easy',   times:['morning','night'],                         choices:2 },
+    { label:'🌟 Medium', times:['morning','afternoon','night'],              choices:3 },
+    { label:'👑 Hard',   times:['morning','afternoon','evening','night'],    choices:4 },
+  ];
+
+  const TOTAL_ROUNDS = 9;
+  let round = 0, locked = false;
+  let roundsSeq = [];
+  let currentTime = '';
+
+  /* ── sequence builder ────────────────────────────────── */
+  function buildSequence() {
+    roundsSeq = [];
+    TIERS.forEach(tier => {
+      let last = null;
+      for (let i = 0; i < 3; i++) {
+        const avail = tier.times.filter(t => t !== last);
+        const pick  = avail[Math.floor(Math.random() * avail.length)];
+        roundsSeq.push(pick);
+        last = pick;
+      }
+    });
+  }
+
+  function getTierIndex(r) { return r <= 3 ? 0 : r <= 6 ? 1 : 2; }
+
+  /* ── scene rendering ─────────────────────────────────── */
+  function renderScene(timeName) {
+    const def = TIME_DEFS[timeName];
+    document.getElementById('scene').style.background = def.skyGrad;
+
+    const wrap = document.getElementById('sky-elements');
+    wrap.innerHTML = '';
+    def.elements.forEach(item => {
+      const s = document.createElement('span');
+      s.className = 'sky-el';
+      s.textContent = item.e;
+      s.style.fontSize = item.sz + 'px';
+      s.style.left = item.x + '%';
+      s.style.top  = item.y + '%';
+      wrap.appendChild(s);
+    });
+
+    const ground = document.getElementById('scene-ground');
+    ground.style.background = def.groundColor;
+    ground.textContent = def.groundEmoji.join(' ');
+  }
+
+  /* ── button rendering ────────────────────────────────── */
+  function shuffle(arr) {
+    const a = [...arr];
+    for (let i = a.length-1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i+1));
+      [a[i],a[j]] = [a[j],a[i]];
+    }
+    return a;
+  }
+
+  function renderButtons(timeName, tierIdx) {
+    const tier = TIERS[tierIdx];
+    const wrong = shuffle(tier.times.filter(t => t !== timeName)).slice(0, tier.choices - 1);
+    const choices = shuffle([timeName, ...wrong]);
+
+    const wrap = document.getElementById('buttons-wrap');
+    wrap.className = 'g' + tier.choices;
+    wrap.innerHTML = '';
+
+    choices.forEach(tname => {
+      const def = TIME_DEFS[tname];
+      const btn = document.createElement('div');
+      btn.className = 'time-btn';
+      btn.style.background   = def.btnBg;
+      btn.style.borderColor  = def.btnBorder;
+      btn.dataset.time = tname;
+      btn.innerHTML = `<span class="btn-icon">${def.btnEmoji}</span><span class="btn-label">${def.label}</span>`;
+      btn.addEventListener('pointerdown', () => handleAnswer(tname, btn));
+      wrap.appendChild(btn);
+    });
+  }
+
+  /* ── answer handling ─────────────────────────────────── */
+  function handleAnswer(chosen, btnEl) {
+    if (locked) return;
+    if (chosen === currentTime) {
+      locked = true;
+      playCorrect();
+      const rect = btnEl.getBoundingClientRect();
+      sparkleBurst(rect.left + rect.width/2, rect.top + rect.height/2);
+      document.querySelectorAll('.time-btn').forEach(b => {
+        if (b !== btnEl) b.classList.add('locked');
+      });
+      setTimeout(showCelebration, 580);
+    } else {
+      btnEl.classList.add('wobble');
+      playWrong();
+      setTimeout(() => btnEl.classList.remove('wobble'), 500);
+    }
+  }
+
+  /* ── celebration ─────────────────────────────────────── */
+  function showCelebration() {
+    const timeLabel = TIME_DEFS[currentTime].label;
+    const celebs = [
+      { text:`Yes! It's ${timeLabel}! ✨`,  emoji:'🌟' },
+      { text:`${timeLabel} time! 💖`,       emoji:'👑' },
+      { text:`You got it! 🌸`,              emoji:'💎' },
+      { text:`Brilliant! It's ${timeLabel}!`,emoji:'⭐' },
+      { text:`Perfect! 🦄`,                 emoji:'🎀' },
+    ];
+    const c = celebs[Math.floor(Math.random() * celebs.length)];
+    document.getElementById('celebrate-emoji').textContent = c.emoji;
+    document.getElementById('celebrate-text').textContent  = c.text;
+    const btn = document.getElementById('next-btn');
+    if (round >= TOTAL_ROUNDS) {
+      btn.textContent = 'Play Again 🔄';
+      btn.onclick = restartGame;
+    } else {
+      btn.textContent = 'Next ➡️';
+      btn.onclick = nextRound;
+    }
+    document.getElementById('celebrate-overlay').classList.add('show');
+    playCelebrate(); confettiBurst();
+  }
+
+  /* ── round flow ──────────────────────────────────────── */
+  function nextRound() {
+    document.getElementById('celebrate-overlay').classList.remove('show');
+    const oldTier = getTierIndex(round);
+    round++;
+    const newTier = getTierIndex(round);
+
+    document.getElementById('tier-badge').textContent  = TIERS[newTier].label;
+    document.getElementById('round-label').textContent = `Round ${round} / ${TOTAL_ROUNDS}`;
+
+    currentTime = roundsSeq[round - 1];
+
+    if (newTier > oldTier) {
+      showTierToast(TIERS[newTier].label, startRound);
+    } else {
+      startRound();
+    }
+  }
+
+  function startRound() {
+    locked = false;
+    renderScene(currentTime);
+    renderButtons(currentTime, getTierIndex(round));
+    const def = TIME_DEFS[currentTime];
+    document.getElementById('prompt').textContent = `What time of day is it? ${def.btnEmoji}`;
+  }
+
+  function showTierToast(label, callback) {
+    const toast = document.getElementById('tier-toast');
+    document.getElementById('tier-toast-inner').textContent = `✨ ${label}! ✨`;
+    toast.classList.add('show');
+    playTierUp();
+    setTimeout(() => {
+      toast.classList.remove('show');
+      setTimeout(callback, 320);
+    }, 1600);
+  }
+
+  function restartGame() {
+    round = 0;
+    buildSequence();
+    document.getElementById('celebrate-overlay').classList.remove('show');
+    nextRound();
+  }
+
+  /* ── effects ─────────────────────────────────────────── */
+  function sparkleBurst(cx, cy) {
+    const icons = ['✨','🌸','⭐','💫','💖','🌟','🌙','☀️'];
+    for (let i = 0; i < 16; i++) {
+      const el = document.createElement('div');
+      el.className = 'sparkle';
+      el.textContent = icons[Math.floor(Math.random() * icons.length)];
+      const angle = (i / 16) * Math.PI * 2;
+      const dist  = 60 + Math.random() * 80;
+      el.style.setProperty('--tx', Math.cos(angle) * dist + 'px');
+      el.style.setProperty('--ty', Math.sin(angle) * dist - 20 + 'px');
+      el.style.left = (cx - 10) + 'px';
+      el.style.top  = (cy - 10) + 'px';
+      el.style.animationDuration = (0.45 + Math.random() * 0.45) + 's';
+      el.style.animationDelay    = (Math.random() * 0.08) + 's';
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 1000);
+    }
+  }
+
+  function confettiBurst() {
+    const cols = ['#ffd700','#ff69b4','#ff99cc','#c0a0ff','#7fff00','#00cfff','#ffffff','#ffb347'];
+    for (let i = 0; i < 38; i++) {
+      const el = document.createElement('div');
+      el.className = 'confetti-piece';
+      const sz = 8 + Math.random() * 8;
+      el.style.width  = sz + 'px'; el.style.height = sz + 'px';
+      el.style.left   = Math.random() * 100 + 'vw';
+      el.style.background = cols[Math.floor(Math.random() * cols.length)];
+      el.style.animationDuration = (1.2 + Math.random() * 1.6) + 's';
+      el.style.animationDelay    = (Math.random() * 0.4) + 's';
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 2800);
+    }
+  }
+
+  /* ── init ────────────────────────────────────────────── */
+  buildSequence();
+  nextRound();
+</script>
+</body>
+</html>

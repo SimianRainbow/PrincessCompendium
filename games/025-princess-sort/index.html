@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>Princess Sort 🧺</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
@@ -12,7 +13,7 @@
       min-height: 100vh;
       display: flex; flex-direction: column;
       align-items: center;
-      font-family: Georgia, serif;
+      font-family: 'Fredoka One', cursive;
       overflow: hidden; user-select: none;
       padding-bottom: 16px;
     }
@@ -157,6 +158,23 @@
       font-family: inherit;
       box-shadow: 0 4px 16px rgba(255,180,0,0.5);
     }
+
+    #tier-toast {
+      position: fixed; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      z-index: 95; pointer-events: none;
+      opacity: 0; transition: opacity 0.3s;
+    }
+    #tier-toast.show { opacity: 1; }
+    #tier-toast-inner {
+      background: rgba(0,0,0,0.75);
+      border-radius: 24px; padding: 22px 44px;
+      font-size: clamp(22px, 6.5vw, 38px);
+      color: #fff; text-align: center;
+      text-shadow: 0 0 20px gold;
+      box-shadow: 0 0 0 4px rgba(255,215,0,0.4);
+    }
+
     .confetti-piece {
       position: fixed; border-radius: 50%;
       animation: confettiFall linear forwards;
@@ -191,6 +209,10 @@
     <button id="next-btn" onclick="nextRound()">Next ➡️</button>
   </div>
 
+  <div id="tier-toast">
+    <div id="tier-toast-inner"></div>
+  </div>
+
 <script>
   let audioCtx = null;
   function getAudio() { if (!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)(); return audioCtx; }
@@ -204,19 +226,22 @@
       o.start(); o.stop(ctx.currentTime+d);
     } catch(e) {}
   }
-  function playCorrect()  { [523,659,784].forEach((f,i)=>setTimeout(()=>tone(f,'sine',0.15),i*90)); }
-  function playWrong()    { tone(220,'sawtooth',0.18,0.1); }
-  function playCelebrate(){ [523,659,784,880,1047,1175].forEach((f,i)=>setTimeout(()=>tone(f,'sine',0.2,0.17),i*70)); }
+  function playCorrect() {
+    [523,659,784,1047].forEach((f,i) => setTimeout(() => tone(f,'sine',0.18,0.16), i*85));
+  }
+  function playWrong()     { tone(220,'sawtooth',0.18,0.08); }
+  function playCelebrate() { [523,659,784,880,1047,1175,1319].forEach((f,i) => setTimeout(()=>tone(f,'sine',0.22,0.17),i*65)); }
+  function playTierUp()    { [660,880,1047,1320].forEach((f,i) => setTimeout(()=>tone(f,'triangle',0.25,0.18),i*100)); }
 
   const TIER_CONFIG = [
-    { label:'🌸 Easy',   cats:['animals','sweets'],             perRound: 4 },
-    { label:'🌟 Medium', cats:['animals','sweets','flowers'],   perRound: 5 },
-    { label:'👑 Hard',   cats:['animals','sweets','flowers'],   perRound: 6 },
+    { label:'🌸 Easy',   cats:['animals','sweets'],           perRound: 4 },
+    { label:'🌟 Medium', cats:['animals','sweets','flowers'], perRound: 5 },
+    { label:'👑 Hard',   cats:['animals','sweets','flowers'], perRound: 6 },
   ];
 
   const ITEM_POOLS = {
     animals: ['🦄','🐱','🐶','🦁','🦋','🐰','🐼','🦊','🐸','🐨','🐧','🐬','🦩','🐝','🐻'],
-    sweets:  ['🍭','🍰','🎂','🍦','🍩','🍪','🍫','🧁','🍬','🍓','🍡','🍮','🥧','🧇','🍮'],
+    sweets:  ['🍭','🍰','🎂','🍦','🍩','🍪','🍫','🧁','🍬','🍓','🍡','🍮','🥧','🧇','🧋'],
     flowers: ['🌸','🌺','🌻','🌹','🌷','💐','🌼','🌿','🍀','🪷','🌵','🌴','🍁','🌾','🪻'],
   };
 
@@ -265,11 +290,13 @@
     return shuffle(all).slice(0, count);
   }
 
-  function getTierDef(r) {
-    if (r <= 3) return TIER_CONFIG[0];
-    if (r <= 6) return TIER_CONFIG[1];
-    return TIER_CONFIG[2];
+  function getTierIndex(r) {
+    if (r <= 3) return 0;
+    if (r <= 6) return 1;
+    return 2;
   }
+
+  function getTierDef(r) { return TIER_CONFIG[getTierIndex(r)]; }
 
   function renderBuckets(cats) {
     const el = document.getElementById('buckets');
@@ -377,21 +404,42 @@
     playCelebrate(); confettiBurst();
   }
 
+  function showTierToast(label, callback) {
+    const toast = document.getElementById('tier-toast');
+    const inner = document.getElementById('tier-toast-inner');
+    inner.textContent = `✨ ${label}! ✨`;
+    toast.classList.add('show');
+    playTierUp();
+    setTimeout(() => {
+      toast.classList.remove('show');
+      setTimeout(callback, 320);
+    }, 1600);
+  }
+
   function nextRound() {
     document.getElementById('celebrate-overlay').classList.remove('show');
+
+    const oldTier = getTierIndex(round);
     round++;
     score++;
     updateScore();
     locked = false;
     itemIndex = 0;
 
+    const newTier = getTierIndex(round);
     const tierDef = getTierDef(round);
+
     document.getElementById('tier-badge').textContent  = tierDef.label;
     document.getElementById('round-label').textContent = `Round ${round} / ${TOTAL_ROUNDS}`;
 
     roundItems = buildRoundItems(tierDef.cats, tierDef.perRound);
     renderBuckets(tierDef.cats);
-    showItem();
+
+    if (newTier > oldTier) {
+      showTierToast(tierDef.label, () => { locked = false; showItem(); });
+    } else {
+      showItem();
+    }
   }
 
   function restartGame() {
@@ -403,13 +451,13 @@
   }
 
   function sparkleBurst(cx, cy) {
-    const icons = ['✨','🌸','⭐','💫','💖'];
-    for (let i = 0; i < 12; i++) {
+    const icons = ['✨','🌸','⭐','💫','💖','🌟'];
+    for (let i = 0; i < 16; i++) {
       const el = document.createElement('div');
       el.className = 'sparkle';
       el.textContent = icons[Math.floor(Math.random() * icons.length)];
-      const angle = (i / 12) * Math.PI * 2;
-      const dist  = 55 + Math.random() * 75;
+      const angle = (i / 16) * Math.PI * 2;
+      const dist  = 55 + Math.random() * 85;
       el.style.setProperty('--tx', Math.cos(angle) * dist + 'px');
       el.style.setProperty('--ty', Math.sin(angle) * dist - 20 + 'px');
       el.style.left = (cx - 10) + 'px';
@@ -423,7 +471,7 @@
 
   function confettiBurst() {
     const cols = ['#ffd700','#ff69b4','#ff99cc','#c0a0ff','#7fff00','#00cfff','#ffffff'];
-    for (let i = 0; i < 34; i++) {
+    for (let i = 0; i < 38; i++) {
       const el = document.createElement('div');
       el.className = 'confetti-piece';
       const sz = 8 + Math.random() * 8;

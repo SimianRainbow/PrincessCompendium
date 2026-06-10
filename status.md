@@ -1,9 +1,9 @@
 # Princess Compendium — Status
 
 ## Last update run
-Date: 2026-06-07
-- Improved: `006-fairy-tale-tap` → v1.1.0 (Fredoka One font; expanded from 1 story to 3 complete stories with tier badges 🌸/🌟/👑; added Enchanted Forest as 3rd path in Story 1; Story 2 — The Dragon's Secret (new); Story 3 — The Starlight Kingdom with 3-way first choice; sparkle burst on every choice button tap; tier-transition toast between stories; story counter "Story X / 3"; confetti + sparkle on story endings)
-- Added: `036-princess-takeaway` — "Princess Take Away" teaching simple subtraction; dragon steals gems one by one with animation; player taps how many remain; 9 rounds, 3 tiers (Easy 2-5 gems −1, Medium 2-7 gems −1-2, Hard 2-10 gems −1-5); equation display "N − X = ?"; 16 sparkles on correct; Fredoka font; tier-transition toast
+Date: 2026-06-10
+- Improved: `025-princess-sort` → v1.1.0 (Fredoka One font; sparkle burst 12→16 particles; tier-transition toast on Easy→Medium and Medium→Hard; richer 4-note ascending correct audio; playTierUp melody on tier change; fixed duplicate 🍮 in sweets pool → 🧋; confetti increased to 38 pieces)
+- Added: `037-princess-day` — "Princess Day" teaching time-of-day concepts; visual sky scenes (sky gradients + emoji elements) for morning/afternoon/evening/night; 9 rounds, 3 tiers (Easy: morning vs night 2 choices; Medium: +afternoon 3 choices; Hard: all 4 incl. evening); sparkle burst on correct; tier toast; celebration names the time ("Yes! It's Morning!")
 
 ## Improvement history
 
@@ -27,6 +27,7 @@ Date: 2026-06-07
 | 2026-06-01 | 023-spatial-princess | Fredoka font, round counter X/18, tier-transition toast, 2 extra targets + 3 containers, 16 sparkles | 1.1.0 |
 | 2026-06-04 | 024-rhyme-time | Fredoka font, round counter X/12, tier-transition toast, 4th pair per tier, shuffled tiers, 16 sparkles | 1.1.0 |
 | 2026-06-07 | 006-fairy-tale-tap | Fredoka font, 3 complete stories, Forest path, sparkle on choices, tier badge, story counter, tier toast | 1.1.0 |
+| 2026-06-10 | 025-princess-sort | Fredoka font, sparkle 12→16, tier-transition toast, 4-note audio, playTierUp, fixed duplicate pool item | 1.1.0 |
 
 ## Games due for improvement (all at v1.0.0)
 
@@ -43,7 +44,7 @@ Priority candidates — pick whichever has the clearest improvement path:
 - ~~**022-magic-adding**~~ — ✅ done v1.1.0
 - ~~**023-spatial-princess**~~ — ✅ done v1.1.0
 - ~~**024-rhyme-time**~~ — ✅ done v1.1.0
-- **025-princess-sort** — sparkle burst, richer audio
+- ~~**025-princess-sort**~~ — ✅ done v1.1.0
 
 ## Skills not yet covered
 
@@ -55,6 +56,7 @@ See `CLAUDE.md` for the full prioritised list. Top 3 to build next:
 5. ~~Front/back body awareness~~ — ✅ covered by `035-front-back`
 6. ~~Sequencing / ordinal concepts~~ — ✅ covered by `034-princess-sequence`
 7. ~~Simple subtraction~~ — ✅ covered by `036-princess-takeaway`
+8. ~~Time of day~~ — ✅ covered by `037-princess-day`
 
 ## Next game ID
-`037-<slug>`
+`038-<slug>`
