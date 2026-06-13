@@ -1,9 +1,9 @@
 # Princess Compendium — Status
 
 ## Last update run
-Date: 2026-06-10
-- Improved: `025-princess-sort` → v1.1.0 (Fredoka One font; sparkle burst 12→16 particles; tier-transition toast on Easy→Medium and Medium→Hard; richer 4-note ascending correct audio; playTierUp melody on tier change; fixed duplicate 🍮 in sweets pool → 🧋; confetti increased to 38 pieces)
-- Added: `037-princess-day` — "Princess Day" teaching time-of-day concepts; visual sky scenes (sky gradients + emoji elements) for morning/afternoon/evening/night; 9 rounds, 3 tiers (Easy: morning vs night 2 choices; Medium: +afternoon 3 choices; Hard: all 4 incl. evening); sparkle burst on correct; tier toast; celebration names the time ("Yes! It's Morning!")
+Date: 2026-06-13
+- Improved: `013-magic-leaf` → v1.1.0 (Fredoka One font; 3-tier difficulty — Round 1 speed 7 / 4 bananas, Round 2 speed 10 / 6 bananas, Round 3 speed 13 / 7 bananas + 1.65× oscillation; tier badge in HUD; inter-round toast with playRoundWin melody; 14-particle sparkle burst on each friend collect; sparkle on final win; inactive banana flagging per tier; restartTier() for smooth between-round resets)
+- Added: `038-royal-babies` — "Royal Animal Babies" teaching animal family recognition (mama/baby matching); 9 rounds across 3 tiers (Easy 2 choices: Duck/Duckling, Hen/Chick, Butterfly/Caterpillar; Medium 3 choices: Dog/Puppy, Cat/Kitten, Cow/Calf; Hard 3 choices: Pig/Piglet, Rabbit/Bunny, Frog/Tadpole); fun-fact feedback on each correct answer; tier toast with playTierWin melody; 16-particle sparkle burst; no failure state
 
 ## Improvement history
 
@@ -28,6 +28,7 @@ Date: 2026-06-10
 | 2026-06-04 | 024-rhyme-time | Fredoka font, round counter X/12, tier-transition toast, 4th pair per tier, shuffled tiers, 16 sparkles | 1.1.0 |
 | 2026-06-07 | 006-fairy-tale-tap | Fredoka font, 3 complete stories, Forest path, sparkle on choices, tier badge, story counter, tier toast | 1.1.0 |
 | 2026-06-10 | 025-princess-sort | Fredoka font, sparkle 12→16, tier-transition toast, 4-note audio, playTierUp, fixed duplicate pool item | 1.1.0 |
+| 2026-06-13 | 013-magic-leaf | 3-tier speed/banana scaling, tier badge, inter-round toast, 14-particle sparkle on collect, restartTier() | 1.1.0 |
 
 ## Games due for improvement (all at v1.0.0)
 
@@ -35,7 +36,7 @@ Priority candidates — pick whichever has the clearest improvement path:
 
 - ~~**006-fairy-tale-tap**~~ — ✅ done v1.1.0
 - **011-princess-quest** — smoother controls, obstacle variety, difficulty tiers
-- **013-magic-leaf** — more character encounters, tier badge, sparkle on collection
+- ~~**013-magic-leaf**~~ — ✅ done v1.1.0
 - **015-mermaid-lagoon-v2** — tier badge, more NPC variety
 - ~~**018-size-sort**~~ — ✅ done v1.1.0
 - ~~**019-feelings-faces**~~ — ✅ done v1.1.0
@@ -57,6 +58,7 @@ See `CLAUDE.md` for the full prioritised list. Top 3 to build next:
 6. ~~Sequencing / ordinal concepts~~ — ✅ covered by `034-princess-sequence`
 7. ~~Simple subtraction~~ — ✅ covered by `036-princess-takeaway`
 8. ~~Time of day~~ — ✅ covered by `037-princess-day`
+9. ~~Animal family recognition~~ — ✅ covered by `038-royal-babies`
 
 ## Next game ID
-`038-<slug>`
+`039-<slug>`

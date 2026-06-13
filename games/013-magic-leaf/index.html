@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>Jasmine's Magic Leaf 🍃</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
   <style>
     * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
     body { background:#1a0836; overflow:hidden; touch-action:none; font-family:Georgia,serif; }
@@ -84,6 +85,34 @@
       box-shadow:0 6px 24px rgba(255,180,0,.5);
     }
 
+    #tier-badge {
+      background: rgba(90,20,120,.72);
+      color: #ffd700; font-family: 'Fredoka One', Georgia, serif;
+      font-size: clamp(13px,3.2vw,18px);
+      padding: 5px 18px; border-radius: 20px;
+      border: 2px solid rgba(255,215,0,.4);
+      pointer-events: none;
+    }
+
+    #round-toast {
+      position: fixed; inset:0;
+      display: flex; align-items:center; justify-content:center;
+      z-index: 40; background: rgba(60,0,100,.72);
+    }
+    #round-toast.hidden { display:none; }
+    #round-toast-box {
+      background: radial-gradient(ellipse at 50% 40%,#f8c8f0,#9c27b0);
+      border-radius: 28px;
+      padding: clamp(28px,6vw,44px) clamp(36px,9vw,68px);
+      text-align:center;
+      box-shadow: 0 10px 50px rgba(0,0,0,.55);
+      border: 3px solid rgba(255,215,0,.5);
+      font-family: 'Fredoka One', Georgia, serif;
+    }
+    #round-toast-big { font-size: clamp(44px,12vw,80px); }
+    #round-toast-text { font-size:clamp(20px,5.5vw,36px); color:#ffd700; margin:10px 0 4px; }
+    #round-toast-sub  { font-size:clamp(14px,3.5vw,22px); color:rgba(255,255,255,.85); }
+
     #back-btn {
       position:fixed; top:10px; left:10px; z-index:25;
       background:rgba(0,0,0,.35); color:#fff; border:none; border-radius:50%;
@@ -102,9 +131,18 @@
   </div>
 
   <div id="hud" style="display:none">
+    <div id="tier-badge">⭐ Round 1</div>
     <div class="friend-slot" id="slot-monkey">🐵</div>
     <div class="friend-slot" id="slot-eagle">🦅</div>
     <div class="friend-slot" id="slot-mouse">🐭</div>
+  </div>
+
+  <div id="round-toast" class="hidden">
+    <div id="round-toast-box">
+      <div id="round-toast-big">🌟</div>
+      <div id="round-toast-text">Round 1 Done!</div>
+      <div id="round-toast-sub">Round 2 — ready?</div>
+    </div>
   </div>
 
   <div id="touch-zone" style="display:none"></div>
@@ -161,6 +199,17 @@
   };
 
   // ═══════════════════════════════════════════
+  //  TIERS
+  // ═══════════════════════════════════════════
+  const TIERS = [
+    { stars:'⭐',     name:'Round 1', flySpeed:7,  oscMult:0.85, activeCount:4 },
+    { stars:'⭐⭐',   name:'Round 2', flySpeed:10, oscMult:1.2,  activeCount:6 },
+    { stars:'⭐⭐⭐', name:'Round 3', flySpeed:13, oscMult:1.65, activeCount:7 },
+  ];
+  let currentTier  = 0;
+  let tierOscMult  = 0.85;
+
+  // ═══════════════════════════════════════════
   //  STATE
   // ═══════════════════════════════════════════
   let gameActive = false;
@@ -200,6 +249,74 @@
   function playBanana()  { tone(220,'square',0.18,0.09); setTimeout(()=>tone(170,'square',0.14,0.07),90); }
   function playWin()     { [523,587,659,784,988,1047,1319,1568].forEach((f,i)=>setTimeout(()=>tone(f,'sine',0.3),i*95)); }
   function playWhoosh()  { tone(300,'sine',0.12,0.06); }
+  function playRoundWin() { [523,659,784,988,1047].forEach((f,i)=>setTimeout(()=>tone(f,'sine',0.28),i*90)); }
+
+  // ─── SPARKLE ──────────────────────────────
+  function sparkle(cx, cy) {
+    const chars = ['✨','⭐','💫','🌟','🌸'];
+    for (let i=0; i<14; i++) {
+      const el = document.createElement('div');
+      el.textContent = chars[i % chars.length];
+      const size = 18 + Math.random()*18;
+      el.style.cssText = `position:fixed;font-size:${size}px;left:${cx}px;top:${cy}px;
+        pointer-events:none;z-index:50;transition:transform 0.9s ease,opacity 0.9s ease;`;
+      document.body.appendChild(el);
+      const angle = (i/14)*Math.PI*2;
+      const dist  = 45 + Math.random()*70;
+      requestAnimationFrame(() => {
+        el.style.transform = `translate(${Math.cos(angle)*dist}px,${Math.sin(angle)*dist-65}px) scale(0)`;
+        el.style.opacity = '0';
+      });
+      setTimeout(() => el.remove(), 1000);
+    }
+  }
+
+  function updateTierDisplay() {
+    const t = TIERS[currentTier];
+    document.getElementById('tier-badge').textContent = t.stars + ' ' + t.name;
+  }
+
+  function showRoundToast() {
+    const done = TIERS[currentTier];
+    const next = TIERS[currentTier + 1];
+    document.getElementById('round-toast-big').textContent  = next.stars;
+    document.getElementById('round-toast-text').textContent = done.name + ' done! 🎉';
+    document.getElementById('round-toast-sub').textContent  = next.stars + ' ' + next.name + ' — ready?';
+    document.getElementById('round-toast').classList.remove('hidden');
+    playRoundWin();
+    sparkle(window.innerWidth/2, window.innerHeight/2);
+    setTimeout(() => {
+      document.getElementById('round-toast').classList.add('hidden');
+      currentTier++;
+      tierOscMult = TIERS[currentTier].oscMult;
+      CFG.flySpeed = TIERS[currentTier].flySpeed;
+      updateTierDisplay();
+      restartTier();
+    }, 2500);
+  }
+
+  function restartTier() {
+    const t = TIERS[currentTier];
+    friendMeshes.forEach((m, i) => {
+      const cfg = CFG.friends[i];
+      m.userData.collected = false;
+      m.visible = true;
+      m.position.set(cfg.x, cfg.y, cfg.z);
+    });
+    bananaMeshes.forEach((b, i) => {
+      const cfg = CFG.bananas[i];
+      b.userData.hit = false;
+      b.userData.inactive = (i >= t.activeCount);
+      b.visible = (i < t.activeCount);
+      b.position.set(cfg.x, cfg.y, cfg.z);
+    });
+    document.querySelectorAll('.friend-slot').forEach(s => s.classList.remove('got'));
+    leafZ = 0; targetX = 0; friendsCollected = 0; wobbleT = 0;
+    leaf.position.set(0, CFG.leafBaseY, 0);
+    document.getElementById('hud').style.display = 'flex';
+    document.getElementById('touch-zone').style.display = 'block';
+    gameActive = true;
+  }
 
   // ═══════════════════════════════════════════
   //  THREE.JS SETUP
@@ -291,10 +408,13 @@
 
     // Bananas
     bananaMeshes = [];
-    CFG.bananas.forEach(cfg => {
+    CFG.bananas.forEach((cfg, i) => {
       const b = buildBananaMesh();
       b.position.set(cfg.x, cfg.y, cfg.z);
-      b.userData = { ...cfg, baseX:cfg.x, baseZ:cfg.z, baseY:cfg.y, t:Math.random()*Math.PI*2, hit:false };
+      const inactive = i >= TIERS[0].activeCount;
+      b.userData = { ...cfg, baseX:cfg.x, baseZ:cfg.z, baseY:cfg.y,
+                     t:Math.random()*Math.PI*2, hit:false, inactive };
+      b.visible = !inactive;
       scene.add(b);
       bananaMeshes.push(b);
     });
@@ -902,15 +1022,14 @@
 
       // Animate bananas — they circle and wobble
       bananaMeshes.forEach(b => {
+        if (b.userData.inactive) return;
         if (b.userData.hit) {
-          // spin off after hit
           b.position.y -= dt * 3;
           b.rotation.x += dt * 6;
           b.rotation.z += dt * 4;
           return;
         }
-        b.userData.t += dt * 2;
-        // Oscillate across path
+        b.userData.t += dt * 2 * tierOscMult;
         b.position.x = b.userData.baseX + Math.sin(b.userData.t) * (b.userData.baseX > 0 ? -4 : 4);
         b.position.z = b.userData.baseZ + Math.sin(b.userData.t*0.6) * 0.8;
         b.position.y = b.userData.baseY + Math.sin(b.userData.t*1.3) * 0.2;
@@ -932,7 +1051,7 @@
 
       // Collision detection — bananas
       bananaMeshes.forEach(b => {
-        if (b.userData.hit) return;
+        if (b.userData.hit || b.userData.inactive) return;
         const dx = b.position.x - leaf.position.x;
         const dy = b.position.y - leaf.position.y;
         const dz = b.position.z - leaf.position.z;
@@ -953,12 +1072,12 @@
 
   function collectFriend(m) {
     m.userData.collected = true;
-    // fly up and fade
     m.visible = false;
     friendsCollected++;
     const kind = m.userData.kind;
     const slot = document.getElementById('slot-' + kind);
     if (slot) slot.classList.add('got');
+    sparkle(window.innerWidth/2, window.innerHeight * 0.4);
     const f = document.getElementById('collect-flash');
     f.classList.add('show');
     setTimeout(() => f.classList.remove('show'), 400);
@@ -990,6 +1109,10 @@
       setupControls();
       animate();
     }
+    currentTier = 0;
+    tierOscMult = TIERS[0].oscMult;
+    CFG.flySpeed = TIERS[0].flySpeed;
+    updateTierDisplay();
     leafZ = 0;
     targetX = 0;
     friendsCollected = 0;
@@ -998,36 +1121,32 @@
   }
 
   function winGame() {
+    if (!gameActive) return;
     gameActive = false;
     document.getElementById('hud').style.display = 'none';
     document.getElementById('touch-zone').style.display = 'none';
-    // Show only friends actually collected
-    const w = document.getElementById('win-friends');
-    const icons = friendMeshes.filter(m => m.userData.collected)
-      .map(m => m.userData.kind === 'monkey' ? '🐵'
-             : m.userData.kind === 'eagle'  ? '🦅' : '🐭');
-    w.textContent = icons.length ? icons.join('') : '🏰';
-    document.getElementById('win-screen').classList.remove('hidden');
-    playWin();
+
+    if (currentTier < TIERS.length - 1) {
+      showRoundToast();
+    } else {
+      const w = document.getElementById('win-friends');
+      const icons = friendMeshes.filter(m => m.userData.collected)
+        .map(m => m.userData.kind === 'monkey' ? '🐵'
+               : m.userData.kind === 'eagle'  ? '🦅' : '🐭');
+      w.textContent = icons.length ? icons.join('') : '🏰';
+      document.getElementById('win-screen').classList.remove('hidden');
+      playWin();
+      sparkle(window.innerWidth/2, window.innerHeight/2);
+    }
   }
 
   function restartGame() {
-    // Reset friends
-    friendMeshes.forEach((m, i) => {
-      const cfg = CFG.friends[i];
-      m.userData.collected = false;
-      m.visible = true;
-      m.position.set(cfg.x, cfg.y, cfg.z);
-    });
-    // Reset bananas
-    bananaMeshes.forEach((b, i) => {
-      const cfg = CFG.bananas[i];
-      b.userData.hit = false;
-      b.position.set(cfg.x, cfg.y, cfg.z);
-    });
-    document.querySelectorAll('.friend-slot').forEach(s => s.classList.remove('got'));
     document.getElementById('win-screen').classList.add('hidden');
-    startGame();
+    currentTier = 0;
+    tierOscMult = TIERS[0].oscMult;
+    CFG.flySpeed = TIERS[0].flySpeed;
+    updateTierDisplay();
+    restartTier();
   }
   </script>
 </body>

@@ -146,13 +146,13 @@
   {
     "id": "013-magic-leaf",
     "title": "Jasmine's Magic Leaf",
-    "description": "Fly the magic leaf with Princess Jasmine, dodge bananas and meet Monkey, Eagle Man and Mouse Boy!",
+    "description": "Fly the magic leaf with Princess Jasmine, dodge bananas and meet Monkey, Eagle Man and Mouse Boy! 3 rounds of rising speed.",
     "icon": "🍃",
     "ageMin": 2,
     "ageMax": 5,
     "skill": "steering, focus & friends",
     "category": "adventure",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "path": "games/013-magic-leaf/index.html"
   },
   {
@@ -442,5 +442,17 @@
     "version": "1.0.0",
     "category": "other",
     "path": "games/037-princess-day/index.html"
+  },
+  {
+    "id": "038-royal-babies",
+    "title": "Royal Animal Babies",
+    "description": "Tap the baby that belongs to Mama — Duckling, Chick, Caterpillar and more! 9 rounds across 3 tiers.",
+    "icon": "🐣",
+    "ageMin": 2,
+    "ageMax": 5,
+    "skill": "animal family recognition (mama & baby)",
+    "version": "1.0.0",
+    "category": "animals",
+    "path": "games/038-royal-babies/index.html"
   }
 ]

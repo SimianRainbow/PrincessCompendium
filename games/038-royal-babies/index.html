@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Royal Animal Babies 🐣</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+    body {
+      min-height: 100dvh;
+      background: radial-gradient(ellipse at 50% 30%, #f8a7c4 0%, #c084e8 60%, #7c3aed 100%);
+      font-family: 'Fredoka One', Georgia, sans-serif;
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; overflow: hidden;
+      touch-action: manipulation; user-select: none;
+    }
+
+    .screen {
+      position: fixed; inset: 0;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: clamp(12px,3vw,22px); padding: 20px; z-index: 20;
+    }
+    .screen.hidden { display: none; }
+
+    /* ── START ── */
+    #start-screen {
+      background: radial-gradient(ellipse at 50% 35%, #f8a7c4 0%, #7c3aed 100%);
+    }
+    #start-icon {
+      font-size: clamp(80px,22vw,140px);
+      animation: bounce 1.8s ease-in-out infinite;
+    }
+    @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-16px)} }
+    #start-title {
+      font-size: clamp(26px,7vw,52px); color:#fff;
+      text-shadow: 0 3px 14px rgba(100,0,150,.5); text-align:center;
+    }
+    #start-sub {
+      font-size: clamp(14px,3.5vw,22px);
+      color: rgba(255,255,255,.85); text-align:center;
+    }
+    .big-btn {
+      padding: clamp(14px,3.5vw,22px) clamp(44px,11vw,80px);
+      font-size: clamp(20px,5.5vw,32px);
+      border-radius: 50px; border: none;
+      background: linear-gradient(135deg,#ffd700,#ff8c00);
+      color: #5d2e00; cursor: pointer;
+      font-family: 'Fredoka One', Georgia, sans-serif;
+      box-shadow: 0 6px 24px rgba(255,180,0,.5);
+      animation: pulse 1.9s ease-in-out infinite;
+    }
+    @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.06)} }
+
+    /* ── GAME ── */
+    #game-screen {
+      background: radial-gradient(ellipse at 50% 30%, #fde8f5 0%, #e0c3f7 60%, #c084e8 100%);
+      gap: clamp(10px,2.5vw,18px);
+    }
+
+    #tier-badge {
+      font-size: clamp(13px,3.2vw,18px);
+      background: rgba(100,20,160,.55);
+      color: #ffd700; padding: 5px 18px;
+      border-radius: 20px; border: 2px solid rgba(255,215,0,.4);
+    }
+    #round-counter {
+      font-size: clamp(13px,3.2vw,18px);
+      color: rgba(80,0,120,.8);
+    }
+
+    #mama-area { text-align:center; }
+    #mama-label {
+      font-size: clamp(13px,3.5vw,20px);
+      color: #7c3aed; margin-bottom: 4px;
+    }
+    #mama-emoji {
+      font-size: clamp(80px,22vw,140px);
+      display: block; line-height: 1;
+      filter: drop-shadow(0 6px 16px rgba(100,0,200,.25));
+    }
+    #prompt {
+      font-size: clamp(16px,4.5vw,26px);
+      color: #4a0080; margin-top: 6px; text-align:center;
+    }
+
+    #choices {
+      display: flex; gap: clamp(12px,3vw,22px);
+      justify-content: center; flex-wrap: wrap;
+    }
+    .choice-btn {
+      min-width: clamp(100px,26vw,150px);
+      min-height: clamp(100px,26vw,150px);
+      border-radius: 24px;
+      border: 3px solid rgba(255,255,255,.6);
+      background: linear-gradient(145deg, rgba(255,255,255,.78), rgba(230,200,255,.78));
+      display: flex; flex-direction:column;
+      align-items:center; justify-content:center;
+      gap: 6px; cursor:pointer;
+      transition: transform .15s ease, box-shadow .15s ease;
+      box-shadow: 0 4px 18px rgba(100,0,200,.18);
+      font-family: 'Fredoka One', Georgia, sans-serif;
+    }
+    .choice-btn:active { transform: scale(0.93); }
+    .choice-emoji { font-size: clamp(38px,10vw,68px); line-height:1; }
+    .choice-label { font-size: clamp(11px,2.8vw,16px); color: #4a0080; text-align:center; }
+
+    .choice-btn.correct {
+      background: linear-gradient(145deg,#d4ffc8,#a8f0b0);
+      border-color: #4caf50;
+      animation: correctPop .5s ease;
+    }
+    .choice-btn.wrong {
+      background: linear-gradient(145deg,#ffe0e0,#ffb0b0);
+      border-color: #f44336;
+      animation: wobble .45s ease;
+    }
+    @keyframes correctPop { 0%{transform:scale(1)} 40%{transform:scale(1.18)} 100%{transform:scale(1)} }
+    @keyframes wobble {
+      0%{transform:translateX(0)} 20%{transform:translateX(-10px)}
+      40%{transform:translateX(10px)} 60%{transform:translateX(-8px)}
+      80%{transform:translateX(8px)} 100%{transform:translateX(0)}
+    }
+
+    #feedback {
+      min-height: clamp(30px,7vw,44px);
+      font-size: clamp(13px,3.8vw,21px);
+      color: #4a0080; text-align:center;
+      padding: 0 12px;
+    }
+
+    /* ── TIER TOAST ── */
+    #tier-toast {
+      position: fixed; inset:0;
+      display: flex; align-items:center; justify-content:center;
+      z-index: 40; background: rgba(80,0,140,.72);
+    }
+    #tier-toast.hidden { display:none; }
+    #tier-toast-box {
+      background: radial-gradient(ellipse at 50% 40%,#f8c8f0,#9c27b0);
+      border-radius: 28px;
+      padding: clamp(28px,6vw,48px) clamp(36px,9vw,72px);
+      text-align:center; color:#fff;
+      box-shadow: 0 10px 50px rgba(0,0,0,.5);
+      border: 3px solid rgba(255,215,0,.5);
+    }
+    #tier-toast-big { font-size: clamp(44px,12vw,80px); }
+    #tier-toast-text {
+      font-size: clamp(20px,5.5vw,36px);
+      color: #ffd700; margin: 10px 0 6px;
+    }
+    #tier-toast-sub {
+      font-size: clamp(14px,3.5vw,22px);
+      color: rgba(255,255,255,.85);
+    }
+
+    /* ── WIN ── */
+    #win-screen {
+      background: radial-gradient(ellipse at 50% 35%,#fff3e0,#ff8f00);
+    }
+    #win-icon {
+      font-size: clamp(64px,18vw,110px);
+      animation: bounce 1.5s ease-in-out infinite;
+    }
+    #win-title {
+      font-size: clamp(22px,6vw,46px); color:#fff;
+      text-shadow: 0 3px 14px rgba(150,50,0,.4); text-align:center;
+    }
+    #win-friends {
+      font-size: clamp(32px,9vw,64px); letter-spacing:6px;
+    }
+
+    #back-btn {
+      position:fixed; top:10px; left:10px; z-index:25;
+      background:rgba(0,0,0,.3); color:#fff;
+      border:none; border-radius:50%;
+      width:44px; height:44px; font-size:22px; cursor:pointer;
+    }
+  </style>
+</head>
+<body>
+<button id="back-btn" onclick="history.length>1?history.back():window.close()">←</button>
+
+<!-- START -->
+<div id="start-screen" class="screen">
+  <div id="start-icon">🐣</div>
+  <div id="start-title">Royal Animal Babies</div>
+  <div id="start-sub">Find the mama's baby! 🌸</div>
+  <button class="big-btn" onclick="startGame()">Play ▶</button>
+</div>
+
+<!-- GAME -->
+<div id="game-screen" class="screen hidden">
+  <div id="tier-badge">⭐ Easy</div>
+  <div id="round-counter">Round 1 of 9</div>
+  <div id="mama-area">
+    <div id="mama-label">Mama Duck</div>
+    <span id="mama-emoji">🦆</span>
+    <div id="prompt">Which is her baby? 🍼</div>
+  </div>
+  <div id="choices"></div>
+  <div id="feedback"></div>
+</div>
+
+<!-- TIER TOAST -->
+<div id="tier-toast" class="hidden">
+  <div id="tier-toast-box">
+    <div id="tier-toast-big">⭐⭐</div>
+    <div id="tier-toast-text">Easy done!</div>
+    <div id="tier-toast-sub">Medium — here we go!</div>
+  </div>
+</div>
+
+<!-- WIN -->
+<div id="win-screen" class="screen hidden">
+  <div id="win-icon">👑</div>
+  <div id="win-title">You matched every baby! 🎉</div>
+  <div id="win-friends">🐣🐥🐛🐶🐱🐮🐽🐰🐟</div>
+  <button class="big-btn" onclick="restartGame()">Play Again 🔄</button>
+</div>
+
+<script>
+// ═══════════════════════════════════════════
+//  DATA
+// ═══════════════════════════════════════════
+const TIERS = [
+  { name:'Easy',   stars:'⭐',     choices:2 },
+  { name:'Medium', stars:'⭐⭐',   choices:3 },
+  { name:'Hard',   stars:'⭐⭐⭐', choices:3 },
+];
+
+const ROUNDS = [
+  // Easy — 2 choices
+  { mama:'🦆', mamaName:'Duck',      baby:'🐣', babyName:'Duckling',
+    wrong:['🐥'],       funFact:'Ducklings follow their mama everywhere! 🦆' },
+  { mama:'🐓', mamaName:'Hen',       baby:'🐥', babyName:'Chick',
+    wrong:['🐣'],       funFact:'Chicks live safely in the henhouse! 🏠' },
+  { mama:'🦋', mamaName:'Butterfly', baby:'🐛', babyName:'Caterpillar',
+    wrong:['🐝'],       funFact:'Caterpillars turn into Butterflies! 🦋' },
+  // Medium — 3 choices
+  { mama:'🐕', mamaName:'Dog',  baby:'🐶', babyName:'Puppy',
+    wrong:['🐱','🐣'],  funFact:'Puppies love to play and cuddle! 🐾' },
+  { mama:'🐈', mamaName:'Cat',  baby:'🐱', babyName:'Kitten',
+    wrong:['🐶','🐥'],  funFact:'Kittens purr when they are happy! 😻' },
+  { mama:'🐄', mamaName:'Cow',  baby:'🐮', babyName:'Calf',
+    wrong:['🐷','🐱'],  funFact:'Calves drink milk from their mama! 🥛' },
+  // Hard — 3 choices
+  { mama:'🐷', mamaName:'Pig',    baby:'🐽', babyName:'Piglet',
+    wrong:['🐮','🐱'],  funFact:'Piglets are very smart and curious! 🌟' },
+  { mama:'🐇', mamaName:'Rabbit', baby:'🐰', babyName:'Bunny',
+    wrong:['🐭','🐹'],  funFact:'Baby bunnies are called kittens too! 🐇' },
+  { mama:'🐸', mamaName:'Frog',   baby:'🐟', babyName:'Tadpole',
+    wrong:['🐛','🐣'],  funFact:'Tadpoles grow legs and become frogs! 🐸' },
+];
+
+// Labels for distractor emojis
+const NAMES = {
+  '🐥':'Chick',   '🐣':'Duckling', '🐝':'Bee',
+  '🐱':'Kitten',  '🐶':'Puppy',    '🐛':'Caterpillar',
+  '🐷':'Piglet',  '🐮':'Calf',     '🐭':'Mouse',
+  '🐹':'Hamster',
+};
+
+// ═══════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════
+let currentRound = 0;
+let locked = false;
+let audioCtx = null;
+
+// ═══════════════════════════════════════════
+//  AUDIO
+// ═══════════════════════════════════════════
+function au() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return audioCtx;
+}
+function tone(f, type, dur, vol=0.14) {
+  try {
+    const ctx=au(), o=ctx.createOscillator(), g=ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    o.type=type; o.frequency.value=f;
+    g.gain.setValueAtTime(vol, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime+dur);
+    o.start(); o.stop(ctx.currentTime+dur);
+  } catch(e) {}
+}
+function playCorrect() {
+  [523,659,784,988].forEach((f,i) => setTimeout(() => tone(f,'sine',0.22), i*65));
+}
+function playWrong() {
+  tone(280,'sine',0.18,0.09);
+  setTimeout(() => tone(220,'sine',0.14,0.07), 90);
+}
+function playTierWin() {
+  [523,587,659,784,988,1047].forEach((f,i) => setTimeout(() => tone(f,'sine',0.3), i*85));
+}
+function playWin() {
+  [523,659,784,988,1047,1319,1568].forEach((f,i) => setTimeout(() => tone(f,'sine',0.35), i*90));
+}
+
+// ═══════════════════════════════════════════
+//  SPARKLE
+// ═══════════════════════════════════════════
+function sparkle(cx, cy) {
+  const chars = ['✨','⭐','💫','🌟','🌸','💖'];
+  for (let i=0; i<16; i++) {
+    const el = document.createElement('div');
+    el.textContent = chars[i % chars.length];
+    const size = 16 + Math.random()*20;
+    el.style.cssText = `position:fixed;font-size:${size}px;left:${cx}px;top:${cy}px;
+      pointer-events:none;z-index:60;
+      transition:transform 0.88s ease,opacity 0.88s ease;`;
+    document.body.appendChild(el);
+    const angle = (i/16)*Math.PI*2;
+    const dist = 55 + Math.random()*80;
+    requestAnimationFrame(() => {
+      el.style.transform = `translate(${Math.cos(angle)*dist}px,${Math.sin(angle)*dist-70}px) scale(0)`;
+      el.style.opacity = '0';
+    });
+    setTimeout(() => el.remove(), 950);
+  }
+}
+
+// ═══════════════════════════════════════════
+//  FLOW
+// ═══════════════════════════════════════════
+function startGame() {
+  currentRound = 0;
+  locked = false;
+  document.getElementById('start-screen').classList.add('hidden');
+  document.getElementById('game-screen').classList.remove('hidden');
+  try { au().resume(); } catch(e) {}
+  showRound();
+}
+
+function showRound() {
+  locked = false;
+  const r = ROUNDS[currentRound];
+  const tierIdx = currentRound < 3 ? 0 : currentRound < 6 ? 1 : 2;
+  const tier = TIERS[tierIdx];
+
+  document.getElementById('tier-badge').textContent = tier.stars + ' ' + tier.name;
+  document.getElementById('round-counter').textContent = 'Round ' + (currentRound+1) + ' of 9';
+  document.getElementById('feedback').textContent = '';
+  document.getElementById('mama-label').textContent = 'Mama ' + r.mamaName;
+  document.getElementById('mama-emoji').textContent = r.mama;
+  document.getElementById('prompt').textContent = 'Which is her baby? 🍼';
+
+  // Build choice buttons
+  const wrongChoices = r.wrong.slice(0, tier.choices - 1);
+  const allChoices = shuffle([
+    { emoji: r.baby, name: r.babyName, correct: true },
+    ...wrongChoices.map(e => ({ emoji: e, name: NAMES[e] || '?', correct: false })),
+  ]);
+
+  const container = document.getElementById('choices');
+  container.innerHTML = '';
+  allChoices.forEach(ch => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.innerHTML = `<span class="choice-emoji">${ch.emoji}</span><span class="choice-label">${ch.name}</span>`;
+    btn.addEventListener('click', () => onChoice(btn, ch.correct, r));
+    container.appendChild(btn);
+  });
+}
+
+function onChoice(btn, correct, r) {
+  if (locked) return;
+  locked = true;
+  try { au().resume(); } catch(e) {}
+
+  const fb = document.getElementById('feedback');
+  if (correct) {
+    btn.classList.add('correct');
+    playCorrect();
+    const rect = btn.getBoundingClientRect();
+    sparkle(rect.left + rect.width/2, rect.top + rect.height/2);
+    fb.textContent = r.funFact;
+    setTimeout(nextRound, 1500);
+  } else {
+    btn.classList.add('wrong');
+    playWrong();
+    fb.textContent = 'Try again! 💕';
+    setTimeout(() => {
+      btn.classList.remove('wrong');
+      locked = false;
+    }, 650);
+  }
+}
+
+function nextRound() {
+  currentRound++;
+  if (currentRound >= 9) { showWin(); return; }
+  if (currentRound === 3 || currentRound === 6) {
+    showTierToast(currentRound === 3 ? 0 : 1);
+  } else {
+    showRound();
+  }
+}
+
+function showTierToast(completedTierIdx) {
+  const done = TIERS[completedTierIdx];
+  const next = TIERS[completedTierIdx + 1];
+  document.getElementById('tier-toast-big').textContent = next.stars;
+  document.getElementById('tier-toast-text').textContent = done.name + ' done! 🌟';
+  document.getElementById('tier-toast-sub').textContent = next.stars + ' ' + next.name + ' — here we go!';
+  document.getElementById('tier-toast').classList.remove('hidden');
+  playTierWin();
+  sparkle(window.innerWidth/2, window.innerHeight/2);
+  setTimeout(() => {
+    document.getElementById('tier-toast').classList.add('hidden');
+    showRound();
+  }, 2400);
+}
+
+function showWin() {
+  document.getElementById('game-screen').classList.add('hidden');
+  document.getElementById('win-screen').classList.remove('hidden');
+  playWin();
+  sparkle(window.innerWidth/2, window.innerHeight/3);
+  setTimeout(() => sparkle(window.innerWidth/4, window.innerHeight*0.55), 300);
+  setTimeout(() => sparkle(window.innerWidth*3/4, window.innerHeight*0.55), 600);
+}
+
+function restartGame() {
+  document.getElementById('win-screen').classList.add('hidden');
+  startGame();
+}
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i=a.length-1; i>0; i--) {
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+</script>
+</body>
+</html>
