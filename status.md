@@ -1,9 +1,9 @@
 # Princess Compendium — Status
 
 ## Last update run
-Date: 2026-06-13
-- Improved: `013-magic-leaf` → v1.1.0 (Fredoka One font; 3-tier difficulty — Round 1 speed 7 / 4 bananas, Round 2 speed 10 / 6 bananas, Round 3 speed 13 / 7 bananas + 1.65× oscillation; tier badge in HUD; inter-round toast with playRoundWin melody; 14-particle sparkle burst on each friend collect; sparkle on final win; inactive banana flagging per tier; restartTier() for smooth between-round resets)
-- Added: `038-royal-babies` — "Royal Animal Babies" teaching animal family recognition (mama/baby matching); 9 rounds across 3 tiers (Easy 2 choices: Duck/Duckling, Hen/Chick, Butterfly/Caterpillar; Medium 3 choices: Dog/Puppy, Cat/Kitten, Cow/Calf; Hard 3 choices: Pig/Piglet, Rabbit/Bunny, Frog/Tadpole); fun-fact feedback on each correct answer; tier toast with playTierWin melody; 16-particle sparkle burst; no failure state
+Date: 2026-06-16
+- Improved: `011-princess-quest` → v1.1.0 (3 rounds: speed 6 / 5 stars, speed 8.5 / 6 stars, speed 11 / 7 stars; tier badge "🌟 Round X/3" in HUD; inter-round toast with playRoundWin melody; 14-particle CSS sparkle burst on each star collect; Fredoka One font; hair grows across all rounds via totalStars; confetti on round-end)
+- Added: `039-princess-puzzle` — "Princess Puzzle" teaching odd-one-out reasoning & categorisation; 9 rounds across 3 tiers (Easy: animals/fruits/royal; Medium: flowers/sea creatures/clothes; Hard: night sky/flying/sweets); 4-emoji 2×2 grid; odd item shuffled to random position each round; sparkle burst + celebrate overlay on correct; wobble on wrong; tier toasts between tiers
 
 ## Improvement history
 
@@ -29,13 +29,14 @@ Date: 2026-06-13
 | 2026-06-07 | 006-fairy-tale-tap | Fredoka font, 3 complete stories, Forest path, sparkle on choices, tier badge, story counter, tier toast | 1.1.0 |
 | 2026-06-10 | 025-princess-sort | Fredoka font, sparkle 12→16, tier-transition toast, 4-note audio, playTierUp, fixed duplicate pool item | 1.1.0 |
 | 2026-06-13 | 013-magic-leaf | 3-tier speed/banana scaling, tier badge, inter-round toast, 14-particle sparkle on collect, restartTier() | 1.1.0 |
+| 2026-06-16 | 011-princess-quest | 3 rounds (speed 6/8.5/11, 5/6/7 stars), tier badge, inter-round toast, 14-particle sparkle burst, Fredoka One | 1.1.0 |
 
 ## Games due for improvement (all at v1.0.0)
 
 Priority candidates — pick whichever has the clearest improvement path:
 
 - ~~**006-fairy-tale-tap**~~ — ✅ done v1.1.0
-- **011-princess-quest** — smoother controls, obstacle variety, difficulty tiers
+- ~~**011-princess-quest**~~ — ✅ done v1.1.0
 - ~~**013-magic-leaf**~~ — ✅ done v1.1.0
 - **015-mermaid-lagoon-v2** — tier badge, more NPC variety
 - ~~**018-size-sort**~~ — ✅ done v1.1.0
@@ -59,6 +60,7 @@ See `CLAUDE.md` for the full prioritised list. Top 3 to build next:
 7. ~~Simple subtraction~~ — ✅ covered by `036-princess-takeaway`
 8. ~~Time of day~~ — ✅ covered by `037-princess-day`
 9. ~~Animal family recognition~~ — ✅ covered by `038-royal-babies`
+10. ~~Odd-one-out / categorisation reasoning~~ — ✅ covered by `039-princess-puzzle`
 
 ## Next game ID
-`039-<slug>`
+`040-<slug>`

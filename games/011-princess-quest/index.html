@@ -4,9 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>Princess Quest 🏰</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
   <style>
     * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-    body { background:#1a003a; overflow:hidden; touch-action:none; font-family:Georgia,serif; }
+    body { background:#1a003a; overflow:hidden; touch-action:none; font-family:'Fredoka One', Georgia, serif; }
     canvas { display:block; }
 
     .screen {
@@ -16,7 +17,6 @@
     }
     .screen.hidden { display:none; }
 
-    /* ── Start ── */
     #start-screen { background:radial-gradient(ellipse at 50% 40%, #5b1fa2 0%, #1a003a 100%); }
     #start-princess { font-size:clamp(64px,18vw,110px); animation:float 2.6s ease-in-out infinite; }
     @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-14px)} }
@@ -36,17 +36,22 @@
     }
     @keyframes btnPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.06)} }
 
-    /* ── HUD ── */
     #hud {
       position:fixed; top:0; left:0; right:0; z-index:10;
       display:flex; justify-content:space-between; align-items:center;
-      padding:clamp(8px,2vw,16px) clamp(14px,4vw,22px);
+      padding:clamp(8px,2vw,14px) clamp(14px,4vw,22px);
       pointer-events:none;
     }
     #star-counter {
-      font-size:clamp(20px,5.5vw,32px); color:#ffd700;
+      font-size:clamp(18px,5vw,28px); color:#ffd700;
       text-shadow:0 0 12px rgba(255,215,0,.6), 0 2px 5px rgba(0,0,0,.5);
     }
+    #tier-badge {
+      font-size:clamp(14px,3.8vw,20px); color:#fff;
+      background:rgba(90,0,160,.75); border-radius:20px;
+      padding:4px 14px; border:2px solid rgba(255,215,0,.4);
+    }
+
     #hint-left, #hint-right {
       position:fixed; bottom:clamp(16px,4vw,28px);
       font-size:clamp(28px,8vw,48px);
@@ -57,29 +62,47 @@
     #hint-right { right:clamp(12px,3vw,24px); }
     @keyframes hintFade { to{opacity:0} }
 
-    /* ── Touch zones (invisible) ── */
     #touch-left, #touch-right {
-      position:fixed; top:0; bottom:0; width:42%; z-index:5;
-      pointer-events:all;
+      position:fixed; top:0; bottom:0; width:42%; z-index:5; pointer-events:all;
     }
     #touch-left  { left:0; }
     #touch-right { right:0; }
 
-    /* ── Collect flash ── */
     #collect-flash {
       position:fixed; inset:0; background:rgba(255,215,0,.2);
       pointer-events:none; z-index:9; opacity:0; transition:opacity .05s;
     }
     #collect-flash.flash { opacity:1; }
 
-    /* ── Win ── */
+    /* Round toast */
+    #round-toast {
+      position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);
+      background:rgba(40,0,100,.95); border:3px solid #ffd700;
+      border-radius:28px; padding:clamp(18px,5vw,32px) clamp(28px,8vw,56px);
+      text-align:center; z-index:30; display:none;
+      box-shadow:0 0 40px rgba(200,100,255,.5);
+    }
+    #toast-emoji  { font-size:clamp(44px,13vw,76px); }
+    #toast-title  { font-size:clamp(22px,6.5vw,44px); color:#ffd700; margin:8px 0; text-shadow:0 0 20px rgba(255,215,0,.8); }
+    #toast-sub    { font-size:clamp(13px,3.8vw,20px); color:#e8c8ff; }
+
+    /* CSS sparkles */
+    .sparkle {
+      position:fixed; pointer-events:none; z-index:25; border-radius:50%;
+      animation:sparklePop ease-out forwards;
+    }
+    @keyframes sparklePop {
+      0%   { transform:translate(0,0) scale(1.2); opacity:1; }
+      100% { transform:translate(var(--dx),var(--dy)) scale(0); opacity:0; }
+    }
+
     #win-screen { background:radial-gradient(ellipse at 50% 40%, #7b1fa2 0%, #1a003a 100%); }
     #win-princess { font-size:clamp(60px,16vw,100px); }
     #win-title {
       font-size:clamp(26px,7vw,54px); color:#ffd700;
       text-shadow:0 0 30px rgba(255,215,0,.8); text-align:center; padding:0 16px;
     }
-    #win-stars { font-size:clamp(34px,10vw,72px); letter-spacing:5px; }
+    #win-stars { font-size:clamp(28px,8vw,56px); letter-spacing:4px; max-width:90vw; word-break:break-all; text-align:center; }
     #play-again-btn {
       padding:clamp(14px,4vw,20px) clamp(36px,9vw,64px);
       font-size:clamp(18px,5vw,28px); border-radius:50px; border:none;
@@ -99,615 +122,485 @@
   <div id="start-screen" class="screen">
     <div id="start-princess">👸</div>
     <div id="start-title">Princess Quest</div>
-    <div id="start-sub">Steer left & right · Jump · Collect all 6 stars!</div>
+    <div id="start-sub">Tap left &amp; right to steer · 3 rounds!</div>
     <button id="start-btn" onclick="startGame()">Play ▶</button>
   </div>
 
   <div id="hud" style="display:none">
-    <div id="star-counter">⭐ 0 / 6</div>
+    <div id="star-counter">⭐ 0 / 5</div>
+    <div id="tier-badge">🌟 Round 1 / 3</div>
   </div>
   <div id="hint-left"  style="display:none">◀</div>
   <div id="hint-right" style="display:none">▶</div>
 
   <div id="touch-left"  style="display:none"></div>
   <div id="touch-right" style="display:none"></div>
-
   <div id="collect-flash"></div>
+
+  <div id="round-toast">
+    <div id="toast-emoji">✨</div>
+    <div id="toast-title">Round 2!</div>
+    <div id="toast-sub">A little faster! ⚡</div>
+  </div>
 
   <div id="win-screen" class="screen hidden">
     <div id="win-princess">👸</div>
-    <div id="win-title">You reached the castle!</div>
-    <div id="win-stars">⭐⭐⭐⭐⭐⭐</div>
+    <div id="win-title">You reached the castle! 🏰</div>
+    <div id="win-stars"></div>
     <button id="play-again-btn" onclick="restartGame()">Play Again 🔄</button>
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script>
-  // ═══════════════════════════════════════════
-  //  CONFIG
-  // ═══════════════════════════════════════════
+  // ── ROUNDS CONFIG ──────────────────────────────────
+  const ROUNDS = [
+    {
+      speed: 6, levelEnd: -218, castleZ: -208,
+      toastEmoji:'🌸', toastTitle:'Round 2!', toastSub:'A little faster! ⚡',
+      stars:[
+        {z:-42, x:-2.4, y:1.3}, {z:-82,  x:2.4, y:1.3},
+        {z:-122,x:0,    y:3.2}, {z:-162, x:-2.4,y:1.3},
+        {z:-198,x:2.4,  y:1.3},
+      ]
+    },
+    {
+      speed: 8.5, levelEnd: -275, castleZ: -265,
+      toastEmoji:'✨', toastTitle:'Round 3!', toastSub:'Super speed! 🚀',
+      stars:[
+        {z:-42, x:-2.4, y:1.3}, {z:-80,  x:2.4, y:3.3},
+        {z:-118,x:0,    y:1.2}, {z:-158, x:-2.4,y:3.1},
+        {z:-198,x:2.4,  y:1.4}, {z:-248, x:0,   y:3.4},
+      ]
+    },
+    {
+      speed: 11, levelEnd: -335, castleZ: -325,
+      toastEmoji:'🏆', toastTitle:'You did it!', toastSub:'',
+      stars:[
+        {z:-42, x:-2.4, y:1.3}, {z:-80,  x:2.4, y:3.3},
+        {z:-120,x:-2.4, y:3.1}, {z:-160, x:2.4, y:1.4},
+        {z:-200,x:0,    y:3.4}, {z:-242, x:-2.4,y:3.2},
+        {z:-285,x:2.4,  y:1.3},
+      ]
+    }
+  ];
+
   const CFG = {
-    speed:          7,
-    jumpVel:        14,
-    gravity:        30,
-    groundY:        0,
-    princGY:        1.05,   // princess centre Y on ground
-    strafeSpeed:    6,      // lateral units/sec
-    strafeMax:      2.8,    // max X deviation from centre
-    collectDist:    3.0,
-    levelEnd:       -278,
-    // Stars: x = left(-2.5), centre(0), right(2.5); y alternates low/high
-    stars: [
-      { z: -42,  x: -2.4, y: 1.3 },   // 1 – left low    (steer left)
-      { z: -88,  x:  2.4, y: 3.3 },   // 2 – right high  (steer right + jump)
-      { z: -130, x:  0,   y: 1.2 },   // 3 – centre low  (straight)
-      { z: -175, x: -2.4, y: 3.1 },   // 4 – left high   (steer left + jump)
-      { z: -218, x:  2.4, y: 1.4 },   // 5 – right low   (steer right)
-      { z: -258, x:  0,   y: 3.4 },   // 6 – centre high (jump!)
-    ],
-    castleZ:  -268,
-    // Hair colours: deep purple → lavender → pink → gold tip
-    hairColors: [0x6a1b9a, 0x9c27b0, 0xba68c8, 0xce93d8, 0xf48fb1, 0xffd700],
-    hairSizes:  [0.30,     0.27,     0.24,     0.21,     0.18,     0.15],
+    jumpVel:9, gravity:22, princGY:1.05,
+    strafeMax:2.8, collectDist:3.0,
+    hairColors:[0x6a1b9a,0x9c27b0,0xba68c8,0xce93d8,0xf48fb1,0xffd700,0xfff176],
+    hairSizes: [0.30,    0.27,    0.24,    0.21,    0.18,    0.15,    0.12],
   };
 
-  // ═══════════════════════════════════════════
-  //  STATE
-  // ═══════════════════════════════════════════
-  let gameActive = false;
-  let starsCollected = 0;
-  let princY, princVY, jumping;
-  let targetX = 0;       // desired X from input
-  let steerDir = 0;      // -1 left, 0 none, 1 right (for lean anim)
-  let stars3d = [];
-  let princess, pParts;
-  let hairSegments = [];  // {mesh, pos:Vector3}[]
-  let headHistory = [];   // rolling position history for hair trail
-  let runTime = 0;
+  // ── STATE ──────────────────────────────────────────
+  let gameActive=false, currentRound=0, starsCollected=0, totalStars=0;
+  let princY, princVY, jumping, targetX=0, steerDir=0;
+  let stars3d=[], princess, pParts, hairSegments=[], headHistory=[], runTime=0;
   let scene, camera, renderer, clock;
 
-  // ═══════════════════════════════════════════
-  //  AUDIO
-  // ═══════════════════════════════════════════
-  let audioCtx = null;
-  function au() { if (!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)(); return audioCtx; }
-  function tone(f,t,d,v=0.14) {
-    try {
-      const c=au(), o=c.createOscillator(), g=c.createGain();
-      o.connect(g); g.connect(c.destination);
-      o.type=t||'sine'; o.frequency.value=f;
+  // ── AUDIO ──────────────────────────────────────────
+  let audioCtx=null;
+  function au(){ if(!audioCtx) audioCtx=new(window.AudioContext||window.webkitAudioContext)(); return audioCtx; }
+  function tone(f,t,d,v=0.14){
+    try{
+      const c=au(),o=c.createOscillator(),g=c.createGain();
+      o.connect(g);g.connect(c.destination);
+      o.type=t||'sine';o.frequency.value=f;
       g.gain.setValueAtTime(v,c.currentTime);
       g.gain.exponentialRampToValueAtTime(0.001,c.currentTime+d);
-      o.start(); o.stop(c.currentTime+d);
-    } catch(e) {}
+      o.start();o.stop(c.currentTime+d);
+    }catch(e){}
   }
   function playJump()    { tone(440,'sine',0.12); setTimeout(()=>tone(554,'sine',0.09),65); }
   function playLand()    { tone(180,'sine',0.09,0.07); }
-  function playCollect() {
-    [659,784,988,1047].forEach((f,i)=>setTimeout(()=>tone(f,'sine',0.22),i*70));
-  }
-  function playWin()     {
-    [523,587,659,784,988,1047,1319].forEach((f,i)=>setTimeout(()=>tone(f,'sine',0.28),i*90));
-  }
+  function playCollect() { [659,784,988,1047].forEach((f,i)=>setTimeout(()=>tone(f,'sine',0.22),i*70)); }
+  function playRoundWin(){ [523,587,659,698,784,880].forEach((f,i)=>setTimeout(()=>tone(f,'sine',0.28),i*85)); }
+  function playWin()     { [523,587,659,784,988,1047,1319,1568].forEach((f,i)=>setTimeout(()=>tone(f,'sine',0.28),i*85)); }
 
-  // ═══════════════════════════════════════════
-  //  THREE.JS SETUP
-  // ═══════════════════════════════════════════
-  function initThree() {
-    renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setClearColor(0x1a003a, 1);
-    document.body.insertBefore(renderer.domElement, document.body.firstChild);
-
-    scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x2d0060);
-    scene.fog = new THREE.Fog(0x2d0060, 55, 145);
-
-    camera = new THREE.PerspectiveCamera(65, window.innerWidth/window.innerHeight, 0.1, 400);
-
-    scene.add(new THREE.AmbientLight(0xffe0ff, 0.65));
-    const sun = new THREE.DirectionalLight(0xfff0cc, 1.25);
-    sun.position.set(5, 14, 8); scene.add(sun);
-    const fill = new THREE.DirectionalLight(0xaa66ff, 0.35);
-    fill.position.set(-5, 5, -4); scene.add(fill);
-
-    clock = new THREE.Clock();
-    window.addEventListener('resize', () => {
-      camera.aspect = window.innerWidth/window.innerHeight;
+  // ── THREE SETUP ────────────────────────────────────
+  function initThree(){
+    renderer=new THREE.WebGLRenderer({antialias:true});
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio,1.5));
+    renderer.setSize(window.innerWidth,window.innerHeight);
+    document.body.insertBefore(renderer.domElement,document.body.firstChild);
+    scene=new THREE.Scene();
+    camera=new THREE.PerspectiveCamera(65,window.innerWidth/window.innerHeight,0.1,500);
+    clock=new THREE.Clock();
+    window.addEventListener('resize',()=>{
+      camera.aspect=window.innerWidth/window.innerHeight;
       camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setSize(window.innerWidth,window.innerHeight);
     });
   }
 
-  // ═══════════════════════════════════════════
-  //  WORLD
-  // ═══════════════════════════════════════════
-  function buildWorld() {
-    const groundMat = new THREE.MeshLambertMaterial({ color: 0x43a047 });
-    const ground = new THREE.Mesh(new THREE.BoxGeometry(14, 0.6, 400), groundMat);
-    ground.position.set(0, -0.3, -155); scene.add(ground);
+  function resetScene(){
+    while(scene.children.length) scene.remove(scene.children[0]);
+    scene.background=new THREE.Color(0x2d0060);
+    scene.fog=new THREE.Fog(0x2d0060,55,145);
+    scene.add(new THREE.AmbientLight(0xffe0ff,0.65));
+    const sun=new THREE.DirectionalLight(0xfff0cc,1.25); sun.position.set(5,14,8); scene.add(sun);
+    const fill=new THREE.DirectionalLight(0xaa66ff,0.35); fill.position.set(-5,5,-4); scene.add(fill);
+  }
 
-    const pathMat = new THREE.MeshLambertMaterial({ color: 0x81c784 });
-    const path = new THREE.Mesh(new THREE.BoxGeometry(5.5, 0.65, 400), pathMat);
-    path.position.set(0, -0.28, -155); scene.add(path);
+  // ── WORLD ──────────────────────────────────────────
+  function buildWorld(ri){
+    const rd=ROUNDS[ri];
+    const trackLen=Math.abs(rd.levelEnd)+30;
+    const mid=-(trackLen/2);
 
-    const edgeMat = new THREE.MeshLambertMaterial({ color: 0x2e7d32 });
-    [-7.1, 7.1].forEach(x => {
-      const e = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.7, 400), edgeMat);
-      e.position.set(x, -0.25, -155); scene.add(e);
-    });
+    const groundMat=new THREE.MeshLambertMaterial({color:0x43a047});
+    scene.add(obj(new THREE.BoxGeometry(14,0.6,trackLen),groundMat,0,-0.3,mid));
+    const pathMat=new THREE.MeshLambertMaterial({color:0x81c784});
+    scene.add(obj(new THREE.BoxGeometry(5.5,0.65,trackLen),pathMat,0,-0.28,mid));
+    const edgeMat=new THREE.MeshLambertMaterial({color:0x2e7d32});
+    [-7.1,7.1].forEach(x=>scene.add(obj(new THREE.BoxGeometry(0.5,0.7,trackLen),edgeMat,x,-0.25,mid)));
 
-    // Trees
-    const treeXZ = [
-      [-5,-18],[-7,-48],[5.5,-30],[-6,-72],[7,-84],[-5.5,-105],
-      [6,-118],[-7,-145],[5.5,-158],[-6,-182],[7,-196],[-5.5,-222],
-      [6,-237],[-7,-252],[5.5,-262],[-6,-270],
-    ];
-    treeXZ.forEach(([x,z]) => addTree(x, 0, z));
+    const tc=Math.floor(trackLen/18);
+    for(let i=0;i<tc;i++){
+      const s=i%2===0?-1:1;
+      addTree(s*(5.2+Math.random()*2),0,-18-i*18);
+    }
+    const fc=Math.floor(trackLen/7);
+    for(let i=0;i<fc;i++){
+      const s=Math.random()>.5?1:-1;
+      addFlower(s*(3.4+Math.random()*3.5),0,-8-i*7);
+    }
+    addClouds(trackLen);
 
-    // Flowers
-    for (let i = 0; i < 44; i++) {
-      const s = Math.random() > 0.5 ? 1 : -1;
-      addFlower(s * (3.4 + Math.random() * 3.5), 0, -8 - i * 7);
+    const mMat=new THREE.MeshLambertMaterial({color:0x6a1b9a});
+    const mc=Math.floor(trackLen/40);
+    for(let i=0;i<mc;i++){
+      const s=i%2===0?-1:1;
+      const h=18+Math.random()*12;
+      const m=new THREE.Mesh(new THREE.ConeGeometry(9+Math.random()*5,h,5),mMat);
+      m.position.set(s*(17+Math.random()*4),h/2-0.3,-40-i*40+Math.random()*10);
+      scene.add(m);
     }
 
-    // Clouds
-    addClouds();
-
-    // Mountains (distant)
-    const mMat = new THREE.MeshLambertMaterial({ color: 0x6a1b9a });
-    [[-18,0,-115],[-21,0,-198],[19,0,-79],[21,0,-163],[-15,0,-257],[17,0,-242]].forEach(([x,y,z]) => {
-      const h = 18 + Math.random()*12;
-      const m = new THREE.Mesh(new THREE.ConeGeometry(9+Math.random()*5, h, 5), mMat);
-      m.position.set(x, h/2 - 0.3, z); scene.add(m);
-    });
-
-    // Stars
-    stars3d = [];
-    CFG.stars.forEach((cfg, i) => {
-      const mesh = buildStarMesh();
-      mesh.position.set(cfg.x, cfg.y, cfg.z);
-      mesh.userData = { baseY: cfg.y, t: Math.random() * Math.PI * 2, cfg };
+    stars3d=[];
+    rd.stars.forEach(cfg=>{
+      const mesh=buildStarMesh();
+      mesh.position.set(cfg.x,cfg.y,cfg.z);
+      mesh.userData={baseY:cfg.y,t:Math.random()*Math.PI*2};
       scene.add(mesh);
-      stars3d.push({ mesh, collected: false });
-      // Ground glow marker
-      const glow = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.4, 0.4, 0.05, 14),
-        new THREE.MeshLambertMaterial({ color: 0xffd700, emissive: 0xffd700, emissiveIntensity: 0.7 })
+      stars3d.push({mesh,collected:false,cfg});
+      const glow=new THREE.Mesh(
+        new THREE.CylinderGeometry(0.4,0.4,0.05,14),
+        new THREE.MeshLambertMaterial({color:0xffd700,emissive:0xffd700,emissiveIntensity:0.7})
       );
-      glow.position.set(cfg.x, 0.01, cfg.z); scene.add(glow);
+      glow.position.set(cfg.x,0.01,cfg.z); scene.add(glow);
     });
 
-    buildCastle(0, 0, CFG.castleZ);
+    buildCastle(0,0,rd.castleZ);
   }
 
-  function addTree(x, y, z) {
-    const g = new THREE.Group();
-    const trunk = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.17, 0.22, 1.4, 7),
-      new THREE.MeshLambertMaterial({ color: 0x6d4c41 })
-    );
-    trunk.position.set(0, 0.7, 0);
-    g.add(trunk);
-    const fm = new THREE.MeshLambertMaterial({ color: 0x2e7d32 });
-    [{r:0.9,h:1.6,y:1.6},{r:0.65,h:1.3,y:2.5}].forEach(({r,h,y}) => {
-      const f = new THREE.Mesh(new THREE.ConeGeometry(r,h,7), fm);
-      f.position.y = y; g.add(f);
+  function obj(geo,mat,x,y,z){ const m=new THREE.Mesh(geo,mat); m.position.set(x,y,z); return m; }
+
+  function addTree(x,y,z){
+    const g=new THREE.Group();
+    g.add(obj(new THREE.CylinderGeometry(0.17,0.22,1.4,7),new THREE.MeshLambertMaterial({color:0x6d4c41}),0,0.7,0));
+    const fm=new THREE.MeshLambertMaterial({color:0x2e7d32});
+    [{r:0.9,h:1.6,y:1.6},{r:0.65,h:1.3,y:2.5}].forEach(p=>{
+      g.add(obj(new THREE.ConeGeometry(p.r,p.h,7),fm,0,p.y,0));
     });
-    g.position.set(x, y, z); scene.add(g);
-  }
-
-  function addFlower(x, y, z) {
-    const cols = [0xff69b4, 0xff4081, 0xce93d8, 0xfff176, 0xff8a65];
-    const g = new THREE.Group();
-    const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.04,0.04,0.5,5),
-      new THREE.MeshLambertMaterial({ color: 0x66bb6a }));
-    stem.position.y = 0.25; g.add(stem);
-    const head = new THREE.Mesh(new THREE.SphereGeometry(0.12,7,7),
-      new THREE.MeshLambertMaterial({ color: cols[Math.floor(Math.random()*cols.length)] }));
-    head.position.y = 0.55; g.add(head);
-    g.position.set(x, y, z); scene.add(g);
-  }
-
-  function addClouds() {
-    const cm = new THREE.MeshLambertMaterial({ color: 0xf0e8ff, emissive: 0xcc88ff, emissiveIntensity: 0.08 });
-    [[6,18,-40],[-8,22,-80],[10,20,-130],[-6,19,-170],[7,21,-210],[-9,18,-240],[5,20,-265]].forEach(([x,y,z]) => {
-      const g = new THREE.Group();
-      [[0,0,0,1],[1.2,0.4,0,.7],[-1.1,0.3,0,.65],[0.6,0.7,0,.5]].forEach(([cx,cy,cz,r]) => {
-        const s = new THREE.Mesh(new THREE.SphereGeometry(r,8,7), cm);
-        s.position.set(cx,cy,cz); g.add(s);
-      });
-      g.position.set(x,y,z); scene.add(g);
-    });
-  }
-
-  function buildStarMesh() {
-    const g = new THREE.Group();
-    g.add(new THREE.Mesh(
-      new THREE.OctahedronGeometry(0.52, 0),
-      new THREE.MeshLambertMaterial({ color: 0xffd700, emissive: 0xffaa00, emissiveIntensity: 0.65 })
-    ));
-    const rm = new THREE.MeshLambertMaterial({ color: 0xffffff, emissive: 0xffd700, emissiveIntensity: 0.85 });
-    const r1 = new THREE.Mesh(new THREE.TorusGeometry(0.72, 0.055, 8, 22), rm);
-    r1.rotation.x = Math.PI/2; g.add(r1);
-    const r2 = new THREE.Mesh(new THREE.TorusGeometry(0.72, 0.055, 8, 22), rm);
-    g.add(r2);
-    return g;
-  }
-
-  function buildCastle(x, y, z) {
-    const g = new THREE.Group();
-    const sm  = new THREE.MeshLambertMaterial({ color: 0xce93d8 });
-    const dm  = new THREE.MeshLambertMaterial({ color: 0x9c27b0 });
-    const rm  = new THREE.MeshLambertMaterial({ color: 0xff4081 });
-    const door= new THREE.MeshLambertMaterial({ color: 0x4a148c });
-    const gm  = new THREE.MeshLambertMaterial({ color: 0xffd700, emissive: 0xffcc00, emissiveIntensity: 0.45 });
-
-    const keep = new THREE.Mesh(new THREE.BoxGeometry(6,5,4), sm);
-    keep.position.y = 2.5; g.add(keep);
-
-    for (let bx = -2.5; bx <= 2.5; bx += 1) {
-      const b = new THREE.Mesh(new THREE.BoxGeometry(0.6,0.8,0.6), dm);
-      b.position.set(bx, 5.4, -1.8); g.add(b);
-    }
-    const dMesh = new THREE.Mesh(new THREE.BoxGeometry(1.2,2,0.5), door);
-    dMesh.position.set(0,1,-2.1); g.add(dMesh);
-
-    const addTower = (tx) => {
-      const base = new THREE.Mesh(new THREE.CylinderGeometry(1.1,1.2,6,8), sm);
-      base.position.set(tx,3,-0.5); g.add(base);
-      const roof = new THREE.Mesh(new THREE.ConeGeometry(1.3,2,8), rm);
-      roof.position.set(tx,7,-0.5); g.add(roof);
-      const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.05,0.05,1.2,5), gm);
-      pole.position.set(tx,8.2,-0.5); g.add(pole);
-      const flag = new THREE.Mesh(new THREE.BoxGeometry(0.7,0.45,0.05), rm);
-      flag.position.set(tx+0.35,8.8,-0.5); g.add(flag);
-    };
-    addTower(-3.5); addTower(3.5);
-
-    const crown = new THREE.Mesh(new THREE.CylinderGeometry(1.2,1.4,0.6,5), gm);
-    crown.position.set(0,5.3,0); g.add(crown);
-    const topStar = new THREE.Mesh(new THREE.OctahedronGeometry(0.4,0),
-      new THREE.MeshLambertMaterial({ color:0xffd700, emissive:0xffd700, emissiveIntensity:1 }));
-    topStar.position.set(0,6.2,0); g.add(topStar);
-
     g.position.set(x,y,z); scene.add(g);
   }
 
-  // ═══════════════════════════════════════════
-  //  PRINCESS
-  // ═══════════════════════════════════════════
-  function buildPrincess() {
-    princess = new THREE.Group();
-    pParts = {};
+  function addFlower(x,y,z){
+    const cols=[0xff69b4,0xff4081,0xce93d8,0xfff176,0xff8a65];
+    const g=new THREE.Group();
+    g.add(obj(new THREE.CylinderGeometry(0.04,0.04,0.5,5),new THREE.MeshLambertMaterial({color:0x66bb6a}),0,0.25,0));
+    g.add(obj(new THREE.SphereGeometry(0.12,7,7),new THREE.MeshLambertMaterial({color:cols[Math.floor(Math.random()*cols.length)]}),0,0.55,0));
+    g.position.set(x,y,z); scene.add(g);
+  }
 
-    const skinM  = new THREE.MeshLambertMaterial({ color: 0xffccaa });
-    const dressM = new THREE.MeshLambertMaterial({ color: 0xff4db8 });
-    const bodyM  = new THREE.MeshLambertMaterial({ color: 0xff80cc });
-    const hairM  = new THREE.MeshLambertMaterial({ color: 0x6a1b9a });
-    const crownM = new THREE.MeshLambertMaterial({ color: 0xffd700, emissive: 0xffcc00, emissiveIntensity: 0.35 });
-    const eyeM   = new THREE.MeshLambertMaterial({ color: 0x1a237e });
-
-    pParts.dress = new THREE.Mesh(new THREE.ConeGeometry(0.72,1.1,10), dressM);
-    pParts.dress.position.y = 0.55; princess.add(pParts.dress);
-
-    pParts.body = new THREE.Mesh(new THREE.CylinderGeometry(0.32,0.44,0.9,8), bodyM);
-    pParts.body.position.y = 1.45; princess.add(pParts.body);
-
-    pParts.head = new THREE.Mesh(new THREE.SphereGeometry(0.38,12,10), skinM);
-    pParts.head.position.y = 2.2; princess.add(pParts.head);
-
-    // Back hair (short nub — grows via segments)
-    pParts.hairBack = new THREE.Mesh(new THREE.SphereGeometry(0.4,10,8), hairM);
-    pParts.hairBack.position.set(0,2.22,0.05);
-    pParts.hairBack.scale.set(1,0.88,1); princess.add(pParts.hairBack);
-
-    // Side puffs
-    [-0.3,0.3].forEach(hx => {
-      const p = new THREE.Mesh(new THREE.SphereGeometry(0.19,8,8), hairM);
-      p.position.set(hx,2.02,0.05); princess.add(p);
-    });
-
-    // Eyes
-    [-0.13,0.13].forEach(ex => {
-      const e = new THREE.Mesh(new THREE.SphereGeometry(0.055,7,7), eyeM);
-      e.position.set(ex,2.24,-0.34); princess.add(e);
-    });
-
-    // Crown base
-    pParts.crown = new THREE.Mesh(new THREE.CylinderGeometry(0.28,0.34,0.22,5), crownM);
-    pParts.crown.position.y = 2.65; princess.add(pParts.crown);
-    for (let i=0; i<5; i++) {
-      const a = (i/5)*Math.PI*2;
-      const pt = new THREE.Mesh(new THREE.CylinderGeometry(0.04,0.06,0.18,5), crownM);
-      pt.position.set(Math.sin(a)*0.26, 2.84, Math.cos(a)*0.26); princess.add(pt);
+  function addClouds(trackLen){
+    const cm=new THREE.MeshLambertMaterial({color:0xf0e8ff,emissive:0xcc88ff,emissiveIntensity:0.08});
+    const n=Math.floor(trackLen/38);
+    for(let i=0;i<n;i++){
+      const s=i%2===0?1:-1;
+      const g=new THREE.Group();
+      [[0,0,0,1],[1.2,0.4,0,.7],[-1.1,0.3,0,.65],[0.6,0.7,0,.5]].forEach(([cx,cy,cz,r])=>{
+        g.add(obj(new THREE.SphereGeometry(r,8,7),cm,cx,cy,cz));
+      });
+      g.position.set(s*(6+Math.random()*4),18+Math.random()*5,-38-i*38);
+      scene.add(g);
     }
+  }
 
-    // Arms
-    pParts.lArm = new THREE.Mesh(new THREE.CylinderGeometry(0.08,0.08,0.7,6), bodyM);
-    pParts.rArm = new THREE.Mesh(new THREE.CylinderGeometry(0.08,0.08,0.7,6), bodyM);
-    pParts.lArm.position.set(-0.52,1.5,0); pParts.lArm.rotation.z =  0.5;
-    pParts.rArm.position.set( 0.52,1.5,0); pParts.rArm.rotation.z = -0.5;
+  function buildStarMesh(){
+    const g=new THREE.Group();
+    g.add(obj(new THREE.OctahedronGeometry(0.52,0),new THREE.MeshLambertMaterial({color:0xffd700,emissive:0xffaa00,emissiveIntensity:0.65}),0,0,0));
+    const rm=new THREE.MeshLambertMaterial({color:0xffffff,emissive:0xffd700,emissiveIntensity:0.85});
+    const r1=new THREE.Mesh(new THREE.TorusGeometry(0.72,0.055,8,22),rm); r1.rotation.x=Math.PI/2; g.add(r1);
+    g.add(new THREE.Mesh(new THREE.TorusGeometry(0.72,0.055,8,22),rm));
+    return g;
+  }
+
+  function buildCastle(x,y,z){
+    const g=new THREE.Group();
+    const sm=new THREE.MeshLambertMaterial({color:0xce93d8});
+    const dm=new THREE.MeshLambertMaterial({color:0x9c27b0});
+    const rm=new THREE.MeshLambertMaterial({color:0xff4081});
+    const gm=new THREE.MeshLambertMaterial({color:0xffd700,emissive:0xffcc00,emissiveIntensity:0.45});
+    g.add(obj(new THREE.BoxGeometry(6,5,4),sm,0,2.5,0));
+    for(let bx=-2.5;bx<=2.5;bx+=1) g.add(obj(new THREE.BoxGeometry(0.6,0.8,0.6),dm,bx,5.4,-1.8));
+    g.add(obj(new THREE.BoxGeometry(1.2,2,0.5),new THREE.MeshLambertMaterial({color:0x4a148c}),0,1,-2.1));
+    [-3.5,3.5].forEach(tx=>{
+      g.add(obj(new THREE.CylinderGeometry(1.1,1.2,6,8),sm,tx,3,-0.5));
+      g.add(obj(new THREE.ConeGeometry(1.3,2,8),rm,tx,7,-0.5));
+      g.add(obj(new THREE.CylinderGeometry(0.05,0.05,1.2,5),gm,tx,8.2,-0.5));
+      g.add(obj(new THREE.BoxGeometry(0.7,0.45,0.05),rm,tx+0.35,8.8,-0.5));
+    });
+    g.add(obj(new THREE.CylinderGeometry(1.2,1.4,0.6,5),gm,0,5.3,0));
+    g.add(obj(new THREE.OctahedronGeometry(0.4,0),new THREE.MeshLambertMaterial({color:0xffd700,emissive:0xffd700,emissiveIntensity:1}),0,6.2,0));
+    g.position.set(x,y,z); scene.add(g);
+  }
+
+  // ── PRINCESS ───────────────────────────────────────
+  function buildPrincess(){
+    princess=new THREE.Group(); pParts={};
+    const skinM =new THREE.MeshLambertMaterial({color:0xffccaa});
+    const dressM=new THREE.MeshLambertMaterial({color:0xff4db8});
+    const bodyM =new THREE.MeshLambertMaterial({color:0xff80cc});
+    const hairM =new THREE.MeshLambertMaterial({color:0x6a1b9a});
+    const crownM=new THREE.MeshLambertMaterial({color:0xffd700,emissive:0xffcc00,emissiveIntensity:0.35});
+    const eyeM  =new THREE.MeshLambertMaterial({color:0x1a237e});
+
+    pParts.dress=new THREE.Mesh(new THREE.ConeGeometry(0.72,1.1,10),dressM); pParts.dress.position.y=0.55; princess.add(pParts.dress);
+    pParts.body =new THREE.Mesh(new THREE.CylinderGeometry(0.32,0.44,0.9,8),bodyM); pParts.body.position.y=1.45; princess.add(pParts.body);
+    pParts.head =new THREE.Mesh(new THREE.SphereGeometry(0.38,12,10),skinM); pParts.head.position.y=2.2; princess.add(pParts.head);
+    pParts.hairBack=new THREE.Mesh(new THREE.SphereGeometry(0.4,10,8),hairM);
+    pParts.hairBack.position.set(0,2.22,0.05); pParts.hairBack.scale.set(1,0.88,1); princess.add(pParts.hairBack);
+    [-0.3,0.3].forEach(hx=>{ const p=new THREE.Mesh(new THREE.SphereGeometry(0.19,8,8),hairM); p.position.set(hx,2.02,0.05); princess.add(p); });
+    [-0.13,0.13].forEach(ex=>{ const e=new THREE.Mesh(new THREE.SphereGeometry(0.055,7,7),eyeM); e.position.set(ex,2.24,-0.34); princess.add(e); });
+    pParts.crown=new THREE.Mesh(new THREE.CylinderGeometry(0.28,0.34,0.22,5),crownM); pParts.crown.position.y=2.65; princess.add(pParts.crown);
+    for(let i=0;i<5;i++){
+      const a=(i/5)*Math.PI*2;
+      const pt=new THREE.Mesh(new THREE.CylinderGeometry(0.04,0.06,0.18,5),crownM);
+      pt.position.set(Math.sin(a)*0.26,2.84,Math.cos(a)*0.26); princess.add(pt);
+    }
+    pParts.lArm=new THREE.Mesh(new THREE.CylinderGeometry(0.08,0.08,0.7,6),bodyM);
+    pParts.rArm=new THREE.Mesh(new THREE.CylinderGeometry(0.08,0.08,0.7,6),bodyM);
+    pParts.lArm.position.set(-0.52,1.5,0); pParts.lArm.rotation.z= 0.5;
+    pParts.rArm.position.set( 0.52,1.5,0); pParts.rArm.rotation.z=-0.5;
     princess.add(pParts.lArm); princess.add(pParts.rArm);
-
-    princess.position.set(0, CFG.princGY, 0);
+    princess.position.set(0,CFG.princGY,0);
     scene.add(princess);
   }
 
-  // ═══════════════════════════════════════════
-  //  HAIR SEGMENTS
-  // ═══════════════════════════════════════════
-  function addHairSegment(index) {
-    const mesh = new THREE.Mesh(
-      new THREE.SphereGeometry(CFG.hairSizes[index], 10, 8),
-      new THREE.MeshLambertMaterial({
-        color:    CFG.hairColors[index],
-        emissive: CFG.hairColors[index],
-        emissiveIntensity: 0.25,
-      })
+  // ── HAIR ───────────────────────────────────────────
+  function addHairSegment(idx){
+    const i=Math.min(idx,CFG.hairColors.length-1);
+    const mesh=new THREE.Mesh(
+      new THREE.SphereGeometry(CFG.hairSizes[i],10,8),
+      new THREE.MeshLambertMaterial({color:CFG.hairColors[i],emissive:CFG.hairColors[i],emissiveIntensity:0.25})
     );
-    // Start at princess head
-    const pos = new THREE.Vector3(
-      princess.position.x,
-      princess.position.y + 2.3,
-      princess.position.z + 0.3
-    );
-    mesh.position.copy(pos);
+    mesh.position.set(princess.position.x,princess.position.y+2.3,princess.position.z+0.3);
     scene.add(mesh);
-    hairSegments.push({ mesh, pos: pos.clone() });
+    hairSegments.push({mesh,pos:mesh.position.clone()});
   }
 
-  // Position history: records head world position every frame
-  // Hair segment i reads history at offset (i+1)*HISTORY_STEP frames back
-  const HISTORY_LEN = 80;
-  const HISTORY_STEP = 9;  // frames between segments
-
-  function tickHair() {
-    // Record current head position
-    const hp = new THREE.Vector3(
-      princess.position.x,
-      princess.position.y + 2.35,
-      princess.position.z + 0.15
-    );
-    headHistory.unshift(hp);
-    if (headHistory.length > HISTORY_LEN) headHistory.pop();
-
-    // Position each segment from history
-    hairSegments.forEach((seg, i) => {
-      const idx = Math.min(headHistory.length - 1, (i + 1) * HISTORY_STEP);
-      const target = headHistory[idx];
-      if (!target) return;
-      // Apply natural droop and slight wind sway
-      seg.pos.set(
-        target.x + Math.sin(runTime * 4 + i * 1.1) * 0.06,
-        target.y - i * 0.13,
-        target.z
-      );
+  const HISTORY_LEN=80, HISTORY_STEP=9;
+  function tickHair(){
+    headHistory.unshift(new THREE.Vector3(princess.position.x,princess.position.y+2.35,princess.position.z+0.15));
+    if(headHistory.length>HISTORY_LEN) headHistory.pop();
+    hairSegments.forEach((seg,i)=>{
+      const target=headHistory[Math.min(headHistory.length-1,(i+1)*HISTORY_STEP)];
+      if(!target) return;
+      seg.pos.set(target.x+Math.sin(runTime*4+i*1.1)*0.06, target.y-i*0.13, target.z);
       seg.mesh.position.copy(seg.pos);
-      // Slight bob scale for each segment
-      const s = 1 + Math.sin(runTime * 6 + i * 0.9) * 0.06;
-      seg.mesh.scale.setScalar(s);
+      seg.mesh.scale.setScalar(1+Math.sin(runTime*6+i*0.9)*0.06);
     });
   }
 
-  // ═══════════════════════════════════════════
-  //  INPUT
-  // ═══════════════════════════════════════════
-  function setupInput() {
-    const tl = document.getElementById('touch-left');
-    const tr = document.getElementById('touch-right');
-    tl.style.display = 'block';
-    tr.style.display = 'block';
-
-    // Left zone → steer left + jump
-    tl.addEventListener('pointerdown', e => { e.preventDefault(); targetX = -CFG.strafeMax; steerDir = -1; if (!jumping) doJump(); });
-    tl.addEventListener('pointerup',   ()  => { if (steerDir === -1) { targetX = 0; steerDir = 0; } });
-    tl.addEventListener('pointercancel',()  => { if (steerDir === -1) { targetX = 0; steerDir = 0; } });
-
-    // Right zone → steer right + jump
-    tr.addEventListener('pointerdown', e => { e.preventDefault(); targetX =  CFG.strafeMax; steerDir =  1; if (!jumping) doJump(); });
-    tr.addEventListener('pointerup',   ()  => { if (steerDir ===  1) { targetX = 0; steerDir = 0; } });
-    tr.addEventListener('pointercancel',()  => { if (steerDir ===  1) { targetX = 0; steerDir = 0; } });
+  // ── INPUT ──────────────────────────────────────────
+  function setupInput(){
+    const tl=document.getElementById('touch-left');
+    const tr=document.getElementById('touch-right');
+    tl.style.display='block'; tr.style.display='block';
+    tl.addEventListener('pointerdown',e=>{e.preventDefault();targetX=-CFG.strafeMax;steerDir=-1;if(!jumping)doJump();});
+    tl.addEventListener('pointerup',  ()=>{if(steerDir===-1){targetX=0;steerDir=0;}});
+    tl.addEventListener('pointercancel',()=>{if(steerDir===-1){targetX=0;steerDir=0;}});
+    tr.addEventListener('pointerdown',e=>{e.preventDefault();targetX= CFG.strafeMax;steerDir= 1;if(!jumping)doJump();});
+    tr.addEventListener('pointerup',  ()=>{if(steerDir=== 1){targetX=0;steerDir=0;}});
+    tr.addEventListener('pointercancel',()=>{if(steerDir=== 1){targetX=0;steerDir=0;}});
+  }
+  function teardownInput(){
+    document.getElementById('touch-left').style.display='none';
+    document.getElementById('touch-right').style.display='none';
+  }
+  function doJump(){
+    jumping=true; princVY=CFG.jumpVel; playJump();
+    princess.scale.set(0.85,1.28,0.85);
+    setTimeout(()=>{if(princess)princess.scale.set(1,1,1);},110);
   }
 
-  function teardownInput() {
-    document.getElementById('touch-left').style.display  = 'none';
-    document.getElementById('touch-right').style.display = 'none';
-  }
-
-  function doJump() {
-    jumping = true;
-    princVY = CFG.jumpVel;
-    playJump();
-    princess.scale.set(0.85, 1.28, 0.85);
-    setTimeout(() => { if (princess) princess.scale.set(1,1,1); }, 110);
-  }
-
-  // ═══════════════════════════════════════════
-  //  GAME CONTROL
-  // ═══════════════════════════════════════════
-  function startGame() {
-    document.getElementById('start-screen').classList.add('hidden');
-    document.getElementById('hud').style.display = 'flex';
-    document.getElementById('hint-left').style.display  = 'block';
-    document.getElementById('hint-right').style.display = 'block';
-
-    if (!renderer) {
-      initThree();
-    } else {
-      // Clear scene but re-add lights (initThree only runs once)
-      while (scene.children.length) scene.remove(scene.children[0]);
-      scene.add(new THREE.AmbientLight(0xffe0ff, 0.65));
-      const sun = new THREE.DirectionalLight(0xfff0cc, 1.25);
-      sun.position.set(5, 14, 8); scene.add(sun);
-      const fill = new THREE.DirectionalLight(0xaa66ff, 0.35);
-      fill.position.set(-5, 5, -4); scene.add(fill);
-      // Also reset fog and background (cleared with scene children)
-      scene.background = new THREE.Color(0x2d0060);
-      scene.fog = new THREE.Fog(0x2d0060, 55, 145);
-      if (renderer.domElement.parentNode) renderer.domElement.remove();
-      document.body.insertBefore(renderer.domElement, document.body.firstChild);
+  // ── SPARKLE BURST ──────────────────────────────────
+  function sparkleBurst(n){
+    const cols=['#ffd700','#ff69b4','#ce93d8','#fff176','#ff8a65','#80deea','#ffffff'];
+    const cx=window.innerWidth/2, cy=window.innerHeight/2;
+    for(let i=0;i<n;i++){
+      const el=document.createElement('div');
+      el.className='sparkle';
+      const sz=8+Math.random()*10;
+      const angle=(i/n)*Math.PI*2+Math.random()*0.5;
+      const dist=60+Math.random()*90;
+      el.style.cssText=`width:${sz}px;height:${sz}px;left:${cx-sz/2}px;top:${cy-sz/2}px;`
+        +`background:${cols[i%cols.length]};--dx:${Math.cos(angle)*dist}px;--dy:${Math.sin(angle)*dist}px;`
+        +`animation-duration:${0.5+Math.random()*0.45}s;`;
+      document.body.appendChild(el);
+      setTimeout(()=>el.remove(),950);
     }
+  }
 
-    starsCollected = 0; princY = CFG.princGY; princVY = 0;
-    jumping = false; targetX = 0; steerDir = 0;
-    stars3d = []; hairSegments = []; headHistory = []; runTime = 0;
-    updateCounter();
+  // ── GAME CONTROL ───────────────────────────────────
+  function startGame(){
+    document.getElementById('start-screen').classList.add('hidden');
+    document.getElementById('hud').style.display='flex';
+    document.getElementById('hint-left').style.display='block';
+    document.getElementById('hint-right').style.display='block';
+    currentRound=0; totalStars=0;
+    if(!renderer){ initThree(); } else {
+      resetScene();
+      if(renderer.domElement.parentNode) renderer.domElement.remove();
+      document.body.insertBefore(renderer.domElement,document.body.firstChild);
+    }
+    launchRound(0);
+  }
 
-    buildWorld();
+  function launchRound(ri){
+    currentRound=ri; starsCollected=0;
+    princY=CFG.princGY; princVY=0; jumping=false; targetX=0; steerDir=0;
+    hairSegments=[]; headHistory=[]; runTime=0;
+    resetScene();
+    buildWorld(ri);
     buildPrincess();
+    updateHUD();
     setupInput();
-    gameActive = true;
+    gameActive=true;
     clock.start();
     animate();
   }
 
-  function restartGame() {
+  function restartGame(){
     document.getElementById('win-screen').classList.add('hidden');
-    gameActive = false;
-    teardownInput();
-    setTimeout(startGame, 80);
+    gameActive=false; teardownInput();
+    setTimeout(startGame,80);
   }
 
-  // ═══════════════════════════════════════════
-  //  GAME LOOP
-  // ═══════════════════════════════════════════
-  function animate() {
-    if (!gameActive) return;
+  // ── GAME LOOP ──────────────────────────────────────
+  function animate(){
+    if(!gameActive) return;
     requestAnimationFrame(animate);
+    const dt=Math.min(clock.getDelta(),0.05);
+    runTime+=dt;
+    const speed=ROUNDS[currentRound].speed;
 
-    const dt = Math.min(clock.getDelta(), 0.05);
-    runTime += dt;
+    princess.position.z-=speed*dt;
+    princess.position.x=THREE.MathUtils.lerp(princess.position.x,targetX,1-Math.pow(0.001,dt*9));
+    princess.position.x=Math.max(-CFG.strafeMax,Math.min(CFG.strafeMax,princess.position.x));
+    princess.rotation.z=(targetX-princess.position.x)*-0.45+steerDir*0.18;
 
-    // ── Forward movement ──
-    princess.position.z -= CFG.speed * dt;
-
-    // ── Lateral steering (lerp toward target) ──
-    princess.position.x = THREE.MathUtils.lerp(
-      princess.position.x, targetX,
-      1 - Math.pow(0.001, dt * 9)
-    );
-    // Clamp
-    princess.position.x = Math.max(-CFG.strafeMax, Math.min(CFG.strafeMax, princess.position.x));
-
-    // Lean into turns
-    princess.rotation.z = (targetX - princess.position.x) * -0.45
-                         + steerDir * 0.18;
-
-    // ── Vertical physics ──
-    if (jumping || princVY !== 0) {
-      princVY -= CFG.gravity * dt;
-      princY  += princVY * dt;
-      if (princY <= CFG.princGY) {
-        princY = CFG.princGY; princVY = 0; jumping = false;
+    if(jumping||princVY!==0){
+      princVY-=CFG.gravity*dt; princY+=princVY*dt;
+      if(princY<=CFG.princGY){
+        princY=CFG.princGY; princVY=0; jumping=false;
         playLand();
-        princess.scale.set(1.22, 0.72, 1.22);
-        setTimeout(() => { if (princess) princess.scale.set(1,1,1); }, 90);
+        princess.scale.set(1.22,0.72,1.22);
+        setTimeout(()=>{if(princess)princess.scale.set(1,1,1);},90);
       }
-      princess.position.y = princY;
+      princess.position.y=princY;
     }
 
-    // ── Run animations ──
-    const t = runTime;
-    if (!jumping) {
-      princess.position.y = CFG.princGY + Math.abs(Math.sin(t*9))*0.07;
-      if (pParts) {
-        pParts.lArm.rotation.x =  Math.sin(t*9)*0.55;
-        pParts.rArm.rotation.x = -Math.sin(t*9)*0.55;
-        pParts.dress.rotation.y = Math.sin(t*5)*0.09;
+    const t=runTime;
+    if(!jumping){
+      princess.position.y=CFG.princGY+Math.abs(Math.sin(t*9))*0.07;
+      if(pParts){
+        pParts.lArm.rotation.x= Math.sin(t*9)*0.55;
+        pParts.rArm.rotation.x=-Math.sin(t*9)*0.55;
+        pParts.dress.rotation.y=Math.sin(t*5)*0.09;
       }
     }
 
-    // ── Hair trail ──
     tickHair();
 
-    // ── Star animation + collection ──
-    stars3d.forEach((s, i) => {
-      if (s.collected) return;
-      s.mesh.userData.t += dt * 2.2;
-      s.mesh.position.y = CFG.stars[i].y + Math.sin(s.mesh.userData.t) * 0.28;
-      s.mesh.rotation.y += dt * 1.9;
-      s.mesh.rotation.x += dt * 0.95;
-
-      const dx = princess.position.x - s.mesh.position.x;
-      const dy = princess.position.y - s.mesh.position.y;
-      const dz = princess.position.z - s.mesh.position.z;
-      if (Math.sqrt(dx*dx + dy*dy + dz*dz) < CFG.collectDist) collectStar(s, i);
+    stars3d.forEach((s,i)=>{
+      if(s.collected) return;
+      s.mesh.userData.t+=dt*2.2;
+      s.mesh.position.y=s.cfg.y+Math.sin(s.mesh.userData.t)*0.28;
+      s.mesh.rotation.y+=dt*1.9; s.mesh.rotation.x+=dt*0.95;
+      const dx=princess.position.x-s.mesh.position.x;
+      const dy=princess.position.y-s.mesh.position.y;
+      const dz=princess.position.z-s.mesh.position.z;
+      if(Math.sqrt(dx*dx+dy*dy+dz*dz)<CFG.collectDist) collectStar(s);
     });
 
-    // ── Camera: follows princess from behind+above ──
-    camera.position.set(
-      princess.position.x * 0.6,    // slightly lag on X for drama
-      princess.position.y + 6.5,
-      princess.position.z + 12.5
-    );
-    camera.lookAt(
-      princess.position.x,
-      princess.position.y + 1.5,
-      princess.position.z - 8
-    );
+    camera.position.set(princess.position.x*0.6, princess.position.y+6.5, princess.position.z+12.5);
+    camera.lookAt(princess.position.x, princess.position.y+1.5, princess.position.z-8);
 
-    // ── Win ──
-    if (princess.position.z < CFG.levelEnd) { triggerWin(); return; }
-
-    renderer.render(scene, camera);
+    if(princess.position.z<ROUNDS[currentRound].levelEnd){ onRoundEnd(); return; }
+    renderer.render(scene,camera);
   }
 
-  function collectStar(s, index) {
-    s.collected = true;
-    starsCollected++;
-    updateCounter();
-    playCollect();
-
-    // Pop and remove star
-    s.mesh.scale.set(2, 2, 2);
-    setTimeout(() => { if (s.mesh.parent) scene.remove(s.mesh); }, 220);
-
-    // Grow new hair segment
-    addHairSegment(starsCollected - 1);
-
-    // Flash
-    const fl = document.getElementById('collect-flash');
-    fl.classList.add('flash');
-    setTimeout(() => fl.classList.remove('flash'), 90);
-
-    confettiBurst(8);
+  function collectStar(s){
+    s.collected=true; starsCollected++; totalStars++;
+    updateHUD(); playCollect();
+    s.mesh.scale.set(2,2,2);
+    setTimeout(()=>{if(s.mesh.parent)scene.remove(s.mesh);},220);
+    addHairSegment(totalStars-1);
+    const fl=document.getElementById('collect-flash');
+    fl.classList.add('flash'); setTimeout(()=>fl.classList.remove('flash'),90);
+    sparkleBurst(14);
   }
 
-  function triggerWin() {
-    gameActive = false;
-    teardownInput();
-    document.getElementById('hud').style.display   = 'none';
-    document.getElementById('hint-left').style.display  = 'none';
-    document.getElementById('hint-right').style.display = 'none';
-    document.getElementById('win-stars').textContent =
-      Array.from({ length: starsCollected }, () => '⭐').join('') || '🌸';
+  function onRoundEnd(){
+    gameActive=false; teardownInput();
+    renderer.render(scene,camera);
+    if(currentRound<ROUNDS.length-1){
+      playRoundWin(); confettiBurst(22);
+      const rd=ROUNDS[currentRound];
+      showToast(rd.toastEmoji,rd.toastTitle,rd.toastSub,()=>launchRound(currentRound+1));
+    } else {
+      triggerWin();
+    }
+  }
+
+  function showToast(emoji,title,sub,cb){
+    document.getElementById('toast-emoji').textContent=emoji;
+    document.getElementById('toast-title').textContent=title;
+    document.getElementById('toast-sub').textContent=sub;
+    document.getElementById('round-toast').style.display='block';
+    setTimeout(()=>{ document.getElementById('round-toast').style.display='none'; cb(); },2200);
+  }
+
+  function triggerWin(){
+    document.getElementById('hud').style.display='none';
+    document.getElementById('hint-left').style.display='none';
+    document.getElementById('hint-right').style.display='none';
+    document.getElementById('win-stars').textContent=
+      Array.from({length:totalStars},()=>'⭐').join('')||'🌸';
     document.getElementById('win-screen').classList.remove('hidden');
-    playWin();
-    confettiBurst(40);
-    renderer.render(scene, camera);
+    playWin(); confettiBurst(55);
+    renderer.render(scene,camera);
   }
 
-  function updateCounter() {
-    document.getElementById('star-counter').textContent = `⭐ ${starsCollected} / 6`;
+  function updateHUD(){
+    const rd=ROUNDS[currentRound];
+    document.getElementById('star-counter').textContent=`⭐ ${starsCollected} / ${rd.stars.length}`;
+    document.getElementById('tier-badge').textContent=`🌟 Round ${currentRound+1} / 3`;
   }
 
-  // ═══════════════════════════════════════════
-  //  CONFETTI
-  // ═══════════════════════════════════════════
-  function confettiBurst(n) {
-    const cols = ['#ffd700','#ff69b4','#00cfff','#7fff00','#ff6347','#da70d6','#fff'];
-    for (let i = 0; i < n; i++) {
-      const el = document.createElement('div');
-      el.className = 'confetti-piece';
-      const sz = 8 + Math.random() * 8;
-      el.style.cssText = `width:${sz}px;height:${sz}px;left:${Math.random()*100}vw;` +
-        `background:${cols[Math.floor(Math.random()*cols.length)]};` +
-        `animation-duration:${1.2+Math.random()*1.8}s;` +
-        `animation-delay:${Math.random()*0.5}s`;
+  function confettiBurst(n){
+    const cols=['#ffd700','#ff69b4','#00cfff','#7fff00','#ff6347','#da70d6','#fff'];
+    for(let i=0;i<n;i++){
+      const el=document.createElement('div');
+      el.className='confetti-piece';
+      const sz=8+Math.random()*8;
+      el.style.cssText=`width:${sz}px;height:${sz}px;left:${Math.random()*100}vw;`
+        +`background:${cols[Math.floor(Math.random()*cols.length)]};`
+        +`animation-duration:${1.2+Math.random()*1.8}s;animation-delay:${Math.random()*0.5}s`;
       document.body.appendChild(el);
-      setTimeout(() => el.remove(), 2800);
+      setTimeout(()=>el.remove(),2800);
     }
   }
   </script>
