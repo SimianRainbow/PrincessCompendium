@@ -1,9 +1,9 @@
 # Princess Compendium — Status
 
 ## Last update run
-Date: 2026-06-16
-- Improved: `011-princess-quest` → v1.1.0 (3 rounds: speed 6 / 5 stars, speed 8.5 / 6 stars, speed 11 / 7 stars; tier badge "🌟 Round X/3" in HUD; inter-round toast with playRoundWin melody; 14-particle CSS sparkle burst on each star collect; Fredoka One font; hair grows across all rounds via totalStars; confetti on round-end)
-- Added: `039-princess-puzzle` — "Princess Puzzle" teaching odd-one-out reasoning & categorisation; 9 rounds across 3 tiers (Easy: animals/fruits/royal; Medium: flowers/sea creatures/clothes; Hard: night sky/flying/sweets); 4-emoji 2×2 grid; odd item shuffled to random position each round; sparkle burst + celebrate overlay on correct; wobble on wrong; tier toasts between tiers
+Date: 2026-06-19
+- Improved: `015-mermaid-lagoon-v2` → v1.1.0 (Fredoka One font; "🐚 Found: X/4" progress badge in HUD showing friend count live; 14-emoji CSS sparkle burst overlay on each friend discovery; new sea turtle NPC drawn with canvas sprite — glides in a 26-unit arc near the sandy floor)
+- Added: `040-royal-seasons` — "Royal Seasons 🍂" teaching the four seasons (Spring/Summer/Autumn/Winter); 9 illustrated canvas scenes across 3 tiers (Easy: obvious cues, Medium: moderate, Hard: subtle); princess character in seasonal outfit drawn in each scene; 4 season buttons always visible; sparkle burst + celebration overlay on correct; wobble + descending tone on wrong; tier-transition toasts; confetti + win screen
 
 ## Improvement history
 
@@ -30,6 +30,7 @@ Date: 2026-06-16
 | 2026-06-10 | 025-princess-sort | Fredoka font, sparkle 12→16, tier-transition toast, 4-note audio, playTierUp, fixed duplicate pool item | 1.1.0 |
 | 2026-06-13 | 013-magic-leaf | 3-tier speed/banana scaling, tier badge, inter-round toast, 14-particle sparkle on collect, restartTier() | 1.1.0 |
 | 2026-06-16 | 011-princess-quest | 3 rounds (speed 6/8.5/11, 5/6/7 stars), tier badge, inter-round toast, 14-particle sparkle burst, Fredoka One | 1.1.0 |
+| 2026-06-19 | 015-mermaid-lagoon-v2 | Fredoka One font, "Found: X/4" progress badge, 14-emoji CSS sparkle overlay on find, sea turtle NPC sprite | 1.1.0 |
 
 ## Games due for improvement (all at v1.0.0)
 
@@ -38,7 +39,7 @@ Priority candidates — pick whichever has the clearest improvement path:
 - ~~**006-fairy-tale-tap**~~ — ✅ done v1.1.0
 - ~~**011-princess-quest**~~ — ✅ done v1.1.0
 - ~~**013-magic-leaf**~~ — ✅ done v1.1.0
-- **015-mermaid-lagoon-v2** — tier badge, more NPC variety
+- ~~**015-mermaid-lagoon-v2**~~ — ✅ done v1.1.0
 - ~~**018-size-sort**~~ — ✅ done v1.1.0
 - ~~**019-feelings-faces**~~ — ✅ done v1.1.0
 - ~~**020-opposites**~~ — ✅ done v1.1.0
@@ -61,6 +62,7 @@ See `CLAUDE.md` for the full prioritised list. Top 3 to build next:
 8. ~~Time of day~~ — ✅ covered by `037-princess-day`
 9. ~~Animal family recognition~~ — ✅ covered by `038-royal-babies`
 10. ~~Odd-one-out / categorisation reasoning~~ — ✅ covered by `039-princess-puzzle`
+11. ~~Seasons recognition~~ — ✅ covered by `040-royal-seasons`
 
 ## Next game ID
-`040-<slug>`
+`041-<slug>`

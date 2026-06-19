@@ -1,0 +1,1375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Royal Seasons 🍂</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box; margin: 0; padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    :root {
+      --spring-bg: linear-gradient(160deg, #fce4ec 0%, #f8bbd0 40%, #e1bee7 100%);
+      --summer-bg: linear-gradient(160deg, #fff9c4 0%, #ffe082 40%, #ffcc02 100%);
+      --autumn-bg: linear-gradient(160deg, #fff3e0 0%, #ffcc80 40%, #ff8a65 100%);
+      --winter-bg: linear-gradient(160deg, #e3f2fd 0%, #b3e5fc 40%, #ce93d8 100%);
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      align-items: center;
+      font-family: 'Fredoka One', 'Georgia', sans-serif;
+      overflow-x: hidden; overflow-y: auto;
+      user-select: none;
+      background: linear-gradient(160deg, #fce4ec 0%, #e1bee7 100%);
+      transition: background 0.8s ease;
+      padding-bottom: 20px;
+    }
+
+    /* ── Back button ── */
+    #back-btn {
+      position: fixed; top: 12px; left: 12px; z-index: 200;
+      width: 44px; height: 44px; border-radius: 50%;
+      background: rgba(255,255,255,0.7);
+      border: none; cursor: pointer;
+      font-size: 20px; font-family: 'Fredoka One', sans-serif;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+      display: flex; align-items: center; justify-content: center;
+      color: #7b1fa2;
+    }
+
+    /* ── HUD ── */
+    #hud {
+      position: relative;
+      width: 100%; max-width: 480px;
+      padding: clamp(10px,3vw,18px) 14px 0 60px;
+      margin-bottom: 4px;
+    }
+    #tier-badge {
+      display: inline-block;
+      background: rgba(255,255,255,0.55);
+      border-radius: 22px;
+      padding: 5px 14px;
+      font-size: clamp(12px, 3.2vw, 15px);
+      color: #6a1b9a;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+    }
+
+    /* ── Scene canvas wrapper ── */
+    #scene-wrap {
+      width: min(95vw, 460px);
+      position: relative;
+      margin: 8px auto 0;
+    }
+    #scene-canvas {
+      width: 100%;
+      height: clamp(280px, 52vw, 340px);
+      border-radius: 28px;
+      box-shadow: 0 6px 32px rgba(0,0,0,0.18);
+      display: block;
+    }
+
+    /* ── Prompt ── */
+    #prompt-text {
+      text-align: center;
+      font-size: clamp(17px, 4.5vw, 22px);
+      color: #fff;
+      text-shadow: 0 2px 6px rgba(0,0,0,0.35);
+      margin: 10px 14px 6px;
+      min-height: 28px;
+    }
+
+    /* ── Season buttons ── */
+    #buttons-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: clamp(8px, 2.5vw, 14px);
+      width: min(95vw, 460px);
+      margin: 8px auto 0;
+    }
+    .season-btn {
+      min-height: clamp(90px, 22vw, 115px);
+      border-radius: 22px;
+      border: 3px solid rgba(255,255,255,0.55);
+      background: rgba(255,255,255,0.55);
+      cursor: pointer;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 4px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.13);
+      transition: transform 0.15s, background 0.2s, box-shadow 0.2s;
+      position: relative; overflow: hidden;
+    }
+    .season-btn:active { transform: scale(0.95); }
+    .season-btn .btn-icon { font-size: clamp(32px, 9vw, 46px); line-height: 1; }
+    .season-btn .btn-label {
+      font-size: clamp(13px, 3.5vw, 17px);
+      color: #5d1a6e;
+      text-shadow: 0 1px 3px rgba(255,255,255,0.8);
+    }
+
+    /* Season button colours */
+    .btn-spring { background: rgba(252,228,236,0.75); }
+    .btn-summer { background: rgba(255,249,196,0.75); }
+    .btn-autumn { background: rgba(255,243,224,0.75); }
+    .btn-winter { background: rgba(227,242,253,0.75); }
+
+    .btn-spring:hover { background: rgba(248,187,208,0.9); }
+    .btn-summer:hover { background: rgba(255,241,118,0.9); }
+    .btn-autumn:hover { background: rgba(255,204,128,0.9); }
+    .btn-winter:hover { background: rgba(179,229,252,0.9); }
+
+    /* Wobble animation */
+    @keyframes wobble {
+      0%   { transform: translateX(0); }
+      20%  { transform: translateX(-10px) rotate(-4deg); }
+      40%  { transform: translateX(10px) rotate(4deg); }
+      60%  { transform: translateX(-7px) rotate(-2deg); }
+      80%  { transform: translateX(7px) rotate(2deg); }
+      100% { transform: translateX(0); }
+    }
+    .wobble { animation: wobble 0.45s ease; }
+
+    /* Wrong flash */
+    @keyframes wrongFlash {
+      0%,100% { background: rgba(255,100,100,0.18); }
+      50%      { background: rgba(255,80,80,0.38); }
+    }
+    .wrong-flash { animation: wrongFlash 0.45s ease; }
+
+    /* ── Overlay (celebration / tier-change / win) ── */
+    #overlay {
+      position: fixed; inset: 0; z-index: 300;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      background: rgba(120,0,180,0.55);
+      backdrop-filter: blur(6px);
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.3s;
+    }
+    #overlay.show { opacity: 1; pointer-events: all; }
+    #overlay-box {
+      background: rgba(255,255,255,0.92);
+      border-radius: 32px;
+      padding: clamp(22px,6vw,40px) clamp(24px,7vw,52px);
+      text-align: center;
+      box-shadow: 0 8px 40px rgba(100,0,160,0.25);
+      max-width: 88vw;
+      animation: popIn 0.35s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    @keyframes popIn {
+      from { transform: scale(0.5) rotate(-8deg); opacity: 0; }
+      to   { transform: scale(1) rotate(0deg); opacity: 1; }
+    }
+    #overlay-emoji { font-size: clamp(56px,15vw,84px); line-height: 1; }
+    #overlay-title {
+      font-size: clamp(24px,7vw,38px);
+      color: #6a1b9a; margin-top: 8px;
+    }
+    #overlay-sub {
+      font-size: clamp(14px,3.8vw,20px);
+      color: #8e24aa; margin-top: 6px;
+    }
+    #overlay-btn {
+      margin-top: 18px;
+      padding: 14px 34px;
+      border-radius: 50px;
+      border: none;
+      background: linear-gradient(135deg, #ce93d8, #9c27b0);
+      color: #fff;
+      font-family: 'Fredoka One', sans-serif;
+      font-size: clamp(16px,4.5vw,22px);
+      cursor: pointer;
+      box-shadow: 0 4px 18px rgba(100,0,160,0.3);
+      transition: transform 0.15s;
+    }
+    #overlay-btn:active { transform: scale(0.95); }
+
+    /* ── Sparkle particles ── */
+    .sparkle {
+      position: fixed;
+      pointer-events: none;
+      border-radius: 50%;
+      animation: sparkleFly 0.9s ease-out forwards;
+      z-index: 400;
+    }
+    @keyframes sparkleFly {
+      0%   { opacity: 1; transform: translate(0,0) scale(1); }
+      100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(0); }
+    }
+
+    /* ── Confetti ── */
+    .confetti-piece {
+      position: fixed;
+      pointer-events: none;
+      border-radius: 3px;
+      animation: confettiFall var(--dur) ease-in forwards;
+      z-index: 400;
+    }
+    @keyframes confettiFall {
+      0%   { opacity: 1; transform: translate(0,0) rotate(0deg); }
+      100% { opacity: 0; transform: translate(var(--cx),var(--cy)) rotate(var(--cr)); }
+    }
+
+    /* ── Correct button highlight ── */
+    @keyframes correctPulse {
+      0%   { box-shadow: 0 0 0 0 rgba(100,220,100,0.8); }
+      50%  { box-shadow: 0 0 0 14px rgba(100,220,100,0); }
+      100% { box-shadow: 0 0 0 0 rgba(100,220,100,0); }
+    }
+    .correct-highlight {
+      background: rgba(144,238,144,0.65) !important;
+      animation: correctPulse 0.6s ease;
+    }
+  </style>
+</head>
+<body>
+
+  <button id="back-btn" onclick="history.length>1?history.back():window.close()">←</button>
+
+  <div id="hud">
+    <span id="tier-badge">⭐ Round 1/9 · Curious Sprite</span>
+  </div>
+
+  <div id="scene-wrap">
+    <canvas id="scene-canvas"></canvas>
+  </div>
+
+  <div id="prompt-text">Which season is this? 🌟</div>
+
+  <div id="buttons-row">
+    <button class="season-btn btn-spring" data-season="spring">
+      <span class="btn-icon">🌸</span>
+      <span class="btn-label">Spring</span>
+    </button>
+    <button class="season-btn btn-summer" data-season="summer">
+      <span class="btn-icon">☀️</span>
+      <span class="btn-label">Summer</span>
+    </button>
+    <button class="season-btn btn-autumn" data-season="autumn">
+      <span class="btn-icon">🍂</span>
+      <span class="btn-label">Autumn</span>
+    </button>
+    <button class="season-btn btn-winter" data-season="winter">
+      <span class="btn-icon">❄️</span>
+      <span class="btn-label">Winter</span>
+    </button>
+  </div>
+
+  <!-- Overlay -->
+  <div id="overlay">
+    <div id="overlay-box">
+      <div id="overlay-emoji">🎉</div>
+      <div id="overlay-title">Amazing!</div>
+      <div id="overlay-sub"></div>
+      <button id="overlay-btn" onclick="overlayAction()">Next ➜</button>
+    </div>
+  </div>
+
+<script>
+'use strict';
+
+// ─────────────── Audio ───────────────
+let audioCtx = null;
+function getAudio() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return audioCtx;
+}
+function tone(freq, type, duration, vol = 0.18, startDelay = 0) {
+  try {
+    const ctx = getAudio();
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    o.type = type || 'sine';
+    o.frequency.value = freq;
+    const t0 = ctx.currentTime + startDelay;
+    g.gain.setValueAtTime(vol, t0);
+    g.gain.exponentialRampToValueAtTime(0.001, t0 + duration);
+    o.start(t0); o.stop(t0 + duration);
+  } catch(e) {}
+}
+function playCorrect() {
+  // 4-note ascending arpeggio
+  const notes = [523, 659, 784, 1047];
+  notes.forEach((f, i) => tone(f, 'sine', 0.22, 0.2, i * 0.12));
+}
+function playWrong() {
+  tone(300, 'triangle', 0.12, 0.18, 0);
+  tone(220, 'triangle', 0.18, 0.14, 0.13);
+}
+function playRoundWin() {
+  // 6-note cheerful melody
+  const melody = [523, 659, 784, 659, 784, 1047];
+  melody.forEach((f, i) => tone(f, 'sine', 0.28, 0.22, i * 0.14));
+}
+function playTierFanfare() {
+  const fanfare = [392, 523, 659, 784, 1047, 784];
+  fanfare.forEach((f, i) => tone(f, 'triangle', 0.22, 0.2, i * 0.12));
+}
+function playWinJingle() {
+  const win = [523, 659, 784, 1047, 784, 659, 523, 659, 1047];
+  win.forEach((f, i) => tone(f, 'sine', 0.28, 0.22, i * 0.13));
+}
+
+// ─────────────── Round data ───────────────
+// Each round: { season, drawFn, hint }
+// drawFn(ctx, W, H) draws the scene
+// hint is a short emoji description shown in prompt
+
+const ROUNDS = [
+  // ── TIER 1: Easy / Obvious ──────────────────────────
+  {
+    season: 'winter',
+    tier: 1,
+    hint: 'Brr! ⛄',
+    draw(ctx, W, H) {
+      // Sky: icy blue
+      grad(ctx, W, H, '#b3e5fc', '#e3f2fd');
+      // Snow ground
+      snowGround(ctx, W, H);
+      // Snowman
+      drawSnowman(ctx, W * 0.5, H * 0.7, 54);
+      // Falling snowflakes
+      snowflakes(ctx, W, H, 22);
+      // Princess in winter gear
+      drawPrincess(ctx, W * 0.82, H * 0.72, 'winter');
+      // Title cue
+      sceneCue(ctx, W, '❄️ Winter ❄️', W/2, 32, '#1565c0');
+    }
+  },
+  {
+    season: 'summer',
+    tier: 1,
+    hint: 'Beach time! 🏖️',
+    draw(ctx, W, H) {
+      // Sky: golden blue
+      gradV(ctx, W, H, '#87ceeb', '#e0f7fa');
+      // Sun
+      bigSun(ctx, W * 0.82, 68, 46);
+      // Sand
+      sand(ctx, W, H);
+      // Waves
+      waves(ctx, W, H);
+      // Beach umbrella
+      umbrella(ctx, W * 0.35, H * 0.58);
+      // Princess with sunhat
+      drawPrincess(ctx, W * 0.7, H * 0.72, 'summer');
+      sceneCue(ctx, W, '☀️ Summer ☀️', W/2, 32, '#e65100');
+    }
+  },
+  {
+    season: 'spring',
+    tier: 1,
+    hint: 'Flowers blooming! 🌸',
+    draw(ctx, W, H) {
+      gradV(ctx, W, H, '#e1f5fe', '#f8bbd0');
+      // Green meadow
+      meadow(ctx, W, H);
+      // Lots of flowers
+      for (let i = 0; i < 9; i++) {
+        flower(ctx, W * (0.08 + i * 0.1), H * 0.7 + Math.sin(i)*10, 22 + (i%3)*5, FLOWER_COLORS[i%5]);
+      }
+      // Rainbow
+      rainbow(ctx, W, H);
+      // Princess with flower crown
+      drawPrincess(ctx, W * 0.75, H * 0.71, 'spring');
+      sceneCue(ctx, W, '🌸 Spring 🌸', W/2, 32, '#880e4f');
+    }
+  },
+  {
+    season: 'autumn',
+    tier: 1,
+    hint: 'Coloured leaves! 🍁',
+    draw(ctx, W, H) {
+      gradV(ctx, W, H, '#fff3e0', '#ffccbc');
+      // Ground with leaves
+      autumnGround(ctx, W, H);
+      // Trees with orange leaves
+      autumnTree(ctx, W * 0.2, H * 0.65, 55);
+      autumnTree(ctx, W * 0.75, H * 0.65, 48);
+      // Falling leaves
+      fallingLeaves(ctx, W, H, 16);
+      // Princess with leaf crown
+      drawPrincess(ctx, W * 0.5, H * 0.71, 'autumn');
+      sceneCue(ctx, W, '🍂 Autumn 🍂', W/2, 32, '#bf360c');
+    }
+  },
+  // ── TIER 2: Medium ──────────────────────────────────
+  {
+    season: 'autumn',
+    tier: 2,
+    hint: 'Harvest time! 🎃',
+    draw(ctx, W, H) {
+      gradV(ctx, W, H, '#fff8e1', '#ffe082');
+      autumnGround(ctx, W, H);
+      // Pumpkins
+      pumpkin(ctx, W*0.22, H*0.76, 30);
+      pumpkin(ctx, W*0.45, H*0.79, 24);
+      pumpkin(ctx, W*0.62, H*0.77, 28);
+      // Basket of apples
+      basket(ctx, W*0.78, H*0.75);
+      // Scarecrow-style tree
+      autumnTree(ctx, W*0.15, H*0.62, 42);
+      fallingLeaves(ctx, W, H, 10);
+      drawPrincess(ctx, W*0.5, H*0.71, 'autumn');
+      sceneCue(ctx, W, '🍎 Harvest Season', W/2, 32, '#bf360c');
+    }
+  },
+  {
+    season: 'summer',
+    tier: 2,
+    hint: 'Butterflies & sunshine! 🦋',
+    draw(ctx, W, H) {
+      gradV(ctx, W, H, '#fff9c4', '#fff59d');
+      bigSun(ctx, W*0.85, 60, 52);
+      meadow(ctx, W, H);
+      // Butterflies
+      butterfly(ctx, W*0.22, H*0.38, 26);
+      butterfly(ctx, W*0.6, H*0.3, 20);
+      butterfly(ctx, W*0.42, H*0.5, 18);
+      // Flowers in meadow
+      for (let i = 0; i < 7; i++) {
+        flower(ctx, W*(0.07+i*0.13), H*0.72 + (i%2)*8, 16+i%3*4, FLOWER_COLORS[i%5]);
+      }
+      drawPrincess(ctx, W*0.72, H*0.71, 'summer');
+      sceneCue(ctx, W, '🦋 Sunny Summer', W/2, 32, '#e65100');
+    }
+  },
+  {
+    season: 'winter',
+    tier: 2,
+    hint: 'Cozy fire & icicles! 🔥',
+    draw(ctx, W, H) {
+      gradV(ctx, W, H, '#cfd8dc', '#eceff1');
+      snowGround(ctx, W, H);
+      // Cozy fireplace / fire inside cottage
+      cottage(ctx, W*0.28, H*0.55, 80);
+      // Icicles from top
+      icicles(ctx, W, H);
+      snowflakes(ctx, W, H, 14);
+      drawPrincess(ctx, W*0.72, H*0.72, 'winter');
+      sceneCue(ctx, W, '🔥 Cozy Winter', W/2, 32, '#1565c0');
+    }
+  },
+  // ── TIER 3: Hard / Subtle ───────────────────────────
+  {
+    season: 'spring',
+    tier: 3,
+    hint: 'Kite in the breeze! 🪁',
+    draw(ctx, W, H) {
+      gradV(ctx, W, H, '#e8f5e9', '#f3e5f5');
+      meadow(ctx, W, H);
+      // Kite
+      kite(ctx, W*0.55, H*0.12, 34);
+      // Baby bird nest
+      birdNest(ctx, W*0.22, H*0.5);
+      // A couple small flowers
+      flower(ctx, W*0.15, H*0.72, 18, '#f48fb1');
+      flower(ctx, W*0.82, H*0.75, 15, '#ce93d8');
+      // Light breeze lines
+      breezeLines(ctx, W, H);
+      drawPrincess(ctx, W*0.6, H*0.72, 'spring');
+      sceneCue(ctx, W, '🪁 Breezy Spring', W/2, 32, '#880e4f');
+    }
+  },
+  {
+    season: 'summer',
+    tier: 3,
+    hint: 'Sandcastle! 🏰',
+    draw(ctx, W, H) {
+      gradV(ctx, W, H, '#e0f7fa', '#80deea');
+      // Sky
+      ctx.fillStyle = '#81d4fa';
+      ctx.fillRect(0, 0, W, H*0.55);
+      sand(ctx, W, H);
+      waves(ctx, W, H);
+      // Sandcastle
+      sandcastle(ctx, W*0.32, H*0.6, 56);
+      // Seashells
+      seashell(ctx, W*0.7, H*0.77, 14);
+      seashell(ctx, W*0.78, H*0.8, 10);
+      bigSun(ctx, W*0.15, 55, 38);
+      drawPrincess(ctx, W*0.72, H*0.68, 'summer');
+      sceneCue(ctx, W, '🏰 Sandcastle Day', W/2, 32, '#e65100');
+    }
+  },
+  {
+    season: 'autumn',
+    tier: 3,
+    hint: 'Apple picking! 🍎',
+    draw(ctx, W, H) {
+      gradV(ctx, W, H, '#fbe9e7', '#ffccbc');
+      autumnGround(ctx, W, H);
+      // Apple tree
+      appleTree(ctx, W*0.38, H*0.58, 60);
+      // Basket of apples
+      basket(ctx, W*0.7, H*0.76);
+      // A few leaves drifting
+      fallingLeaves(ctx, W, H, 7);
+      drawPrincess(ctx, W*0.72, H*0.71, 'autumn');
+      sceneCue(ctx, W, '🍎 Apple Picking', W/2, 32, '#bf360c');
+    }
+  },
+  // extra winter hard round (cocoa)
+  {
+    season: 'winter',
+    tier: 3,
+    hint: 'Hot cocoa! ☕',
+    draw(ctx, W, H) {
+      gradV(ctx, W, H, '#e8eaf6', '#ce93d8');
+      snowGround(ctx, W, H);
+      // Window with curtains (indoors hint)
+      window_(ctx, W*0.5 - 40, H*0.18, 80, 70);
+      // Hot cocoa mug on table
+      cocoa(ctx, W*0.35, H*0.64);
+      // Small table
+      table(ctx, W*0.5, H*0.72, 110);
+      snowflakes(ctx, W, H, 8);
+      drawPrincess(ctx, W*0.74, H*0.71, 'winter');
+      sceneCue(ctx, W, '☕ Warm Winter', W/2, 32, '#1565c0');
+    }
+  },
+];
+
+// pick 9 rounds (first 9 defined above; we have exactly 9)
+const ALL_ROUNDS = ROUNDS.slice(0, 9);
+const TIER_NAMES = ['Curious Sprite', 'Royal Explorer', 'Princess Master'];
+
+// ─────────────── Drawing Helpers ───────────────
+const FLOWER_COLORS = ['#f48fb1','#ce93d8','#ffab91','#80deea','#fff176'];
+
+function grad(ctx, W, H, c1, c2) {
+  const g = ctx.createLinearGradient(0,0,W,H);
+  g.addColorStop(0, c1); g.addColorStop(1, c2);
+  ctx.fillStyle = g; ctx.fillRect(0,0,W,H);
+}
+function gradV(ctx, W, H, top, bot) {
+  const g = ctx.createLinearGradient(0,0,0,H);
+  g.addColorStop(0, top); g.addColorStop(1, bot);
+  ctx.fillStyle = g; ctx.fillRect(0,0,W,H);
+}
+function sceneCue(ctx, W, text, x, y, color) {
+  ctx.save();
+  ctx.font = 'bold 15px Fredoka One, sans-serif';
+  ctx.fillStyle = 'rgba(255,255,255,0.82)';
+  const m = ctx.measureText(text);
+  ctx.fillRect(x - m.width/2 - 8, y - 16, m.width + 16, 24);
+  ctx.fillStyle = color || '#333';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(text, x, y - 4);
+  ctx.restore();
+}
+
+// ── Snow ──
+function snowGround(ctx, W, H) {
+  ctx.save();
+  ctx.fillStyle = '#e3f2fd';
+  ctx.beginPath();
+  ctx.ellipse(W/2, H, W*0.8, H*0.22, 0, Math.PI, 0);
+  ctx.fill();
+  ctx.fillStyle = '#fff';
+  ctx.beginPath();
+  ctx.ellipse(W/2, H, W*0.6, H*0.15, 0, Math.PI, 0);
+  ctx.fill();
+  ctx.restore();
+}
+function snowflakes(ctx, W, H, count) {
+  ctx.save();
+  ctx.fillStyle = 'rgba(255,255,255,0.85)';
+  for (let i = 0; i < count; i++) {
+    const x = (Math.sin(i*137.5)*0.5+0.5)*W;
+    const y = (Math.cos(i*98.7)*0.5+0.5)*(H*0.75);
+    const r = 2 + (i%3)*1.5;
+    ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI*2); ctx.fill();
+    // cross
+    ctx.strokeStyle = 'rgba(255,255,255,0.7)';
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(x-r*1.8, y); ctx.lineTo(x+r*1.8, y); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(x, y-r*1.8); ctx.lineTo(x, y+r*1.8); ctx.stroke();
+  }
+  ctx.restore();
+}
+function drawSnowman(ctx, cx, cy, r) {
+  ctx.save();
+  // bottom
+  ctx.fillStyle = '#fff'; ctx.strokeStyle = '#90caf9'; ctx.lineWidth = 2;
+  circle(ctx, cx, cy, r);
+  // middle
+  circle(ctx, cx, cy - r*1.6, r*0.75);
+  // head
+  circle(ctx, cx, cy - r*1.6 - r*0.75 - r*0.55, r*0.5);
+  // eyes
+  ctx.fillStyle = '#37474f';
+  circle(ctx, cx-r*0.18, cy - r*2.9, r*0.1);
+  circle(ctx, cx+r*0.18, cy - r*2.9, r*0.1);
+  // scarf
+  ctx.fillStyle = '#e53935';
+  ctx.fillRect(cx - r*0.45, cy - r*2.18, r*0.9, r*0.18);
+  // carrot nose
+  ctx.fillStyle = '#ff7043';
+  ctx.beginPath();
+  ctx.moveTo(cx, cy - r*2.88);
+  ctx.lineTo(cx + r*0.32, cy - r*2.88);
+  ctx.lineTo(cx, cy - r*2.78);
+  ctx.fill();
+  // buttons
+  ctx.fillStyle = '#546e7a';
+  [-0.15, 0, 0.15].forEach(o => { ctx.beginPath(); ctx.arc(cx, cy - r*1.58 + o*r, r*0.08, 0, Math.PI*2); ctx.fill(); });
+  ctx.restore();
+}
+function circle(ctx, x, y, r) {
+  ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI*2);
+  ctx.fill(); if (ctx.strokeStyle !== 'none') ctx.stroke();
+}
+
+// ── Sun ──
+function bigSun(ctx, cx, cy, r) {
+  ctx.save();
+  // rays
+  ctx.strokeStyle = '#ffe082'; ctx.lineWidth = 3;
+  for (let i = 0; i < 12; i++) {
+    const a = (i/12)*Math.PI*2;
+    ctx.beginPath();
+    ctx.moveTo(cx + Math.cos(a)*(r+4), cy + Math.sin(a)*(r+4));
+    ctx.lineTo(cx + Math.cos(a)*(r+14), cy + Math.sin(a)*(r+14));
+    ctx.stroke();
+  }
+  const g = ctx.createRadialGradient(cx,cy,0,cx,cy,r);
+  g.addColorStop(0,'#fff176'); g.addColorStop(1,'#ffca28');
+  ctx.fillStyle = g;
+  ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.fill();
+  // face
+  ctx.fillStyle = '#f57f17';
+  ctx.beginPath(); ctx.arc(cx-r*0.28, cy-r*0.18, r*0.1,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(cx+r*0.28, cy-r*0.18, r*0.1,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(cx,cy+r*0.12,r*0.22,0,Math.PI); ctx.stroke();
+  ctx.restore();
+}
+
+// ── Beach ──
+function sand(ctx, W, H) {
+  ctx.save();
+  const g = ctx.createLinearGradient(0,H*0.62,0,H);
+  g.addColorStop(0,'#ffe082'); g.addColorStop(1,'#ffca28');
+  ctx.fillStyle = g;
+  ctx.fillRect(0, H*0.62, W, H*0.38);
+  ctx.restore();
+}
+function waves(ctx, W, H) {
+  ctx.save();
+  const waveY = H * 0.63;
+  ctx.strokeStyle = 'rgba(3,169,244,0.55)'; ctx.lineWidth = 3;
+  for (let w = 0; w < 3; w++) {
+    ctx.beginPath();
+    for (let x = 0; x <= W; x += 6) {
+      const y = waveY - w*9 + Math.sin(x*0.05 + w)*6;
+      w===0 && x===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+    }
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+function umbrella(ctx, cx, cy) {
+  ctx.save();
+  // pole
+  ctx.strokeStyle = '#795548'; ctx.lineWidth = 4;
+  ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx, cy+55); ctx.stroke();
+  // canopy
+  const colors = ['#ef5350','#fff176','#42a5f5','#66bb6a'];
+  for (let i = 0; i < 4; i++) {
+    ctx.fillStyle = colors[i];
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    const a1 = -Math.PI + (i/4)*Math.PI;
+    const a2 = -Math.PI + ((i+1)/4)*Math.PI;
+    ctx.arc(cx, cy, 40, a1, a2);
+    ctx.fill();
+  }
+  ctx.restore();
+}
+
+// ── Meadow / Spring ──
+function meadow(ctx, W, H) {
+  ctx.save();
+  const g = ctx.createLinearGradient(0, H*0.62,0,H);
+  g.addColorStop(0,'#a5d6a7'); g.addColorStop(1,'#66bb6a');
+  ctx.fillStyle = g;
+  ctx.fillRect(0, H*0.62, W, H*0.38);
+  ctx.restore();
+}
+function flower(ctx, cx, cy, r, color) {
+  ctx.save();
+  ctx.fillStyle = '#66bb6a';
+  ctx.fillRect(cx-2, cy, 4, r*1.1);
+  // petals
+  const petals = 5;
+  for (let i = 0; i < petals; i++) {
+    const a = (i/petals)*Math.PI*2 - Math.PI/2;
+    ctx.fillStyle = color || '#f48fb1';
+    ctx.beginPath();
+    ctx.ellipse(cx + Math.cos(a)*r*0.7, cy - r + Math.sin(a)*r*0.6, r*0.5, r*0.38, a, 0, Math.PI*2);
+    ctx.fill();
+  }
+  // centre
+  ctx.fillStyle = '#fff176';
+  ctx.beginPath(); ctx.arc(cx, cy-r, r*0.35, 0, Math.PI*2); ctx.fill();
+  ctx.restore();
+}
+function rainbow(ctx, W, H) {
+  ctx.save();
+  const colors = ['#ef5350','#ff7043','#ffe082','#66bb6a','#42a5f5','#7e57c2'];
+  colors.forEach((c, i) => {
+    ctx.strokeStyle = c; ctx.lineWidth = 4; ctx.globalAlpha = 0.65;
+    ctx.beginPath();
+    ctx.arc(W/2, H*0.88, W*0.35 + i*9, Math.PI, 0);
+    ctx.stroke();
+  });
+  ctx.restore();
+}
+
+// ── Autumn ──
+function autumnGround(ctx, W, H) {
+  ctx.save();
+  const g = ctx.createLinearGradient(0,H*0.62,0,H);
+  g.addColorStop(0,'#a5814a'); g.addColorStop(1,'#795548');
+  ctx.fillStyle = g; ctx.fillRect(0, H*0.62, W, H*0.38);
+  // leaf pile
+  const leafColors = ['#ff7043','#ff8f00','#e53935','#8d6e63'];
+  for (let i = 0; i < 14; i++) {
+    const x = W*(0.04 + (i*0.07)%(0.92));
+    ctx.fillStyle = leafColors[i%4];
+    ctx.beginPath();
+    ctx.ellipse(x, H*0.76+(i%3)*8, 10+i%5*2, 6, Math.PI*0.3*i, 0, Math.PI*2);
+    ctx.fill();
+  }
+  ctx.restore();
+}
+function autumnTree(ctx, cx, cy, r) {
+  ctx.save();
+  // trunk
+  ctx.fillStyle = '#5d4037';
+  ctx.fillRect(cx - r*0.18, cy - r*0.3, r*0.36, r*1.1);
+  // canopy
+  const leafColors2 = ['#ff7043','#ff8f00','#e53935','#ffb74d'];
+  for (let i = 0; i < 4; i++) {
+    ctx.fillStyle = leafColors2[i];
+    ctx.globalAlpha = 0.88;
+    ctx.beginPath();
+    ctx.arc(cx + (i%2===0?-1:1)*r*0.28, cy - r*0.5 + (i<2?0:r*0.22), r*0.6, 0, Math.PI*2);
+    ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+  ctx.restore();
+}
+function fallingLeaves(ctx, W, H, count) {
+  ctx.save();
+  const colors = ['#ff7043','#ff8f00','#e53935','#8d6e63','#ffb74d'];
+  for (let i = 0; i < count; i++) {
+    const x = (Math.sin(i*93.7)*0.5+0.5)*W;
+    const y = (Math.cos(i*57.3)*0.5+0.5)*(H*0.7);
+    ctx.fillStyle = colors[i%colors.length];
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(i * 0.7);
+    ctx.beginPath();
+    ctx.ellipse(0, 0, 8, 5, 0, 0, Math.PI*2);
+    ctx.fill();
+    ctx.restore();
+  }
+  ctx.restore();
+}
+function pumpkin(ctx, cx, cy, r) {
+  ctx.save();
+  ctx.fillStyle = '#ff7043';
+  // body segments
+  for (let i = -1; i <=1; i++) {
+    ctx.beginPath();
+    ctx.ellipse(cx + i*r*0.4, cy, r*0.6, r*0.8, i*0.2, 0, Math.PI*2);
+    ctx.fill();
+  }
+  // stem
+  ctx.fillStyle = '#388e3c';
+  ctx.fillRect(cx-3, cy-r*0.85, 6, r*0.3);
+  // face
+  ctx.fillStyle = '#bf360c';
+  // eyes
+  ctx.beginPath(); ctx.moveTo(cx-r*0.3,cy-r*0.2); ctx.lineTo(cx-r*0.1,cy-r*0.35); ctx.lineTo(cx+r*0.05,cy-r*0.2); ctx.fill();
+  ctx.restore();
+}
+function basket(ctx, cx, cy) {
+  ctx.save();
+  ctx.fillStyle = '#a1887f';
+  ctx.beginPath();
+  ctx.ellipse(cx, cy+10, 22, 12, 0, 0, Math.PI*2);
+  ctx.fill();
+  ctx.fillRect(cx-22, cy-14, 44, 24);
+  ctx.fillStyle = '#bcaaa4';
+  // weave lines
+  for (let i = 0; i < 3; i++) { ctx.fillRect(cx-22, cy-10+i*8, 44, 2); }
+  // apples
+  const ac = ['#ef5350','#e53935','#c62828'];
+  for (let i = 0; i < 3; i++) {
+    ctx.fillStyle = ac[i];
+    ctx.beginPath(); ctx.arc(cx-12+i*12, cy-18, 8, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#388e3c';
+    ctx.fillRect(cx-12+i*12-1, cy-26, 2, 5);
+  }
+  ctx.restore();
+}
+function appleTree(ctx, cx, cy, r) {
+  ctx.save();
+  // trunk
+  ctx.fillStyle = '#5d4037';
+  ctx.fillRect(cx-r*0.15, cy, r*0.3, r*0.9);
+  // canopy
+  ctx.fillStyle = '#388e3c';
+  ctx.beginPath(); ctx.arc(cx, cy-r*0.3, r*0.72, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = '#2e7d32';
+  ctx.beginPath(); ctx.arc(cx-r*0.35, cy-r*0.1, r*0.5, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(cx+r*0.35, cy-r*0.05, r*0.48, 0, Math.PI*2); ctx.fill();
+  // apples
+  const applePos = [[-0.28,-0.52],[0.22,-0.48],[0,-0.1],[0.38,-0.1],[-0.35,-0.15]];
+  applePos.forEach(([dx,dy]) => {
+    ctx.fillStyle = '#ef5350';
+    ctx.beginPath(); ctx.arc(cx+dx*r, cy+dy*r, r*0.12, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#388e3c';
+    ctx.fillRect(cx+dx*r-1, cy+dy*r-r*0.18, 2, r*0.1);
+  });
+  ctx.restore();
+}
+
+// ── Butterflies ──
+function butterfly(ctx, cx, cy, r) {
+  ctx.save();
+  ctx.translate(cx, cy);
+  const wings = ['#ce93d8','#f48fb1','#ffab91','#80deea'];
+  const wc = wings[Math.floor(cx) % wings.length];
+  // top wings
+  ctx.fillStyle = wc; ctx.globalAlpha = 0.82;
+  ctx.beginPath(); ctx.ellipse(-r*0.6, -r*0.3, r*0.7, r*0.45, -0.6, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse( r*0.6, -r*0.3, r*0.7, r*0.45,  0.6, 0, Math.PI*2); ctx.fill();
+  // bottom wings
+  ctx.beginPath(); ctx.ellipse(-r*0.4,  r*0.28, r*0.45, r*0.3, 0.4, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse( r*0.4,  r*0.28, r*0.45, r*0.3,-0.4, 0, Math.PI*2); ctx.fill();
+  // body
+  ctx.globalAlpha = 1; ctx.fillStyle = '#4a148c';
+  ctx.beginPath(); ctx.ellipse(0, 0, r*0.12, r*0.65, 0, 0, Math.PI*2); ctx.fill();
+  ctx.restore();
+}
+
+// ── Icicles ──
+function icicles(ctx, W, H) {
+  ctx.save();
+  ctx.fillStyle = '#b3e5fc';
+  const count = 10;
+  for (let i = 0; i < count; i++) {
+    const x = W * (i+0.5) / count;
+    const h = 22 + (i%3)*12;
+    ctx.beginPath();
+    ctx.moveTo(x-7, 0);
+    ctx.lineTo(x+7, 0);
+    ctx.lineTo(x, h);
+    ctx.fill();
+    // glint
+    ctx.strokeStyle = 'rgba(255,255,255,0.7)'; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(x-2, 4); ctx.lineTo(x-2, h*0.4); ctx.stroke();
+  }
+  ctx.restore();
+}
+function cottage(ctx, cx, cy, size) {
+  ctx.save();
+  const s = size;
+  // walls
+  ctx.fillStyle = '#efebe9';
+  ctx.fillRect(cx - s/2, cy - s*0.5, s, s*0.75);
+  // snow on roof
+  ctx.fillStyle = '#e3f2fd';
+  ctx.beginPath(); ctx.moveTo(cx-s*0.58, cy-s*0.5); ctx.lineTo(cx, cy-s*0.95); ctx.lineTo(cx+s*0.58, cy-s*0.5); ctx.fill();
+  // fire glow through window
+  ctx.fillStyle = '#ffcc80';
+  ctx.fillRect(cx - s*0.18, cy - s*0.22, s*0.36, s*0.3);
+  // fire colours
+  const fireY = cy - s*0.06;
+  ctx.fillStyle = '#ff7043';
+  ctx.beginPath(); ctx.moveTo(cx-10, fireY); ctx.quadraticCurveTo(cx, fireY-18, cx+10, fireY); ctx.fill();
+  ctx.fillStyle = '#fff176';
+  ctx.beginPath(); ctx.moveTo(cx-5, fireY); ctx.quadraticCurveTo(cx, fireY-10, cx+5, fireY); ctx.fill();
+  // door
+  ctx.fillStyle = '#795548';
+  ctx.fillRect(cx - s*0.12, cy + s*0.05, s*0.24, s*0.2);
+  // chimney
+  ctx.fillStyle = '#8d6e63';
+  ctx.fillRect(cx+s*0.2, cy-s*0.95, 14, 22);
+  // smoke
+  ctx.strokeStyle = 'rgba(180,180,180,0.5)'; ctx.lineWidth = 3;
+  for (let i = 0; i < 3; i++) {
+    ctx.beginPath();
+    ctx.arc(cx+s*0.2+7+i*5, cy-s*0.95-12-i*8, 5+i*3, Math.PI, 0);
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
+// ── Kite ──
+function kite(ctx, cx, cy, r) {
+  ctx.save();
+  const colors = ['#ef5350','#42a5f5','#66bb6a','#fff176'];
+  // kite body
+  ctx.fillStyle = colors[0];
+  ctx.beginPath(); ctx.moveTo(cx,cy-r); ctx.lineTo(cx+r*0.7,cy); ctx.lineTo(cx,cy+r*1.3); ctx.lineTo(cx-r*0.7,cy); ctx.closePath(); ctx.fill();
+  // cross
+  ctx.strokeStyle = '#fff'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(cx,cy-r); ctx.lineTo(cx,cy+r*1.3); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cx-r*0.7,cy); ctx.lineTo(cx+r*0.7,cy); ctx.stroke();
+  // tail
+  ctx.strokeStyle = '#ff7043'; ctx.lineWidth = 2; ctx.setLineDash([4,4]);
+  ctx.beginPath(); ctx.moveTo(cx, cy+r*1.3);
+  for (let i = 0; i < 5; i++) {
+    ctx.lineTo(cx + Math.sin(i*1.2)*20, cy+r*1.3+i*16+16);
+  }
+  ctx.stroke(); ctx.setLineDash([]);
+  // string (goes down-left to "princess")
+  ctx.strokeStyle = 'rgba(100,100,100,0.5)'; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(cx, cy+r*1.3); ctx.quadraticCurveTo(cx-30, cy+80, cx-60, cy+150); ctx.stroke();
+  ctx.restore();
+}
+function birdNest(ctx, cx, cy) {
+  ctx.save();
+  ctx.fillStyle = '#8d6e63';
+  ctx.beginPath(); ctx.ellipse(cx, cy+12, 22, 10, 0, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = '#a1887f';
+  ctx.beginPath(); ctx.arc(cx, cy, 18, Math.PI, 0); ctx.fill();
+  // eggs
+  ctx.fillStyle = '#e3f2fd';
+  ctx.beginPath(); ctx.ellipse(cx-6, cy-2, 6, 8, -0.2, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = '#bbdefb';
+  ctx.beginPath(); ctx.ellipse(cx+6, cy-2, 6, 8, 0.2, 0, Math.PI*2); ctx.fill();
+  // mama bird
+  ctx.fillStyle = '#ffca28';
+  ctx.beginPath(); ctx.arc(cx-18, cy-12, 8, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = '#ff7043';
+  ctx.beginPath(); ctx.moveTo(cx-26, cy-12); ctx.lineTo(cx-30, cy-10); ctx.lineTo(cx-26, cy-8); ctx.fill();
+  ctx.restore();
+}
+function breezeLines(ctx, W, H) {
+  ctx.save();
+  ctx.strokeStyle = 'rgba(100,200,255,0.35)'; ctx.lineWidth = 2; ctx.setLineDash([6,8]);
+  for (let i = 0; i < 5; i++) {
+    const y = H*(0.18+i*0.08);
+    ctx.beginPath(); ctx.moveTo(W*0.05, y); ctx.lineTo(W*0.38, y+Math.sin(i)*5); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(W*0.6, y+10); ctx.lineTo(W*0.9, y+Math.cos(i)*4); ctx.stroke();
+  }
+  ctx.setLineDash([]);
+  ctx.restore();
+}
+
+// ── Sandcastle ──
+function sandcastle(ctx, cx, cy, r) {
+  ctx.save();
+  ctx.fillStyle = '#ffe082';
+  // main tower
+  ctx.fillRect(cx-r*0.32, cy-r*0.6, r*0.64, r*0.9);
+  // side towers
+  ctx.fillRect(cx-r*0.68, cy-r*0.3, r*0.38, r*0.6);
+  ctx.fillRect(cx+r*0.3, cy-r*0.3, r*0.38, r*0.6);
+  // battlements (main)
+  ctx.fillStyle = '#ffd54f';
+  for (let i = 0; i < 3; i++) { ctx.fillRect(cx-r*0.28+i*r*0.22, cy-r*0.72, r*0.14, r*0.14); }
+  // flag
+  ctx.strokeStyle = '#795548'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(cx, cy-r*0.6); ctx.lineTo(cx, cy-r); ctx.stroke();
+  ctx.fillStyle = '#ef5350';
+  ctx.beginPath(); ctx.moveTo(cx,cy-r); ctx.lineTo(cx+r*0.22,cy-r*0.85); ctx.lineTo(cx,cy-r*0.7); ctx.fill();
+  // door
+  ctx.fillStyle = '#795548';
+  ctx.beginPath(); ctx.arc(cx, cy+r*0.28, r*0.12, Math.PI, 0);
+  ctx.fillRect(cx-r*0.12, cy+r*0.16, r*0.24, r*0.14); ctx.fill();
+  ctx.restore();
+}
+function seashell(ctx, cx, cy, r) {
+  ctx.save();
+  ctx.fillStyle = '#f8bbd0';
+  ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI*2); ctx.fill();
+  ctx.strokeStyle = '#f48fb1'; ctx.lineWidth = 1.5;
+  for (let i = 0; i < 4; i++) {
+    const a = (i/4)*Math.PI*2;
+    ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx+Math.cos(a)*r, cy+Math.sin(a)*r); ctx.stroke();
+  }
+  ctx.restore();
+}
+
+// ── Cocoa & window ──
+function cocoa(ctx, cx, cy) {
+  ctx.save();
+  // mug
+  ctx.fillStyle = '#795548';
+  ctx.fillRect(cx-18, cy-24, 36, 36);
+  ctx.beginPath(); ctx.arc(cx, cy-24, 18, Math.PI, 0); ctx.fill();
+  // handle
+  ctx.strokeStyle = '#795548'; ctx.lineWidth = 5;
+  ctx.beginPath(); ctx.arc(cx+22, cy-6, 11, -Math.PI*0.5, Math.PI*0.5); ctx.stroke();
+  // cocoa inside
+  ctx.fillStyle = '#6d4c41';
+  ctx.beginPath(); ctx.ellipse(cx, cy-28, 16, 6, 0, 0, Math.PI*2); ctx.fill();
+  // whipped cream
+  ctx.fillStyle = '#fff';
+  ctx.beginPath(); ctx.arc(cx, cy-32, 11, Math.PI, 0); ctx.fill();
+  // steam
+  ctx.strokeStyle = 'rgba(180,180,180,0.6)'; ctx.lineWidth = 2; ctx.setLineDash([3,3]);
+  for (let i = 0; i < 3; i++) {
+    ctx.beginPath();
+    ctx.moveTo(cx-8+i*8, cy-43);
+    ctx.quadraticCurveTo(cx-12+i*8, cy-55, cx-8+i*8, cy-62);
+    ctx.stroke();
+  }
+  ctx.setLineDash([]);
+  ctx.restore();
+}
+function table(ctx, cx, cy, w) {
+  ctx.save();
+  ctx.fillStyle = '#8d6e63';
+  ctx.fillRect(cx-w/2, cy-10, w, 10);
+  ctx.fillRect(cx-w/2+8, cy, 10, 22);
+  ctx.fillRect(cx+w/2-18, cy, 10, 22);
+  ctx.restore();
+}
+function window_(ctx, x, y, w, h) {
+  ctx.save();
+  // frame
+  ctx.fillStyle = '#efebe9';
+  ctx.fillRect(x-4, y-4, w+8, h+8);
+  // sky outside
+  ctx.fillStyle = '#b3e5fc';
+  ctx.fillRect(x, y, w, h);
+  // snow outside
+  ctx.fillStyle = '#fff';
+  ctx.fillRect(x, y+h*0.72, w, h*0.28);
+  // snowflakes
+  ctx.fillStyle = 'rgba(255,255,255,0.9)';
+  [[0.2,0.3],[0.55,0.18],[0.78,0.45],[0.4,0.55]].forEach(([px,py]) => {
+    ctx.beginPath(); ctx.arc(x+w*px, y+h*py, 2.5, 0, Math.PI*2); ctx.fill();
+  });
+  // curtains
+  ctx.fillStyle = '#f48fb1';
+  ctx.beginPath(); ctx.moveTo(x,y); ctx.lineTo(x+w*0.28,y); ctx.lineTo(x,y+h*0.7); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(x+w,y); ctx.lineTo(x+w-w*0.28,y); ctx.lineTo(x+w,y+h*0.7); ctx.fill();
+  // cross
+  ctx.strokeStyle = '#efebe9'; ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.moveTo(x+w/2,y); ctx.lineTo(x+w/2,y+h); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(x,y+h/2); ctx.lineTo(x+w,y+h/2); ctx.stroke();
+  ctx.restore();
+}
+
+// ── Princess character ──
+function drawPrincess(ctx, cx, cy, season) {
+  ctx.save();
+  const r = 22;
+  // dress
+  const dressColors = {
+    spring: '#f48fb1', summer: '#fff176', autumn: '#ffb74d', winter: '#b3e5fc'
+  };
+  ctx.fillStyle = dressColors[season] || '#f48fb1';
+  ctx.beginPath();
+  ctx.moveTo(cx - r, cy);
+  ctx.quadraticCurveTo(cx - r*1.4, cy + r*1.8, cx - r*0.7, cy + r*2.4);
+  ctx.lineTo(cx + r*0.7, cy + r*2.4);
+  ctx.quadraticCurveTo(cx + r*1.4, cy + r*1.8, cx + r, cy);
+  ctx.fill();
+  // arms
+  ctx.strokeStyle = '#ffcc80'; ctx.lineWidth = 6; ctx.lineCap = 'round';
+  ctx.beginPath(); ctx.moveTo(cx-r*0.8, cy+r*0.3); ctx.lineTo(cx-r*1.5, cy+r*0.9); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cx+r*0.8, cy+r*0.3); ctx.lineTo(cx+r*1.5, cy+r*0.9); ctx.stroke();
+  // body
+  ctx.fillStyle = '#ffcc80';
+  ctx.beginPath(); ctx.ellipse(cx, cy-r*0.1, r*0.7, r*0.85, 0, 0, Math.PI*2); ctx.fill();
+  // head
+  ctx.fillStyle = '#ffe0b2';
+  ctx.beginPath(); ctx.arc(cx, cy-r*1.5, r*0.88, 0, Math.PI*2); ctx.fill();
+  // hair
+  ctx.fillStyle = season === 'winter' ? '#c8a06e' : '#8d6039';
+  ctx.beginPath(); ctx.arc(cx, cy-r*1.5, r*0.88, Math.PI*1.05, Math.PI*0.05, false); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(cx-r*0.75, cy-r*1.0, r*0.25, r*0.65, -0.3, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(cx+r*0.75, cy-r*1.0, r*0.25, r*0.65,  0.3, 0, Math.PI*2); ctx.fill();
+  // eyes
+  ctx.fillStyle = '#5d4037';
+  ctx.beginPath(); ctx.arc(cx-r*0.3, cy-r*1.55, r*0.14, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(cx+r*0.3, cy-r*1.55, r*0.14, 0, Math.PI*2); ctx.fill();
+  // smile
+  ctx.strokeStyle = '#5d4037'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.arc(cx, cy-r*1.4, r*0.3, 0.1, Math.PI-0.1); ctx.stroke();
+  // season accessory
+  if (season === 'winter') {
+    // scarf
+    ctx.fillStyle = '#ef5350';
+    ctx.fillRect(cx-r*0.8, cy-r*0.55, r*1.6, r*0.3);
+    // hat
+    ctx.fillStyle = '#1565c0';
+    ctx.beginPath(); ctx.ellipse(cx, cy-r*2.32, r*0.82, r*0.22, 0, 0, Math.PI*2); ctx.fill();
+    ctx.fillRect(cx-r*0.55, cy-r*2.9, r*1.1, r*0.62);
+    ctx.fillStyle = '#fff'; ctx.fillRect(cx-r*0.55, cy-r*2.32, r*1.1, r*0.14);
+  } else if (season === 'spring') {
+    // flower crown
+    const fc = ['#f06292','#ce93d8','#fff176','#80deea','#ffab91'];
+    for (let i = 0; i < 5; i++) {
+      const a = (i/5)*Math.PI*2 - Math.PI/2;
+      ctx.fillStyle = fc[i];
+      ctx.beginPath(); ctx.arc(cx+Math.cos(a)*r*0.82, cy-r*2.28+Math.sin(a)*r*0.18, r*0.22, 0, Math.PI*2); ctx.fill();
+    }
+  } else if (season === 'summer') {
+    // sun hat
+    ctx.fillStyle = '#ffe082';
+    ctx.beginPath(); ctx.ellipse(cx, cy-r*2.42, r*1.2, r*0.26, 0, 0, Math.PI*2); ctx.fill();
+    ctx.fillRect(cx-r*0.65, cy-r*2.9, r*1.3, r*0.5);
+    ctx.fillStyle = '#ff7043';
+    ctx.fillRect(cx-r*0.65, cy-r*2.4, r*1.3, r*0.1);
+  } else {
+    // leaf crown (autumn)
+    const lc = ['#ff7043','#ff8f00','#e53935'];
+    for (let i = 0; i < 5; i++) {
+      const a = (i/5)*Math.PI*2 - Math.PI*0.6;
+      ctx.fillStyle = lc[i%3];
+      ctx.save(); ctx.translate(cx+Math.cos(a)*r*0.82, cy-r*2.28+Math.sin(a)*r*0.18);
+      ctx.rotate(a+Math.PI/2);
+      ctx.beginPath(); ctx.ellipse(0, 0, r*0.22, r*0.12, 0, 0, Math.PI*2); ctx.fill();
+      ctx.restore();
+    }
+  }
+  // crown (always)
+  ctx.fillStyle = '#ffd700';
+  const crownBase = cy - r*2.82;
+  ctx.beginPath();
+  ctx.moveTo(cx-r*0.55, crownBase+r*0.3);
+  ctx.lineTo(cx-r*0.55, crownBase);
+  ctx.lineTo(cx-r*0.2, crownBase+r*0.2);
+  ctx.lineTo(cx, crownBase-r*0.22);
+  ctx.lineTo(cx+r*0.2, crownBase+r*0.2);
+  ctx.lineTo(cx+r*0.55, crownBase);
+  ctx.lineTo(cx+r*0.55, crownBase+r*0.3);
+  ctx.closePath(); ctx.fill();
+  // gems on crown
+  ctx.fillStyle = '#e91e63';
+  ctx.beginPath(); ctx.arc(cx, crownBase-r*0.12, r*0.11, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = '#7b1fa2';
+  ctx.beginPath(); ctx.arc(cx-r*0.36, crownBase+r*0.1, r*0.08, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(cx+r*0.36, crownBase+r*0.1, r*0.08, 0, Math.PI*2); ctx.fill();
+  ctx.restore();
+}
+
+// ─────────────── Game State ───────────────
+let currentRound = 0;
+let locked = false;
+let overlayMode = null; // 'correct'|'tier'|'win'
+
+const canvas = document.getElementById('scene-canvas');
+const ctx2d = canvas.getContext('2d');
+const tierBadge = document.getElementById('tier-badge');
+const promptText = document.getElementById('prompt-text');
+const overlay = document.getElementById('overlay');
+const overlayEmoji = document.getElementById('overlay-emoji');
+const overlayTitle = document.getElementById('overlay-title');
+const overlaySub = document.getElementById('overlay-sub');
+const overlayBtn = document.getElementById('overlay-btn');
+const buttons = document.querySelectorAll('.season-btn');
+
+function resizeCanvas() {
+  const wrap = document.getElementById('scene-wrap');
+  canvas.width = wrap.clientWidth;
+  canvas.height = canvas.clientHeight;
+}
+
+function renderRound() {
+  resizeCanvas();
+  const r = ALL_ROUNDS[currentRound];
+  const W = canvas.width, H = canvas.height;
+  ctx2d.clearRect(0,0,W,H);
+  r.draw(ctx2d, W, H);
+
+  const tierIdx = Math.floor(currentRound / 3);
+  const tierName = TIER_NAMES[tierIdx];
+  tierBadge.textContent = `⭐ Round ${currentRound+1}/9 · ${tierName}`;
+  promptText.textContent = 'Which season is this? 🌟';
+  locked = false;
+  buttons.forEach(b => {
+    b.style.pointerEvents = '';
+    b.classList.remove('wobble','wrong-flash','correct-highlight');
+  });
+}
+
+function overlayAction() {
+  hideOverlay();
+  if (overlayMode === 'win') {
+    restartGame();
+    return;
+  }
+  currentRound++;
+  if (currentRound >= ALL_ROUNDS.length) {
+    showWin();
+    return;
+  }
+  // Check if tier change
+  const prevTier = Math.floor((currentRound-1) / 3);
+  const newTier = Math.floor(currentRound / 3);
+  if (newTier > prevTier && overlayMode !== 'tier') {
+    showTierChange(newTier);
+  } else {
+    renderRound();
+  }
+}
+
+function showOverlay(emoji, title, sub, btnLabel) {
+  overlayEmoji.textContent = emoji;
+  overlayTitle.textContent = title;
+  overlaySub.textContent = sub;
+  overlayBtn.textContent = btnLabel;
+  overlay.classList.add('show');
+}
+function hideOverlay() {
+  overlay.classList.remove('show');
+  overlayMode = null;
+}
+
+function showCorrect(season) {
+  overlayMode = 'correct';
+  const labels = { spring:'Spring 🌸', summer:'Summer ☀️', autumn:'Autumn 🍂', winter:'Winter ❄️' };
+  const emojis = { spring:'🌸', summer:'☀️', autumn:'🍂', winter:'❄️' };
+  playRoundWin();
+  burst(canvas);
+  setTimeout(() => {
+    showOverlay(emojis[season], `✨ ${labels[season]}! ✨`, 'Great job, Princess! 👸', 'Next Round ➜');
+  }, 150);
+}
+
+function showTierChange(tierIdx) {
+  overlayMode = 'tier';
+  const msgs = [
+    ['🌟', 'Royal Explorer!', 'Getting harder — you can do it!'],
+    ['👑', 'Princess Master!', 'Final tier — show your royal wisdom!']
+  ];
+  const [em, ti, su] = msgs[tierIdx - 1] || ['🌟','New Tier!','Keep going!'];
+  playTierFanfare();
+  showOverlay(em, ti, su, 'Let\'s Go! 🌟');
+}
+
+function showWin() {
+  overlayMode = 'win';
+  playWinJingle();
+  bigConfetti();
+  setTimeout(() => {
+    showOverlay('🎉', 'You know ALL the seasons!', '🌸 Spring ☀️ Summer 🍂 Autumn ❄️ Winter', 'Play Again! 🎊');
+  }, 300);
+}
+
+function restartGame() {
+  currentRound = 0;
+  renderRound();
+}
+
+// ─────────────── Button handlers ───────────────
+buttons.forEach(btn => {
+  btn.addEventListener('click', () => {
+    if (locked) return;
+    const chosen = btn.dataset.season;
+    const correct = ALL_ROUNDS[currentRound].season;
+    if (chosen === correct) {
+      locked = true;
+      buttons.forEach(b => b.style.pointerEvents = 'none');
+      btn.classList.add('correct-highlight');
+      playCorrect();
+      sparkles(btn);
+      setTimeout(() => showCorrect(correct), 400);
+    } else {
+      btn.classList.remove('wobble','wrong-flash');
+      void btn.offsetWidth; // reflow
+      btn.classList.add('wobble','wrong-flash');
+      playWrong();
+      btn.addEventListener('animationend', () => {
+        btn.classList.remove('wobble','wrong-flash');
+      }, { once: true });
+    }
+  });
+});
+
+// ─────────────── Particles ───────────────
+function sparkles(el) {
+  const rect = el.getBoundingClientRect();
+  const cx = rect.left + rect.width/2;
+  const cy = rect.top + rect.height/2;
+  const colors = ['#f48fb1','#fff176','#ce93d8','#80deea','#ffab91','#ffd700'];
+  for (let i = 0; i < 18; i++) {
+    const s = document.createElement('div');
+    s.className = 'sparkle';
+    const size = 6 + Math.random()*10;
+    s.style.cssText = `
+      width:${size}px; height:${size}px;
+      left:${cx - size/2}px; top:${cy - size/2}px;
+      background:${colors[i%colors.length]};
+      --dx:${(Math.random()-0.5)*120}px;
+      --dy:${(Math.random()-0.5)*120}px;
+      animation-duration:${0.6+Math.random()*0.4}s;
+    `;
+    document.body.appendChild(s);
+    setTimeout(() => s.remove(), 1100);
+  }
+}
+
+function burst(canvasEl) {
+  const rect = canvasEl.getBoundingClientRect();
+  const cx = rect.left + rect.width/2;
+  const cy = rect.top + rect.height/2;
+  const colors = ['#f48fb1','#fff176','#ce93d8','#80deea','#ffab91','#ffd700','#ff7043','#b2dfdb'];
+  for (let i = 0; i < 30; i++) {
+    const s = document.createElement('div');
+    s.className = 'sparkle';
+    const size = 8 + Math.random()*14;
+    s.style.cssText = `
+      width:${size}px; height:${size}px;
+      left:${cx - size/2}px; top:${cy - size/2}px;
+      background:${colors[i%colors.length]};
+      border-radius:${Math.random()>0.5?'50%':'3px'};
+      --dx:${(Math.random()-0.5)*200}px;
+      --dy:${(Math.random()-0.5)*200}px;
+      animation-duration:${0.7+Math.random()*0.5}s;
+    `;
+    document.body.appendChild(s);
+    setTimeout(() => s.remove(), 1300);
+  }
+}
+
+function bigConfetti() {
+  const colors = ['#f48fb1','#fff176','#ce93d8','#80deea','#ff7043','#ffd700','#b2dfdb','#ef5350','#7986cb'];
+  for (let i = 0; i < 70; i++) {
+    const s = document.createElement('div');
+    s.className = 'confetti-piece';
+    const size = 6 + Math.random()*10;
+    const startX = Math.random() * window.innerWidth;
+    const startY = -20 - Math.random()*60;
+    const dur = 1.2 + Math.random()*1.4;
+    s.style.cssText = `
+      width:${size}px; height:${size * (0.4+Math.random()*0.8)}px;
+      left:${startX}px; top:${startY}px;
+      background:${colors[i%colors.length]};
+      --cx:${(Math.random()-0.5)*60}px;
+      --cy:${window.innerHeight + 60}px;
+      --cr:${(Math.random()-0.5)*720}deg;
+      --dur:${dur}s;
+      animation-delay:${Math.random()*0.6}s;
+    `;
+    document.body.appendChild(s);
+    setTimeout(() => s.remove(), (dur + 0.6)*1000 + 200);
+  }
+}
+
+// ─────────────── Init ───────────────
+window.addEventListener('resize', () => {
+  if (!overlay.classList.contains('show')) renderRound();
+});
+renderRound();
+</script>
+</body>
+</html>
