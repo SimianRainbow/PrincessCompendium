@@ -1,9 +1,9 @@
 # Princess Compendium — Status
 
 ## Last update run
-Date: 2026-06-19
-- Improved: `015-mermaid-lagoon-v2` → v1.1.0 (Fredoka One font; "🐚 Found: X/4" progress badge in HUD showing friend count live; 14-emoji CSS sparkle burst overlay on each friend discovery; new sea turtle NPC drawn with canvas sprite — glides in a 26-unit arc near the sandy floor)
-- Added: `040-royal-seasons` — "Royal Seasons 🍂" teaching the four seasons (Spring/Summer/Autumn/Winter); 9 illustrated canvas scenes across 3 tiers (Easy: obvious cues, Medium: moderate, Hard: subtle); princess character in seasonal outfit drawn in each scene; 4 season buttons always visible; sparkle burst + celebration overlay on correct; wobble + descending tone on wrong; tier-transition toasts; confetti + win screen
+Date: 2026-06-22
+- Improved: `027-royal-weather` → v1.1.0 (added Fredoka One font; color-coded tier badge green/yellow/purple; tier-transition toast with playTierUp melody; increased sparkle burst from 10→16 particles; better "Round X / 9" label format; 42-piece confetti)
+- Added: `041-princess-measures` — "Princess Measures 📏" teaching measurement concepts; 9 rounds across 3 tiers: Easy = tall/short (giraffe vs dog, tree vs flower, castle vs house), Medium = heavy/light (elephant vs butterfly, rock vs feather, whale vs fish), Hard = full/empty + long/short (bucket with/without drops, snake vs worm, ruler vs pencil); items randomly left/right flipped each play; sparkle burst + confetti + celebration overlay on correct; wobble on wrong; tier-transition toast
 
 ## Improvement history
 
@@ -31,6 +31,7 @@ Date: 2026-06-19
 | 2026-06-13 | 013-magic-leaf | 3-tier speed/banana scaling, tier badge, inter-round toast, 14-particle sparkle on collect, restartTier() | 1.1.0 |
 | 2026-06-16 | 011-princess-quest | 3 rounds (speed 6/8.5/11, 5/6/7 stars), tier badge, inter-round toast, 14-particle sparkle burst, Fredoka One | 1.1.0 |
 | 2026-06-19 | 015-mermaid-lagoon-v2 | Fredoka One font, "Found: X/4" progress badge, 14-emoji CSS sparkle overlay on find, sea turtle NPC sprite | 1.1.0 |
+| 2026-06-22 | 027-royal-weather | Fredoka One font, color-coded tier badge, tier-transition toast, sparkles 10→16, Round X/9 label | 1.1.0 |
 
 ## Games due for improvement (all at v1.0.0)
 
@@ -65,4 +66,4 @@ See `CLAUDE.md` for the full prioritised list. Top 3 to build next:
 11. ~~Seasons recognition~~ — ✅ covered by `040-royal-seasons`
 
 ## Next game ID
-`041-<slug>`
+`042-<slug>`
