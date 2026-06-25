@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>Princess Puzzle 🔮</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
   <style>
     *{ margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
@@ -11,6 +12,17 @@
       min-height:100vh; background:radial-gradient(ellipse at 50% 0%,#5b1fa2,#1a003a 70%);
       font-family:'Fredoka One',Georgia,serif; overflow:hidden; touch-action:manipulation;
       display:flex; flex-direction:column; align-items:center; justify-content:center;
+    }
+
+    /* ── Floating bg decorations ── */
+    .bg-floater{
+      position:fixed; pointer-events:none;
+      animation:floatUp linear infinite; opacity:.08;
+      font-size:clamp(18px,5vw,32px);
+    }
+    @keyframes floatUp{
+      0%{transform:translateY(110vh) rotate(0deg)}
+      100%{transform:translateY(-15vh) rotate(360deg)}
     }
 
     /* ── Start ── */
@@ -52,10 +64,12 @@
       width:100%; display:flex; justify-content:space-between; align-items:center;
     }
     #tier-badge{
-      font-size:clamp(14px,3.8vw,20px); color:#fff;
-      background:rgba(90,0,160,.75); border-radius:20px;
-      padding:5px 15px; border:2px solid rgba(255,215,0,.4);
+      font-size:clamp(13px,3.5vw,18px); padding:5px 16px; border-radius:20px; font-weight:bold;
     }
+    .tier-easy  { background:linear-gradient(135deg,#a5d6a7,#66bb6a); color:#1b5e20; }
+    .tier-medium{ background:linear-gradient(135deg,#ffe082,#ffd54f); color:#5a3000; }
+    .tier-hard  { background:linear-gradient(135deg,#ce93d8,#ab47bc); color:#fff; }
+
     #round-counter{
       font-size:clamp(14px,3.8vw,20px); color:#ffd700;
       text-shadow:0 0 10px rgba(255,215,0,.5);
@@ -171,7 +185,7 @@
   <!-- Game -->
   <div id="game-area">
     <div id="hud-row">
-      <div id="tier-badge">🌸 Tier 1</div>
+      <div id="tier-badge" class="tier-easy">Easy</div>
       <div id="round-counter">Round 1 / 9</div>
     </div>
     <div id="prompt">Which one doesn't belong? 🤔</div>
@@ -192,7 +206,7 @@
   <!-- Tier toast -->
   <div id="tier-toast">
     <div id="tier-toast-emoji">✨</div>
-    <div id="tier-toast-title">Tier 2!</div>
+    <div id="tier-toast-title">Moving Up!</div>
     <div id="tier-toast-sub">Getting trickier!</div>
   </div>
 
@@ -205,37 +219,48 @@
   </div>
 
   <script>
-  // ── ROUND DATA ─────────────────────────────────────
-  // Each entry: items[4], odd = index of the item that doesn't belong,
-  // label = what the 3 matching items ARE (shown in celebration)
-  const ALL_ROUNDS = [
-    // Tier 1 — Easy: completely different category
-    { items:['🐱','🐶','🐭','💎'], odd:3, celebrate:'Animals! 🐾',   prompt:'Which is NOT an animal?' },
-    { items:['🍎','🍊','🍓','🏰'], odd:3, celebrate:'Fruits! 🍓',    prompt:'Which is NOT a fruit?'  },
-    { items:['👑','💍','💎','🐸'], odd:3, celebrate:'Royal! 👑',     prompt:'Which is NOT royal?'    },
-    // Tier 2 — Medium: related but one doesn't fit
-    { items:['🌸','🌺','🌻','🦊'], odd:3, celebrate:'Flowers! 🌸',   prompt:'Which is NOT a flower?' },
+  // ── ROUND POOL (18 total; 3 random per tier = 9 per game) ──────────────────
+  // Each entry: items[4], odd = index of the item that doesn't belong
+  const ROUND_POOL = [
+    // TIER 1 — Easy (completely different category)
+    { items:['🐱','🐶','🐭','💎'], odd:3, celebrate:'Animals! 🐾',       prompt:'Which is NOT an animal?'          },
+    { items:['🍎','🍊','🍓','🏰'], odd:3, celebrate:'Fruits! 🍓',        prompt:'Which is NOT a fruit?'            },
+    { items:['👑','💍','💎','🐸'], odd:3, celebrate:'Royal! 👑',         prompt:'Which is NOT royal?'              },
+    { items:['🐰','🐹','🐭','🌸'], odd:3, celebrate:'Fluffy animals! 🐾', prompt:'Which is NOT an animal?'         },
+    { items:['🍰','🧁','🍭','⭐'], odd:3, celebrate:'Sweets! 🍭',         prompt:'Which is NOT a sweet?'           },
+    { items:['🌊','🌈','☁️','🐮'], odd:3, celebrate:'Sky things! 🌈',    prompt:'Which is NOT in the sky?'        },
+
+    // TIER 2 — Medium (same category but one doesn't fit)
+    { items:['🌸','🌺','🌻','🦊'], odd:3, celebrate:'Flowers! 🌸',       prompt:'Which is NOT a flower?'          },
     { items:['🐠','🐙','🦀','🐘'], odd:3, celebrate:'Sea creatures! 🌊', prompt:'Which does NOT live in the sea?' },
-    { items:['👗','👒','👠','🎂'], odd:3, celebrate:'Clothes! 👗',   prompt:'Which is NOT clothes?'  },
-    // Tier 3 — Tricky: conceptual grouping
-    { items:['🌙','⭐','🌟','☀️'], odd:3, celebrate:'Night sky! 🌙', prompt:'Which is NOT in the night sky?' },
-    { items:['🦋','🐝','🐦','🐢'], odd:3, celebrate:'They can fly! 🦋', prompt:'Which CANNOT fly?'   },
-    { items:['🎂','🍦','🍭','🥦'], odd:3, celebrate:'Sweets! 🍭',   prompt:'Which is NOT a sweet?'  },
+    { items:['👗','👒','👠','🎂'], odd:3, celebrate:'Clothes! 👗',       prompt:'Which is NOT clothes?'           },
+    { items:['🌺','🌸','🌷','🍓'], odd:3, celebrate:'Flowers! 🌷',       prompt:'Which is NOT a flower?'          },
+    { items:['🐬','🐋','🦈','🐝'], odd:3, celebrate:'Sea animals! 🌊',   prompt:'Which does NOT swim in the sea?' },
+    { items:['🎵','🎶','🎸','🎀'], odd:3, celebrate:'Music! 🎵',         prompt:'Which is NOT about music?'       },
+
+    // TIER 3 — Hard (conceptual grouping)
+    { items:['🌙','⭐','🌟','☀️'], odd:3, celebrate:'Night sky! 🌙',     prompt:'Which is NOT in the night sky?' },
+    { items:['🦋','🐝','🐦','🐢'], odd:3, celebrate:'They can fly! 🦋',  prompt:'Which CANNOT fly?'              },
+    { items:['🎂','🍦','🍭','🥦'], odd:3, celebrate:'Sweets! 🍭',        prompt:'Which is NOT a sweet?'          },
+    { items:['🐱','🐶','🐰','🐠'], odd:3, celebrate:'Land pets! 🐾',    prompt:'Which lives in WATER?'          },
+    { items:['🌸','🌺','🌼','🌙'], odd:3, celebrate:'Flowers! 🌸',       prompt:'Which is NOT a flower?'         },
+    { items:['👑','💎','🔮','🍕'], odd:3, celebrate:'Princess magic! ✨', prompt:'Which is NOT royal or magical?' },
   ];
 
   const TIER_INFO = [
-    { badge:'🌸 Tier 1', toast:'✨',  toastTitle:'Tier 2!',    toastSub:'Getting trickier! 🧐'   },
-    { badge:'✨ Tier 2', toast:'🏆',  toastTitle:'Tier 3!',    toastSub:'Super tricky now! 🔍'   },
-    { badge:'🏆 Tier 3', toast:'👸',  toastTitle:'You did it!', toastSub:''                       },
+    { label:'Easy',   cls:'tier-easy',   toast:'✨', toastTitle:'Moving Up!',    toastSub:'Medium round — getting trickier! 🧐' },
+    { label:'Medium', cls:'tier-medium', toast:'🏆', toastTitle:'Almost There!', toastSub:'Hard puzzles ahead! 🔍'              },
+    { label:'Hard',   cls:'tier-hard',   toast:'👸', toastTitle:'You did it!',   toastSub:''                                    },
   ];
 
-  // ── STATE ──────────────────────────────────────────
+  // ── STATE ──────────────────────────────────────────────────────────────────
+  let gameRounds  = [];
   let currentRound = 0;
   let correctPos   = 0;
   let locked       = false;
   let score        = 0;
 
-  // ── AUDIO ──────────────────────────────────────────
+  // ── AUDIO ──────────────────────────────────────────────────────────────────
   let audioCtx = null;
   function au(){ if(!audioCtx) audioCtx = new(window.AudioContext||window.webkitAudioContext)(); return audioCtx; }
   function tone(f, t, d, v=0.14){
@@ -250,23 +275,37 @@
   }
   function playCorrect(){ [523,659,784,1047].forEach((f,i)=>setTimeout(()=>tone(f,'sine',0.22),i*65)); }
   function playWrong()  { tone(200,'sawtooth',0.18,0.1); setTimeout(()=>tone(160,'sawtooth',0.15,0.1),100); }
-  function playTierWin(){ [523,587,659,698,784,880,988].forEach((f,i)=>setTimeout(()=>tone(f,'sine',0.28),i*80)); }
-  function playWin()    { [523,587,659,784,988,1047,1319,1568].forEach((f,i)=>setTimeout(()=>tone(f,'sine',0.28),i*85)); }
+  function playTierWin(){
+    [523,587,659,698,784,880,988].forEach((f,i)=>setTimeout(()=>tone(f,'sine',0.28),i*80));
+  }
+  function playWin(){
+    [523,587,659,784,988,1047,1319,1568].forEach((f,i)=>setTimeout(()=>tone(f,'sine',0.28),i*85));
+  }
 
-  // ── SPARKLE ────────────────────────────────────────
-  function sparkleBurst(n){
+  // ── SPARKLE ────────────────────────────────────────────────────────────────
+  function sparkleBurst(x, y){
     const cols=['#ffd700','#ff69b4','#ce93d8','#fff176','#ff8a65','#80deea','#ffffff'];
-    const cx=window.innerWidth/2, cy=window.innerHeight/2;
-    for(let i=0;i<n;i++){
+    const emojis=['✨','💫','🌟','🎉'];
+    const cx = x != null ? x : window.innerWidth/2;
+    const cy = y != null ? y : window.innerHeight/2;
+    for(let i=0;i<16;i++){
       const el=document.createElement('div');
       el.className='sparkle';
-      const sz=8+Math.random()*12;
-      const angle=(i/n)*Math.PI*2+Math.random()*0.5;
-      const dist=60+Math.random()*100;
-      el.style.cssText=`width:${sz}px;height:${sz}px;left:${cx-sz/2}px;top:${cy-sz/2}px;`
-        +`background:${cols[i%cols.length]};`
-        +`--dx:${Math.cos(angle)*dist}px;--dy:${Math.sin(angle)*dist}px;`
-        +`animation-duration:${0.5+Math.random()*0.45}s;`;
+      const angle=(i/16)*Math.PI*2+Math.random()*0.5;
+      const dist=55+Math.random()*110;
+      if(i<4){
+        el.style.cssText=`left:${cx}px;top:${cy}px;font-size:${16+Math.random()*12}px;`
+          +`background:none;border-radius:0;`
+          +`--dx:${Math.cos(angle)*dist}px;--dy:${Math.sin(angle)*dist}px;`
+          +`animation-duration:${0.55+Math.random()*0.4}s;`;
+        el.textContent=emojis[i%emojis.length];
+      } else {
+        const sz=8+Math.random()*12;
+        el.style.cssText=`width:${sz}px;height:${sz}px;left:${cx-sz/2}px;top:${cy-sz/2}px;`
+          +`background:${cols[i%cols.length]};`
+          +`--dx:${Math.cos(angle)*dist}px;--dy:${Math.sin(angle)*dist}px;`
+          +`animation-duration:${0.5+Math.random()*0.45}s;`;
+      }
       document.body.appendChild(el);
       setTimeout(()=>el.remove(),950);
     }
@@ -286,16 +325,33 @@
     }
   }
 
-  // ── SETUP ROUND ────────────────────────────────────
+  // ── PICK ROUNDS ────────────────────────────────────────────────────────────
+  function pickRounds(){
+    const t1 = shuffle(ROUND_POOL.slice(0,6)).slice(0,3);
+    const t2 = shuffle(ROUND_POOL.slice(6,12)).slice(0,3);
+    const t3 = shuffle(ROUND_POOL.slice(12,18)).slice(0,3);
+    return [...t1,...t2,...t3];
+  }
+
+  function shuffle(arr){
+    const a=[...arr];
+    for(let i=a.length-1;i>0;i--){
+      const j=Math.floor(Math.random()*(i+1));
+      [a[i],a[j]]=[a[j],a[i]];
+    }
+    return a;
+  }
+
+  // ── SETUP ROUND ────────────────────────────────────────────────────────────
   function setupRound(ri){
     locked = false;
-    const rd = ALL_ROUNDS[ri];
+    const rd = gameRounds[ri];
 
     // Shuffle odd item into a random position
     const others = rd.items.filter((_,i)=>i!==rd.odd);
-    shuffle(others);
+    const others2 = shuffle([...others]);
     correctPos = Math.floor(Math.random()*4);
-    const display = [...others];
+    const display = [...others2];
     display.splice(correctPos, 0, rd.items[rd.odd]);
 
     // Update grid
@@ -307,20 +363,15 @@
 
     // Update HUD
     const tier = Math.floor(ri/3);
-    document.getElementById('tier-badge').textContent = TIER_INFO[tier].badge;
+    const ti = TIER_INFO[tier];
+    const badge = document.getElementById('tier-badge');
+    badge.textContent = ti.label;
+    badge.className   = ti.cls;
     document.getElementById('round-counter').textContent = `Round ${ri+1} / 9`;
     document.getElementById('prompt').textContent = rd.prompt;
   }
 
-  function shuffle(arr){
-    for(let i=arr.length-1;i>0;i--){
-      const j=Math.floor(Math.random()*(i+1));
-      [arr[i],arr[j]]=[arr[j],arr[i]];
-    }
-    return arr;
-  }
-
-  // ── TAP HANDLER ────────────────────────────────────
+  // ── TAP HANDLER ────────────────────────────────────────────────────────────
   function tap(pos){
     if(locked) return;
     const card = document.getElementById('c'+pos);
@@ -329,8 +380,9 @@
       score++;
       card.classList.add('correct');
       playCorrect();
-      sparkleBurst(16);
-      const rd = ALL_ROUNDS[currentRound];
+      const r = card.getBoundingClientRect();
+      sparkleBurst(r.left+r.width/2, r.top+r.height/2);
+      const rd = gameRounds[currentRound];
       showCelebrate(rd.celebrate, ()=>{
         card.classList.remove('correct');
         advanceRound();
@@ -342,7 +394,7 @@
     }
   }
 
-  // ── CELEBRATE ──────────────────────────────────────
+  // ── CELEBRATE ──────────────────────────────────────────────────────────────
   function showCelebrate(text, cb){
     const cel = document.getElementById('celebrate');
     const emojis = ['✨','🎉','⭐','💫','🌟'];
@@ -352,12 +404,12 @@
     setTimeout(()=>{ cel.classList.remove('show'); cb(); }, 1100);
   }
 
-  // ── ADVANCE ────────────────────────────────────────
+  // ── ADVANCE ────────────────────────────────────────────────────────────────
   function advanceRound(){
     const wasRound = currentRound;
     currentRound++;
 
-    if(currentRound >= ALL_ROUNDS.length){
+    if(currentRound >= gameRounds.length){
       showWin(); return;
     }
 
@@ -365,8 +417,7 @@
     const newTier  = Math.floor(currentRound/3);
 
     if(newTier !== prevTier){
-      // Between-tier toast
-      playTierWin(); confettiBurst(25);
+      playTierWin(); confettiBurst(42);
       const ti = TIER_INFO[prevTier];
       showTierToast(ti.toast, ti.toastTitle, ti.toastSub, ()=>setupRound(currentRound));
     } else {
@@ -382,19 +433,33 @@
     setTimeout(()=>{ document.getElementById('tier-toast').style.display='none'; cb(); }, 2200);
   }
 
-  // ── WIN ────────────────────────────────────────────
+  // ── WIN ────────────────────────────────────────────────────────────────────
   function showWin(){
     document.getElementById('game-area').classList.remove('active');
     document.getElementById('win-score').textContent = `${score} / 9 correct! 🏆`;
     document.getElementById('win-screen').classList.add('show');
-    playWin(); confettiBurst(50);
+    playWin(); confettiBurst(56);
   }
 
-  // ── START / RESTART ────────────────────────────────
+  // ── BG DECORATIONS ─────────────────────────────────────────────────────────
+  function makeBgFloaters(){
+    const gems=['🔮','✨','💫','⭐','🌟','💎'];
+    for(let i=0;i<10;i++){
+      const el=document.createElement('div'); el.className='bg-floater';
+      el.textContent=gems[i%gems.length];
+      el.style.left=(5+Math.random()*90)+'vw';
+      el.style.animationDuration=(10+Math.random()*16)+'s';
+      el.style.animationDelay=-(Math.random()*16)+'s';
+      document.body.appendChild(el);
+    }
+  }
+
+  // ── START / RESTART ────────────────────────────────────────────────────────
   function startGame(){
     document.getElementById('start-screen').classList.add('hidden');
     document.getElementById('game-area').classList.add('active');
     currentRound = 0; score = 0;
+    gameRounds = pickRounds();
     setupRound(0);
   }
 
@@ -402,8 +467,11 @@
     document.getElementById('win-screen').classList.remove('show');
     document.getElementById('game-area').classList.add('active');
     currentRound = 0; score = 0;
+    gameRounds = pickRounds();
     setupRound(0);
   }
+
+  makeBgFloaters();
   </script>
 </body>
 </html>

@@ -463,7 +463,7 @@
     "ageMin": 2,
     "ageMax": 5,
     "skill": "odd-one-out reasoning & categorisation",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "category": "other",
     "path": "games/039-princess-puzzle/index.html"
   },
@@ -490,5 +490,17 @@
     "version": "1.0.0",
     "category": "other",
     "path": "games/041-princess-measures/index.html"
+  },
+  {
+    "id": "042-shadow-magic",
+    "title": "Shadow Magic",
+    "description": "Match the princess treasure to its shadow — tap the right silhouette! 3 tiers from simple to similar shapes.",
+    "icon": "🌒",
+    "ageMin": 2,
+    "ageMax": 5,
+    "skill": "visual discrimination & shadow matching",
+    "version": "1.0.0",
+    "category": "colours-shapes",
+    "path": "games/042-shadow-magic/index.html"
   }
 ]

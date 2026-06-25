@@ -1,9 +1,9 @@
 # Princess Compendium — Status
 
 ## Last update run
-Date: 2026-06-22
-- Improved: `027-royal-weather` → v1.1.0 (added Fredoka One font; color-coded tier badge green/yellow/purple; tier-transition toast with playTierUp melody; increased sparkle burst from 10→16 particles; better "Round X / 9" label format; 42-piece confetti)
-- Added: `041-princess-measures` — "Princess Measures 📏" teaching measurement concepts; 9 rounds across 3 tiers: Easy = tall/short (giraffe vs dog, tree vs flower, castle vs house), Medium = heavy/light (elephant vs butterfly, rock vs feather, whale vs fish), Hard = full/empty + long/short (bucket with/without drops, snake vs worm, ruler vs pencil); items randomly left/right flipped each play; sparkle burst + confetti + celebration overlay on correct; wobble on wrong; tier-transition toast
+Date: 2026-06-25
+- Improved: `039-princess-puzzle` → v1.1.0 (color-coded tier badge Easy/Medium/Hard; round pool expanded 9→18 with 3 random picks per tier for replay variety; floating background decorations; sparkle burst now targets tap position; 4 emoji sparkles + 12 dot sparkles = 16 total; tier confetti 25→42; round counter and tier toast unchanged but confetti increased)
+- Added: `042-shadow-magic` — "Shadow Magic 🌒" teaching visual discrimination & shadow matching; show a colourful princess emoji, tap the matching dark silhouette from 3 choices; 18-round pool (6 per tier), 3 random per tier = 9 per game; Easy = very distinct shapes (crown, moon, unicorn), Medium = same category (flowers, animals, castle), Hard = similar outlines (star vs sparkle, lion vs tiger vs bear); CSS filter grayscale+brightness(0.08) for silhouette effect; sparkle burst on correct; wobble on wrong; tier-transition toast with playTierUp melody; 42-piece confetti on tier change; 56-piece confetti on win
 
 ## Improvement history
 
@@ -32,6 +32,7 @@ Date: 2026-06-22
 | 2026-06-16 | 011-princess-quest | 3 rounds (speed 6/8.5/11, 5/6/7 stars), tier badge, inter-round toast, 14-particle sparkle burst, Fredoka One | 1.1.0 |
 | 2026-06-19 | 015-mermaid-lagoon-v2 | Fredoka One font, "Found: X/4" progress badge, 14-emoji CSS sparkle overlay on find, sea turtle NPC sprite | 1.1.0 |
 | 2026-06-22 | 027-royal-weather | Fredoka One font, color-coded tier badge, tier-transition toast, sparkles 10→16, Round X/9 label | 1.1.0 |
+| 2026-06-25 | 039-princess-puzzle | Color-coded tier badge Easy/Medium/Hard, 18-round pool (was 9), 3 random picks per tier, bg floaters, sparkle targets tap position, confetti 25→42 | 1.1.0 |
 
 ## Games due for improvement (all at v1.0.0)
 
@@ -64,6 +65,7 @@ See `CLAUDE.md` for the full prioritised list. Top 3 to build next:
 9. ~~Animal family recognition~~ — ✅ covered by `038-royal-babies`
 10. ~~Odd-one-out / categorisation reasoning~~ — ✅ covered by `039-princess-puzzle`
 11. ~~Seasons recognition~~ — ✅ covered by `040-royal-seasons`
+12. ~~Visual discrimination / shadow matching~~ — ✅ covered by `042-shadow-magic`
 
 ## Next game ID
-`042-<slug>`
+`043-<slug>`
