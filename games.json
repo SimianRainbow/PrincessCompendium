@@ -451,7 +451,7 @@
     "ageMin": 2,
     "ageMax": 5,
     "skill": "animal family recognition (mama & baby)",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "category": "animals",
     "path": "games/038-royal-babies/index.html"
   },
@@ -502,5 +502,17 @@
     "version": "1.0.0",
     "category": "colours-shapes",
     "path": "games/042-shadow-magic/index.html"
+  },
+  {
+    "id": "043-letter-sounds",
+    "title": "Princess Letter Sounds",
+    "description": "Tap the picture that starts with the princess letter — B is for Bear, S is for Star! 9 rounds across 3 tiers.",
+    "icon": "🔤",
+    "ageMin": 3,
+    "ageMax": 5,
+    "skill": "phonics — initial letter sounds",
+    "version": "1.0.0",
+    "category": "letters",
+    "path": "games/043-letter-sounds/index.html"
   }
 ]

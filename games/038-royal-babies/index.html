@@ -12,109 +12,85 @@
       background: radial-gradient(ellipse at 50% 30%, #f8a7c4 0%, #c084e8 60%, #7c3aed 100%);
       font-family: 'Fredoka One', Georgia, sans-serif;
       display: flex; flex-direction: column; align-items: center;
-      justify-content: center; overflow: hidden;
+      overflow: hidden;
       touch-action: manipulation; user-select: none;
     }
 
-    .screen {
-      position: fixed; inset: 0;
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      gap: clamp(12px,3vw,22px); padding: 20px; z-index: 20;
-    }
-    .screen.hidden { display: none; }
+    /* ── Floating bg ── */
+    .bg-gem { position:fixed; pointer-events:none; animation:floatUp linear infinite; opacity:.12; font-size:clamp(14px,3.5vw,22px); }
+    @keyframes floatUp { 0%{transform:translateY(110vh) rotate(0)} 100%{transform:translateY(-15vh) rotate(360deg)} }
 
-    /* ── START ── */
-    #start-screen {
-      background: radial-gradient(ellipse at 50% 35%, #f8a7c4 0%, #7c3aed 100%);
+    /* ── Header ── */
+    #header {
+      width:100%; display:flex; justify-content:space-between; align-items:center;
+      padding:clamp(10px,2.5vw,16px) clamp(14px,4vw,22px) 0; z-index:10; flex-shrink:0;
     }
-    #start-icon {
-      font-size: clamp(80px,22vw,140px);
-      animation: bounce 1.8s ease-in-out infinite;
-    }
-    @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-16px)} }
-    #start-title {
-      font-size: clamp(26px,7vw,52px); color:#fff;
-      text-shadow: 0 3px 14px rgba(100,0,150,.5); text-align:center;
-    }
-    #start-sub {
-      font-size: clamp(14px,3.5vw,22px);
-      color: rgba(255,255,255,.85); text-align:center;
-    }
-    .big-btn {
-      padding: clamp(14px,3.5vw,22px) clamp(44px,11vw,80px);
-      font-size: clamp(20px,5.5vw,32px);
-      border-radius: 50px; border: none;
-      background: linear-gradient(135deg,#ffd700,#ff8c00);
-      color: #5d2e00; cursor: pointer;
-      font-family: 'Fredoka One', Georgia, sans-serif;
-      box-shadow: 0 6px 24px rgba(255,180,0,.5);
-      animation: pulse 1.9s ease-in-out infinite;
-    }
-    @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.06)} }
-
-    /* ── GAME ── */
-    #game-screen {
-      background: radial-gradient(ellipse at 50% 30%, #fde8f5 0%, #e0c3f7 60%, #c084e8 100%);
-      gap: clamp(10px,2.5vw,18px);
-    }
-
     #tier-badge {
-      font-size: clamp(13px,3.2vw,18px);
-      background: rgba(100,20,160,.55);
-      color: #ffd700; padding: 5px 18px;
-      border-radius: 20px; border: 2px solid rgba(255,215,0,.4);
+      font-size:clamp(13px,3.2vw,18px); padding:5px 15px; border-radius:20px; font-weight:bold;
     }
-    #round-counter {
-      font-size: clamp(13px,3.2vw,18px);
-      color: rgba(80,0,120,.8);
+    .tier-easy   { background:linear-gradient(135deg,#a5d6a7,#66bb6a); color:#1b5e20; }
+    .tier-medium { background:linear-gradient(135deg,#ffe082,#ffd54f); color:#5a3000; }
+    .tier-hard   { background:linear-gradient(135deg,#ce93d8,#ab47bc); color:#fff; }
+    #round-counter { font-size:clamp(13px,3.2vw,18px); color:rgba(255,255,255,.9); text-shadow:0 1px 4px rgba(0,0,0,.3); }
+
+    /* ── Progress bar ── */
+    #progress-wrap { width:100%; padding:6px clamp(14px,4vw,22px) 0; flex-shrink:0; }
+    #progress-track { background:rgba(255,255,255,.18); border-radius:20px; height:clamp(8px,2vw,12px); overflow:hidden; }
+    #progress-fill  { height:100%; border-radius:20px; background:linear-gradient(90deg,#ffd700,#f48fb1); transition:width .35s ease; width:0%; box-shadow:0 0 8px rgba(255,215,0,.45); }
+
+    /* ── Game area ── */
+    #game-area {
+      flex:1; display:flex; flex-direction:column; align-items:center;
+      justify-content:center; gap:clamp(10px,2.5vw,18px);
+      padding:0 20px clamp(10px,3vw,20px); width:100%;
     }
 
     #mama-area { text-align:center; }
     #mama-label {
-      font-size: clamp(13px,3.5vw,20px);
-      color: #7c3aed; margin-bottom: 4px;
+      font-size:clamp(14px,3.8vw,22px);
+      color:#fff; text-shadow:0 2px 8px rgba(0,0,0,.35); margin-bottom:4px;
     }
     #mama-emoji {
-      font-size: clamp(80px,22vw,140px);
-      display: block; line-height: 1;
+      font-size:clamp(80px,22vw,140px);
+      display:block; line-height:1;
       filter: drop-shadow(0 6px 16px rgba(100,0,200,.25));
     }
     #prompt {
-      font-size: clamp(16px,4.5vw,26px);
-      color: #4a0080; margin-top: 6px; text-align:center;
+      font-size:clamp(16px,4.5vw,26px);
+      color:#fff; margin-top:6px; text-align:center;
+      text-shadow:0 2px 6px rgba(0,0,0,.3);
     }
 
     #choices {
-      display: flex; gap: clamp(12px,3vw,22px);
-      justify-content: center; flex-wrap: wrap;
+      display:flex; gap:clamp(12px,3vw,22px);
+      justify-content:center; flex-wrap:wrap;
     }
     .choice-btn {
-      min-width: clamp(100px,26vw,150px);
-      min-height: clamp(100px,26vw,150px);
-      border-radius: 24px;
-      border: 3px solid rgba(255,255,255,.6);
-      background: linear-gradient(145deg, rgba(255,255,255,.78), rgba(230,200,255,.78));
-      display: flex; flex-direction:column;
+      min-width:clamp(100px,26vw,150px);
+      min-height:clamp(100px,26vw,150px);
+      border-radius:24px;
+      border:3px solid rgba(255,255,255,.6);
+      background:linear-gradient(145deg,rgba(255,255,255,.78),rgba(230,200,255,.78));
+      display:flex; flex-direction:column;
       align-items:center; justify-content:center;
-      gap: 6px; cursor:pointer;
-      transition: transform .15s ease, box-shadow .15s ease;
-      box-shadow: 0 4px 18px rgba(100,0,200,.18);
-      font-family: 'Fredoka One', Georgia, sans-serif;
+      gap:6px; cursor:pointer;
+      transition:transform .15s ease, box-shadow .15s ease;
+      box-shadow:0 4px 18px rgba(100,0,200,.18);
+      font-family:'Fredoka One',Georgia,sans-serif;
     }
-    .choice-btn:active { transform: scale(0.93); }
-    .choice-emoji { font-size: clamp(38px,10vw,68px); line-height:1; }
-    .choice-label { font-size: clamp(11px,2.8vw,16px); color: #4a0080; text-align:center; }
+    .choice-btn:active { transform:scale(0.93); }
+    .choice-emoji { font-size:clamp(38px,10vw,68px); line-height:1; }
+    .choice-label { font-size:clamp(11px,2.8vw,16px); color:#4a0080; text-align:center; }
 
     .choice-btn.correct {
-      background: linear-gradient(145deg,#d4ffc8,#a8f0b0);
-      border-color: #4caf50;
-      animation: correctPop .5s ease;
+      background:linear-gradient(145deg,#d4ffc8,#a8f0b0);
+      border-color:#4caf50;
+      animation:correctPop .5s ease;
     }
     .choice-btn.wrong {
-      background: linear-gradient(145deg,#ffe0e0,#ffb0b0);
-      border-color: #f44336;
-      animation: wobble .45s ease;
+      background:linear-gradient(145deg,#ffe0e0,#ffb0b0);
+      border-color:#f44336;
+      animation:wobble .45s ease;
     }
     @keyframes correctPop { 0%{transform:scale(1)} 40%{transform:scale(1.18)} 100%{transform:scale(1)} }
     @keyframes wobble {
@@ -124,52 +100,67 @@
     }
 
     #feedback {
-      min-height: clamp(30px,7vw,44px);
-      font-size: clamp(13px,3.8vw,21px);
-      color: #4a0080; text-align:center;
-      padding: 0 12px;
+      min-height:clamp(28px,6vw,40px);
+      font-size:clamp(13px,3.8vw,21px);
+      color:#fff; text-align:center; padding:0 12px;
+      text-shadow:0 1px 4px rgba(0,0,0,.3);
     }
 
-    /* ── TIER TOAST ── */
+    /* ── Tier toast overlay ── */
     #tier-toast {
-      position: fixed; inset:0;
-      display: flex; align-items:center; justify-content:center;
-      z-index: 40; background: rgba(80,0,140,.72);
+      position:fixed; inset:0;
+      display:flex; align-items:center; justify-content:center;
+      z-index:40; background:rgba(80,0,140,.72);
     }
     #tier-toast.hidden { display:none; }
     #tier-toast-box {
-      background: radial-gradient(ellipse at 50% 40%,#f8c8f0,#9c27b0);
-      border-radius: 28px;
-      padding: clamp(28px,6vw,48px) clamp(36px,9vw,72px);
+      background:radial-gradient(ellipse at 50% 40%,#f8c8f0,#9c27b0);
+      border-radius:28px;
+      padding:clamp(24px,5vw,42px) clamp(30px,8vw,64px);
       text-align:center; color:#fff;
-      box-shadow: 0 10px 50px rgba(0,0,0,.5);
-      border: 3px solid rgba(255,215,0,.5);
+      box-shadow:0 10px 50px rgba(0,0,0,.5);
+      border:3px solid rgba(255,215,0,.5);
     }
-    #tier-toast-big { font-size: clamp(44px,12vw,80px); }
-    #tier-toast-text {
-      font-size: clamp(20px,5.5vw,36px);
-      color: #ffd700; margin: 10px 0 6px;
-    }
-    #tier-toast-sub {
-      font-size: clamp(14px,3.5vw,22px);
-      color: rgba(255,255,255,.85);
+    #tier-toast-big { font-size:clamp(44px,12vw,80px); }
+    #tier-toast-text { font-size:clamp(20px,5.5vw,36px); color:#ffd700; margin:10px 0 6px; }
+    #tier-toast-sub  { font-size:clamp(14px,3.5vw,22px); color:rgba(255,255,255,.85); margin-bottom:18px; }
+    .toast-btn {
+      padding:clamp(12px,3vw,18px) clamp(28px,7vw,48px);
+      font-size:clamp(18px,4.5vw,26px); border-radius:50px; border:none;
+      background:linear-gradient(135deg,#ffd700,#ff8c00);
+      color:#5d2e00; font-weight:bold; cursor:pointer;
+      font-family:'Fredoka One',Georgia,sans-serif;
+      box-shadow:0 4px 18px rgba(255,180,0,.5);
+      min-height:60px;
     }
 
-    /* ── WIN ── */
-    #win-screen {
-      background: radial-gradient(ellipse at 50% 35%,#fff3e0,#ff8f00);
+    /* ── Win overlay ── */
+    #win-overlay {
+      position:fixed; inset:0; background:rgba(255,240,255,.92);
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      gap:16px; z-index:99; opacity:0; pointer-events:none; transition:opacity .4s;
     }
-    #win-icon {
-      font-size: clamp(64px,18vw,110px);
-      animation: bounce 1.5s ease-in-out infinite;
+    #win-overlay.show { opacity:1; pointer-events:all; }
+    .ov-emoji { font-size:clamp(64px,18vw,110px); }
+    .ov-title { font-size:clamp(24px,7vw,48px); color:#6a1b9a; text-align:center; padding:0 20px; }
+    .ov-sub   { font-size:clamp(15px,4vw,22px); color:#7b1fa2; text-align:center; padding:0 20px; opacity:.9; }
+    .big-btn {
+      padding:clamp(14px,3.5vw,20px) clamp(36px,9vw,56px);
+      font-size:clamp(18px,5vw,26px);
+      border-radius:50px; border:none;
+      background:linear-gradient(135deg,#ffd700,#ff8c00);
+      color:#5d2e00; cursor:pointer;
+      font-family:'Fredoka One',Georgia,sans-serif;
+      box-shadow:0 6px 24px rgba(255,180,0,.5);
+      min-height:64px;
     }
-    #win-title {
-      font-size: clamp(22px,6vw,46px); color:#fff;
-      text-shadow: 0 3px 14px rgba(150,50,0,.4); text-align:center;
-    }
-    #win-friends {
-      font-size: clamp(32px,9vw,64px); letter-spacing:6px;
-    }
+
+    /* ── Sparkles / Confetti ── */
+    .sp { position:fixed; pointer-events:none; z-index:60;
+          transition:transform .88s ease, opacity .88s ease; }
+    .cf { position:fixed; pointer-events:none; z-index:100; border-radius:3px;
+          animation:cfFall linear forwards; }
+    @keyframes cfFall { 0%{opacity:1;transform:rotate(0)} 100%{top:110vh;opacity:.2;transform:rotate(720deg)} }
 
     #back-btn {
       position:fixed; top:10px; left:10px; z-index:25;
@@ -182,18 +173,15 @@
 <body>
 <button id="back-btn" onclick="history.length>1?history.back():window.close()">←</button>
 
-<!-- START -->
-<div id="start-screen" class="screen">
-  <div id="start-icon">🐣</div>
-  <div id="start-title">Royal Animal Babies</div>
-  <div id="start-sub">Find the mama's baby! 🌸</div>
-  <button class="big-btn" onclick="startGame()">Play ▶</button>
+<div id="header">
+  <div id="tier-badge" class="tier-easy">🌱 Easy</div>
+  <div id="round-counter">1 / 9</div>
+</div>
+<div id="progress-wrap">
+  <div id="progress-track"><div id="progress-fill"></div></div>
 </div>
 
-<!-- GAME -->
-<div id="game-screen" class="screen hidden">
-  <div id="tier-badge">⭐ Easy</div>
-  <div id="round-counter">Round 1 of 9</div>
+<div id="game-area">
   <div id="mama-area">
     <div id="mama-label">Mama Duck</div>
     <span id="mama-emoji">🦆</span>
@@ -203,79 +191,30 @@
   <div id="feedback"></div>
 </div>
 
-<!-- TIER TOAST -->
+<!-- Tier toast -->
 <div id="tier-toast" class="hidden">
   <div id="tier-toast-box">
     <div id="tier-toast-big">⭐⭐</div>
     <div id="tier-toast-text">Easy done!</div>
     <div id="tier-toast-sub">Medium — here we go!</div>
+    <button class="toast-btn" onclick="dismissTierToast()">Let's Go! 🌟</button>
   </div>
 </div>
 
-<!-- WIN -->
-<div id="win-screen" class="screen hidden">
-  <div id="win-icon">👑</div>
-  <div id="win-title">You matched every baby! 🎉</div>
-  <div id="win-friends">🐣🐥🐛🐶🐱🐮🐽🐰🐟</div>
+<!-- Win overlay -->
+<div id="win-overlay">
+  <div class="ov-emoji">👑</div>
+  <div class="ov-title">You matched every baby! 🎉</div>
+  <div class="ov-sub">🐣🐥🐛🐶🐱🐮🐽🐰🐟</div>
   <button class="big-btn" onclick="restartGame()">Play Again 🔄</button>
 </div>
 
 <script>
 // ═══════════════════════════════════════════
-//  DATA
-// ═══════════════════════════════════════════
-const TIERS = [
-  { name:'Easy',   stars:'⭐',     choices:2 },
-  { name:'Medium', stars:'⭐⭐',   choices:3 },
-  { name:'Hard',   stars:'⭐⭐⭐', choices:3 },
-];
-
-const ROUNDS = [
-  // Easy — 2 choices
-  { mama:'🦆', mamaName:'Duck',      baby:'🐣', babyName:'Duckling',
-    wrong:['🐥'],       funFact:'Ducklings follow their mama everywhere! 🦆' },
-  { mama:'🐓', mamaName:'Hen',       baby:'🐥', babyName:'Chick',
-    wrong:['🐣'],       funFact:'Chicks live safely in the henhouse! 🏠' },
-  { mama:'🦋', mamaName:'Butterfly', baby:'🐛', babyName:'Caterpillar',
-    wrong:['🐝'],       funFact:'Caterpillars turn into Butterflies! 🦋' },
-  // Medium — 3 choices
-  { mama:'🐕', mamaName:'Dog',  baby:'🐶', babyName:'Puppy',
-    wrong:['🐱','🐣'],  funFact:'Puppies love to play and cuddle! 🐾' },
-  { mama:'🐈', mamaName:'Cat',  baby:'🐱', babyName:'Kitten',
-    wrong:['🐶','🐥'],  funFact:'Kittens purr when they are happy! 😻' },
-  { mama:'🐄', mamaName:'Cow',  baby:'🐮', babyName:'Calf',
-    wrong:['🐷','🐱'],  funFact:'Calves drink milk from their mama! 🥛' },
-  // Hard — 3 choices
-  { mama:'🐷', mamaName:'Pig',    baby:'🐽', babyName:'Piglet',
-    wrong:['🐮','🐱'],  funFact:'Piglets are very smart and curious! 🌟' },
-  { mama:'🐇', mamaName:'Rabbit', baby:'🐰', babyName:'Bunny',
-    wrong:['🐭','🐹'],  funFact:'Baby bunnies are called kittens too! 🐇' },
-  { mama:'🐸', mamaName:'Frog',   baby:'🐟', babyName:'Tadpole',
-    wrong:['🐛','🐣'],  funFact:'Tadpoles grow legs and become frogs! 🐸' },
-];
-
-// Labels for distractor emojis
-const NAMES = {
-  '🐥':'Chick',   '🐣':'Duckling', '🐝':'Bee',
-  '🐱':'Kitten',  '🐶':'Puppy',    '🐛':'Caterpillar',
-  '🐷':'Piglet',  '🐮':'Calf',     '🐭':'Mouse',
-  '🐹':'Hamster',
-};
-
-// ═══════════════════════════════════════════
-//  STATE
-// ═══════════════════════════════════════════
-let currentRound = 0;
-let locked = false;
-let audioCtx = null;
-
-// ═══════════════════════════════════════════
 //  AUDIO
 // ═══════════════════════════════════════════
-function au() {
-  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  return audioCtx;
-}
+let audioCtx = null;
+function au() { if (!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)(); return audioCtx; }
 function tone(f, type, dur, vol=0.14) {
   try {
     const ctx=au(), o=ctx.createOscillator(), g=ctx.createGain();
@@ -286,157 +225,238 @@ function tone(f, type, dur, vol=0.14) {
     o.start(); o.stop(ctx.currentTime+dur);
   } catch(e) {}
 }
-function playCorrect() {
-  [523,659,784,988].forEach((f,i) => setTimeout(() => tone(f,'sine',0.22), i*65));
-}
-function playWrong() {
-  tone(280,'sine',0.18,0.09);
-  setTimeout(() => tone(220,'sine',0.14,0.07), 90);
-}
-function playTierWin() {
-  [523,587,659,784,988,1047].forEach((f,i) => setTimeout(() => tone(f,'sine',0.3), i*85));
-}
-function playWin() {
-  [523,659,784,988,1047,1319,1568].forEach((f,i) => setTimeout(() => tone(f,'sine',0.35), i*90));
+function playCorrect()  { [523,659,784,988].forEach((f,i)=>setTimeout(()=>tone(f,'sine',0.22),i*65)); }
+function playWrong()    { tone(280,'sine',0.18,0.09); setTimeout(()=>tone(220,'sine',0.14,0.07),90); }
+function playTierWin()  { [523,587,659,784,988,1047].forEach((f,i)=>setTimeout(()=>tone(f,'sine',0.3),i*85)); }
+function playWin()      { [523,659,784,988,1047,1319,1568].forEach((f,i)=>setTimeout(()=>tone(f,'sine',0.35),i*90)); }
+
+// ═══════════════════════════════════════════
+//  DATA — 6 pairs per tier (3 picked per game)
+// ═══════════════════════════════════════════
+const POOL = {
+  easy: [
+    { mama:'🦆', mamaName:'Duck',      baby:'🐣', babyName:'Duckling',    wrong:['🐥'],           fact:'Ducklings follow Mama everywhere! 🦆' },
+    { mama:'🐓', mamaName:'Hen',       baby:'🐥', babyName:'Chick',       wrong:['🐣'],           fact:'Chicks live safely in the henhouse! 🏠' },
+    { mama:'🦋', mamaName:'Butterfly', baby:'🐛', babyName:'Caterpillar', wrong:['🐝'],           fact:'Caterpillars turn into Butterflies! 🦋' },
+    { mama:'🐘', mamaName:'Elephant',  baby:'🐘', babyName:'Calf',        wrong:['🦁'],           fact:'Baby elephants hold Mama\'s tail! 🐘' },
+    { mama:'🐬', mamaName:'Dolphin',   baby:'🐬', babyName:'Calf',        wrong:['🐟'],           fact:'Dolphin babies swim with Mama! 🌊' },
+    { mama:'🐑', mamaName:'Sheep',     baby:'🐏', babyName:'Lamb',        wrong:['🐐'],           fact:'Lambs say baa baa to their mama! 🌿' },
+  ],
+  medium: [
+    { mama:'🐕', mamaName:'Dog',  baby:'🐶', babyName:'Puppy',  wrong:['🐱','🐣'],  fact:'Puppies love to play and cuddle! 🐾' },
+    { mama:'🐈', mamaName:'Cat',  baby:'🐱', babyName:'Kitten', wrong:['🐶','🐥'],  fact:'Kittens purr when they are happy! 😻' },
+    { mama:'🐄', mamaName:'Cow',  baby:'🐮', babyName:'Calf',   wrong:['🐷','🐱'],  fact:'Calves drink milk from their mama! 🥛' },
+    { mama:'🦁', mamaName:'Lion', baby:'🦁', babyName:'Cub',    wrong:['🐯','🐻'],  fact:'Lion cubs have spotty fur when tiny! 🌟' },
+    { mama:'🦊', mamaName:'Fox',  baby:'🦊', babyName:'Kit',    wrong:['🐺','🐱'],  fact:'Fox kits are called kits or cubs! 🍂' },
+    { mama:'🐻', mamaName:'Bear', baby:'🐻', babyName:'Cub',    wrong:['🦁','🐗'],  fact:'Bear cubs stay with Mama for 2 years! 🍯' },
+  ],
+  hard: [
+    { mama:'🐷', mamaName:'Pig',    baby:'🐽', babyName:'Piglet', wrong:['🐮','🐱'],  fact:'Piglets are very smart and curious! 🌟' },
+    { mama:'🐇', mamaName:'Rabbit', baby:'🐰', babyName:'Bunny',  wrong:['🐭','🐹'],  fact:'Baby bunnies are called kittens too! 🐇' },
+    { mama:'🐸', mamaName:'Frog',   baby:'🐟', babyName:'Tadpole',wrong:['🐛','🐣'],  fact:'Tadpoles grow legs and become frogs! 🐸' },
+    { mama:'🦢', mamaName:'Swan',   baby:'🐣', babyName:'Cygnet', wrong:['🦆','🐥'],  fact:'Baby swans are called cygnets! 🌊' },
+    { mama:'🦌', mamaName:'Deer',   baby:'🦌', babyName:'Fawn',   wrong:['🐑','🐐'],  fact:'Fawns have white spots for hiding! 🌲' },
+    { mama:'🐊', mamaName:'Croc',   baby:'🐊', babyName:'Hatchling',wrong:['🐸','🦎'],fact:'Croc mamas carry babies in their mouth! 🌿' },
+  ],
+};
+
+// Labels for distractor emojis
+const NAMES = {
+  '🐥':'Chick','🐣':'Duckling','🐝':'Bee','🐱':'Kitten','🐶':'Puppy',
+  '🐛':'Caterpillar','🐷':'Piglet','🐮':'Calf','🐭':'Mouse','🐹':'Hamster',
+  '🦁':'Cub','🐯':'Tiger cub','🐻':'Bear cub','🐺':'Pup','🐗':'Piglet',
+  '🦆':'Duckling','🐟':'Tadpole','🐸':'Froglet','🦎':'Lizard',
+  '🐑':'Lamb','🐐':'Kid','🦌':'Fawn',
+};
+
+const TIER_DEFS = [
+  { key:'easy',   label:'🌱 Easy',   cls:'tier-easy',   choices:2 },
+  { key:'medium', label:'🌸 Medium', cls:'tier-medium', choices:3 },
+  { key:'hard',   label:'🌺 Hard',   cls:'tier-hard',   choices:3 },
+];
+
+// ═══════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════
+let rounds = [];      // 9 shuffled rounds (3 per tier)
+let currentRound = 0;
+let locked = false;
+let pendingTier = -1; // tier index to show when toast dismissed
+
+// ═══════════════════════════════════════════
+//  UTILS
+// ═══════════════════════════════════════════
+function shuffle(arr) {
+  const a=[...arr];
+  for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
+  return a;
 }
 
 // ═══════════════════════════════════════════
-//  SPARKLE
+//  BG DECORATION
 // ═══════════════════════════════════════════
-function sparkle(cx, cy) {
-  const chars = ['✨','⭐','💫','🌟','🌸','💖'];
-  for (let i=0; i<16; i++) {
-    const el = document.createElement('div');
-    el.textContent = chars[i % chars.length];
-    const size = 16 + Math.random()*20;
-    el.style.cssText = `position:fixed;font-size:${size}px;left:${cx}px;top:${cy}px;
-      pointer-events:none;z-index:60;
-      transition:transform 0.88s ease,opacity 0.88s ease;`;
+function makeBgGems() {
+  const gems=['🌸','✨','💫','⭐','🌟','💎','🐣'];
+  for(let i=0;i<10;i++){
+    const el=document.createElement('div'); el.className='bg-gem';
+    el.textContent=gems[i%gems.length];
+    el.style.left=(4+Math.random()*92)+'vw';
+    el.style.animationDuration=(10+Math.random()*14)+'s';
+    el.style.animationDelay=-(Math.random()*14)+'s';
     document.body.appendChild(el);
-    const angle = (i/16)*Math.PI*2;
-    const dist = 55 + Math.random()*80;
-    requestAnimationFrame(() => {
-      el.style.transform = `translate(${Math.cos(angle)*dist}px,${Math.sin(angle)*dist-70}px) scale(0)`;
-      el.style.opacity = '0';
-    });
-    setTimeout(() => el.remove(), 950);
   }
 }
 
 // ═══════════════════════════════════════════
-//  FLOW
+//  GAME FLOW
 // ═══════════════════════════════════════════
 function startGame() {
-  currentRound = 0;
-  locked = false;
-  document.getElementById('start-screen').classList.add('hidden');
-  document.getElementById('game-screen').classList.remove('hidden');
-  try { au().resume(); } catch(e) {}
+  currentRound=0; locked=false;
+  // Pick 3 random from each tier pool
+  rounds=[
+    ...shuffle(POOL.easy).slice(0,3).map(r=>({...r,tierIdx:0})),
+    ...shuffle(POOL.medium).slice(0,3).map(r=>({...r,tierIdx:1})),
+    ...shuffle(POOL.hard).slice(0,3).map(r=>({...r,tierIdx:2})),
+  ];
+  document.getElementById('win-overlay').classList.remove('show');
+  document.getElementById('tier-toast').classList.add('hidden');
   showRound();
 }
 
 function showRound() {
-  locked = false;
-  const r = ROUNDS[currentRound];
-  const tierIdx = currentRound < 3 ? 0 : currentRound < 6 ? 1 : 2;
-  const tier = TIERS[tierIdx];
+  locked=false;
+  const r=rounds[currentRound];
+  const tier=TIER_DEFS[r.tierIdx];
 
-  document.getElementById('tier-badge').textContent = tier.stars + ' ' + tier.name;
-  document.getElementById('round-counter').textContent = 'Round ' + (currentRound+1) + ' of 9';
-  document.getElementById('feedback').textContent = '';
-  document.getElementById('mama-label').textContent = 'Mama ' + r.mamaName;
-  document.getElementById('mama-emoji').textContent = r.mama;
-  document.getElementById('prompt').textContent = 'Which is her baby? 🍼';
+  const badge=document.getElementById('tier-badge');
+  badge.textContent=tier.label;
+  badge.className=tier.cls;
 
-  // Build choice buttons
-  const wrongChoices = r.wrong.slice(0, tier.choices - 1);
-  const allChoices = shuffle([
-    { emoji: r.baby, name: r.babyName, correct: true },
-    ...wrongChoices.map(e => ({ emoji: e, name: NAMES[e] || '?', correct: false })),
+  document.getElementById('round-counter').textContent=(currentRound+1)+' / 9';
+  document.getElementById('progress-fill').style.width=(currentRound/9*100)+'%';
+  document.getElementById('feedback').textContent='';
+  document.getElementById('mama-label').textContent='Mama '+r.mamaName;
+  document.getElementById('mama-emoji').textContent=r.mama;
+  document.getElementById('prompt').textContent='Which is her baby? 🍼';
+
+  const wrongChoices=r.wrong.slice(0,tier.choices-1);
+  const allChoices=shuffle([
+    {emoji:r.baby,  name:r.babyName, correct:true},
+    ...wrongChoices.map(e=>({emoji:e,name:NAMES[e]||'?',correct:false})),
   ]);
 
-  const container = document.getElementById('choices');
-  container.innerHTML = '';
-  allChoices.forEach(ch => {
-    const btn = document.createElement('button');
-    btn.className = 'choice-btn';
-    btn.innerHTML = `<span class="choice-emoji">${ch.emoji}</span><span class="choice-label">${ch.name}</span>`;
-    btn.addEventListener('click', () => onChoice(btn, ch.correct, r));
+  const container=document.getElementById('choices');
+  container.innerHTML='';
+  allChoices.forEach(ch=>{
+    const btn=document.createElement('button');
+    btn.className='choice-btn';
+    btn.innerHTML=`<span class="choice-emoji">${ch.emoji}</span><span class="choice-label">${ch.name}</span>`;
+    btn.addEventListener('click',()=>onChoice(btn,ch.correct,r));
     container.appendChild(btn);
   });
 }
 
 function onChoice(btn, correct, r) {
-  if (locked) return;
-  locked = true;
-  try { au().resume(); } catch(e) {}
+  if(locked) return;
+  try{au().resume();}catch(e){}
 
-  const fb = document.getElementById('feedback');
-  if (correct) {
+  const fb=document.getElementById('feedback');
+  if(correct){
+    locked=true;
     btn.classList.add('correct');
     playCorrect();
-    const rect = btn.getBoundingClientRect();
-    sparkle(rect.left + rect.width/2, rect.top + rect.height/2);
-    fb.textContent = r.funFact;
-    setTimeout(nextRound, 1500);
+    const rect=btn.getBoundingClientRect();
+    sparkle(rect.left+rect.width/2, rect.top+rect.height/2);
+    fb.textContent=r.fact;
+    setTimeout(nextRound, 1600);
   } else {
     btn.classList.add('wrong');
     playWrong();
-    fb.textContent = 'Try again! 💕';
-    setTimeout(() => {
-      btn.classList.remove('wrong');
-      locked = false;
-    }, 650);
+    fb.textContent='Try again! 💕';
+    setTimeout(()=>{ btn.classList.remove('wrong'); locked=false; }, 650);
   }
 }
 
 function nextRound() {
   currentRound++;
-  if (currentRound >= 9) { showWin(); return; }
-  if (currentRound === 3 || currentRound === 6) {
-    showTierToast(currentRound === 3 ? 0 : 1);
+  document.getElementById('progress-fill').style.width=(currentRound/9*100)+'%';
+
+  if(currentRound>=9){ showWin(); return; }
+
+  const prevTier=rounds[currentRound-1].tierIdx;
+  const newTier=rounds[currentRound].tierIdx;
+
+  if(newTier>prevTier){
+    pendingTier=newTier;
+    showTierToast(prevTier, newTier);
   } else {
     showRound();
   }
 }
 
-function showTierToast(completedTierIdx) {
-  const done = TIERS[completedTierIdx];
-  const next = TIERS[completedTierIdx + 1];
-  document.getElementById('tier-toast-big').textContent = next.stars;
-  document.getElementById('tier-toast-text').textContent = done.name + ' done! 🌟';
-  document.getElementById('tier-toast-sub').textContent = next.stars + ' ' + next.name + ' — here we go!';
+function showTierToast(doneTierIdx, nextTierIdx) {
+  const done=TIER_DEFS[doneTierIdx];
+  const next=TIER_DEFS[nextTierIdx];
+  const stars=['⭐','⭐⭐','⭐⭐⭐'];
+  document.getElementById('tier-toast-big').textContent=stars[nextTierIdx];
+  document.getElementById('tier-toast-text').textContent=done.label.replace(/^[^\s]+\s/,'')+' done! 🌟';
+  document.getElementById('tier-toast-sub').textContent=next.label+' — here we go!';
   document.getElementById('tier-toast').classList.remove('hidden');
   playTierWin();
+  confetti(42);
   sparkle(window.innerWidth/2, window.innerHeight/2);
-  setTimeout(() => {
-    document.getElementById('tier-toast').classList.add('hidden');
-    showRound();
-  }, 2400);
+}
+
+function dismissTierToast() {
+  document.getElementById('tier-toast').classList.add('hidden');
+  pendingTier=-1;
+  showRound();
 }
 
 function showWin() {
-  document.getElementById('game-screen').classList.add('hidden');
-  document.getElementById('win-screen').classList.remove('hidden');
+  document.getElementById('win-overlay').classList.add('show');
   playWin();
-  sparkle(window.innerWidth/2, window.innerHeight/3);
-  setTimeout(() => sparkle(window.innerWidth/4, window.innerHeight*0.55), 300);
-  setTimeout(() => sparkle(window.innerWidth*3/4, window.innerHeight*0.55), 600);
+  confetti(60);
+  setTimeout(()=>confetti(40),700);
 }
 
-function restartGame() {
-  document.getElementById('win-screen').classList.add('hidden');
-  startGame();
-}
+function restartGame() { startGame(); }
 
-function shuffle(arr) {
-  const a = [...arr];
-  for (let i=a.length-1; i>0; i--) {
-    const j = Math.floor(Math.random()*(i+1));
-    [a[i],a[j]] = [a[j],a[i]];
+// ═══════════════════════════════════════════
+//  SPARKLE
+// ═══════════════════════════════════════════
+function sparkle(cx, cy) {
+  const chars=['✨','⭐','💫','🌟','🌸','💖','🐣'];
+  for(let i=0;i<16;i++){
+    const el=document.createElement('div');
+    el.textContent=chars[i%chars.length];
+    const size=16+Math.random()*20;
+    el.className='sp';
+    el.style.cssText=`font-size:${size}px;left:${cx}px;top:${cy}px;`;
+    document.body.appendChild(el);
+    const angle=(i/16)*Math.PI*2;
+    const dist=55+Math.random()*80;
+    requestAnimationFrame(()=>{
+      el.style.transform=`translate(${Math.cos(angle)*dist}px,${Math.sin(angle)*dist-60}px) scale(0)`;
+      el.style.opacity='0';
+    });
+    setTimeout(()=>el.remove(),950);
   }
-  return a;
 }
+
+function confetti(count) {
+  const cols=['#e040fb','#ffd700','#fff','#f48fb1','#ce93d8','#b2ebf2','#a5d6a7','#ff8a65'];
+  for(let i=0;i<count;i++){
+    const el=document.createElement('div'); el.className='cf';
+    const sz=6+Math.random()*10;
+    el.style.cssText=`left:${Math.random()*100}vw;top:-20px;width:${sz}px;height:${sz}px;background:${cols[i%cols.length]};animation-duration:${1.4+Math.random()*2}s;animation-delay:${Math.random()*.5}s`;
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(),3500);
+  }
+}
+
+makeBgGems();
+startGame();
 </script>
 </body>
 </html>
