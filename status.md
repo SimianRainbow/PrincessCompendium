@@ -1,9 +1,9 @@
 # Princess Compendium — Status
 
 ## Last update run
-Date: 2026-06-28
-- Improved: `038-royal-babies` → v1.1.0 (color-coded tier badge Easy/Medium/Hard with green/yellow/purple gradients; progress bar added; pool expanded 3→6 per tier with 3 random picks for replay variety; 10 floating bg gems; confetti 42 pieces on tier toast + 60+40 on win; tier toast now requires tap-to-continue button; fun-fact feedback shown for each correct match)
-- Added: `043-letter-sounds` — "Princess Letter Sounds 🔤" teaching phonics — initial letter sounds; show a big letter in a glowing orb, tap the emoji whose name starts with that sound; 18-round pool (6 per tier), 3 random per tier = 9 per game; Easy = 2 choices, very distinct sounds (B/S/C/M/F/H); Medium = 3 choices, wider letter set (P/U/D/R/W/G); Hard = 4 choices, trickier letters (N/K/T/L/A/E); sparkle burst on correct; tier-transition overlay with confetti 42; final win 60+40 confetti
+Date: 2026-07-01
+- Improved: `028-sight-words` → v1.1.0 (color-coded tier badge Easy/Medium/Hard with green/yellow/purple gradients; progress bar added; 12 background floating letters drifting upward; tier-transition toast with tap-to-continue button; word pool expanded 8→10 per tier; confetti bumped 36→42 on round win, 60+40 on final win)
+- Added: `044-animal-homes` — "Royal Animal Homes 🏡" teaching animal habitats; show an animal emoji + name, tap which home it lives in (nest/water/hive/house/cave/tree/burrow/shell/web); 6 animals per tier, 3 picked per game; Easy = 2 choices (very obvious: bird→nest, fish→water, bee→hive); Medium = 3 choices (bear→cave, owl→tree, fox→burrow); Hard = 4 choices (snail→shell, spider→web, rabbit→burrow); green-to-pink forest gradient; sparkle burst on correct; tier toast with confetti 42; final win 60+40 confetti
 
 ## Improvement history
 
@@ -34,6 +34,7 @@ Date: 2026-06-28
 | 2026-06-22 | 027-royal-weather | Fredoka One font, color-coded tier badge, tier-transition toast, sparkles 10→16, Round X/9 label | 1.1.0 |
 | 2026-06-25 | 039-princess-puzzle | Color-coded tier badge Easy/Medium/Hard, 18-round pool (was 9), 3 random picks per tier, bg floaters, sparkle targets tap position, confetti 25→42 | 1.1.0 |
 | 2026-06-28 | 038-royal-babies | Color-coded tier badge, progress bar, 6-per-tier pool (was 3), confetti on tier/win, tier toast tap-to-continue, 10 bg gems | 1.1.0 |
+| 2026-07-01 | 028-sight-words | Color-coded tier badge, progress bar, 12 bg floating letters, tier-transition toast, word pool 8→10 per tier, confetti 36→42 | 1.1.0 |
 
 ## Games due for improvement (all at v1.0.0)
 
@@ -68,6 +69,7 @@ See `CLAUDE.md` for the full prioritised list. Top 3 to build next:
 11. ~~Seasons recognition~~ — ✅ covered by `040-royal-seasons`
 12. ~~Visual discrimination / shadow matching~~ — ✅ covered by `042-shadow-magic`
 13. ~~Phonics / initial letter sounds~~ — ✅ covered by `043-letter-sounds`
+14. ~~Animal habitats / where animals live~~ — ✅ covered by `044-animal-homes`
 
 ## Next game ID
-`044-<slug>`
+`045-<slug>`

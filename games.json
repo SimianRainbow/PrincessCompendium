@@ -331,7 +331,7 @@
     "ageMin": 4,
     "ageMax": 6,
     "skill": "sight words / early reading",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "category": "letters",
     "path": "games/028-sight-words/index.html"
   },
@@ -514,5 +514,17 @@
     "version": "1.0.0",
     "category": "letters",
     "path": "games/043-letter-sounds/index.html"
+  },
+  {
+    "id": "044-animal-homes",
+    "title": "Royal Animal Homes",
+    "description": "Tap where the animal lives! Bird in a nest, fish in water, bee in a hive — 9 rounds across 3 tiers.",
+    "icon": "🏡",
+    "ageMin": 2,
+    "ageMax": 5,
+    "skill": "animal habitats — where animals live",
+    "version": "1.0.0",
+    "category": "animals",
+    "path": "games/044-animal-homes/index.html"
   }
 ]

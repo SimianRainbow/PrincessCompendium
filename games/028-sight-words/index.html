@@ -16,22 +16,49 @@
       padding-bottom: 12px;
     }
 
+    /* Background floating letters */
+    .bg-letter {
+      position: fixed; pointer-events: none;
+      font-size: clamp(28px,7vw,48px);
+      color: rgba(255,255,255,0.07);
+      animation: bgDrift linear infinite;
+      z-index: 0;
+    }
+    @keyframes bgDrift {
+      0%   { transform: translateY(105vh) rotate(0deg); }
+      100% { transform: translateY(-15vh) rotate(360deg); }
+    }
+
     /* Header */
     #header {
       width: 100%; display: flex; justify-content: space-between; align-items: center;
       padding: clamp(12px,3vw,18px) clamp(14px,3.5vw,22px) 0;
-      flex-shrink: 0;
+      flex-shrink: 0; position: relative; z-index: 1;
     }
     #tier-badge {
       font-size: clamp(13px,3.2vw,17px); padding: 5px 14px; border-radius: 20px;
-      background: rgba(255,255,255,0.22); color: #fff; font-weight: bold;
+      color: #fff; font-weight: bold;
       border: 2px solid rgba(255,255,255,0.38);
+      transition: background 0.4s;
     }
-    #round-label {
-      font-size: clamp(13px,3.2vw,17px);
-      color: rgba(255,255,255,0.85);
+    #tier-badge.easy { background: linear-gradient(135deg,#2e7d32,#66bb6a); }
+    #tier-badge.med  { background: linear-gradient(135deg,#f57f17,#ffca28); color:#3e2000; }
+    #tier-badge.hard { background: linear-gradient(135deg,#6a1b9a,#ce93d8); }
+
+    #round-label { font-size: clamp(13px,3.2vw,17px); color: rgba(255,255,255,0.85); position: relative; z-index: 1; }
+    #score-row   { font-size: clamp(20px,5vw,28px); letter-spacing: 2px; position: relative; z-index: 1; }
+
+    /* Progress bar */
+    #progress-track {
+      width: calc(100% - clamp(28px,7vw,44px)); height: 8px;
+      background: rgba(255,255,255,0.18); border-radius: 99px;
+      margin: clamp(8px,2vw,12px) auto 0;
+      overflow: hidden; position: relative; z-index: 1;
     }
-    #score-row { font-size: clamp(20px,5vw,28px); letter-spacing: 2px; }
+    #progress-fill {
+      height: 100%; background: linear-gradient(90deg,#ffd700,#ff9800);
+      border-radius: 99px; transition: width 0.4s ease; width: 0%;
+    }
 
     /* Picture card */
     #picture-card {
@@ -40,31 +67,26 @@
       display: flex; flex-direction: column; align-items: center; gap: 6px;
       box-shadow: 0 8px 32px rgba(0,0,0,0.22), 0 0 0 4px rgba(255,215,0,0.35);
       margin: clamp(14px,3.5vw,24px) 0 clamp(10px,2.5vw,18px);
-      flex-shrink: 0;
+      flex-shrink: 0; position: relative; z-index: 1;
     }
     #picture-card.pop-in { animation: cardPop 0.4s cubic-bezier(0.34,1.56,0.64,1); }
     @keyframes cardPop { from{transform:scale(0.6);opacity:0} to{transform:scale(1);opacity:1} }
-
-    #picture-emoji {
-      font-size: clamp(72px,19vw,108px); line-height: 1;
-    }
-    #picture-hint {
-      font-size: clamp(13px,3.2vw,17px); color: #8e24aa;
-      opacity: 0.7; letter-spacing: 0.5px;
-    }
+    #picture-emoji { font-size: clamp(72px,19vw,108px); line-height: 1; }
+    #picture-hint  { font-size: clamp(13px,3.2vw,17px); color: #8e24aa; opacity: 0.7; letter-spacing: 0.5px; }
 
     /* Prompt */
     #prompt {
       font-size: clamp(17px,4.5vw,24px); color: #fff;
       text-align: center; text-shadow: 0 2px 8px rgba(0,0,0,0.3);
       padding: 0 12px; margin-bottom: clamp(10px,2.5vw,18px);
-      flex-shrink: 0;
+      flex-shrink: 0; position: relative; z-index: 1;
     }
 
     /* Word choices */
     #choices {
       display: grid; gap: clamp(10px,2.5vw,16px);
       padding: 0 clamp(14px,3.5vw,22px); width: 100%;
+      position: relative; z-index: 1;
     }
     #choices.cols-2 { grid-template-columns: 1fr 1fr; }
     #choices.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
@@ -108,6 +130,26 @@
       100% { transform: translate(-50%,-50%) scale(0.2); opacity: 0; }
     }
 
+    /* Tier toast */
+    #tier-toast {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.65);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 16px;
+      z-index: 99; opacity: 0; pointer-events: none; transition: opacity 0.3s;
+    }
+    #tier-toast.show { opacity: 1; pointer-events: all; }
+    #toast-icon  { font-size: clamp(60px,16vw,96px); }
+    #toast-title { font-size: clamp(26px,7vw,48px); color: #ffd700; text-shadow: 0 0 20px #ff9800; text-align: center; }
+    #toast-sub   { font-size: clamp(16px,4.5vw,24px); color: #fff; text-align: center; padding: 0 24px; }
+    #toast-btn {
+      margin-top: 8px; padding: clamp(14px,4vw,20px) clamp(32px,8vw,56px);
+      font-size: clamp(20px,5vw,28px); border-radius: 50px; border: none;
+      background: linear-gradient(135deg,#ffd700,#ff9800);
+      color: #5d2e00; font-weight: bold; cursor: pointer;
+      font-family: inherit; box-shadow: 0 4px 16px rgba(255,180,0,0.5);
+      touch-action: manipulation;
+    }
+
     /* Celebration overlay */
     #celebrate-overlay {
       position: fixed; inset: 0; background: rgba(0,0,0,0.58);
@@ -138,11 +180,15 @@
 </head>
 <body>
 
+  <div id="bg-letters"></div>
+
   <div id="header">
-    <div id="tier-badge">🌸 Easy</div>
+    <div id="tier-badge" class="easy">🌸 Easy</div>
     <div id="round-label">1 / 9</div>
     <div id="score-row"></div>
   </div>
+
+  <div id="progress-track"><div id="progress-fill"></div></div>
 
   <div id="picture-card">
     <div id="picture-emoji">🐱</div>
@@ -153,6 +199,13 @@
 
   <div id="choices" class="cols-2"></div>
 
+  <div id="tier-toast">
+    <div id="toast-icon">🌟</div>
+    <div id="toast-title">Moving to Medium!</div>
+    <div id="toast-sub">Ready for longer words? 📖</div>
+    <button id="toast-btn" onclick="resumeAfterToast()">Keep reading! ➡️</button>
+  </div>
+
   <div id="celebrate-overlay">
     <div id="celebrate-pic">🐱</div>
     <div id="celebrate-text">You can read! 📖</div>
@@ -161,7 +214,7 @@
   </div>
 
 <script>
-  // ── Audio ────────────────────────────────────────────────────────────────────
+  // ── Audio ─────────────────────────────────────────────────────────────────
   let audioCtx = null;
   function getAudio() {
     if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -180,9 +233,24 @@
   function playCorrect()   { [523,659,784,1047].forEach((f,i) => setTimeout(() => tone(f,'sine',0.18,0.18), i*80)); }
   function playWrong()     { tone(220,'sawtooth',0.2,0.1); }
   function playCelebrate() { [523,587,659,698,784,880,1047].forEach((f,i) => setTimeout(() => tone(f,'sine',0.22,0.17), i*65)); }
+  function playTierUp()    { [392,494,587,784].forEach((f,i) => setTimeout(() => tone(f,'sine',0.25,0.18), i*100)); }
 
-  // ── Word-picture pairs ────────────────────────────────────────────────────────
-  // Easy: short 3-letter words with clear picture emoji (2 choices)
+  // ── Background floating letters ────────────────────────────────────────────
+  (function initBg() {
+    const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const cont = document.getElementById('bg-letters');
+    for (let i = 0; i < 12; i++) {
+      const el = document.createElement('span');
+      el.className = 'bg-letter';
+      el.textContent = letters[Math.floor(Math.random() * letters.length)];
+      el.style.left = (Math.random() * 100) + 'vw';
+      el.style.animationDuration = (8 + Math.random() * 14) + 's';
+      el.style.animationDelay    = -(Math.random() * 20) + 's';
+      cont.appendChild(el);
+    }
+  })();
+
+  // ── Word-picture pairs ─────────────────────────────────────────────────────
   const EASY = [
     { emoji:'🐱', word:'CAT' },
     { emoji:'🐶', word:'DOG' },
@@ -192,8 +260,9 @@
     { emoji:'🐷', word:'PIG' },
     { emoji:'🦊', word:'FOX' },
     { emoji:'🐔', word:'HEN' },
+    { emoji:'🐜', word:'ANT' },
+    { emoji:'🌷', word:'BUD' },
   ];
-  // Medium: 4-letter words (3 choices)
   const MED = [
     { emoji:'🐟', word:'FISH' },
     { emoji:'🐦', word:'BIRD' },
@@ -203,8 +272,9 @@
     { emoji:'🎂', word:'CAKE' },
     { emoji:'🐸', word:'FROG' },
     { emoji:'🦆', word:'DUCK' },
+    { emoji:'🌸', word:'PINK' },
+    { emoji:'🌈', word:'RAIN' },
   ];
-  // Hard: 5-letter princess words (4 choices)
   const HARD = [
     { emoji:'👑', word:'CROWN' },
     { emoji:'🐴', word:'HORSE' },
@@ -214,12 +284,16 @@
     { emoji:'💎', word:'JEWEL' },
     { emoji:'☁️', word:'CLOUD' },
     { emoji:'🏰', word:'CASTLE' },
+    { emoji:'🌙', word:'NIGHT' },
+    { emoji:'🦋', word:'WINGS' },
   ];
 
   const TIERS = [
-    { label:'🌸 Easy',   pool: EASY, choices: 2 },
-    { label:'🌟 Medium', pool: MED,  choices: 3 },
-    { label:'👑 Hard',   pool: HARD, choices: 4 },
+    { label:'🌸 Easy',   cssClass:'easy', pool:EASY, choices:2 },
+    { label:'🌟 Medium', cssClass:'med',  pool:MED,  choices:3,
+      enterToast:{ icon:'🌟', title:'Moving to Medium!', sub:'Ready for longer words? 📖' } },
+    { label:'👑 Hard',   cssClass:'hard', pool:HARD, choices:4,
+      enterToast:{ icon:'👑', title:'Almost There!', sub:'Princess power words! 💪' } },
   ];
   const TOTAL = 9;
 
@@ -245,18 +319,51 @@
     document.getElementById('score-row').textContent = '⭐'.repeat(score);
   }
 
+  function updateProgress() {
+    document.getElementById('progress-fill').style.width = ((round / TOTAL) * 100) + '%';
+    document.getElementById('round-label').textContent = `${round} / ${TOTAL}`;
+  }
+
   function nextRound() {
     document.getElementById('celebrate-overlay').classList.remove('show');
     if (round >= TOTAL) { endGame(); return; }
+
+    const prevTierIdx = getTierIdx(round);
     round++;
     locked = false;
+    updateProgress();
 
     const tIdx = getTierIdx(round);
-    const tier = TIERS[tIdx];
-    document.getElementById('tier-badge').textContent = tier.label;
-    document.getElementById('round-label').textContent = `${round} / ${TOTAL}`;
+    if (round > 1 && tIdx !== prevTierIdx) {
+      showTierToast(tIdx);
+      return;
+    }
+    showQuestion();
+  }
 
-    // Pick unseen pair from this tier's pool
+  function showTierToast(tIdx) {
+    const data = TIERS[tIdx].enterToast;
+    document.getElementById('toast-icon').textContent  = data.icon;
+    document.getElementById('toast-title').textContent = data.title;
+    document.getElementById('toast-sub').textContent   = data.sub;
+    document.getElementById('tier-toast').classList.add('show');
+    playTierUp();
+    confettiBurst(42);
+  }
+
+  function resumeAfterToast() {
+    document.getElementById('tier-toast').classList.remove('show');
+    showQuestion();
+  }
+
+  function showQuestion() {
+    const tIdx = getTierIdx(round);
+    const tier = TIERS[tIdx];
+
+    const badge = document.getElementById('tier-badge');
+    badge.textContent = tier.label;
+    badge.className   = tier.cssClass;
+
     const pool = tier.pool;
     const used = usedPairs[tIdx];
     const available = pool.filter(p => !used.has(p.word));
@@ -264,16 +371,14 @@
     currentTarget = source[Math.floor(Math.random() * source.length)];
     used.add(currentTarget.word);
 
-    // Animate picture card
     const card = document.getElementById('picture-card');
     card.classList.remove('pop-in');
     void card.offsetWidth;
     card.classList.add('pop-in');
     document.getElementById('picture-emoji').textContent = currentTarget.emoji;
 
-    // Distractors from same tier pool
     const distractors = shuffle(pool.filter(p => p.word !== currentTarget.word)).slice(0, tier.choices - 1);
-    const allChoices = shuffle([currentTarget, ...distractors]);
+    const allChoices  = shuffle([currentTarget, ...distractors]);
 
     const grid = document.getElementById('choices');
     grid.className = tier.choices === 4 ? 'cols-4' : `cols-${tier.choices}`;
@@ -305,7 +410,7 @@
         document.getElementById('celebrate-word').textContent = currentTarget.word;
         document.getElementById('celebrate-overlay').classList.add('show');
         playCelebrate();
-        confettiBurst();
+        confettiBurst(42);
       }, 500);
     } else {
       btn.classList.add('wrong-flash');
@@ -315,6 +420,7 @@
   }
 
   function endGame() {
+    document.getElementById('progress-fill').style.width = '100%';
     document.getElementById('celebrate-pic').textContent  = score >= 7 ? '👑' : '🌸';
     document.getElementById('celebrate-text').textContent = `${score} / ${TOTAL} ⭐ Amazing reader!`;
     document.getElementById('celebrate-word').textContent = '📖 Royal Reader! 📖';
@@ -331,7 +437,8 @@
     };
     document.getElementById('celebrate-overlay').classList.add('show');
     playCelebrate();
-    confettiBurst();
+    confettiBurst(60);
+    setTimeout(() => confettiBurst(40), 500);
   }
 
   function sparkleBurst(cx, cy) {
@@ -350,9 +457,10 @@
     }
   }
 
-  function confettiBurst() {
+  function confettiBurst(count) {
+    count = count || 42;
     const cols = ['#ffd700','#ff69b4','#00cfff','#7fff00','#ff6347','#da70d6','#fff'];
-    for (let i = 0; i < 36; i++) {
+    for (let i = 0; i < count; i++) {
       const el = document.createElement('div');
       el.className = 'confetti-piece';
       const sz = 8 + Math.random() * 8;
