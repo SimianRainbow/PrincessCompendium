@@ -30,6 +30,7 @@
     .tier-easy   { background:linear-gradient(135deg,#a5d6a7,#66bb6a); color:#1b5e20; }
     .tier-medium { background:linear-gradient(135deg,#ffe082,#ffd54f); color:#5a3000; }
     .tier-hard   { background:linear-gradient(135deg,#ce93d8,#ab47bc); color:#fff; }
+    #round-counter { font-size:clamp(13px,3.2vw,18px); color:#6a1b9a; font-weight:bold; }
     #pairs-left { font-size:clamp(13px,3.2vw,18px); color:#6a1b9a; font-weight:bold; }
 
     /* progress bar */
@@ -107,6 +108,11 @@
       50%      { background:rgba(255,180,180,.65); }
     }
 
+    /* peek animation */
+    .card.peek { pointer-events:none; }
+    @keyframes cardBounce { 0%{transform:scale(1)} 50%{transform:scale(1.08)} 100%{transform:scale(1)} }
+    .card.matched { animation: cardBounce .3s ease-out; }
+
     /* sparkles */
     .sparkle { position:fixed; pointer-events:none; z-index:50; border-radius:50%; animation:sparkleOut .7s ease-out forwards; }
     @keyframes sparkleOut { 0%{transform:scale(0);opacity:1} 100%{transform:scale(1.6);opacity:0} }
@@ -136,8 +142,8 @@
 
   <div id="header">
     <div id="tier-badge" class="tier-easy">Easy</div>
+    <div id="round-counter">Round 1 / 3</div>
     <div id="pairs-left">🌸 0 / 0</div>
-    <div style="font-size:clamp(26px,7vw,44px)">👸</div>
   </div>
   <div id="progress-wrap">
     <div id="progress-track"><div id="progress-fill"></div></div>
@@ -179,21 +185,24 @@
   function playFlip()     { tone(660,'sine',.1,.1); }
   function playMatch()    { [523,659,784,1047].forEach((f,i) => setTimeout(() => tone(f,'sine',.18,.2), i*60)); }
   function playWrong()    { tone(280,'sawtooth',.16,.12); setTimeout(() => tone(240,'sawtooth',.14,.1), 150); }
+  function playPeek()     { tone(880,'sine',.15,.12); }
   function playRoundWin() { [523,659,784,1047,1319].forEach((f,i) => setTimeout(() => tone(f,'triangle',.28,.22), i*80)); }
   function playFinalWin() { [523,659,784,1047,784,1047,1319].forEach((f,i) => setTimeout(() => tone(f,'sine',.32,.22), i*90)); }
 
-  // ── All princess emoji items ───────────────────────────────────────────────
+  // ── All princess emoji items (42 items for variety) ────────────────────────
   const ALL_ITEMS = [
     '👑','💎','🌸','⭐','🦄','🏰','🎀','🌙','🌈','🦋',
     '💐','🍭','🌺','🧁','🎠','🌟','🪄','🪸','🧚','🐚',
     '🌷','🍄','🎪','🌻','🐝','🧸','🍓','🎵','💫','🌊',
+    '🦢','🌙','🎆','🍬','🌼','🐇','🦩','🎋','🎐','🪻',
+    '🐠','🍒',
   ];
 
   // ── Tiers ─────────────────────────────────────────────────────────────────
   const TIERS = [
-    { label:'Easy',   cls:'tier-easy',   pairs:4,  cols:4, rows:2 },
-    { label:'Medium', cls:'tier-medium', pairs:6,  cols:4, rows:3 },
-    { label:'Hard',   cls:'tier-hard',   pairs:9,  cols:6, rows:3 },
+    { label:'Easy',   cls:'tier-easy',   pairs:4, cols:4, rows:2, back:'🌸', peekMs:2000 },
+    { label:'Medium', cls:'tier-medium', pairs:6, cols:4, rows:3, back:'💎', peekMs:2500 },
+    { label:'Hard',   cls:'tier-hard',   pairs:9, cols:6, rows:3, back:'👑', peekMs:3000 },
   ];
 
   let tierIdx = 0;
@@ -205,10 +214,10 @@
     return b;
   }
 
-  // ── BG decoration ─────────────────────────────────────────────────────────
+  // ── BG decoration (12 gems) ───────────────────────────────────────────────
   function makeBgGems() {
-    const gems = ['💫','✨','🌟','⭐','💎','🌸'];
-    for (let i=0; i<9; i++) {
+    const gems = ['💫','✨','🌟','⭐','💎','🌸','🪄','🦋','🌺','💐','🪻','🌙'];
+    for (let i=0; i<12; i++) {
       const el = document.createElement('div'); el.className='bg-gem';
       el.textContent = gems[i % gems.length];
       el.style.left = (5 + Math.random()*90) + 'vw';
@@ -228,10 +237,12 @@
     badge.textContent = t.label;
     badge.className   = 'tier-badge ' + t.cls;
 
+    document.getElementById('round-counter').textContent = 'Round ' + (tierIdx + 1) + ' / ' + TIERS.length;
+
     totalPairs   = t.pairs;
     matchedCount = 0;
     flipped      = [];
-    busy         = false;
+    busy         = true; // locked during peek
     cards        = [];
 
     updateHUD();
@@ -248,27 +259,45 @@
       card.dataset.idx   = idx;
       card.innerHTML = `
         <div class="card-inner">
-          <div class="card-face card-back">🌸</div>
+          <div class="card-face card-back">${t.back}</div>
           <div class="card-face card-front">${emoji}</div>
         </div>`;
       card.addEventListener('pointerdown', () => onCardTap(card));
       grid.appendChild(card);
       cards.push(card);
     });
+
+    // Quick peek: show all cards briefly so child sees what's available
+    peekAndStart(t);
+  }
+
+  // ── Quick peek ────────────────────────────────────────────────────────────
+  function peekAndStart(t) {
+    document.getElementById('prompt-text').textContent = '👀 Look carefully!';
+    playPeek();
+    // Flip all cards face-up
+    cards.forEach(c => { c.classList.add('flipped','peek'); });
+    setTimeout(() => {
+      // Flip them all back down
+      cards.forEach(c => { c.classList.remove('flipped','peek'); });
+      busy = false;
+      document.getElementById('prompt-text').textContent = 'Now find the pairs! 💖';
+    }, t.peekMs);
   }
 
   function updateHUD() {
-    const t = TIERS[tierIdx];
     document.getElementById('pairs-left').textContent = '🌸 ' + matchedCount + ' / ' + totalPairs;
     document.getElementById('progress-fill').style.width = (matchedCount / totalPairs * 100) + '%';
-
     const msgs = [
-      'Find the matching pairs! 💖',
+      'Now find the pairs! 💖',
       'Where is the match? ✨',
       'Tap to flip! 💫',
       'Can you remember? 👑',
+      'Keep going! 🌟',
     ];
-    document.getElementById('prompt-text').textContent = msgs[matchedCount % msgs.length];
+    if (!busy) {
+      document.getElementById('prompt-text').textContent = msgs[matchedCount % msgs.length];
+    }
   }
 
   function onCardTap(card) {
@@ -307,6 +336,7 @@
             b.classList.remove('flipped','wrong-flash');
             flipped = [];
             busy    = false;
+            updateHUD();
           }, 420);
         }, 500);
       }
@@ -316,10 +346,10 @@
   function roundComplete() {
     if (tierIdx < TIERS.length - 1) {
       playRoundWin();
-      confetti();
+      confetti(42);
       const next = TIERS[tierIdx + 1];
       document.getElementById('ov-emoji').textContent = '🎉';
-      document.getElementById('ov-title').textContent = 'All pairs found!';
+      document.getElementById('ov-title').textContent = 'All pairs found! ✨';
       document.getElementById('ov-sub').textContent   = next.label + ' round — ' + next.pairs + ' pairs!';
       document.getElementById('round-btn').onclick = () => {
         document.getElementById('round-overlay').classList.remove('show');
@@ -329,7 +359,8 @@
       document.getElementById('round-overlay').classList.add('show');
     } else {
       playFinalWin();
-      confetti();
+      confetti(60);
+      setTimeout(() => confetti(40), 600);
       document.getElementById('end-overlay').classList.add('show');
     }
   }
@@ -346,13 +377,13 @@
     const r  = card.getBoundingClientRect();
     const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
     const cols = ['#e040fb','#f48fb1','#ffd700','#fff','#ab47bc','#ff8a65','#80deea','#a5d6a7'];
-    const emojis = ['✨','💫','🌟','💎'];
+    const emojis = ['✨','💫','🌟','💎','🌸'];
     for (let i = 0; i < 14; i++) {
       const el  = document.createElement('div'); el.className = 'sparkle';
       const a   = Math.random() * Math.PI * 2;
       const dist= 25 + Math.random() * 65;
       const sz  = 7 + Math.random() * 10;
-      if (i < 3) {
+      if (i < 4) {
         el.style.cssText = `left:${cx+Math.cos(a)*dist}px;top:${cy+Math.sin(a)*dist}px;font-size:${14+Math.random()*10}px;background:none;border-radius:0;`;
         el.textContent = emojis[i % emojis.length];
       } else {
@@ -363,9 +394,9 @@
     }
   }
 
-  function confetti() {
+  function confetti(n) {
     const cols = ['#e040fb','#ffd700','#fff','#f48fb1','#ce93d8','#b2ebf2','#a5d6a7'];
-    for (let i = 0; i < 45; i++) {
+    for (let i = 0; i < n; i++) {
       const el = document.createElement('div'); el.className = 'confetti';
       const sz = 6 + Math.random() * 10;
       el.style.cssText = `left:${Math.random()*100}vw;width:${sz}px;height:${sz}px;background:${cols[i%cols.length]};animation-duration:${1.4+Math.random()*2}s;animation-delay:${Math.random()*.5}s`;

@@ -1,9 +1,9 @@
 # Princess Compendium — Status
 
 ## Last update run
-Date: 2026-07-01
-- Improved: `028-sight-words` → v1.1.0 (color-coded tier badge Easy/Medium/Hard with green/yellow/purple gradients; progress bar added; 12 background floating letters drifting upward; tier-transition toast with tap-to-continue button; word pool expanded 8→10 per tier; confetti bumped 36→42 on round win, 60+40 on final win)
-- Added: `044-animal-homes` — "Royal Animal Homes 🏡" teaching animal habitats; show an animal emoji + name, tap which home it lives in (nest/water/hive/house/cave/tree/burrow/shell/web); 6 animals per tier, 3 picked per game; Easy = 2 choices (very obvious: bird→nest, fish→water, bee→hive); Medium = 3 choices (bear→cave, owl→tree, fox→burrow); Hard = 4 choices (snail→shell, spider→web, rabbit→burrow); green-to-pink forest gradient; sparkle burst on correct; tier toast with confetti 42; final win 60+40 confetti
+Date: 2026-07-04
+- Improved: `030-princess-pairs` → v1.1.0 (quick-peek preview at round start shows all cards face-up briefly before they flip back down; round counter "Round X/3" in header; tier-specific card backs 🌸/💎/👑 per tier; expanded item pool 30→42 emoji; 12 bg gems instead of 9; confetti bumped to 42 on round win, 60+40 on final win)
+- Added: `045-princess-train` — "Princess Number Train 🚂" teaching number sequences & missing numbers; show 3 carriages with numbers (one has "?"), tap the right answer from 3 choices; Easy = what comes next (1-5, last always missing); Medium = gap moves to middle or first position, numbers 4-9; Hard = larger numbers 8-13, trickier positions; 9 rounds across 3 tiers; 16-particle sparkle on correct; tier-transition toast with confetti 42; final win 60+40 confetti
 
 ## Improvement history
 
@@ -35,6 +35,7 @@ Date: 2026-07-01
 | 2026-06-25 | 039-princess-puzzle | Color-coded tier badge Easy/Medium/Hard, 18-round pool (was 9), 3 random picks per tier, bg floaters, sparkle targets tap position, confetti 25→42 | 1.1.0 |
 | 2026-06-28 | 038-royal-babies | Color-coded tier badge, progress bar, 6-per-tier pool (was 3), confetti on tier/win, tier toast tap-to-continue, 10 bg gems | 1.1.0 |
 | 2026-07-01 | 028-sight-words | Color-coded tier badge, progress bar, 12 bg floating letters, tier-transition toast, word pool 8→10 per tier, confetti 36→42 | 1.1.0 |
+| 2026-07-04 | 030-princess-pairs | Quick-peek preview at round start, round counter, tier-specific card backs, item pool 30→42, 12 bg gems, confetti 42/60+40 | 1.1.0 |
 
 ## Games due for improvement (all at v1.0.0)
 
@@ -72,4 +73,4 @@ See `CLAUDE.md` for the full prioritised list. Top 3 to build next:
 14. ~~Animal habitats / where animals live~~ — ✅ covered by `044-animal-homes`
 
 ## Next game ID
-`045-<slug>`
+`046-<slug>`

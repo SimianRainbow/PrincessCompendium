@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Princess Number Train 🚂</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+    body {
+      background: linear-gradient(160deg, #f3e5f5 0%, #fce4ec 50%, #e8f5e9 100%);
+      min-height:100vh; width:100vw; overflow:hidden;
+      font-family:'Fredoka One', Georgia, serif; user-select:none; position:relative;
+      display:flex; flex-direction:column; align-items:center;
+    }
+
+    /* floating bg decorations */
+    .bg-gem { position:fixed; pointer-events:none; animation:floatUp linear infinite; opacity:.13; font-size:clamp(16px,4.5vw,26px); }
+    @keyframes floatUp { 0%{transform:translateY(110vh) rotate(0deg)} 100%{transform:translateY(-15vh) rotate(360deg)} }
+
+    /* ── HEADER ── */
+    #header {
+      position:fixed; top:0; left:0; right:0; z-index:10;
+      padding:clamp(8px,2vw,14px) clamp(12px,3vw,20px);
+      display:flex; justify-content:space-between; align-items:center;
+    }
+    #tier-badge {
+      font-size:clamp(13px,3.4vw,18px); padding:5px 15px; border-radius:20px; font-weight:bold;
+    }
+    .tier-easy   { background:linear-gradient(135deg,#a5d6a7,#66bb6a); color:#1b5e20; }
+    .tier-medium { background:linear-gradient(135deg,#ffe082,#ffd54f); color:#5a3000; }
+    .tier-hard   { background:linear-gradient(135deg,#ce93d8,#ab47bc); color:#fff; }
+    #round-lbl { font-size:clamp(14px,3.5vw,20px); color:#6a1b9a; font-weight:bold; }
+    #title-lbl { font-size:clamp(22px,5.5vw,34px); color:#6a1b9a; text-align:center;
+                 padding:0 16px; margin-top:clamp(52px,13vw,76px); }
+
+    /* ── LOCOMOTIVE ── */
+    #loco { font-size:clamp(44px,12vw,80px); text-align:center;
+            margin-top:clamp(8px,2vw,14px); line-height:1; }
+
+    /* ── CARRIAGES ── */
+    #carriages {
+      display:flex; gap:clamp(8px,2.5vw,14px); justify-content:center; align-items:stretch;
+      margin-top:clamp(4px,1vw,8px); padding:0 clamp(12px,3vw,20px); width:100%;
+    }
+    .carriage {
+      flex:1; min-width:0; max-width:clamp(90px,28vw,140px);
+      border-radius:18px; border:4px solid rgba(180,80,220,.4);
+      background:linear-gradient(160deg,#fff 0%,#f3e5f5 100%);
+      box-shadow:0 4px 16px rgba(150,50,200,.18);
+      display:flex; align-items:center; justify-content:center;
+      min-height:clamp(90px,26vw,130px);
+      font-size:clamp(38px,11vw,72px);
+      position:relative; overflow:hidden;
+    }
+    .carriage::after {
+      content:''; position:absolute; bottom:6px; left:50%; transform:translateX(-50%);
+      width:80%; height:4px; background:rgba(180,80,220,.25); border-radius:4px;
+    }
+    /* wheels */
+    .carriage::before {
+      content:'⚙️'; position:absolute; bottom:-8px; left:10px;
+      font-size:clamp(14px,3.5vw,22px); opacity:.35;
+    }
+    .carriage.missing {
+      background:linear-gradient(160deg,#fce4ec,#f8bbd0);
+      border-color:rgba(233,30,99,.45);
+      border-style:dashed;
+    }
+    @keyframes shimmer { 0%,100%{opacity:.6} 50%{opacity:1} }
+    .carriage.missing .num { animation:shimmer 1.1s ease-in-out infinite; color:#ad1457; }
+    .num { font-weight:bold; }
+
+    /* track */
+    #track {
+      width:calc(100% - clamp(24px,6vw,40px)); height:18px; position:relative;
+      margin:clamp(2px,0.5vw,4px) auto 0;
+    }
+    #track::before, #track::after {
+      content:''; position:absolute; left:0; right:0; height:5px;
+      border-radius:4px; background:rgba(120,60,180,.35);
+    }
+    #track::before { top:0; }
+    #track::after  { bottom:0; }
+
+    /* ── PROMPT ── */
+    #prompt {
+      font-size:clamp(18px,4.5vw,26px); color:#6a1b9a; text-align:center;
+      margin-top:clamp(10px,2.5vw,18px); padding:0 16px;
+    }
+
+    /* ── ANSWER BUTTONS ── */
+    #choices {
+      display:flex; gap:clamp(10px,2.5vw,18px); justify-content:center;
+      margin-top:clamp(14px,3.5vw,24px); padding:0 clamp(12px,3vw,20px); width:100%;
+    }
+    .choice-btn {
+      flex:1; min-width:0; max-width:clamp(90px,28vw,140px);
+      min-height:clamp(90px,24vw,120px);
+      border-radius:20px; border:none;
+      background:linear-gradient(135deg,#e040fb,#ab47bc);
+      color:#fff; font-size:clamp(34px,9vw,60px); font-weight:bold;
+      font-family:inherit; cursor:pointer; touch-action:manipulation;
+      display:flex; align-items:center; justify-content:center;
+      box-shadow:0 5px 18px rgba(160,50,210,.35);
+      transition:transform .1s, box-shadow .1s;
+    }
+    .choice-btn:active { transform:scale(.93); box-shadow:0 2px 8px rgba(160,50,210,.25); }
+    .choice-btn.shake { animation:shake .4s ease; }
+    @keyframes shake {
+      0%,100%{transform:translateX(0)} 20%{transform:translateX(-8px)}
+      40%{transform:translateX(8px)} 60%{transform:translateX(-6px)} 80%{transform:translateX(6px)}
+    }
+
+    /* ── SPARKLE / CONFETTI ── */
+    .sparkle { position:fixed; pointer-events:none; z-index:50; border-radius:50%; animation:spkOut .7s ease-out forwards; }
+    @keyframes spkOut { 0%{transform:scale(0);opacity:1} 100%{transform:scale(1.7);opacity:0} }
+    .confetti { position:fixed; pointer-events:none; z-index:100; border-radius:3px; animation:cfFall linear forwards; }
+    @keyframes cfFall { 0%{top:-20px;opacity:1;transform:rotate(0deg)} 100%{top:110vh;opacity:.2;transform:rotate(720deg)} }
+
+    /* ── OVERLAYS ── */
+    .overlay {
+      position:fixed; inset:0; background:rgba(250,240,255,.93);
+      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px;
+      z-index:99; opacity:0; pointer-events:none; transition:opacity .4s;
+    }
+    .overlay.show { opacity:1; pointer-events:all; }
+    .ov-emoji { font-size:clamp(60px,16vw,100px); }
+    .ov-title { font-size:clamp(24px,6.5vw,46px); color:#6a1b9a; text-align:center; padding:0 20px; }
+    .ov-sub   { font-size:clamp(14px,3.8vw,22px); color:#7b1fa2; text-align:center; padding:0 20px; opacity:.85; }
+    .btn-next {
+      padding:clamp(14px,4vw,20px) clamp(32px,8vw,56px); font-size:clamp(20px,5vw,28px);
+      border-radius:50px; border:none; background:linear-gradient(135deg,#e040fb,#ab47bc);
+      color:#fff; font-weight:bold; cursor:pointer; font-family:inherit;
+      min-height:64px; min-width:180px; touch-action:manipulation;
+    }
+  </style>
+</head>
+<body>
+
+<div id="header">
+  <div id="tier-badge" class="tier-easy">Easy</div>
+  <div id="round-lbl">🌸 1 / 9</div>
+</div>
+
+<div id="title-lbl">🚂 Princess Number Train</div>
+
+<div id="loco">🚂</div>
+
+<div id="carriages">
+  <div class="carriage" id="car-0"><span class="num" id="num-0">1</span></div>
+  <div class="carriage" id="car-1"><span class="num" id="num-1">2</span></div>
+  <div class="carriage" id="car-2 missing"><span class="num" id="num-2">?</span></div>
+</div>
+<div id="track"></div>
+
+<div id="prompt">Which number is missing? 🌟</div>
+
+<div id="choices">
+  <button class="choice-btn" id="btn-0" onclick="pick(0)">?</button>
+  <button class="choice-btn" id="btn-1" onclick="pick(1)">?</button>
+  <button class="choice-btn" id="btn-2" onclick="pick(2)">?</button>
+</div>
+
+<!-- Tier completion overlay -->
+<div class="overlay" id="tier-overlay">
+  <div class="ov-emoji" id="t-emoji">🎉</div>
+  <div class="ov-title" id="t-title">Round complete!</div>
+  <div class="ov-sub"   id="t-sub">Get ready for the next round!</div>
+  <button class="btn-next" id="t-btn">Next Round ➡️</button>
+</div>
+
+<!-- Final win overlay -->
+<div class="overlay" id="win-overlay">
+  <div class="ov-emoji">👑</div>
+  <div class="ov-title">Number Champion! 🚂✨</div>
+  <div class="ov-sub">You filled every carriage! Amazing!</div>
+  <button class="btn-next" onclick="startGame()">Play Again 🌸</button>
+</div>
+
+<script>
+  // ── Audio ─────────────────────────────────────────────────────────────────
+  let ctx = null;
+  function getCtx() { if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)(); return ctx; }
+  function tone(f, type, d, v = .18) {
+    try {
+      const c = getCtx(), o = c.createOscillator(), g = c.createGain();
+      o.connect(g); g.connect(c.destination);
+      o.type = type; o.frequency.value = f;
+      g.gain.setValueAtTime(v, c.currentTime);
+      g.gain.exponentialRampToValueAtTime(.001, c.currentTime + d);
+      o.start(); o.stop(c.currentTime + d);
+    } catch(e) {}
+  }
+  function playCorrect()   { [523,659,784,1047].forEach((f,i) => setTimeout(() => tone(f,'sine',.18,.22), i*65)); }
+  function playWrong()     { tone(280,'sawtooth',.16,.13); setTimeout(() => tone(240,'sawtooth',.14,.11), 160); }
+  function playTierWin()   { [523,659,784,1047,1319].forEach((f,i) => setTimeout(() => tone(f,'triangle',.28,.22), i*80)); }
+  function playFinalWin()  { [523,659,784,1047,784,1047,1319].forEach((f,i) => setTimeout(() => tone(f,'sine',.32,.22), i*90)); }
+
+  // ── Rounds (9 total: 3 Easy, 3 Medium, 3 Hard) ────────────────────────────
+  const ROUNDS = [
+    // Easy — "what comes NEXT?" (last carriage always missing)
+    { nums:[1, 2, null], ans:3,  wrong:[4, 1],  tier:0, prompt:'What comes after 2? 🌸' },
+    { nums:[3, 4, null], ans:5,  wrong:[3, 6],  tier:0, prompt:'What comes after 4? 💎' },
+    { nums:[2, 3, null], ans:4,  wrong:[2, 5],  tier:0, prompt:'What comes after 3? ⭐' },
+    // Medium — gap moves around, bigger numbers
+    { nums:[4, null, 6], ans:5,  wrong:[4, 7],  tier:1, prompt:'What is hiding here? 🌟' },
+    { nums:[null, 7, 8], ans:6,  wrong:[5, 9],  tier:1, prompt:'What comes before 7? 👑' },
+    { nums:[5, null, 7], ans:6,  wrong:[5, 8],  tier:1, prompt:'Which number fits? ✨' },
+    // Hard — larger numbers, trickier gaps
+    { nums:[null, 10, 11], ans:9,  wrong:[8, 12], tier:2, prompt:'What comes before 10? 🦄' },
+    { nums:[8, null, 10],  ans:9,  wrong:[7, 11], tier:2, prompt:'Which number fits? 🔮' },
+    { nums:[11, 12, null], ans:13, wrong:[11, 14], tier:2, prompt:'What comes after 12? 💫' },
+  ];
+
+  const TIER_LABELS = ['Easy','Medium','Hard'];
+  const TIER_CLASSES = ['tier-easy','tier-medium','tier-hard'];
+
+  let roundIdx = 0;
+  let locked   = false;
+
+  // ── BG gems ───────────────────────────────────────────────────────────────
+  function makeBgGems() {
+    const g = ['💫','✨','🌟','⭐','💎','🌸','🚂','👑','🌺','🎀','🪄','🎵'];
+    for (let i = 0; i < 12; i++) {
+      const el = document.createElement('div'); el.className = 'bg-gem';
+      el.textContent = g[i % g.length];
+      el.style.left = (5 + Math.random()*90) + 'vw';
+      el.style.animationDuration = (10 + Math.random()*14) + 's';
+      el.style.animationDelay    = -(Math.random()*14) + 's';
+      document.body.appendChild(el);
+    }
+  }
+
+  // ── Render a round ────────────────────────────────────────────────────────
+  function showRound(idx) {
+    locked = false;
+    const r = ROUNDS[idx];
+
+    // Tier badge
+    const badge = document.getElementById('tier-badge');
+    badge.textContent = TIER_LABELS[r.tier];
+    badge.className   = TIER_CLASSES[r.tier];
+
+    // Round counter
+    document.getElementById('round-lbl').textContent = '🌸 ' + (idx + 1) + ' / ' + ROUNDS.length;
+
+    // Prompt
+    document.getElementById('prompt').textContent = r.prompt;
+
+    // Carriages
+    for (let i = 0; i < 3; i++) {
+      const car  = document.getElementById('car-' + i);
+      const numEl= document.getElementById('num-' + i);
+      const val  = r.nums[i];
+      if (val === null) {
+        car.className  = 'carriage missing';
+        numEl.textContent = '?';
+      } else {
+        car.className  = 'carriage';
+        numEl.textContent = String(val);
+      }
+    }
+
+    // Answer buttons — shuffle [ans, wrong[0], wrong[1]]
+    const choices = shuffle([r.ans, r.wrong[0], r.wrong[1]]);
+    for (let i = 0; i < 3; i++) {
+      const btn = document.getElementById('btn-' + i);
+      btn.textContent = String(choices[i]);
+      btn.dataset.val = choices[i];
+      btn.className   = 'choice-btn';
+    }
+  }
+
+  // ── Tap a choice ──────────────────────────────────────────────────────────
+  function pick(btnIdx) {
+    if (locked) return;
+    const r   = ROUNDS[roundIdx];
+    const btn = document.getElementById('btn-' + btnIdx);
+    const val = Number(btn.dataset.val);
+
+    if (val === r.ans) {
+      locked = true;
+      playCorrect();
+      // Fill the missing carriage
+      for (let i = 0; i < 3; i++) {
+        if (r.nums[i] === null) {
+          document.getElementById('car-' + i).className = 'carriage';
+          document.getElementById('num-' + i).textContent = String(r.ans);
+        }
+      }
+      // Sparkle burst from button
+      burstAt(btn);
+      setTimeout(() => advanceRound(), 700);
+    } else {
+      btn.classList.add('shake');
+      playWrong();
+      setTimeout(() => btn.classList.remove('shake'), 420);
+    }
+  }
+
+  // ── Advance to next round ─────────────────────────────────────────────────
+  function advanceRound() {
+    const r = ROUNDS[roundIdx];
+    const nextIdx = roundIdx + 1;
+
+    // Check if we just finished a tier
+    const lastInTier = (nextIdx >= ROUNDS.length) || (ROUNDS[nextIdx].tier !== r.tier);
+
+    if (nextIdx >= ROUNDS.length) {
+      // Game complete
+      playFinalWin();
+      confetti(60); setTimeout(() => confetti(40), 600);
+      document.getElementById('win-overlay').classList.add('show');
+    } else if (lastInTier) {
+      // Tier complete
+      playTierWin();
+      confetti(42);
+      const nextTier = ROUNDS[nextIdx].tier;
+      document.getElementById('t-emoji').textContent = '🎉';
+      document.getElementById('t-title').textContent = TIER_LABELS[r.tier] + ' complete! ✨';
+      document.getElementById('t-sub').textContent   = 'Next: ' + TIER_LABELS[nextTier] + ' round!';
+      document.getElementById('t-btn').onclick = () => {
+        document.getElementById('tier-overlay').classList.remove('show');
+        roundIdx = nextIdx;
+        showRound(roundIdx);
+      };
+      document.getElementById('tier-overlay').classList.add('show');
+    } else {
+      roundIdx = nextIdx;
+      showRound(roundIdx);
+    }
+  }
+
+  function startGame() {
+    document.getElementById('win-overlay').classList.remove('show');
+    document.getElementById('tier-overlay').classList.remove('show');
+    roundIdx = 0;
+    showRound(0);
+  }
+
+  // ── Utilities ─────────────────────────────────────────────────────────────
+  function shuffle(a) {
+    const b = [...a];
+    for (let i=b.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [b[i],b[j]]=[b[j],b[i]]; }
+    return b;
+  }
+
+  function burstAt(el) {
+    const r  = el.getBoundingClientRect();
+    const cx = r.left + r.width/2, cy = r.top + r.height/2;
+    const cols   = ['#e040fb','#ffd700','#fff','#f48fb1','#ab47bc','#80deea','#a5d6a7'];
+    const emojis = ['✨','💫','🌟','🚂','💎'];
+    for (let i = 0; i < 16; i++) {
+      const el2 = document.createElement('div'); el2.className='sparkle';
+      const a   = Math.random()*Math.PI*2;
+      const d   = 30 + Math.random()*70;
+      const sz  = 7 + Math.random()*10;
+      if (i < 4) {
+        el2.style.cssText=`left:${cx+Math.cos(a)*d}px;top:${cy+Math.sin(a)*d}px;font-size:${16+Math.random()*10}px;background:none;border-radius:0;`;
+        el2.textContent=emojis[i%emojis.length];
+      } else {
+        el2.style.cssText=`left:${cx+Math.cos(a)*d-sz/2}px;top:${cy+Math.sin(a)*d-sz/2}px;width:${sz}px;height:${sz}px;background:${cols[i%cols.length]}`;
+      }
+      document.body.appendChild(el2);
+      setTimeout(()=>el2.remove(),750);
+    }
+  }
+
+  function confetti(n) {
+    const cols=['#e040fb','#ffd700','#fff','#f48fb1','#ce93d8','#b2ebf2','#a5d6a7','#ff8a65'];
+    for (let i=0;i<n;i++){
+      const el=document.createElement('div'); el.className='confetti';
+      const sz=6+Math.random()*10;
+      el.style.cssText=`left:${Math.random()*100}vw;width:${sz}px;height:${sz}px;background:${cols[i%cols.length]};animation-duration:${1.4+Math.random()*2}s;animation-delay:${Math.random()*.5}s`;
+      document.body.appendChild(el);
+      setTimeout(()=>el.remove(),3500);
+    }
+  }
+
+  makeBgGems();
+  startGame();
+</script>
+</body>
+</html>
