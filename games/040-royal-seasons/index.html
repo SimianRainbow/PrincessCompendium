@@ -58,6 +58,25 @@
       color: #6a1b9a;
       box-shadow: 0 2px 8px rgba(0,0,0,0.12);
     }
+    .tier-easy   { background: linear-gradient(135deg,#a5d6a7,#66bb6a) !important; color: #1b5e20 !important; }
+    .tier-medium { background: linear-gradient(135deg,#ffe082,#ffd54f) !important; color: #5a3000 !important; }
+    .tier-hard   { background: linear-gradient(135deg,#ce93d8,#ab47bc) !important; color: #fff !important; }
+
+    /* Progress bar */
+    #progress-bar-wrap {
+      width: min(95vw, 460px);
+      margin: 4px auto 0;
+    }
+    #progress-track {
+      background: rgba(255,255,255,0.28); border-radius: 20px;
+      height: clamp(8px,2vw,12px); overflow: hidden;
+    }
+    #progress-fill {
+      height: 100%; border-radius: 20px;
+      background: linear-gradient(90deg,#ffd700,#e040fb);
+      transition: width .35s ease; width: 0%;
+      box-shadow: 0 0 8px rgba(255,215,0,.45);
+    }
 
     /* ── Scene canvas wrapper ── */
     #scene-wrap {
@@ -233,6 +252,9 @@
 
   <div id="hud">
     <span id="tier-badge">⭐ Round 1/9 · Curious Sprite</span>
+  </div>
+  <div id="progress-bar-wrap">
+    <div id="progress-track"><div id="progress-fill"></div></div>
   </div>
 
   <div id="scene-wrap">
@@ -539,6 +561,7 @@ const ROUNDS = [
 // pick 9 rounds (first 9 defined above; we have exactly 9)
 const ALL_ROUNDS = ROUNDS.slice(0, 9);
 const TIER_NAMES = ['Curious Sprite', 'Royal Explorer', 'Princess Master'];
+let tierHideLabel = false; // hide scene text label for Medium & Hard tiers
 
 // ─────────────── Drawing Helpers ───────────────
 const FLOWER_COLORS = ['#f48fb1','#ce93d8','#ffab91','#80deea','#fff176'];
@@ -554,6 +577,7 @@ function gradV(ctx, W, H, top, bot) {
   ctx.fillStyle = g; ctx.fillRect(0,0,W,H);
 }
 function sceneCue(ctx, W, text, x, y, color) {
+  if (tierHideLabel) return;
   ctx.save();
   ctx.font = 'bold 15px Fredoka One, sans-serif';
   ctx.fillStyle = 'rgba(255,255,255,0.82)';
@@ -1187,12 +1211,18 @@ function renderRound() {
   resizeCanvas();
   const r = ALL_ROUNDS[currentRound];
   const W = canvas.width, H = canvas.height;
+
+  const tierIdx = Math.floor(currentRound / 3);
+  tierHideLabel = tierIdx >= 1; // set BEFORE draw so sceneCue can check it
+
   ctx2d.clearRect(0,0,W,H);
   r.draw(ctx2d, W, H);
 
-  const tierIdx = Math.floor(currentRound / 3);
-  const tierName = TIER_NAMES[tierIdx];
-  tierBadge.textContent = `⭐ Round ${currentRound+1}/9 · ${tierName}`;
+  const TIER_LABELS = ['🌸 Easy', '🌿 Medium', '👑 Hard'];
+  const TIER_CLASSES = ['tier-easy', 'tier-medium', 'tier-hard'];
+  tierBadge.textContent = `Round ${currentRound+1}/9 · ${TIER_LABELS[tierIdx]}`;
+  tierBadge.className = TIER_CLASSES[tierIdx];
+  document.getElementById('progress-fill').style.width = (currentRound / 9 * 100) + '%';
   promptText.textContent = 'Which season is this? 🌟';
   locked = false;
   buttons.forEach(b => {
@@ -1258,6 +1288,7 @@ function showTierChange(tierIdx) {
 
 function showWin() {
   overlayMode = 'win';
+  document.getElementById('progress-fill').style.width = '100%';
   playWinJingle();
   bigConfetti();
   setTimeout(() => {
@@ -1267,6 +1298,7 @@ function showWin() {
 
 function restartGame() {
   currentRound = 0;
+  document.getElementById('progress-fill').style.width = '0%';
   renderRound();
 }
 
@@ -1301,7 +1333,7 @@ function sparkles(el) {
   const cx = rect.left + rect.width/2;
   const cy = rect.top + rect.height/2;
   const colors = ['#f48fb1','#fff176','#ce93d8','#80deea','#ffab91','#ffd700'];
-  for (let i = 0; i < 18; i++) {
+  for (let i = 0; i < 22; i++) {
     const s = document.createElement('div');
     s.className = 'sparkle';
     const size = 6 + Math.random()*10;
@@ -1309,8 +1341,8 @@ function sparkles(el) {
       width:${size}px; height:${size}px;
       left:${cx - size/2}px; top:${cy - size/2}px;
       background:${colors[i%colors.length]};
-      --dx:${(Math.random()-0.5)*120}px;
-      --dy:${(Math.random()-0.5)*120}px;
+      --dx:${(Math.random()-0.5)*130}px;
+      --dy:${(Math.random()-0.5)*130}px;
       animation-duration:${0.6+Math.random()*0.4}s;
     `;
     document.body.appendChild(s);

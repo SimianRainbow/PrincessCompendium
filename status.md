@@ -1,9 +1,9 @@
 # Princess Compendium — Status
 
 ## Last update run
-Date: 2026-07-04
-- Improved: `030-princess-pairs` → v1.1.0 (quick-peek preview at round start shows all cards face-up briefly before they flip back down; round counter "Round X/3" in header; tier-specific card backs 🌸/💎/👑 per tier; expanded item pool 30→42 emoji; 12 bg gems instead of 9; confetti bumped to 42 on round win, 60+40 on final win)
-- Added: `045-princess-train` — "Princess Number Train 🚂" teaching number sequences & missing numbers; show 3 carriages with numbers (one has "?"), tap the right answer from 3 choices; Easy = what comes next (1-5, last always missing); Medium = gap moves to middle or first position, numbers 4-9; Hard = larger numbers 8-13, trickier positions; 9 rounds across 3 tiers; 16-particle sparkle on correct; tier-transition toast with confetti 42; final win 60+40 confetti
+Date: 2026-07-07
+- Improved: `040-royal-seasons` → v1.1.0 (color-coded tier badge Easy/Medium/Hard; progress bar added; canvas season-name labels hidden for Medium & Hard tiers so the scene must be read visually — Easy still shows label to teach associations; sparkle burst 18→22 dots with wider spread; progress fills to 100% on win; restart resets progress bar)
+- Added: `046-royal-feast` — "Royal Feast 🥘" teaching food groups & nutrition sorting; show a food emoji + name, tap the correct royal basket (Fruits/Veggies/Milk & Grains/Treats); Easy = 2 baskets (fruit vs treat), Medium = 3 baskets (+ veggies), Hard = 4 baskets (+ milk & grains); 9 rounds across 3 tiers; 8 emoji + 18 dot sparkle burst on correct; tier-transition toast with confetti 42; final win 60+40 confetti
 
 ## Improvement history
 
@@ -36,6 +36,7 @@ Date: 2026-07-04
 | 2026-06-28 | 038-royal-babies | Color-coded tier badge, progress bar, 6-per-tier pool (was 3), confetti on tier/win, tier toast tap-to-continue, 10 bg gems | 1.1.0 |
 | 2026-07-01 | 028-sight-words | Color-coded tier badge, progress bar, 12 bg floating letters, tier-transition toast, word pool 8→10 per tier, confetti 36→42 | 1.1.0 |
 | 2026-07-04 | 030-princess-pairs | Quick-peek preview at round start, round counter, tier-specific card backs, item pool 30→42, 12 bg gems, confetti 42/60+40 | 1.1.0 |
+| 2026-07-07 | 040-royal-seasons | Color-coded tier badge, progress bar, hide scene labels Medium/Hard, sparkle 18→22 | 1.1.0 |
 
 ## Games due for improvement (all at v1.0.0)
 
@@ -73,4 +74,4 @@ See `CLAUDE.md` for the full prioritised list. Top 3 to build next:
 14. ~~Animal habitats / where animals live~~ — ✅ covered by `044-animal-homes`
 
 ## Next game ID
-`046-<slug>`
+`047-<slug>`

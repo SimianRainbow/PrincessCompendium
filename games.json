@@ -475,7 +475,7 @@
     "ageMin": 2,
     "ageMax": 5,
     "skill": "seasons recognition",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "category": "other",
     "path": "games/040-royal-seasons/index.html"
   },
@@ -538,5 +538,17 @@
     "version": "1.0.0",
     "category": "numbers",
     "path": "games/045-princess-train/index.html"
+  },
+  {
+    "id": "046-royal-feast",
+    "title": "Royal Feast",
+    "description": "Sort princess foods into the right royal basket — tap Fruits, Veggies, Treats or Milk & Grains! 9 rounds across 3 tiers.",
+    "icon": "🥘",
+    "ageMin": 2,
+    "ageMax": 5,
+    "skill": "food groups & nutrition sorting",
+    "version": "1.0.0",
+    "category": "other",
+    "path": "games/046-royal-feast/index.html"
   }
 ]
