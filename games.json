@@ -386,12 +386,12 @@
   {
     "id": "033-left-right",
     "title": "Left & Right",
-    "description": "Tap the princess gem on the LEFT or RIGHT — 3 tiers from big labels to no labels!",
+    "description": "Tap the princess gem on the LEFT or RIGHT — 3 tiers from big labels to no labels! Expanded pool, color-coded tiers, progress bar.",
     "icon": "👈",
     "ageMin": 2,
     "ageMax": 5,
     "skill": "left & right directional awareness",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "category": "other",
     "path": "games/033-left-right/index.html"
   },
@@ -550,5 +550,17 @@
     "version": "1.0.0",
     "category": "other",
     "path": "games/046-royal-feast/index.html"
+  },
+  {
+    "id": "047-royal-vehicles",
+    "title": "Royal Vehicles",
+    "description": "Match the vehicle to where it goes — car on the road, plane in the sky, boat on water, train on rail! 9 rounds across 3 tiers.",
+    "icon": "🚗",
+    "ageMin": 2,
+    "ageMax": 5,
+    "skill": "vehicle recognition & transport categorisation",
+    "version": "1.0.0",
+    "category": "other",
+    "path": "games/047-royal-vehicles/index.html"
   }
 ]

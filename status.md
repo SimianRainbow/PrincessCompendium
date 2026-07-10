@@ -1,9 +1,9 @@
 # Princess Compendium — Status
 
 ## Last update run
-Date: 2026-07-07
-- Improved: `040-royal-seasons` → v1.1.0 (color-coded tier badge Easy/Medium/Hard; progress bar added; canvas season-name labels hidden for Medium & Hard tiers so the scene must be read visually — Easy still shows label to teach associations; sparkle burst 18→22 dots with wider spread; progress fills to 100% on win; restart resets progress bar)
-- Added: `046-royal-feast` — "Royal Feast 🥘" teaching food groups & nutrition sorting; show a food emoji + name, tap the correct royal basket (Fruits/Veggies/Milk & Grains/Treats); Easy = 2 baskets (fruit vs treat), Medium = 3 baskets (+ veggies), Hard = 4 baskets (+ milk & grains); 9 rounds across 3 tiers; 8 emoji + 18 dot sparkle burst on correct; tier-transition toast with confetti 42; final win 60+40 confetti
+Date: 2026-07-10
+- Improved: `033-left-right` → v1.1.0 (color-coded tier badges 🌱/🌸/⭐; progress bar added; confetti 35→42/60+40; pool expanded to 18 items (6 per tier); 4-note correct tone; tier-transition overlays with tap-to-continue; 10 bg floating gems; locked state)
+- Added: `047-royal-vehicles` — "Royal Vehicles 🚗" teaching vehicle recognition & transport categorisation; show vehicle emoji + name, tap the right place (Road/Sky/Water/Rail); Easy=2 habitats, Medium=3, Hard=4; 9 rounds; 18 sparkle dots + 8 emoji on correct; tier overlay with confetti; final 60+40 confetti
 
 ## Improvement history
 
@@ -37,6 +37,7 @@ Date: 2026-07-07
 | 2026-07-01 | 028-sight-words | Color-coded tier badge, progress bar, 12 bg floating letters, tier-transition toast, word pool 8→10 per tier, confetti 36→42 | 1.1.0 |
 | 2026-07-04 | 030-princess-pairs | Quick-peek preview at round start, round counter, tier-specific card backs, item pool 30→42, 12 bg gems, confetti 42/60+40 | 1.1.0 |
 | 2026-07-07 | 040-royal-seasons | Color-coded tier badge, progress bar, hide scene labels Medium/Hard, sparkle 18→22 | 1.1.0 |
+| 2026-07-10 | 033-left-right | Color-coded tier badge, progress bar, 10 bg gems, pool 9→18, confetti 35→42, 4-note audio, tier overlay | 1.1.0 |
 
 ## Games due for improvement (all at v1.0.0)
 
@@ -74,4 +75,4 @@ See `CLAUDE.md` for the full prioritised list. Top 3 to build next:
 14. ~~Animal habitats / where animals live~~ — ✅ covered by `044-animal-homes`
 
 ## Next game ID
-`047-<slug>`
+`048-<slug>`

@@ -15,23 +15,37 @@
       padding:8px;
     }
 
+    /* Floating bg gems */
+    .bg-gem { position:fixed; pointer-events:none; animation:floatUp linear infinite; opacity:.13; font-size:clamp(16px,4vw,26px); }
+    @keyframes floatUp { 0%{transform:translateY(110vh) rotate(0deg)} 100%{transform:translateY(-15vh) rotate(360deg)} }
+
+    /* Header row */
+    #header {
+      position:fixed; top:0; left:0; right:0; z-index:10;
+      padding:clamp(10px,2.5vw,16px) clamp(14px,4vw,24px);
+      display:flex; justify-content:space-between; align-items:center;
+    }
     #tier-badge {
-      position:fixed; top:14px; left:50%; transform:translateX(-50%);
-      font-size:clamp(14px,3.5vw,18px); background:rgba(255,255,255,.2);
-      border-radius:20px; padding:4px 16px; color:#fff;
-      border:1px solid rgba(255,255,255,.4); z-index:10; white-space:nowrap;
+      font-size:clamp(14px,3.5vw,20px); padding:6px 18px;
+      border-radius:20px; font-weight:bold; transition:background .4s;
     }
-    #round-counter {
-      position:fixed; top:14px; right:16px;
-      font-size:clamp(14px,3.5vw,18px); color:rgba(255,255,255,.9);
-      z-index:10; white-space:nowrap; background:rgba(255,255,255,.15);
-      border-radius:20px; padding:4px 12px; border:1px solid rgba(255,255,255,.3);
+    .tier-easy   { background:linear-gradient(135deg,#a5d6a7,#66bb6a); color:#1b5e20; }
+    .tier-medium { background:linear-gradient(135deg,#ffe082,#ffd54f); color:#5a3000; }
+    .tier-hard   { background:linear-gradient(135deg,#ce93d8,#ab47bc); color:#fff; }
+    #round-counter { font-size:clamp(14px,3.5vw,20px); color:rgba(255,255,255,.9); text-shadow:0 1px 4px rgba(0,0,0,.4); }
+
+    /* Progress bar */
+    #progress-wrap {
+      position:fixed; top:clamp(52px,12vw,76px); left:0; right:0;
+      padding:0 clamp(14px,4vw,24px); z-index:10;
     }
+    #progress-track { background:rgba(0,0,0,.25); border-radius:20px; height:clamp(10px,2.5vw,14px); overflow:hidden; }
+    #progress-fill  { height:100%; border-radius:20px; background:linear-gradient(90deg,#ffd700,#f48fb1); transition:width .35s ease; width:0%; box-shadow:0 0 8px rgba(255,215,0,.4); }
 
     #title {
       font-size:clamp(20px,5.5vw,34px); color:#fff;
       text-shadow:0 2px 8px rgba(0,0,0,.4);
-      margin-top:56px; margin-bottom:4px; text-align:center;
+      margin-top:clamp(80px,18vw,110px); margin-bottom:4px; text-align:center;
     }
 
     #princess-deco {
@@ -80,18 +94,26 @@
       font-size:clamp(14px,3.8vw,22px); color:rgba(255,255,255,.95);
       text-align:center; min-height:1.4em; transition:opacity .3s;
     }
-    .dir-label.small { font-size:clamp(11px,2.8vw,16px); color:rgba(255,255,255,.6); }
+    .dir-label.small  { font-size:clamp(11px,2.8vw,16px); color:rgba(255,255,255,.6); }
     .dir-label.hidden { opacity:0; pointer-events:none; }
 
+    /* Tier toast overlay */
     #tier-toast {
-      position:fixed; top:50%; left:50%; transform:translate(-50%,-50%) scale(0);
-      background:rgba(255,215,0,.96); border-radius:24px; padding:18px 34px;
-      font-size:clamp(20px,5.5vw,34px); color:#5d2e00;
-      text-align:center; z-index:200; pointer-events:none;
-      box-shadow:0 8px 32px rgba(0,0,0,.3);
-      transition:transform .25s cubic-bezier(.34,1.56,.64,1);
+      position:fixed; inset:0; background:rgba(20,0,46,.88);
+      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px;
+      z-index:200; opacity:0; pointer-events:none; transition:opacity .35s;
     }
-    #tier-toast.show { transform:translate(-50%,-50%) scale(1); }
+    #tier-toast.show { opacity:1; pointer-events:all; }
+    #toast-icon  { font-size:clamp(60px,16vw,100px); }
+    #toast-title { font-size:clamp(24px,7vw,48px); color:#ffd700; text-align:center; padding:0 20px; }
+    #toast-sub   { font-size:clamp(16px,4.5vw,24px); color:#f8bbd0; text-align:center; padding:0 20px; }
+    #toast-btn {
+      padding:clamp(14px,4vw,20px) clamp(32px,8vw,56px); font-size:clamp(18px,5vw,26px);
+      border-radius:50px; border:none; background:linear-gradient(135deg,#ffd700,#ff9800);
+      color:#5d2e00; font-weight:bold; cursor:pointer; font-family:inherit;
+      min-height:60px; min-width:160px;
+      box-shadow:0 4px 16px rgba(255,180,0,.5);
+    }
 
     #celebrate-overlay {
       position:fixed; inset:0; background:rgba(0,0,0,.65);
@@ -100,7 +122,7 @@
     }
     #celebrate-overlay.show { opacity:1; pointer-events:all; }
     #celebrate-text { font-size:clamp(28px,7.5vw,56px); color:#fff; text-shadow:0 0 20px #ffd700; text-align:center; padding:0 20px; }
-    #celebrate-sub { font-size:clamp(18px,5vw,32px); color:#ffe082; text-align:center; }
+    #celebrate-sub  { font-size:clamp(18px,5vw,32px); color:#ffe082; text-align:center; }
     #next-btn {
       padding:clamp(14px,4vw,20px) clamp(32px,8vw,56px);
       font-size:clamp(18px,5vw,26px); border-radius:50px; border:none;
@@ -110,57 +132,83 @@
       box-shadow:0 4px 16px rgba(255,180,0,.5);
     }
 
-    .confetti-piece { position:fixed; width:10px; height:10px; border-radius:50%; animation:confettiFall linear forwards; pointer-events:none; z-index:100; }
-    @keyframes confettiFall { 0%{top:-20px;opacity:1} 100%{top:110vh;opacity:.2} }
-    .sparkle { position:fixed; pointer-events:none; z-index:101; font-size:clamp(18px,4.5vw,28px); animation:sparklePop .75s ease-out forwards; }
-    @keyframes sparklePop { 0%{opacity:1;transform:scale(0) rotate(0)} 60%{opacity:1;transform:scale(1.3) rotate(20deg)} 100%{opacity:0;transform:scale(1.8) rotate(40deg)} }
+    .confetti-piece { position:fixed; border-radius:3px; animation:confettiFall linear forwards; pointer-events:none; z-index:100; }
+    @keyframes confettiFall { 0%{top:-20px;opacity:1;transform:rotate(0deg)} 100%{top:110vh;opacity:.2;transform:rotate(720deg)} }
+    .sparkle-dot { position:fixed; pointer-events:none; z-index:101; border-radius:50%; animation:sDot .7s ease-out forwards; }
+    @keyframes sDot { 0%{transform:scale(0);opacity:1} 100%{transform:scale(1.5);opacity:0} }
+    .sparkle-em { position:fixed; pointer-events:none; z-index:102; animation:sFloat .85s ease-out forwards; }
+    @keyframes sFloat { 0%{transform:translateY(0) scale(1);opacity:1} 100%{transform:translateY(-85px) scale(0);opacity:0} }
   </style>
 </head>
 <body>
-  <div id="tier-badge">⭐ Easy</div>
-  <div id="round-counter">1 / 9</div>
-  <div id="tier-toast"></div>
+  <div id="header">
+    <div id="tier-badge" class="tier-easy">🌱 Easy</div>
+    <div id="round-counter">1 / 9</div>
+  </div>
+  <div id="progress-wrap">
+    <div id="progress-track"><div id="progress-fill"></div></div>
+  </div>
 
   <div id="title">Left &amp; Right! 👈👉</div>
   <span id="princess-deco">👸</span>
   <div id="question"></div>
   <div id="items-row"></div>
 
+  <!-- tier transition toast -->
+  <div id="tier-toast">
+    <div id="toast-icon">🌸</div>
+    <div id="toast-title"></div>
+    <div id="toast-sub"></div>
+    <button id="toast-btn" onclick="dismissToast()">Let's go! ➡️</button>
+  </div>
+
   <div id="celebrate-overlay">
     <div id="celebrate-text"></div>
     <div id="celebrate-sub"></div>
-    <button id="next-btn" onclick="nextRound()">Next ➡️</button>
+    <button id="next-btn" onclick="advanceRound()">Next ➡️</button>
   </div>
 
 <script>
-  // Each round: items array, ask = index of correct item, tier 0/1/2
-  // tier 0 (Easy): 2 items, big direction labels shown
-  // tier 1 (Medium): 2 items, small labels
-  // tier 2 (Hard): 3 items, no labels
-  const ROUNDS = [
+  // Pool: { items, ask (correct index), tier }
+  // tier 0=Easy (2 items, big labels), tier 1=Medium (2 items, small labels), tier 2=Hard (3 items, no labels)
+  const POOL = [
+    // Easy
     { items:['⭐','💖'],       ask:0, tier:0 },
     { items:['🌈','🦋'],       ask:1, tier:0 },
     { items:['👑','🌸'],       ask:0, tier:0 },
+    { items:['🎀','💎'],       ask:1, tier:0 },
+    { items:['🦄','🍰'],       ask:0, tier:0 },
+    { items:['🌺','🌙'],       ask:1, tier:0 },
+    // Medium
     { items:['💜','💛'],       ask:1, tier:1 },
     { items:['🐱','🐰'],       ask:0, tier:1 },
     { items:['🎀','🎵'],       ask:1, tier:1 },
+    { items:['🏰','🌊'],       ask:0, tier:1 },
+    { items:['🍭','🌟'],       ask:1, tier:1 },
+    { items:['🐸','🦊'],       ask:0, tier:1 },
+    // Hard
     { items:['🌙','🌟','🦄'], ask:2, tier:2 },
     { items:['🍰','🎠','🌺'], ask:0, tier:2 },
     { items:['💎','🏰','🌊'], ask:2, tier:2 },
+    { items:['👑','🌸','🎀'], ask:1, tier:2 },
+    { items:['🦋','⭐','💖'], ask:0, tier:2 },
+    { items:['🐱','🦄','🍭'], ask:2, tier:2 },
   ];
 
   const TIER_META = [
-    { label:'⭐ Easy',    labelClass:''        },
-    { label:'⭐⭐ Good',   labelClass:'small'   },
-    { label:'⭐⭐⭐ Wow!', labelClass:'hidden'  },
+    { label:'🌱 Easy',   cls:'tier-easy',   labelClass:''       },
+    { label:'🌸 Medium', cls:'tier-medium', labelClass:'small'  },
+    { label:'⭐ Hard',   cls:'tier-hard',   labelClass:'hidden' },
   ];
 
+  const TOTAL = 9; // 3 per tier
   const ITEM_NAMES = {
     '⭐':'star','💖':'heart','🌈':'rainbow','🦋':'butterfly',
     '👑':'crown','🌸':'flower','💜':'purple gem','💛':'yellow gem',
     '🐱':'kitty','🐰':'bunny','🎀':'bow','🎵':'music note',
     '🌙':'moon','🌟':'star','🦄':'unicorn','🍰':'cake',
     '🎠':'carousel','🌺':'rose','💎':'gem','🏰':'castle','🌊':'wave',
+    '🍭':'lollipop','🏰':'castle','🌊':'wave','🐸':'frog','🦊':'fox',
   };
 
   function dirName(idx, total){
@@ -170,77 +218,132 @@
   }
 
   let round = 0;
-  const TOTAL = 9;
   let currentRound = null;
+  let locked = false;
+  let roundOrder = [];
+  let pendingTierChange = false;
+
+  function shuffle(arr){ const a=[...arr]; for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]; } return a; }
 
   let audioCtx = null;
   function getAudio(){ if(!audioCtx) audioCtx=new(window.AudioContext||window.webkitAudioContext)(); return audioCtx; }
   function tone(f,t,d,v=.15){ try{ const c=getAudio(),o=c.createOscillator(),g=c.createGain(); o.connect(g);g.connect(c.destination); o.type=t||'sine';o.frequency.value=f;g.gain.setValueAtTime(v,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+d);o.start();o.stop(c.currentTime+d); }catch(e){} }
-  function playCorrect(){ [523,659,784].forEach((f,i)=>setTimeout(()=>tone(f,'sine',.18),i*90)); }
+  function playCorrect(){ [523,659,784,1047].forEach((f,i)=>setTimeout(()=>tone(f,'sine',.16,.2),i*65)); }
   function playWrong(){ tone(200,'sawtooth',.2,.09); }
-  function playCelebrate(){ [523,587,659,698,784,880,1047].forEach((f,i)=>setTimeout(()=>tone(f,'sine',.22),i*70)); }
+  function playTierUp(){ [392,494,587,659,784,880,1047].forEach((f,i)=>setTimeout(()=>tone(f,'triangle',.25,.2),i*75)); }
+  function playFinalWin(){ [523,659,784,1047,784,1047,1319].forEach((f,i)=>setTimeout(()=>tone(f,'sine',.3,.22),i*90)); }
 
-  function sparkleBurst(x,y){
-    const emojis=['✨','💫','⭐','🌟','💖','🌸','👑','🎉'];
-    for(let i=0;i<14;i++){
-      const el=document.createElement('div'); el.className='sparkle';
-      el.textContent=emojis[Math.floor(Math.random()*emojis.length)];
-      const angle=Math.random()*360, dist=50+Math.random()*110;
-      el.style.left=(x+Math.cos(angle*Math.PI/180)*dist)+'px';
-      el.style.top=(y+Math.sin(angle*Math.PI/180)*dist)+'px';
-      el.style.animationDelay=(Math.random()*.3)+'s';
-      document.body.appendChild(el); setTimeout(()=>el.remove(),1050);
+  function sparkleBurst(x, y){
+    const cols=['#ffd700','#f48fb1','#ce93d8','#80deea','#fff','#e040fb'];
+    for(let i=0;i<16;i++){
+      const el=document.createElement('div'); el.className='sparkle-dot';
+      const a=Math.random()*Math.PI*2, dist=28+Math.random()*80, sz=6+Math.random()*10;
+      el.style.cssText=`left:${x+Math.cos(a)*dist-sz/2}px;top:${y+Math.sin(a)*dist-sz/2}px;width:${sz}px;height:${sz}px;background:${cols[i%cols.length]}`;
+      document.body.appendChild(el); setTimeout(()=>el.remove(),750);
+    }
+    const emojis=['✨','💫','⭐','🌟','💖','🌸','👑'];
+    for(let i=0;i<8;i++){
+      const el=document.createElement('div'); el.className='sparkle-em';
+      el.textContent=emojis[i%emojis.length];
+      el.style.cssText=`left:${x+(Math.random()-.5)*120}px;top:${y+(Math.random()-.5)*90}px;font-size:${18+Math.random()*12}px;animation-delay:${Math.random()*.2}s`;
+      document.body.appendChild(el); setTimeout(()=>el.remove(),1000);
     }
   }
 
-  function confettiBurst(){
-    const cols=['#ffd700','#ff69b4','#00cfff','#7fff00','#ff6347','#da70d6'];
-    for(let i=0;i<35;i++){
+  function confettiBurst(n=42){
+    const cols=['#ffd700','#ff69b4','#00cfff','#7fff00','#ff6347','#da70d6','#ce93d8','#f48fb1'];
+    for(let i=0;i<n;i++){
       const el=document.createElement('div'); el.className='confetti-piece';
-      el.style.left=Math.random()*100+'vw';
-      el.style.background=cols[Math.floor(Math.random()*cols.length)];
-      el.style.animationDuration=(1.2+Math.random()*1.6)+'s';
-      el.style.animationDelay=(Math.random()*.5)+'s';
-      document.body.appendChild(el); setTimeout(()=>el.remove(),2800);
+      const sz=6+Math.random()*10;
+      el.style.cssText=`left:${Math.random()*100}vw;width:${sz}px;height:${sz}px;background:${cols[i%cols.length]};animation-duration:${1.3+Math.random()*2}s;animation-delay:${Math.random()*.6}s`;
+      document.body.appendChild(el); setTimeout(()=>el.remove(),3400);
     }
   }
 
-  function showTierToast(msg){
-    const t=document.getElementById('tier-toast');
-    t.textContent=msg; t.classList.add('show');
-    setTimeout(()=>t.classList.remove('show'),1900);
+  function makeBgGems(){
+    document.querySelectorAll('.bg-gem').forEach(e=>e.remove());
+    const icons=['💎','✨','🌸','⭐','👑','💜','🌟'];
+    for(let i=0;i<10;i++){
+      const el=document.createElement('div'); el.className='bg-gem';
+      el.textContent=icons[i%icons.length];
+      el.style.left=(4+Math.random()*92)+'vw';
+      el.style.animationDuration=(10+Math.random()*14)+'s';
+      el.style.animationDelay=-(Math.random()*14)+'s';
+      document.body.appendChild(el);
+    }
   }
 
-  function nextRound(){
+  function updateHUD(){
+    const tier = TIER_META[currentRound.tier];
+    const badge = document.getElementById('tier-badge');
+    badge.textContent = tier.label;
+    badge.className = tier.cls;
+    document.getElementById('round-counter').textContent = `${round} / ${TOTAL}`;
+    document.getElementById('progress-fill').style.width = ((round-1)/TOTAL*100)+'%';
+  }
+
+  function showTierToast(icon, title, sub){
+    document.getElementById('toast-icon').textContent  = icon;
+    document.getElementById('toast-title').textContent = title;
+    document.getElementById('toast-sub').textContent   = sub;
+    document.getElementById('tier-toast').classList.add('show');
+    playTierUp();
+    confettiBurst(30);
+  }
+
+  function dismissToast(){
+    document.getElementById('tier-toast').classList.remove('show');
+    showQuestion();
+  }
+
+  function startGame(){
+    document.getElementById('celebrate-overlay').classList.remove('show');
+    document.getElementById('tier-toast').classList.remove('show');
+    round = 0; locked = false;
+    // Pick 3 rounds per tier
+    const easy   = shuffle(POOL.filter(r=>r.tier===0)).slice(0,3);
+    const medium  = shuffle(POOL.filter(r=>r.tier===1)).slice(0,3);
+    const hard    = shuffle(POOL.filter(r=>r.tier===2)).slice(0,3);
+    roundOrder = [...easy, ...medium, ...hard];
+    makeBgGems();
+    advanceRound();
+  }
+
+  function advanceRound(){
     document.getElementById('celebrate-overlay').classList.remove('show');
     if(round >= TOTAL){ endGame(); return; }
     round++;
+    currentRound = roundOrder[round-1];
+    updateHUD();
 
-    if(round===4) showTierToast('Level Up! ⭐⭐ Good!');
-    if(round===7) showTierToast('Amazing! ⭐⭐⭐ Wow!');
+    // Show tier toast at transitions
+    if(round === 4){
+      showTierToast('🌸','Level Up! 🌸 Medium!','No labels — use your memory!');
+      return;
+    }
+    if(round === 7){
+      showTierToast('⭐','Amazing! ⭐ Hard!','Three items — which one is LEFT, MIDDLE or RIGHT?');
+      return;
+    }
 
-    document.getElementById('round-counter').textContent=`${round} / ${TOTAL}`;
+    showQuestion();
+  }
 
-    const data = ROUNDS[round-1];
-    currentRound = data;
+  function showQuestion(){
+    locked = false;
+    const data = currentRound;
     const tier = TIER_META[data.tier];
-    document.getElementById('tier-badge').textContent=tier.label;
-
     const items = data.items;
     const askIdx = data.ask;
     const dir = dirName(askIdx, items.length);
-    const askEmoji = items[askIdx];
-    const askName = ITEM_NAMES[askEmoji] || askEmoji;
 
-    // Question text: in hard tier show only direction; otherwise name the emoji too
     const q = document.getElementById('question');
     if(data.tier < 2){
-      q.textContent = `Tap the ${askEmoji} on the ${dir}!`;
+      q.textContent = `Tap the ${items[askIdx]} on the ${dir}!`;
     } else {
       q.textContent = `Tap the ${dir}!`;
     }
 
-    // Build items row
     const row = document.getElementById('items-row');
     row.innerHTML = '';
     items.forEach((emoji, i) => {
@@ -263,8 +366,10 @@
   }
 
   function handleTap(btn, tappedIdx){
+    if(locked) return;
     const correctIdx = currentRound.ask;
     if(tappedIdx === correctIdx){
+      locked = true;
       btn.classList.add('correct-flash');
       playCorrect();
       const r = btn.getBoundingClientRect();
@@ -278,10 +383,10 @@
           `Yes! ${dir}! 👑`,
           `${dir}! You got it! 💖`,
         ];
-        document.getElementById('celebrate-text').textContent=msgs[Math.floor(Math.random()*msgs.length)];
-        document.getElementById('celebrate-sub').textContent='';
+        document.getElementById('celebrate-text').textContent = msgs[Math.floor(Math.random()*msgs.length)];
+        document.getElementById('celebrate-sub').textContent  = '';
         document.getElementById('celebrate-overlay').classList.add('show');
-        playCelebrate(); confettiBurst();
+        confettiBurst(42);
       }, 500);
     } else {
       btn.classList.add('wrong-flash');
@@ -291,19 +396,18 @@
   }
 
   function endGame(){
-    document.getElementById('celebrate-text').textContent='You know LEFT & RIGHT! 👈👉';
-    document.getElementById('celebrate-sub').textContent='🎊 Princess Champion! 🎊';
-    document.getElementById('next-btn').textContent='Play Again 🔄';
-    document.getElementById('next-btn').onclick=()=>{
-      round=0;
-      document.getElementById('celebrate-overlay').classList.remove('show');
-      nextRound();
-    };
+    document.getElementById('celebrate-text').textContent = 'You know LEFT & RIGHT! 👈👉';
+    document.getElementById('celebrate-sub').textContent  = '🎊 Princess Champion! 🎊';
+    document.getElementById('next-btn').textContent = 'Play Again 🔄';
+    document.getElementById('next-btn').onclick = ()=>startGame();
     document.getElementById('celebrate-overlay').classList.add('show');
-    playCelebrate(); confettiBurst();
+    playFinalWin();
+    confettiBurst(60);
+    setTimeout(()=>confettiBurst(40), 700);
+    document.getElementById('progress-fill').style.width = '100%';
   }
 
-  nextRound();
+  startGame();
 </script>
 </body>
 </html>

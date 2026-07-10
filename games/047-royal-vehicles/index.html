@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Royal Vehicles 🚗</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+    body {
+      background: linear-gradient(180deg, #87ceeb 0%, #b0e0ff 30%, #e8f5e9 65%, #a5d6a7 100%);
+      min-height:100vh; width:100vw; overflow:hidden;
+      font-family:'Fredoka One', Georgia, serif; user-select:none; position:relative;
+    }
+
+    /* Floating bg vehicles */
+    .bg-veh { position:fixed; pointer-events:none; animation:floatAcross linear infinite; opacity:.1; font-size:clamp(18px,4.5vw,30px); }
+    @keyframes floatAcross { 0%{transform:translateX(-15vw)} 100%{transform:translateX(115vw)} }
+
+    /* Header */
+    #header {
+      position:fixed; top:0; left:0; right:0; z-index:10;
+      padding:clamp(10px,2.5vw,16px) clamp(14px,4vw,24px);
+      display:flex; justify-content:space-between; align-items:center;
+    }
+    #tier-badge {
+      font-size:clamp(14px,3.5vw,20px); padding:6px 18px;
+      border-radius:20px; font-weight:bold;
+    }
+    .tier-easy   { background:linear-gradient(135deg,#a5d6a7,#66bb6a); color:#1b5e20; }
+    .tier-medium { background:linear-gradient(135deg,#ffe082,#ffd54f); color:#5a3000; }
+    .tier-hard   { background:linear-gradient(135deg,#ce93d8,#ab47bc); color:#fff; }
+    #round-counter { font-size:clamp(14px,3.5vw,20px); color:rgba(0,0,80,.7); font-weight:bold; }
+
+    /* Progress bar */
+    #progress-wrap {
+      position:fixed; top:clamp(52px,12vw,76px); left:0; right:0;
+      padding:0 clamp(14px,4vw,24px); z-index:10;
+    }
+    #progress-track { background:rgba(0,0,0,.15); border-radius:20px; height:clamp(10px,2.5vw,14px); overflow:hidden; }
+    #progress-fill  { height:100%; border-radius:20px; background:linear-gradient(90deg,#ffd700,#ff8a65); transition:width .35s ease; width:0%; box-shadow:0 0 8px rgba(255,215,0,.4); }
+
+    /* Prompt */
+    #prompt-wrap {
+      position:fixed; top:clamp(76px,17vw,104px); left:0; right:0; z-index:10;
+      text-align:center; padding:clamp(6px,1.5vw,10px) 16px;
+    }
+    #prompt-text { font-size:clamp(17px,4.5vw,26px); color:#1a237e; text-shadow:0 1px 4px rgba(255,255,255,.7); line-height:1.2; }
+
+    /* Vehicle display */
+    #vehicle-wrap {
+      position:fixed; left:0; right:0; top:clamp(118px,27vw,160px);
+      display:flex; justify-content:center; align-items:center; z-index:5;
+    }
+    #vehicle-card {
+      background:rgba(255,255,255,.88); border-radius:32px;
+      padding:clamp(12px,3vw,20px) clamp(20px,5vw,36px);
+      display:flex; flex-direction:column; align-items:center; gap:6px;
+      box-shadow:0 8px 32px rgba(0,0,0,.18), 0 0 0 4px rgba(255,215,0,.4);
+    }
+    #vehicle-card.pop { animation:cardPop .45s cubic-bezier(.34,1.56,.64,1); }
+    @keyframes cardPop { from{transform:scale(.55);opacity:0} to{transform:scale(1);opacity:1} }
+    #vehicle-emoji { font-size:clamp(70px,19vw,110px); line-height:1; }
+    #vehicle-name  { font-size:clamp(16px,4.5vw,24px); color:#1a237e; font-weight:bold; }
+
+    /* Answer buttons */
+    #answers-wrap {
+      position:fixed; left:0; right:0; bottom:clamp(10px,2.5vw,22px);
+      display:flex; justify-content:center; z-index:5; padding:0 8px;
+    }
+    #answers { display:flex; flex-wrap:wrap; justify-content:center; gap:clamp(10px,2.5vw,16px); }
+
+    .ans-btn {
+      width:clamp(100px,23vw,130px); height:clamp(100px,23vw,130px);
+      border-radius:22px; border:none; cursor:pointer;
+      background:rgba(255,255,255,.82);
+      box-shadow:0 6px 20px rgba(0,0,0,.2), inset 0 2px 0 rgba(255,255,255,.9);
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      gap:6px; transition:transform .1s;
+      border:3px solid rgba(0,0,80,.1);
+    }
+    .ans-btn:active { transform:scale(.88); }
+    .ans-icon  { font-size:clamp(32px,8.5vw,52px); line-height:1; }
+    .ans-label { font-size:clamp(11px,2.8vw,15px); color:#1a237e; font-weight:bold; text-align:center; line-height:1.1; }
+    .ans-btn.correct-flash { animation:correctPop .5s ease-out; background:rgba(200,255,200,.95); }
+    .ans-btn.wrong-flash   { animation:wobble .45s ease-out; background:rgba(255,180,180,.8); }
+    @keyframes correctPop { 0%{transform:scale(1)} 40%{transform:scale(1.16);box-shadow:0 0 36px rgba(255,215,0,.8)} 100%{transform:scale(1)} }
+    @keyframes wobble { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-12px)} 60%{transform:translateX(12px)} }
+
+    /* Sparkles */
+    .sp-dot { position:fixed; pointer-events:none; z-index:50; border-radius:50%; animation:sDot .7s ease-out forwards; }
+    @keyframes sDot { 0%{transform:scale(0);opacity:1} 100%{transform:scale(1.5);opacity:0} }
+    .sp-em  { position:fixed; pointer-events:none; z-index:51; animation:sFloat .9s ease-out forwards; }
+    @keyframes sFloat { 0%{transform:translateY(0) scale(1);opacity:1} 100%{transform:translateY(-90px) scale(0);opacity:0} }
+
+    /* Overlays */
+    .overlay {
+      position:fixed; inset:0; background:rgba(10,10,60,.88);
+      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px;
+      z-index:99; opacity:0; pointer-events:none; transition:opacity .4s;
+    }
+    .overlay.show { opacity:1; pointer-events:all; }
+    .ov-icon  { font-size:clamp(60px,16vw,100px); }
+    .ov-title { font-size:clamp(24px,6.5vw,48px); color:#ffd700; text-align:center; padding:0 20px; }
+    .ov-sub   { font-size:clamp(16px,4.5vw,24px); color:#f8bbd0; text-align:center; padding:0 20px; opacity:.9; }
+    .btn-next {
+      padding:clamp(14px,4vw,20px) clamp(32px,8vw,56px); font-size:clamp(18px,5vw,26px);
+      border-radius:50px; border:none; background:linear-gradient(135deg,#ffd700,#ff9800);
+      color:#5a3000; font-weight:bold; cursor:pointer; font-family:inherit;
+      min-height:60px; min-width:160px;
+      box-shadow:0 4px 20px rgba(255,180,0,.5);
+    }
+    .confetti-piece { position:fixed; border-radius:3px; animation:cfFall linear forwards; pointer-events:none; z-index:100; }
+    @keyframes cfFall { 0%{top:-20px;opacity:1;transform:rotate(0)} 100%{top:110vh;opacity:.2;transform:rotate(720deg)} }
+  </style>
+</head>
+<body>
+
+  <div id="header">
+    <div id="tier-badge" class="tier-easy">🌱 Easy</div>
+    <div id="round-counter">1 / 9</div>
+  </div>
+  <div id="progress-wrap">
+    <div id="progress-track"><div id="progress-fill"></div></div>
+  </div>
+  <div id="prompt-wrap">
+    <div id="prompt-text">Where does this go? 🚗</div>
+  </div>
+
+  <div id="vehicle-wrap">
+    <div id="vehicle-card">
+      <div id="vehicle-emoji">🚗</div>
+      <div id="vehicle-name">Car</div>
+    </div>
+  </div>
+
+  <div id="answers-wrap"><div id="answers"></div></div>
+
+  <div class="overlay" id="tier-overlay">
+    <div class="ov-icon" id="tier-icon">🌸</div>
+    <div class="ov-title" id="tier-title">Level Up!</div>
+    <div class="ov-sub"   id="tier-sub"></div>
+    <button class="btn-next" onclick="dismissTierOverlay()">Let's go! ➡️</button>
+  </div>
+
+  <div class="overlay" id="end-overlay">
+    <div class="ov-icon">👑</div>
+    <div class="ov-title">Royal Driver! 🚗✈️⛵</div>
+    <div class="ov-sub">You know where every vehicle goes! ✨</div>
+    <button class="btn-next" onclick="startGame()">Play Again 🌸</button>
+  </div>
+
+<script>
+  // Habitats / paths
+  const HABITATS = {
+    road:  { label:'Road 🛣️',  emoji:'🛣️',  bg:'#90a4ae' },
+    sky:   { label:'Sky ✈️',   emoji:'☁️',  bg:'#64b5f6' },
+    water: { label:'Water ⛵', emoji:'🌊',  bg:'#26c6da' },
+    rail:  { label:'Rail 🛤️', emoji:'🛤️', bg:'#a1887f' },
+  };
+
+  // Vehicle pool
+  const VEHICLES = [
+    // road
+    { emoji:'🚗',  name:'Car',         habitat:'road'  },
+    { emoji:'🚕',  name:'Taxi',        habitat:'road'  },
+    { emoji:'🚌',  name:'Bus',         habitat:'road'  },
+    { emoji:'🚒',  name:'Fire Truck',  habitat:'road'  },
+    { emoji:'🚑',  name:'Ambulance',   habitat:'road'  },
+    { emoji:'🚚',  name:'Truck',       habitat:'road'  },
+    { emoji:'🏎️', name:'Racing Car',  habitat:'road'  },
+    { emoji:'🛵',  name:'Scooter',     habitat:'road'  },
+    // sky
+    { emoji:'✈️',  name:'Aeroplane',   habitat:'sky'   },
+    { emoji:'🚁',  name:'Helicopter',  habitat:'sky'   },
+    { emoji:'🎈',  name:'Hot Air Balloon', habitat:'sky' },
+    { emoji:'🦅',  name:'Eagle',       habitat:'sky'   },
+    { emoji:'🚀',  name:'Rocket',      habitat:'sky'   },
+    // water
+    { emoji:'⛵',  name:'Sailboat',    habitat:'water' },
+    { emoji:'🚢',  name:'Ship',        habitat:'water' },
+    { emoji:'🛶',  name:'Rowboat',     habitat:'water' },
+    { emoji:'🐬',  name:'Dolphin',     habitat:'water' },
+    { emoji:'⛴️', name:'Ferry',       habitat:'water' },
+    // rail
+    { emoji:'🚂',  name:'Steam Train', habitat:'rail'  },
+    { emoji:'🚆',  name:'Fast Train',  habitat:'rail'  },
+    { emoji:'🚇',  name:'Subway',      habitat:'rail'  },
+    { emoji:'🚝',  name:'Monorail',    habitat:'rail'  },
+  ];
+
+  // Tiers: Easy=road vs sky (2 choices), Medium=road/sky/water (3), Hard=all 4
+  const TIERS = [
+    { label:'🌱 Easy',   cls:'tier-easy',   habitats:['road','sky'],             opts:2 },
+    { label:'🌸 Medium', cls:'tier-medium', habitats:['road','sky','water'],     opts:3 },
+    { label:'⭐ Hard',   cls:'tier-hard',   habitats:['road','sky','water','rail'], opts:4 },
+  ];
+  const TOTAL = 9;
+
+  let audioCtx = null;
+  function getAudio(){ if(!audioCtx) audioCtx=new(window.AudioContext||window.webkitAudioContext)(); return audioCtx; }
+  function tone(f,type,dur,vol=.18){
+    try{
+      const c=getAudio(),o=c.createOscillator(),g=c.createGain();
+      o.connect(g);g.connect(c.destination);
+      o.type=type;o.frequency.value=f;
+      g.gain.setValueAtTime(vol,c.currentTime);
+      g.gain.exponentialRampToValueAtTime(.001,c.currentTime+dur);
+      o.start();o.stop(c.currentTime+dur);
+    }catch(e){}
+  }
+  function playCorrect()  { [523,659,784,1047].forEach((f,i)=>setTimeout(()=>tone(f,'sine',.16,.2),i*65)); }
+  function playWrong()    { tone(260,'sawtooth',.18,.14); setTimeout(()=>tone(210,'sawtooth',.14,.1),170); }
+  function playTierUp()   { [392,494,587,659,784,880,1047].forEach((f,i)=>setTimeout(()=>tone(f,'triangle',.25,.2),i*75)); }
+  function playFinalWin() { [523,659,784,1047,784,1047,1319].forEach((f,i)=>setTimeout(()=>tone(f,'sine',.3,.22),i*90)); }
+
+  function shuffle(a){ const b=[...a]; for(let i=b.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]]; } return b; }
+
+  let round = 0, locked = false, currentVehicle = null, roundOrder = [];
+
+  function getTier(r){ return r<=3 ? TIERS[0] : r<=6 ? TIERS[1] : TIERS[2]; }
+
+  function makeBgVehicles(){
+    document.querySelectorAll('.bg-veh').forEach(e=>e.remove());
+    const icons=['🚗','✈️','⛵','🚂','🚁','🛵','🎈','🚌'];
+    for(let i=0;i<8;i++){
+      const el=document.createElement('div'); el.className='bg-veh';
+      el.textContent=icons[i%icons.length];
+      el.style.top=(5+Math.random()*80)+'vh';
+      el.style.animationDuration=(14+Math.random()*16)+'s';
+      el.style.animationDelay=-(Math.random()*20)+'s';
+      document.body.appendChild(el);
+    }
+  }
+
+  function startGame(){
+    document.getElementById('end-overlay').classList.remove('show');
+    document.getElementById('tier-overlay').classList.remove('show');
+    round=0; locked=false;
+    // Pick 3 vehicles per tier habitat set, shuffled
+    const easy   = shuffle(VEHICLES.filter(v=>['road','sky'].includes(v.habitat))).slice(0,3);
+    const medium  = shuffle(VEHICLES.filter(v=>['road','sky','water'].includes(v.habitat))).slice(0,3);
+    const hard    = shuffle(VEHICLES).slice(0,3);
+    roundOrder = [...easy, ...medium, ...hard];
+    makeBgVehicles();
+    nextQuestion();
+  }
+
+  function nextQuestion(){
+    document.getElementById('tier-overlay').classList.remove('show');
+    if(round >= TOTAL){ endGame(); return; }
+    round++;
+    locked = false;
+    updateHUD();
+
+    if(round===4){
+      showTierOverlay('🌊','Level Up! 🌸 Medium!','Now match road, sky AND water — 3 choices!');
+      return;
+    }
+    if(round===7){
+      showTierOverlay('🚂','Great job! ⭐ Hard!','Four choices now — road, sky, water and rail!');
+      return;
+    }
+
+    showQuestion();
+  }
+
+  function showTierOverlay(icon, title, sub){
+    document.getElementById('tier-icon').textContent  = icon;
+    document.getElementById('tier-title').textContent = title;
+    document.getElementById('tier-sub').textContent   = sub;
+    document.getElementById('tier-overlay').classList.add('show');
+    playTierUp();
+    confettiBurst(30);
+  }
+
+  function dismissTierOverlay(){
+    document.getElementById('tier-overlay').classList.remove('show');
+    showQuestion();
+  }
+
+  function showQuestion(){
+    currentVehicle = roundOrder[round-1];
+    const tier = getTier(round);
+
+    // Update vehicle card
+    const card = document.getElementById('vehicle-card');
+    card.className=''; void card.offsetWidth; card.className='pop';
+    document.getElementById('vehicle-emoji').textContent = currentVehicle.emoji;
+    document.getElementById('vehicle-name').textContent  = currentVehicle.name;
+
+    // Prompt
+    const prompts=[
+      `Where does the ${currentVehicle.name} go? 🤔`,
+      `Tap where the ${currentVehicle.emoji} belongs!`,
+      `Which place is right for ${currentVehicle.emoji}?`,
+    ];
+    document.getElementById('prompt-text').textContent = prompts[Math.floor(Math.random()*prompts.length)];
+
+    // Build answer choices: correct + distractors from tier habitats
+    const correctHabitat = currentVehicle.habitat;
+    const wrongHabitats  = tier.habitats.filter(h=>h!==correctHabitat);
+    // Make sure correct is always in choices (may not be in tier for Hard — add anyway)
+    const allChoiceHabitats = [...wrongHabitats, correctHabitat];
+    // Trim to tier.opts
+    const choices = shuffle(allChoiceHabitats.slice(0, tier.opts));
+    // If correct habitat not in choices for some reason, replace last entry
+    if(!choices.includes(correctHabitat)){ choices[choices.length-1]=correctHabitat; }
+
+    const answers = document.getElementById('answers');
+    answers.innerHTML='';
+    choices.forEach(h=>{
+      const hab = HABITATS[h];
+      const btn = document.createElement('button');
+      btn.className='ans-btn';
+      btn.innerHTML=`<div class="ans-icon">${hab.emoji}</div><div class="ans-label">${hab.label}</div>`;
+      btn.style.borderColor = hab.bg;
+      btn.addEventListener('pointerdown', ()=>handleTap(btn, h));
+      answers.appendChild(btn);
+    });
+  }
+
+  function handleTap(btn, tappedHabitat){
+    if(locked) return;
+    if(tappedHabitat === currentVehicle.habitat){
+      locked = true;
+      btn.classList.add('correct-flash');
+      playCorrect();
+      const r = btn.getBoundingClientRect();
+      burst(r.left+r.width/2, r.top+r.height/2);
+      setTimeout(()=>{
+        btn.classList.remove('correct-flash');
+        nextQuestion();
+      }, 620);
+    } else {
+      btn.classList.add('wrong-flash');
+      playWrong();
+      setTimeout(()=>btn.classList.remove('wrong-flash'), 450);
+    }
+  }
+
+  function burst(cx, cy){
+    const cols=['#ffd700','#64b5f6','#26c6da','#a5d6a7','#f48fb1','#fff','#ce93d8'];
+    for(let i=0;i<18;i++){
+      const el=document.createElement('div'); el.className='sp-dot';
+      const a=Math.random()*Math.PI*2, dist=28+Math.random()*80, sz=6+Math.random()*11;
+      el.style.cssText=`left:${cx+Math.cos(a)*dist-sz/2}px;top:${cy+Math.sin(a)*dist-sz/2}px;width:${sz}px;height:${sz}px;background:${cols[i%cols.length]}`;
+      document.body.appendChild(el); setTimeout(()=>el.remove(),800);
+    }
+    const emojis=['✨','💫','⭐','🌟','🚗','✈️','⛵','🎉'];
+    for(let i=0;i<8;i++){
+      const el=document.createElement('div'); el.className='sp-em';
+      el.textContent=emojis[i%emojis.length];
+      el.style.cssText=`left:${cx+(Math.random()-.5)*120}px;top:${cy+(Math.random()-.5)*90}px;font-size:${18+Math.random()*12}px;animation-delay:${Math.random()*.2}s`;
+      document.body.appendChild(el); setTimeout(()=>el.remove(),1100);
+    }
+  }
+
+  function confettiBurst(n=42){
+    const cols=['#ffd700','#64b5f6','#26c6da','#a5d6a7','#f48fb1','#ce93d8','#fff'];
+    for(let i=0;i<n;i++){
+      const el=document.createElement('div'); el.className='confetti-piece';
+      const sz=6+Math.random()*10;
+      el.style.cssText=`left:${Math.random()*100}vw;width:${sz}px;height:${sz}px;background:${cols[i%cols.length]};animation-duration:${1.4+Math.random()*2}s;animation-delay:${Math.random()*.6}s`;
+      document.body.appendChild(el); setTimeout(()=>el.remove(),3600);
+    }
+  }
+
+  function updateHUD(){
+    const tier = getTier(round);
+    const badge = document.getElementById('tier-badge');
+    badge.textContent = tier.label;
+    badge.className   = tier.cls;
+    document.getElementById('round-counter').textContent = `${round} / ${TOTAL}`;
+    document.getElementById('progress-fill').style.width = ((round-1)/TOTAL*100)+'%';
+  }
+
+  function endGame(){
+    document.getElementById('progress-fill').style.width='100%';
+    document.getElementById('end-overlay').classList.add('show');
+    playFinalWin();
+    confettiBurst(60);
+    setTimeout(()=>confettiBurst(40),700);
+  }
+
+  startGame();
+</script>
+</body>
+</html>
