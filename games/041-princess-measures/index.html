@@ -23,27 +23,28 @@
     #header {
       width:100%; display:flex; justify-content:space-between; align-items:center;
       padding:clamp(10px,3vw,16px) clamp(14px,4vw,22px) 0;
-      position:relative; z-index:10;
+      position:relative; z-index:10; flex-shrink:0;
     }
-    #tier-badge {
-      font-size:clamp(13px,3.5vw,18px);
-      padding:5px 15px; border-radius:20px;
-    }
+    #tier-badge { font-size:clamp(13px,3.5vw,18px); padding:5px 15px; border-radius:20px; font-weight:bold; }
     .tier-easy   { background:linear-gradient(135deg,#a5d6a7,#66bb6a); color:#1b5e20; }
     .tier-medium { background:linear-gradient(135deg,#ffe082,#ffd54f); color:#5a3000; }
     .tier-hard   { background:linear-gradient(135deg,#ce93d8,#ab47bc); color:#fff; }
     #round-label { font-size:clamp(13px,3.2vw,17px); color:rgba(255,255,255,.9); text-shadow:0 1px 4px rgba(0,0,0,.3); }
 
+    /* ── Progress bar ── */
+    #progress-wrap { width:100%; padding:6px clamp(14px,4vw,22px) 0; position:relative; z-index:10; flex-shrink:0; }
+    #progress-track { background:rgba(255,255,255,.2); border-radius:20px; height:clamp(8px,2vw,12px); overflow:hidden; }
+    #progress-fill  { height:100%; border-radius:20px; background:linear-gradient(90deg,#ffd700,#e040fb); transition:width .35s ease; width:0%; box-shadow:0 0 8px rgba(255,215,0,.5); }
+
     /* ── Prompt ── */
     #prompt-wrap {
       width:100%; max-width:460px;
       padding:clamp(8px,2.5vw,14px) 16px 0;
-      text-align:center;
+      text-align:center; flex-shrink:0;
     }
     #prompt-text {
       font-size:clamp(18px,5vw,28px); color:#fff;
-      text-shadow:0 2px 8px rgba(0,0,0,.4);
-      line-height:1.2;
+      text-shadow:0 2px 8px rgba(0,0,0,.4); line-height:1.2;
     }
     #concept-badge {
       display:inline-block; margin-top:6px;
@@ -57,8 +58,7 @@
       flex:1; display:flex; align-items:flex-end; justify-content:center;
       gap:clamp(16px,5vw,36px);
       padding:clamp(10px,3vw,18px) clamp(12px,4vw,24px);
-      width:100%; max-width:500px;
-      min-height:0;
+      width:100%; max-width:500px; min-height:0;
     }
 
     .item-card {
@@ -69,9 +69,7 @@
       background:rgba(255,255,255,.18);
       border:3px solid rgba(255,255,255,.38);
       box-shadow:0 6px 24px rgba(0,0,0,.28);
-      transition:transform .1s;
-      touch-action:manipulation;
-      position:relative;
+      transition:transform .1s; touch-action:manipulation; position:relative;
     }
     .item-card:active { transform:scale(.93); }
     .item-card.wobble { animation:wobble .4s ease-out; }
@@ -80,38 +78,23 @@
     @keyframes correctPop { 0%{transform:scale(1)} 45%{transform:scale(1.12);box-shadow:0 0 40px rgba(255,215,0,.7)} 100%{transform:scale(1)} }
     .item-card.locked { pointer-events:none; opacity:.5; }
 
-    .card-emoji {
-      line-height:1; display:block;
-      transition:font-size .3s ease;
-      pointer-events:none;
-    }
-    /* tall items get a bigger font size */
-    .card-emoji.size-big  { font-size:clamp(72px,20vw,110px); }
-    .card-emoji.size-mid  { font-size:clamp(58px,16vw,86px); }
-    .card-emoji.size-small{ font-size:clamp(40px,11vw,60px); }
+    .card-emoji { line-height:1; display:block; transition:font-size .3s ease; pointer-events:none; }
+    .card-emoji.size-big   { font-size:clamp(72px,20vw,110px); }
+    .card-emoji.size-mid   { font-size:clamp(58px,16vw,86px); }
+    .card-emoji.size-small { font-size:clamp(40px,11vw,60px); }
 
-    .card-drops {
-      font-size:clamp(16px,4.5vw,24px); margin-top:4px;
-      min-height:1.5em; line-height:1;
-      pointer-events:none;
-    }
-    .card-label {
-      font-size:clamp(13px,3.5vw,18px); color:#fff; margin-top:6px;
-      text-shadow:0 1px 4px rgba(0,0,0,.4);
-      pointer-events:none;
-    }
+    .card-drops { font-size:clamp(16px,4.5vw,24px); margin-top:4px; min-height:1.5em; line-height:1; pointer-events:none; }
+    .card-label { font-size:clamp(13px,3.5vw,18px); color:#fff; margin-top:6px; text-shadow:0 1px 4px rgba(0,0,0,.4); pointer-events:none; }
 
-    /* tall card has more height so the item visually sits higher */
     .item-card.card-tall   { min-height:clamp(190px,50vw,260px); }
     .item-card.card-medium { min-height:clamp(155px,40vw,210px); }
     .item-card.card-short  { min-height:clamp(115px,30vw,155px); }
 
     /* ── Sparkles ── */
-    .sparkle {
-      position:fixed; pointer-events:none; z-index:50;
-      animation:sFly ease-out forwards;
-    }
+    .sparkle { position:fixed; pointer-events:none; z-index:50; animation:sFly ease-out forwards; }
     @keyframes sFly { 0%{transform:translate(0,0) scale(1.1);opacity:1} 100%{transform:translate(var(--tx),var(--ty)) scale(.05);opacity:0} }
+    .sparkle-dot { position:fixed; pointer-events:none; z-index:50; border-radius:50%; animation:sOut .75s ease-out forwards; }
+    @keyframes sOut { 0%{transform:scale(0);opacity:1} 100%{transform:scale(1.6);opacity:0} }
 
     /* ── Celebrate overlay ── */
     #celebrate-overlay {
@@ -123,8 +106,7 @@
     #celebrate-emoji { font-size:clamp(60px,17vw,100px); }
     #celebrate-text {
       font-size:clamp(22px,6vw,40px); color:#fff;
-      text-shadow:0 0 24px #ffd700; text-align:center; padding:0 20px;
-      white-space:pre-line;
+      text-shadow:0 0 24px #ffd700; text-align:center; padding:0 20px; white-space:pre-line;
     }
     #next-btn {
       padding:clamp(14px,4vw,20px) clamp(32px,8vw,56px);
@@ -132,27 +114,48 @@
       background:linear-gradient(135deg,#ffd700,#ff9800);
       color:#5d2e00; font-weight:bold; cursor:pointer;
       font-family:'Fredoka One',Georgia,serif;
-      box-shadow:0 4px 18px rgba(255,180,0,.55);
+      box-shadow:0 4px 18px rgba(255,180,0,.55); touch-action:manipulation;
     }
 
-    /* ── Tier toast ── */
-    #tier-toast {
-      position:fixed; inset:0;
-      display:flex; align-items:center; justify-content:center;
-      z-index:95; pointer-events:none;
-      opacity:0; transition:opacity .35s;
+    /* ── Tier overlay ── */
+    #tier-overlay {
+      position:fixed; inset:0; background:rgba(0,0,0,.72);
+      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:18px;
+      z-index:98; opacity:0; pointer-events:none; transition:opacity .4s;
     }
-    #tier-toast.show { opacity:1; }
-    #tier-toast-inner {
-      background:rgba(0,0,0,.82); border-radius:24px; padding:22px 44px;
-      font-size:clamp(22px,6.5vw,38px); color:#fff; text-align:center;
-      text-shadow:0 0 20px gold; box-shadow:0 0 0 4px rgba(255,215,0,.4);
+    #tier-overlay.show { opacity:1; pointer-events:all; }
+    #tier-ov-icon  { font-size:clamp(60px,16vw,96px); }
+    #tier-ov-title { font-size:clamp(24px,6.5vw,44px); color:#ffd700; text-shadow:0 0 20px rgba(255,215,0,.7); text-align:center; padding:0 20px; }
+    #tier-ov-sub   { font-size:clamp(15px,4vw,22px); color:rgba(255,255,255,.9); text-align:center; padding:0 24px; }
+    #tier-ov-btn {
+      padding:clamp(14px,4vw,20px) clamp(36px,9vw,60px); font-size:clamp(18px,4.8vw,26px);
+      border-radius:50px; border:none; background:linear-gradient(135deg,#ffd700,#ff9800);
+      color:#5d2e00; font-weight:bold; cursor:pointer; font-family:inherit;
+      box-shadow:0 4px 20px rgba(255,180,0,.5); touch-action:manipulation;
+    }
+
+    /* ── Win overlay ── */
+    #win-overlay {
+      position:fixed; inset:0; background:rgba(0,0,0,.8);
+      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px;
+      z-index:100; opacity:0; pointer-events:none; transition:opacity .4s;
+    }
+    #win-overlay.show { opacity:1; pointer-events:all; }
+    .win-icon  { font-size:clamp(72px,18vw,110px); animation:wBob 1.2s ease-in-out infinite; }
+    @keyframes wBob { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-14px)} }
+    .win-title { font-size:clamp(26px,7vw,46px); color:#ffd700; text-shadow:0 0 24px rgba(255,215,0,.7); text-align:center; padding:0 20px; }
+    .win-sub   { font-size:clamp(15px,4vw,22px); color:rgba(255,255,255,.9); text-align:center; padding:0 24px; }
+    .win-btn {
+      padding:clamp(14px,4vw,20px) clamp(36px,9vw,60px); font-size:clamp(18px,4.8vw,26px);
+      border-radius:50px; border:none; background:linear-gradient(135deg,#ffd700,#e040fb);
+      color:#fff; font-weight:bold; cursor:pointer; font-family:inherit;
+      box-shadow:0 4px 22px rgba(255,215,0,.5); touch-action:manipulation;
     }
 
     /* ── Confetti ── */
     .confetti-piece {
       position:fixed; border-radius:50%;
-      animation:cFall linear forwards; pointer-events:none; z-index:100;
+      animation:cFall linear forwards; pointer-events:none; z-index:101;
     }
     @keyframes cFall { 0%{top:-20px;opacity:1} 100%{top:110vh;opacity:.2} }
   </style>
@@ -160,8 +163,11 @@
 <body>
 
   <div id="header">
-    <div id="tier-badge" class="tier-easy">🌸 Easy</div>
-    <div id="round-label">Round 1 / 9</div>
+    <div id="tier-badge" class="tier-easy">🌱 Easy</div>
+    <div id="round-label">1 / 9</div>
+  </div>
+  <div id="progress-wrap">
+    <div id="progress-track"><div id="progress-fill"></div></div>
   </div>
 
   <div id="prompt-wrap">
@@ -182,13 +188,28 @@
     </div>
   </div>
 
+  <!-- Correct answer celebration overlay -->
   <div id="celebrate-overlay">
     <div id="celebrate-emoji">🌟</div>
     <div id="celebrate-text">Amazing!</div>
     <button id="next-btn" onclick="nextRound()">Next ➡️</button>
   </div>
 
-  <div id="tier-toast"><div id="tier-toast-inner"></div></div>
+  <!-- Tier transition overlay -->
+  <div id="tier-overlay">
+    <div id="tier-ov-icon">🌸</div>
+    <div id="tier-ov-title">New Challenge!</div>
+    <div id="tier-ov-sub">Get ready!</div>
+    <button id="tier-ov-btn" onclick="resumeAfterTier()">Let's go! ➡️</button>
+  </div>
+
+  <!-- Win overlay -->
+  <div id="win-overlay">
+    <div class="win-icon">👑</div>
+    <div class="win-title">Measurement Master! 📏✨</div>
+    <div class="win-sub">You know tall, short, heavy, light, full & empty! 🌟</div>
+    <button class="win-btn" onclick="restartGame()">Play Again 🌸</button>
+  </div>
 
 <script>
   /* ── Audio ───────────────────────────────────────────── */
@@ -204,102 +225,93 @@
       o.start(); o.stop(c.currentTime+d);
     } catch(e){}
   }
-  function playCorrect()   { [523,659,784,1047].forEach((f,i)=>setTimeout(()=>tone(f,'sine',.18,.16),i*85)); }
+  function playCorrect()   { [523,659,784,1047].forEach((f,i)=>setTimeout(()=>tone(f,'sine',.18,.18),i*65)); }
   function playWrong()     { tone(220,'sawtooth',.18,.1); }
   function playCelebrate() { [523,659,784,880,1047,1175,1319].forEach((f,i)=>setTimeout(()=>tone(f,'sine',.22,.17),i*65)); }
-  function playTierUp()    { [660,880,1047,1320].forEach((f,i)=>setTimeout(()=>tone(f,'triangle',.28,.18),i*100)); }
+  function playTierUp()    { [523,659,784,1047,1319].forEach((f,i)=>setTimeout(()=>tone(f,'triangle',.28,.18),i*80)); }
+  function playFinalWin()  { [523,659,784,1047,784,1047,1319].forEach((f,i)=>setTimeout(()=>tone(f,'sine',.32,.22),i*90)); }
 
-  /* ── Round definitions ───────────────────────────────── */
-  const ROUNDS = [
-    // Tier 1 — Easy: TALL vs SHORT
-    {
-      tier: 0,
-      question: 'Which is TALLER? ⬆️',
-      concept: 'Tall & Short',
-      leftIsAnswer: true,
-      left:  { emoji:'🦒', sizeClass:'size-big',   cardClass:'card-tall',   label:'Giraffe',  drops:'' },
-      right: { emoji:'🐕', sizeClass:'size-small',  cardClass:'card-short',  label:'Dog',      drops:'' },
-    },
-    {
-      tier: 0,
-      question: 'Which is SHORTER? ⬇️',
-      concept: 'Tall & Short',
-      leftIsAnswer: false,
-      left:  { emoji:'🌴', sizeClass:'size-big',   cardClass:'card-tall',   label:'Palm Tree', drops:'' },
-      right: { emoji:'🌷', sizeClass:'size-small',  cardClass:'card-short',  label:'Flower',    drops:'' },
-    },
-    {
-      tier: 0,
-      question: 'Which is TALLER? ⬆️',
-      concept: 'Tall & Short',
-      leftIsAnswer: true,
-      left:  { emoji:'🏰', sizeClass:'size-big',   cardClass:'card-tall',   label:'Castle',   drops:'' },
-      right: { emoji:'🏠', sizeClass:'size-small',  cardClass:'card-short',  label:'House',    drops:'' },
-    },
-    // Tier 2 — Medium: HEAVY vs LIGHT
-    {
-      tier: 1,
-      question: 'Which is HEAVIER? 🏋️',
-      concept: 'Heavy & Light',
-      leftIsAnswer: true,
-      left:  { emoji:'🐘', sizeClass:'size-big',   cardClass:'card-tall',   label:'Elephant',  drops:'' },
-      right: { emoji:'🦋', sizeClass:'size-small',  cardClass:'card-short',  label:'Butterfly', drops:'' },
-    },
-    {
-      tier: 1,
-      question: 'Which is LIGHTER? 🪶',
-      concept: 'Heavy & Light',
-      leftIsAnswer: false,
-      left:  { emoji:'🪨', sizeClass:'size-big',   cardClass:'card-medium', label:'Big Rock',  drops:'' },
-      right: { emoji:'🪶', sizeClass:'size-small',  cardClass:'card-short',  label:'Feather',   drops:'' },
-    },
-    {
-      tier: 1,
-      question: 'Which is HEAVIER? 🐋',
-      concept: 'Heavy & Light',
-      leftIsAnswer: true,
-      left:  { emoji:'🐋', sizeClass:'size-big',   cardClass:'card-tall',   label:'Whale',  drops:'' },
-      right: { emoji:'🐟', sizeClass:'size-small',  cardClass:'card-short',  label:'Fish',   drops:'' },
-    },
-    // Tier 3 — Hard: FULL vs EMPTY + LONG vs SHORT
-    {
-      tier: 2,
-      question: 'Which bucket is FULL? 💧',
-      concept: 'Full & Empty',
-      leftIsAnswer: true,
-      left:  { emoji:'🪣', sizeClass:'size-mid',  cardClass:'card-medium', label:'Full',   drops:'💧💧💧' },
-      right: { emoji:'🪣', sizeClass:'size-mid',  cardClass:'card-short',  label:'Empty',  drops:'' },
-    },
-    {
-      tier: 2,
-      question: 'Which is LONGER? 📏',
-      concept: 'Long & Short',
-      leftIsAnswer: true,
-      left:  { emoji:'🐍', sizeClass:'size-big',   cardClass:'card-tall',   label:'Long Snake', drops:'' },
-      right: { emoji:'🐛', sizeClass:'size-small',  cardClass:'card-short',  label:'Short Worm', drops:'' },
-    },
-    {
-      tier: 2,
-      question: 'Which is SHORTER? ✂️',
-      concept: 'Long & Short',
-      leftIsAnswer: false,
-      left:  { emoji:'📏', sizeClass:'size-big',   cardClass:'card-tall',   label:'Long Ruler',    drops:'' },
-      right: { emoji:'✏️', sizeClass:'size-small',  cardClass:'card-short',  label:'Short Pencil',  drops:'' },
-    },
+  /* ── Pool (18 rounds — 6 per tier) ──────────────────── */
+  const POOL = [
+    // Tier 0 — Tall & Short
+    { tier:0, question:'Which is TALLER? ⬆️', concept:'Tall & Short', leftIsAnswer:true,
+      left:{emoji:'🦒',sizeClass:'size-big',cardClass:'card-tall',label:'Giraffe',drops:''},
+      right:{emoji:'🐕',sizeClass:'size-small',cardClass:'card-short',label:'Dog',drops:''} },
+    { tier:0, question:'Which is SHORTER? ⬇️', concept:'Tall & Short', leftIsAnswer:false,
+      left:{emoji:'🌴',sizeClass:'size-big',cardClass:'card-tall',label:'Palm Tree',drops:''},
+      right:{emoji:'🌷',sizeClass:'size-small',cardClass:'card-short',label:'Flower',drops:''} },
+    { tier:0, question:'Which is TALLER? ⬆️', concept:'Tall & Short', leftIsAnswer:true,
+      left:{emoji:'🏰',sizeClass:'size-big',cardClass:'card-tall',label:'Castle',drops:''},
+      right:{emoji:'🏠',sizeClass:'size-small',cardClass:'card-short',label:'House',drops:''} },
+    { tier:0, question:'Which is TALLER? ⬆️', concept:'Tall & Short', leftIsAnswer:true,
+      left:{emoji:'⛰️',sizeClass:'size-big',cardClass:'card-tall',label:'Mountain',drops:''},
+      right:{emoji:'🍄',sizeClass:'size-small',cardClass:'card-short',label:'Mushroom',drops:''} },
+    { tier:0, question:'Which is SHORTER? ⬇️', concept:'Tall & Short', leftIsAnswer:false,
+      left:{emoji:'🌲',sizeClass:'size-big',cardClass:'card-tall',label:'Big Tree',drops:''},
+      right:{emoji:'🌸',sizeClass:'size-small',cardClass:'card-short',label:'Blossom',drops:''} },
+    { tier:0, question:'Which is TALLER? ⬆️', concept:'Tall & Short', leftIsAnswer:true,
+      left:{emoji:'🚀',sizeClass:'size-big',cardClass:'card-tall',label:'Rocket',drops:''},
+      right:{emoji:'🐜',sizeClass:'size-small',cardClass:'card-short',label:'Ant',drops:''} },
+
+    // Tier 1 — Heavy & Light
+    { tier:1, question:'Which is HEAVIER? 🏋️', concept:'Heavy & Light', leftIsAnswer:true,
+      left:{emoji:'🐘',sizeClass:'size-big',cardClass:'card-tall',label:'Elephant',drops:''},
+      right:{emoji:'🦋',sizeClass:'size-small',cardClass:'card-short',label:'Butterfly',drops:''} },
+    { tier:1, question:'Which is LIGHTER? 🪶', concept:'Heavy & Light', leftIsAnswer:false,
+      left:{emoji:'🪨',sizeClass:'size-big',cardClass:'card-medium',label:'Big Rock',drops:''},
+      right:{emoji:'🪶',sizeClass:'size-small',cardClass:'card-short',label:'Feather',drops:''} },
+    { tier:1, question:'Which is HEAVIER? 🐋', concept:'Heavy & Light', leftIsAnswer:true,
+      left:{emoji:'🐋',sizeClass:'size-big',cardClass:'card-tall',label:'Whale',drops:''},
+      right:{emoji:'🐟',sizeClass:'size-small',cardClass:'card-short',label:'Fish',drops:''} },
+    { tier:1, question:'Which is HEAVIER? 🚗', concept:'Heavy & Light', leftIsAnswer:true,
+      left:{emoji:'🚗',sizeClass:'size-big',cardClass:'card-medium',label:'Car',drops:''},
+      right:{emoji:'🍃',sizeClass:'size-small',cardClass:'card-short',label:'Leaf',drops:''} },
+    { tier:1, question:'Which is HEAVIER? 🍉', concept:'Heavy & Light', leftIsAnswer:true,
+      left:{emoji:'🍉',sizeClass:'size-big',cardClass:'card-medium',label:'Watermelon',drops:''},
+      right:{emoji:'🍓',sizeClass:'size-small',cardClass:'card-short',label:'Strawberry',drops:''} },
+    { tier:1, question:'Which is LIGHTER? 🎈', concept:'Heavy & Light', leftIsAnswer:false,
+      left:{emoji:'🪨',sizeClass:'size-big',cardClass:'card-medium',label:'Rock',drops:''},
+      right:{emoji:'🎈',sizeClass:'size-small',cardClass:'card-short',label:'Balloon',drops:''} },
+
+    // Tier 2 — Full/Empty + Long/Short
+    { tier:2, question:'Which bucket is FULL? 💧', concept:'Full & Empty', leftIsAnswer:true,
+      left:{emoji:'🪣',sizeClass:'size-mid',cardClass:'card-medium',label:'Full',drops:'💧💧💧'},
+      right:{emoji:'🪣',sizeClass:'size-mid',cardClass:'card-short',label:'Empty',drops:''} },
+    { tier:2, question:'Which is LONGER? 📏', concept:'Long & Short', leftIsAnswer:true,
+      left:{emoji:'🐍',sizeClass:'size-big',cardClass:'card-tall',label:'Long Snake',drops:''},
+      right:{emoji:'🐛',sizeClass:'size-small',cardClass:'card-short',label:'Short Worm',drops:''} },
+    { tier:2, question:'Which is SHORTER? ✂️', concept:'Long & Short', leftIsAnswer:false,
+      left:{emoji:'📏',sizeClass:'size-big',cardClass:'card-tall',label:'Long Ruler',drops:''},
+      right:{emoji:'✏️',sizeClass:'size-small',cardClass:'card-short',label:'Short Pencil',drops:''} },
+    { tier:2, question:'Which cup is EMPTY? 🫗', concept:'Full & Empty', leftIsAnswer:false,
+      left:{emoji:'🥛',sizeClass:'size-mid',cardClass:'card-medium',label:'Full Cup',drops:'💧💧💧'},
+      right:{emoji:'🥛',sizeClass:'size-mid',cardClass:'card-short',label:'Empty Cup',drops:''} },
+    { tier:2, question:'Which is LONGER? 🚂', concept:'Long & Short', leftIsAnswer:true,
+      left:{emoji:'🚂',sizeClass:'size-big',cardClass:'card-tall',label:'Train',drops:''},
+      right:{emoji:'🚗',sizeClass:'size-small',cardClass:'card-short',label:'Car',drops:''} },
+    { tier:2, question:'Which is LONGER? 🐊', concept:'Long & Short', leftIsAnswer:true,
+      left:{emoji:'🐊',sizeClass:'size-big',cardClass:'card-tall',label:'Crocodile',drops:''},
+      right:{emoji:'🐸',sizeClass:'size-small',cardClass:'card-short',label:'Frog',drops:''} },
   ];
 
-  const TIER_LABELS = ['🌸 Easy', '🌟 Medium', '👑 Hard'];
+  const TIER_LABELS = ['🌱 Easy', '🌸 Medium', '⭐ Hard'];
   const TIER_CLS    = ['tier-easy', 'tier-medium', 'tier-hard'];
-  const TOTAL = ROUNDS.length;
 
+  const TIER_OVERLAYS = [
+    null, // No overlay before tier 0
+    { icon:'🌸', title:'Medium Measurements! 🌸', sub:'Now we compare HEAVY & LIGHT! 🏋️' },
+    { icon:'⭐', title:'Hard Measurements! ⭐',   sub:'Full & Empty, Long & Short — you can do it! 📏' },
+  ];
+
+  const TOTAL = 9;
   let roundIdx = -1, locked = false;
   let shuffledRounds = [];
 
-  /* shuffle within each tier block */
+  /* Build order: pick 3 from each tier's 6-item pool */
   function buildRoundOrder() {
-    const t0 = shuffle(ROUNDS.filter(r=>r.tier===0));
-    const t1 = shuffle(ROUNDS.filter(r=>r.tier===1));
-    const t2 = shuffle(ROUNDS.filter(r=>r.tier===2));
+    const t0 = shuffle(POOL.filter(r=>r.tier===0)).slice(0,3);
+    const t1 = shuffle(POOL.filter(r=>r.tier===1)).slice(0,3);
+    const t2 = shuffle(POOL.filter(r=>r.tier===2)).slice(0,3);
     shuffledRounds = [...t0, ...t1, ...t2];
   }
 
@@ -309,11 +321,20 @@
     return b;
   }
 
+  /* ── HUD ────────────────────────────────────────────── */
+  function updateHUD(idx) {
+    const r = shuffledRounds[idx];
+    const badge = document.getElementById('tier-badge');
+    badge.textContent = TIER_LABELS[r.tier];
+    badge.className   = TIER_CLS[r.tier];
+    document.getElementById('round-label').textContent = (idx+1) + ' / ' + TOTAL;
+    document.getElementById('progress-fill').style.width = (idx/TOTAL*100) + '%';
+  }
+
   /* ── Render round ────────────────────────────────────── */
   function renderRound(r) {
     locked = false;
 
-    /* randomise left/right placement */
     const flip = Math.random() < 0.5;
     const leftData  = flip ? r.right : r.left;
     const rightData = flip ? r.left  : r.right;
@@ -337,14 +358,14 @@
     applyCard('left',  leftData);
     applyCard('right', rightData);
 
-    document.getElementById('prompt-text').textContent  = r.question;
+    document.getElementById('prompt-text').textContent   = r.question;
     document.getElementById('concept-badge').textContent = r.concept;
   }
 
   /* ── Answer ──────────────────────────────────────────── */
   function handleAnswer(isLeft) {
     if (locked) return;
-    const card = document.getElementById(isLeft ? 'card-left' : 'card-right');
+    const card  = document.getElementById(isLeft ? 'card-left' : 'card-right');
     const other = document.getElementById(isLeft ? 'card-right' : 'card-left');
     const correct = card.dataset.answer === '1';
 
@@ -366,19 +387,20 @@
   function showCelebration() {
     const r = shuffledRounds[roundIdx];
     const celebs = [
-      { emoji:'🌟', text:'Amazing! 🌸' },
-      { emoji:'👑', text:'That\'s right! ✨' },
-      { emoji:'💎', text:'Perfect! 💖' },
-      { emoji:'🦄', text:'Brilliant! 🌟' },
-      { emoji:'🎀', text:'You got it! 🎉' },
+      { emoji:'🌟', text:'Amazing!' },
+      { emoji:'👑', text:"That's right!" },
+      { emoji:'💎', text:'Perfect!' },
+      { emoji:'🦄', text:'Brilliant!' },
+      { emoji:'🎀', text:'You got it!' },
     ];
     const c = celebs[Math.floor(Math.random() * celebs.length)];
     document.getElementById('celebrate-emoji').textContent = c.emoji;
-    document.getElementById('celebrate-text').textContent  = c.text + '\n' + r.concept + '!';
+    document.getElementById('celebrate-text').textContent  = c.text + '\n' + r.concept + '! ✨';
+
     const btn = document.getElementById('next-btn');
     if (roundIdx >= TOTAL - 1) {
-      btn.textContent = 'Play Again 🔄';
-      btn.onclick = restartGame;
+      btn.textContent = 'Finish 👑';
+      btn.onclick = showWin;
     } else {
       btn.textContent = 'Next ➡️';
       btn.onclick = nextRound;
@@ -393,38 +415,52 @@
     document.getElementById('celebrate-overlay').classList.remove('show');
     const prevTier = roundIdx >= 0 ? shuffledRounds[roundIdx].tier : -1;
     roundIdx++;
-    if (roundIdx >= TOTAL) { restartGame(); return; }
+    if (roundIdx >= TOTAL) { showWin(); return; }
 
     const r = shuffledRounds[roundIdx];
-    const badge = document.getElementById('tier-badge');
-    badge.textContent = TIER_LABELS[r.tier];
-    badge.className   = TIER_CLS[r.tier];
-    document.getElementById('round-label').textContent = 'Round ' + (roundIdx + 1) + ' / ' + TOTAL;
+    updateHUD(roundIdx);
 
     if (r.tier > prevTier && prevTier >= 0) {
-      showTierToast(TIER_LABELS[r.tier], () => renderRound(r));
+      showTierOverlay(r.tier);
     } else {
       renderRound(r);
     }
   }
 
-  function restartGame() {
+  /* ── Tier overlay ────────────────────────────────────── */
+  function showTierOverlay(tIdx) {
+    const ov = TIER_OVERLAYS[tIdx];
+    document.getElementById('tier-ov-icon').textContent  = ov.icon;
+    document.getElementById('tier-ov-title').textContent = ov.title;
+    document.getElementById('tier-ov-sub').textContent   = ov.sub;
+    document.getElementById('tier-overlay').classList.add('show');
+    playTierUp();
+    confettiBurst();
+  }
+
+  function resumeAfterTier() {
+    document.getElementById('tier-overlay').classList.remove('show');
+    renderRound(shuffledRounds[roundIdx]);
+  }
+
+  /* ── Win ─────────────────────────────────────────────── */
+  function showWin() {
     document.getElementById('celebrate-overlay').classList.remove('show');
+    document.getElementById('progress-fill').style.width = '100%';
+    document.getElementById('win-overlay').classList.add('show');
+    playFinalWin();
+    confettiBurst();
+    setTimeout(confettiBurst, 700);
+  }
+
+  function restartGame() {
+    document.getElementById('win-overlay').classList.remove('show');
+    document.getElementById('celebrate-overlay').classList.remove('show');
+    document.getElementById('tier-overlay').classList.remove('show');
+    document.getElementById('progress-fill').style.width = '0%';
     roundIdx = -1;
     buildRoundOrder();
     nextRound();
-  }
-
-  /* ── Tier toast ──────────────────────────────────────── */
-  function showTierToast(label, callback) {
-    const toast = document.getElementById('tier-toast');
-    document.getElementById('tier-toast-inner').textContent = '✨ ' + label + '! ✨';
-    toast.classList.add('show');
-    playTierUp();
-    setTimeout(() => {
-      toast.classList.remove('show');
-      if (callback) setTimeout(callback, 250);
-    }, 1800);
   }
 
   /* ── Sparkle burst ───────────────────────────────────── */
@@ -432,6 +468,7 @@
     const r  = card.getBoundingClientRect();
     const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
     const icons = ['✨','🌸','⭐','💫','💎','🌟','💖','🎀'];
+    const cols  = ['#ffd700','#f48fb1','#ce93d8','#80deea','#a5d6a7','#fff176'];
     for (let i = 0; i < 16; i++) {
       const el = document.createElement('div');
       el.className = 'sparkle';
@@ -442,14 +479,18 @@
       el.style.setProperty('--ty', Math.sin(a) * d + 'px');
       el.style.left = (cx - 10) + 'px';
       el.style.top  = (cy - 10) + 'px';
-      el.style.fontSize = clamp(13, 3.5, 20);
+      el.style.fontSize = 'clamp(13px,3.5vw,20px)';
       el.style.animationDuration = (.45 + Math.random() * .45) + 's';
-      el.style.animationDelay    = (Math.random() * .1) + 's';
       document.body.appendChild(el);
       setTimeout(() => el.remove(), 1000);
     }
+    for (let i = 0; i < 8; i++) {
+      const el = document.createElement('div'); el.className = 'sparkle-dot';
+      const a = Math.random() * Math.PI * 2, d = 30 + Math.random() * 70, sz = 6 + Math.random() * 10;
+      el.style.cssText = `left:${cx+Math.cos(a)*d-sz/2}px;top:${cy+Math.sin(a)*d-sz/2}px;width:${sz}px;height:${sz}px;background:${cols[i%cols.length]}`;
+      document.body.appendChild(el); setTimeout(() => el.remove(), 800);
+    }
   }
-  function clamp(mn, vw, mx) { return 'clamp('+mn+'px,'+vw+'vw,'+mx+'px)'; }
 
   /* ── Confetti ────────────────────────────────────────── */
   function confettiBurst() {
@@ -470,8 +511,9 @@
 
   /* ── BG decoration ───────────────────────────────────── */
   function makeBgGems() {
-    const gems = ['💫','✨','🌟','⭐','💎','🌸','📏','🌙'];
-    for (let i = 0; i < 9; i++) {
+    document.querySelectorAll('.bg-gem').forEach(e => e.remove());
+    const gems = ['💫','✨','🌟','⭐','💎','🌸','📏','🌙','🎀','👑'];
+    for (let i = 0; i < 10; i++) {
       const el = document.createElement('div'); el.className = 'bg-gem';
       el.textContent = gems[i % gems.length];
       el.style.left = (4 + Math.random() * 90) + 'vw';

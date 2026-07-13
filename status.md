@@ -1,9 +1,9 @@
 # Princess Compendium — Status
 
 ## Last update run
-Date: 2026-07-10
-- Improved: `033-left-right` → v1.1.0 (color-coded tier badges 🌱/🌸/⭐; progress bar added; confetti 35→42/60+40; pool expanded to 18 items (6 per tier); 4-note correct tone; tier-transition overlays with tap-to-continue; 10 bg floating gems; locked state)
-- Added: `047-royal-vehicles` — "Royal Vehicles 🚗" teaching vehicle recognition & transport categorisation; show vehicle emoji + name, tap the right place (Road/Sky/Water/Rail); Easy=2 habitats, Medium=3, Hard=4; 9 rounds; 18 sparkle dots + 8 emoji on correct; tier overlay with confetti; final 60+40 confetti
+Date: 2026-07-13
+- Improved: `041-princess-measures` → v1.1.0 (progress bar added; tier badge emojis 🌱/🌸/⭐; pool expanded 9→18 (6 per tier, 3 picked per game); full-screen tier overlay with confetti + tap-to-continue; win overlay with 42+42 confetti; bg gems 9→10; round label format updated)
+- Added: `048-royal-race` — "Royal Race 🏁" teaching fast vs slow / speed comparison; Easy=who is FASTER? (obvious pairs), Medium=who is FASTER? (trickier), Hard=who is SLOWER? (reversed challenge); 9 rounds; 18 sparkle dots + 8 emoji on correct; tier overlay with confetti; final 60+40 confetti
 
 ## Improvement history
 
@@ -38,6 +38,7 @@ Date: 2026-07-10
 | 2026-07-04 | 030-princess-pairs | Quick-peek preview at round start, round counter, tier-specific card backs, item pool 30→42, 12 bg gems, confetti 42/60+40 | 1.1.0 |
 | 2026-07-07 | 040-royal-seasons | Color-coded tier badge, progress bar, hide scene labels Medium/Hard, sparkle 18→22 | 1.1.0 |
 | 2026-07-10 | 033-left-right | Color-coded tier badge, progress bar, 10 bg gems, pool 9→18, confetti 35→42, 4-note audio, tier overlay | 1.1.0 |
+| 2026-07-13 | 041-princess-measures | Progress bar, 🌱/🌸/⭐ tier badges, pool 9→18, full-screen tier overlay + confetti, win overlay, bg gems 9→10 | 1.1.0 |
 
 ## Games due for improvement (all at v1.0.0)
 
@@ -75,4 +76,4 @@ See `CLAUDE.md` for the full prioritised list. Top 3 to build next:
 14. ~~Animal habitats / where animals live~~ — ✅ covered by `044-animal-homes`
 
 ## Next game ID
-`048-<slug>`
+`049-<slug>`

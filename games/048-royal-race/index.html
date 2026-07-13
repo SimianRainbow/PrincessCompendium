@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Royal Race 🏁</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+    body {
+      min-height:100vh;
+      background: linear-gradient(160deg, #0d0024 0%, #3a0068 55%, #7b1fa2 100%);
+      font-family:'Fredoka One',Georgia,serif;
+      display:flex; flex-direction:column; align-items:center;
+      overflow:hidden; user-select:none;
+    }
+
+    /* Floating bg gems */
+    .bg-gem { position:fixed; pointer-events:none; animation:floatUp linear infinite; opacity:.11; font-size:clamp(16px,4.5vw,26px); }
+    @keyframes floatUp { 0%{transform:translateY(110vh) rotate(0deg)} 100%{transform:translateY(-15vh) rotate(360deg)} }
+
+    /* Header */
+    #header {
+      width:100%; display:flex; justify-content:space-between; align-items:center;
+      padding:clamp(10px,3vw,16px) clamp(14px,4vw,22px) 0;
+      position:relative; z-index:10; flex-shrink:0;
+    }
+    #tier-badge { font-size:clamp(13px,3.4vw,18px); padding:5px 15px; border-radius:20px; font-weight:bold; }
+    .tier-easy   { background:linear-gradient(135deg,#a5d6a7,#66bb6a); color:#1b5e20; }
+    .tier-medium { background:linear-gradient(135deg,#ffe082,#ffd54f); color:#5a3000; }
+    .tier-hard   { background:linear-gradient(135deg,#ce93d8,#ab47bc); color:#fff; }
+    #round-label { font-size:clamp(13px,3.2vw,17px); color:rgba(255,255,255,.9); text-shadow:0 1px 4px rgba(0,0,0,.3); }
+
+    /* Progress bar */
+    #progress-wrap { width:100%; padding:6px clamp(14px,4vw,22px) 0; position:relative; z-index:10; flex-shrink:0; }
+    #progress-track { background:rgba(255,255,255,.18); border-radius:20px; height:clamp(8px,2vw,12px); overflow:hidden; }
+    #progress-fill  { height:100%; border-radius:20px; background:linear-gradient(90deg,#ffd700,#ff4081); transition:width .35s ease; width:0%; box-shadow:0 0 8px rgba(255,215,0,.45); }
+
+    /* Prompt */
+    #prompt-wrap {
+      width:100%; max-width:460px; padding:clamp(12px,3vw,20px) 16px 0;
+      text-align:center; position:relative; z-index:10; flex-shrink:0;
+    }
+    #prompt-text { font-size:clamp(22px,5.5vw,34px); color:#fff; text-shadow:0 2px 10px rgba(0,0,0,.5); line-height:1.2; }
+
+    /* Race track stripe */
+    #track-stripe {
+      width:calc(100% - clamp(24px,6vw,40px)); height:5px;
+      margin:clamp(8px,2vw,14px) 0; flex-shrink:0;
+      background:repeating-linear-gradient(90deg, #ffd700 0, #ffd700 20px, transparent 20px, transparent 40px);
+      opacity:.35;
+    }
+
+    /* Cards area */
+    #cards-area {
+      flex:1; display:flex; align-items:center; justify-content:center;
+      gap:clamp(12px,3.5vw,24px);
+      padding:0 clamp(12px,3vw,20px) clamp(12px,3vw,20px);
+      width:100%; max-width:500px;
+    }
+
+    .race-card {
+      flex:1; max-width:clamp(140px,42vw,200px);
+      border-radius:26px; cursor:pointer;
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      padding:clamp(16px,4vw,26px) clamp(10px,3vw,16px) clamp(14px,3.5vw,22px);
+      background:rgba(255,255,255,.13);
+      border:3px solid rgba(255,255,255,.28);
+      box-shadow:0 6px 28px rgba(0,0,0,.4);
+      transition:transform .1s;
+      touch-action:manipulation; position:relative; overflow:hidden;
+      min-height:clamp(160px,44vw,230px);
+    }
+    .race-card::before {
+      content:''; position:absolute; top:0; left:0; right:0; bottom:0;
+      background:linear-gradient(140deg, rgba(255,255,255,.06) 0%, transparent 55%);
+      pointer-events:none;
+    }
+    .race-card:active { transform:scale(.92); }
+    .card-emoji { font-size:clamp(72px,19vw,108px); line-height:1; pointer-events:none; }
+    .card-label { font-size:clamp(14px,3.8vw,21px); color:#fff; margin-top:10px; text-shadow:0 1px 6px rgba(0,0,0,.5); pointer-events:none; text-align:center; }
+
+    .race-card.correct-pop { animation:cPop .5s ease-out; background:rgba(255,215,0,.28); border-color:#ffd700; }
+    @keyframes cPop { 0%{transform:scale(1)} 40%{transform:scale(1.12);box-shadow:0 0 50px rgba(255,215,0,.8)} 100%{transform:scale(1)} }
+    .race-card.wrong-shake { animation:wShake .42s ease-out; background:rgba(255,60,60,.2); }
+    @keyframes wShake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-12px)} 60%{transform:translateX(12px)} 80%{transform:translateX(-6px)} }
+    .race-card.locked { pointer-events:none; opacity:.45; }
+
+    /* VS badge */
+    #vs-badge {
+      font-size:clamp(20px,5.5vw,32px); color:#ffd700;
+      text-shadow:0 0 18px rgba(255,215,0,.8); flex-shrink:0; font-weight:bold;
+    }
+
+    /* Sparkles */
+    .sp    { position:fixed; pointer-events:none; z-index:50; border-radius:50%; animation:spOut .75s ease-out forwards; }
+    @keyframes spOut { 0%{transform:scale(0);opacity:1} 100%{transform:scale(1.6);opacity:0} }
+    .sp-em { position:fixed; pointer-events:none; z-index:51; animation:spFloat .9s ease-out forwards; }
+    @keyframes spFloat { 0%{transform:translateY(0) scale(1);opacity:1} 100%{transform:translateY(-90px) scale(0);opacity:0} }
+
+    /* Tier overlay */
+    #tier-overlay {
+      position:fixed; inset:0; background:rgba(0,0,0,.72);
+      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:18px;
+      z-index:99; opacity:0; pointer-events:none; transition:opacity .4s;
+    }
+    #tier-overlay.show { opacity:1; pointer-events:all; }
+    #tier-ov-icon  { font-size:clamp(60px,16vw,96px); }
+    #tier-ov-title { font-size:clamp(24px,6.5vw,44px); color:#ffd700; text-shadow:0 0 20px rgba(255,215,0,.7); text-align:center; padding:0 20px; }
+    #tier-ov-sub   { font-size:clamp(15px,4vw,22px); color:rgba(255,255,255,.9); text-align:center; padding:0 24px; }
+    #tier-ov-btn {
+      padding:clamp(14px,4vw,20px) clamp(36px,9vw,60px); font-size:clamp(18px,4.8vw,26px);
+      border-radius:50px; border:none; background:linear-gradient(135deg,#ffd700,#ff9800);
+      color:#5d2e00; font-weight:bold; cursor:pointer; font-family:inherit;
+      box-shadow:0 4px 20px rgba(255,180,0,.5); touch-action:manipulation;
+    }
+
+    /* Win overlay */
+    #win-overlay {
+      position:fixed; inset:0; background:rgba(0,0,0,.82);
+      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px;
+      z-index:100; opacity:0; pointer-events:none; transition:opacity .4s;
+    }
+    #win-overlay.show { opacity:1; pointer-events:all; }
+    .win-icon  { font-size:clamp(72px,18vw,110px); animation:wBob 1.2s ease-in-out infinite; }
+    @keyframes wBob { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-14px)} }
+    .win-title { font-size:clamp(26px,7vw,46px); color:#ffd700; text-shadow:0 0 24px rgba(255,215,0,.7); text-align:center; padding:0 20px; }
+    .win-sub   { font-size:clamp(15px,4vw,22px); color:rgba(255,255,255,.9); text-align:center; padding:0 24px; }
+    .win-btn {
+      padding:clamp(14px,4vw,20px) clamp(36px,9vw,60px); font-size:clamp(18px,4.8vw,26px);
+      border-radius:50px; border:none; background:linear-gradient(135deg,#ffd700,#e040fb);
+      color:#fff; font-weight:bold; cursor:pointer; font-family:inherit;
+      box-shadow:0 4px 22px rgba(255,215,0,.5); touch-action:manipulation;
+    }
+
+    /* Confetti */
+    .confetti { position:fixed; pointer-events:none; z-index:101; border-radius:3px; animation:cfFall linear forwards; }
+    @keyframes cfFall { 0%{top:-20px;opacity:1;transform:rotate(0deg)} 100%{top:110vh;opacity:.2;transform:rotate(720deg)} }
+  </style>
+</head>
+<body>
+
+  <div id="header">
+    <div id="tier-badge" class="tier-easy">🌱 Easy</div>
+    <div id="round-label">1 / 9</div>
+  </div>
+  <div id="progress-wrap">
+    <div id="progress-track"><div id="progress-fill"></div></div>
+  </div>
+
+  <div id="prompt-wrap">
+    <div id="prompt-text">Who is FASTER? 🏎️</div>
+  </div>
+
+  <div id="track-stripe"></div>
+
+  <div id="cards-area">
+    <div class="race-card" id="card-left">
+      <div class="card-emoji" id="emoji-left">🐆</div>
+      <div class="card-label" id="label-left">Cheetah</div>
+    </div>
+    <div id="vs-badge">VS</div>
+    <div class="race-card" id="card-right">
+      <div class="card-emoji" id="emoji-right">🐢</div>
+      <div class="card-label" id="label-right">Tortoise</div>
+    </div>
+  </div>
+
+  <!-- Tier transition overlay -->
+  <div id="tier-overlay">
+    <div id="tier-ov-icon">🌸</div>
+    <div id="tier-ov-title">New Challenge!</div>
+    <div id="tier-ov-sub">Get ready!</div>
+    <button id="tier-ov-btn">Let's race! 🏁</button>
+  </div>
+
+  <!-- Win overlay -->
+  <div id="win-overlay">
+    <div class="win-icon">🏆</div>
+    <div class="win-title">Racing Champion! 🏁✨</div>
+    <div class="win-sub">You know who is fast and who is slow! 🌟</div>
+    <button class="win-btn" id="play-again-btn">Play Again 🌸</button>
+  </div>
+
+<script>
+  // ── Audio ──────────────────────────────────────────────
+  let audioCtx = null;
+  function getAudio() { if (!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)(); return audioCtx; }
+  function tone(f, type, d, v=.18) {
+    try {
+      const c=getAudio(), o=c.createOscillator(), g=c.createGain();
+      o.connect(g); g.connect(c.destination);
+      o.type=type; o.frequency.value=f;
+      g.gain.setValueAtTime(v, c.currentTime);
+      g.gain.exponentialRampToValueAtTime(.001, c.currentTime+d);
+      o.start(); o.stop(c.currentTime+d);
+    } catch(e) {}
+  }
+  function playCorrect()  { [523,659,784,1047].forEach((f,i)=>setTimeout(()=>tone(f,'sine',.18,.22),i*65)); }
+  function playWrong()    { tone(280,'sawtooth',.16,.13); setTimeout(()=>tone(240,'sawtooth',.14,.1),160); }
+  function playTierWin()  { [523,659,784,1047,1319].forEach((f,i)=>setTimeout(()=>tone(f,'triangle',.28,.2),i*80)); }
+  function playFinalWin() { [523,659,784,1047,784,1047,1319].forEach((f,i)=>setTimeout(()=>tone(f,'sine',.32,.22),i*90)); }
+
+  // ── Game data ──────────────────────────────────────────
+  // Each pair: ask='fast' → prompt "who is FASTER?" → correct=fast animal
+  //            ask='slow' → prompt "who is SLOWER?" → correct=slow animal
+  const PAIRS = [
+    // Easy — very obvious, always "Who is FASTER?"
+    { tier:0, ask:'fast',
+      qFast:'Who is FASTER? 🏎️', qSlow:'Who is SLOWER? 🐢',
+      fast:{e:'🐆',n:'Cheetah'},     slow:{e:'🐢',n:'Tortoise'} },
+    { tier:0, ask:'fast',
+      qFast:'Who is FASTER? 🚀',  qSlow:'Who is SLOWER? 🐌',
+      fast:{e:'🚀',n:'Rocket'},       slow:{e:'🐌',n:'Snail'} },
+    { tier:0, ask:'fast',
+      qFast:'Who is FASTER? ⚡',  qSlow:'Who is SLOWER? 🐛',
+      fast:{e:'🏇',n:'Racehorse'},    slow:{e:'🐛',n:'Caterpillar'} },
+    // Medium — clear pairs, always "Who is FASTER?"
+    { tier:1, ask:'fast',
+      qFast:'Who is FASTER? ✈️',  qSlow:'Who is SLOWER? 🚲',
+      fast:{e:'✈️',n:'Aeroplane'},    slow:{e:'🚲',n:'Bicycle'} },
+    { tier:1, ask:'fast',
+      qFast:'Who is FASTER? 🐬',  qSlow:'Who is SLOWER? 🦆',
+      fast:{e:'🐬',n:'Dolphin'},      slow:{e:'🦆',n:'Duck'} },
+    { tier:1, ask:'fast',
+      qFast:'Who is FASTER? 🏎️',  qSlow:'Who is SLOWER? 🚜',
+      fast:{e:'🏎️',n:'Race Car'},     slow:{e:'🚜',n:'Tractor'} },
+    // Hard — asks "Who is SLOWER?" to flip the challenge
+    { tier:2, ask:'slow',
+      qFast:'Who is FASTER? 🦁',  qSlow:'Who is SLOWER? 🐕',
+      fast:{e:'🦁',n:'Lion'},         slow:{e:'🐕',n:'Dog'} },
+    { tier:2, ask:'slow',
+      qFast:'Who is FASTER? 🦅',  qSlow:'Who is SLOWER? 🦋',
+      fast:{e:'🦅',n:'Eagle'},        slow:{e:'🦋',n:'Butterfly'} },
+    { tier:2, ask:'slow',
+      qFast:'Who is FASTER? 🐴',  qSlow:'Who is SLOWER? 🦔',
+      fast:{e:'🐴',n:'Horse'},        slow:{e:'🦔',n:'Hedgehog'} },
+  ];
+
+  const TIER_DATA = [
+    { label:'🌱 Easy',   cls:'tier-easy',
+      icon:'🌱', title:'Easy Races! 🏁',   sub:'Who is FASTER? Tap the speedy one!' },
+    { label:'🌸 Medium', cls:'tier-medium',
+      icon:'🌸', title:'Medium Races! 🌸',  sub:'Who is FASTER? These are a bit trickier!' },
+    { label:'⭐ Hard',   cls:'tier-hard',
+      icon:'⭐', title:'Hard Races! ⭐',    sub:'Now tap the SLOWER one — think carefully! 🐢' },
+  ];
+
+  const TOTAL = 9;
+  let round = 0, locked = false, leftIsCorrect = false;
+  let roundOrder = [];
+
+  function shuffle(a) {
+    const b=[...a];
+    for(let i=b.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [b[i],b[j]]=[b[j],b[i]]; }
+    return b;
+  }
+
+  function startGame() {
+    document.getElementById('win-overlay').classList.remove('show');
+    document.getElementById('tier-overlay').classList.remove('show');
+    round = 0;
+    const t0 = shuffle(PAIRS.filter(p=>p.tier===0));
+    const t1 = shuffle(PAIRS.filter(p=>p.tier===1));
+    const t2 = shuffle(PAIRS.filter(p=>p.tier===2));
+    roundOrder = [...t0, ...t1, ...t2];
+    makeBgGems();
+    showRound();
+  }
+
+  function showRound() {
+    locked = false;
+    if (round >= TOTAL) { endGame(); return; }
+
+    updateHUD();
+
+    const pair = roundOrder[round];
+    const isAskFast    = pair.ask === 'fast';
+    const correctAnimal = isAskFast ? pair.fast : pair.slow;
+    const wrongAnimal   = isAskFast ? pair.slow : pair.fast;
+    const question = isAskFast ? pair.qFast : pair.qSlow;
+
+    document.getElementById('prompt-text').textContent = question;
+
+    // Randomly place correct/wrong on left or right
+    const flip = Math.random() < 0.5;
+    const leftAnimal  = flip ? correctAnimal : wrongAnimal;
+    const rightAnimal = flip ? wrongAnimal   : correctAnimal;
+    leftIsCorrect = flip;
+
+    document.getElementById('emoji-left').textContent  = leftAnimal.e;
+    document.getElementById('label-left').textContent  = leftAnimal.n;
+    document.getElementById('emoji-right').textContent = rightAnimal.e;
+    document.getElementById('label-right').textContent = rightAnimal.n;
+
+    ['card-left','card-right'].forEach(id => {
+      document.getElementById(id).className = 'race-card';
+    });
+  }
+
+  function handleTap(isLeft) {
+    if (locked) return;
+    const isCorrect = isLeft === leftIsCorrect;
+    const cardEl  = document.getElementById(isLeft ? 'card-left' : 'card-right');
+    const otherEl = document.getElementById(isLeft ? 'card-right' : 'card-left');
+
+    if (isCorrect) {
+      locked = true;
+      cardEl.classList.add('correct-pop');
+      otherEl.classList.add('locked');
+      playCorrect();
+      sparkleBurst(cardEl);
+      setTimeout(advanceRound, 700);
+    } else {
+      cardEl.classList.add('wrong-shake');
+      playWrong();
+      setTimeout(() => cardEl.classList.remove('wrong-shake'), 450);
+    }
+  }
+
+  function advanceRound() {
+    const prevTier = Math.floor(round / 3);
+    round++;
+    if (round >= TOTAL) { endGame(); return; }
+
+    const newTier = Math.floor(round / 3);
+    if (newTier !== prevTier) {
+      showTierOverlay(newTier);
+    } else {
+      showRound();
+    }
+  }
+
+  function showTierOverlay(tIdx) {
+    const td = TIER_DATA[tIdx];
+    document.getElementById('tier-ov-icon').textContent  = td.icon;
+    document.getElementById('tier-ov-title').textContent = td.title;
+    document.getElementById('tier-ov-sub').textContent   = td.sub;
+    document.getElementById('tier-overlay').classList.add('show');
+    playTierWin();
+    confetti(42);
+  }
+
+  function endGame() {
+    document.getElementById('progress-fill').style.width = '100%';
+    document.getElementById('win-overlay').classList.add('show');
+    playFinalWin();
+    confetti(60);
+    setTimeout(() => confetti(40), 700);
+  }
+
+  function updateHUD() {
+    const tIdx = Math.floor(round / 3);
+    const td   = TIER_DATA[tIdx];
+    const badge = document.getElementById('tier-badge');
+    badge.textContent = td.label;
+    badge.className   = td.cls;
+    document.getElementById('round-label').textContent = (round+1) + ' / ' + TOTAL;
+    document.getElementById('progress-fill').style.width = (round/TOTAL*100) + '%';
+  }
+
+  // ── Particles ──────────────────────────────────────────
+  function sparkleBurst(card) {
+    const r  = card.getBoundingClientRect();
+    const cx = r.left + r.width/2, cy = r.top + r.height/2;
+    const cols = ['#ffd700','#ff4081','#e040fb','#80deea','#fff','#ff9800','#a5d6a7'];
+    const ems  = ['✨','💫','🌟','⭐','🏁','🏆'];
+    for (let i = 0; i < 18; i++) {
+      const el = document.createElement('div'); el.className='sp';
+      const a=Math.random()*Math.PI*2, d=30+Math.random()*80, sz=6+Math.random()*11;
+      el.style.cssText=`left:${cx+Math.cos(a)*d-sz/2}px;top:${cy+Math.sin(a)*d-sz/2}px;width:${sz}px;height:${sz}px;background:${cols[i%cols.length]}`;
+      document.body.appendChild(el); setTimeout(()=>el.remove(),800);
+    }
+    for (let i = 0; i < 8; i++) {
+      const el = document.createElement('div'); el.className='sp-em';
+      el.textContent = ems[i%ems.length];
+      el.style.cssText=`font-size:clamp(18px,4.5vw,26px);left:${cx+(Math.random()-.5)*110}px;top:${cy+(Math.random()-.5)*90}px;animation-delay:${Math.random()*.2}s`;
+      document.body.appendChild(el); setTimeout(()=>el.remove(),1100);
+    }
+  }
+
+  function confetti(n) {
+    const cols=['#ffd700','#ff4081','#e040fb','#80deea','#a5d6a7','#fff176','#ff9800','#fff'];
+    for (let i=0; i<n; i++) {
+      const el=document.createElement('div'); el.className='confetti';
+      const sz=6+Math.random()*10;
+      el.style.cssText=`left:${Math.random()*100}vw;width:${sz}px;height:${sz}px;background:${cols[i%cols.length]};animation-duration:${1.4+Math.random()*2}s;animation-delay:${Math.random()*.5}s`;
+      document.body.appendChild(el); setTimeout(()=>el.remove(),3500);
+    }
+  }
+
+  function makeBgGems() {
+    document.querySelectorAll('.bg-gem').forEach(e=>e.remove());
+    const icons=['🏁','✨','💫','🌟','⭐','🏆','🎀','💎','🚀','🌸'];
+    for (let i=0; i<10; i++) {
+      const el=document.createElement('div'); el.className='bg-gem';
+      el.textContent=icons[i%icons.length];
+      el.style.left=(4+Math.random()*92)+'vw';
+      el.style.animationDuration=(9+Math.random()*13)+'s';
+      el.style.animationDelay=-(Math.random()*13)+'s';
+      document.body.appendChild(el);
+    }
+  }
+
+  // ── Event listeners ────────────────────────────────────
+  document.getElementById('card-left').addEventListener('pointerdown',  () => handleTap(true));
+  document.getElementById('card-right').addEventListener('pointerdown', () => handleTap(false));
+  document.getElementById('tier-ov-btn').addEventListener('pointerdown', () => {
+    document.getElementById('tier-overlay').classList.remove('show');
+    showRound();
+  });
+  document.getElementById('play-again-btn').addEventListener('pointerdown', startGame);
+
+  startGame();
+</script>
+</body>
+</html>
