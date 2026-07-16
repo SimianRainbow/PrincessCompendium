@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Royal Week 📅</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+    body{
+      min-height:100vh;
+      background:linear-gradient(160deg,#fce4ec 0%,#e8d5f5 45%,#e3f2fd 100%);
+      font-family:'Fredoka One',Georgia,serif;
+      display:flex;flex-direction:column;align-items:center;
+      overflow:hidden;user-select:none;touch-action:manipulation;
+      padding-bottom:10px;
+    }
+
+    .bg-gem{
+      position:fixed;pointer-events:none;opacity:.09;
+      font-size:clamp(18px,4.5vw,30px);
+      animation:bgFloat linear infinite;z-index:0;
+    }
+    @keyframes bgFloat{
+      0%{transform:translateY(110vh) rotate(0)}
+      100%{transform:translateY(-15vh) rotate(360deg)}
+    }
+
+    /* ── Header ── */
+    #header{
+      width:100%;display:flex;justify-content:space-between;align-items:center;
+      padding:clamp(10px,2.5vw,16px) clamp(14px,4vw,22px) 0;
+      flex-shrink:0;position:relative;z-index:1;
+    }
+    #tier-badge{
+      font-size:clamp(13px,3.2vw,17px);padding:5px 14px;border-radius:20px;
+      color:#fff;font-weight:bold;border:2px solid rgba(255,255,255,.38);
+      transition:background .4s;
+    }
+    .tier-easy  {background:linear-gradient(135deg,#66bb6a,#2e7d32);}
+    .tier-medium{background:linear-gradient(135deg,#ffca28,#f57f17);color:#3e2000;}
+    .tier-hard  {background:linear-gradient(135deg,#ce93d8,#6a1b9a);}
+    #round-label{font-size:clamp(13px,3.2vw,17px);color:rgba(255,80,150,.9);position:relative;z-index:1;}
+    #score-row  {font-size:clamp(18px,4.5vw,26px);letter-spacing:1px;position:relative;z-index:1;}
+
+    /* ── Progress bar ── */
+    #progress-track{
+      width:calc(100% - clamp(28px,7vw,44px));height:7px;
+      background:rgba(200,50,150,.15);border-radius:99px;
+      margin:clamp(7px,1.8vw,11px) auto 0;overflow:hidden;
+      position:relative;z-index:1;
+    }
+    #progress-fill{
+      height:100%;background:linear-gradient(90deg,#ffd700,#ff9800);
+      border-radius:99px;transition:width .4s ease;width:0%;
+    }
+
+    /* ── Week bar ── */
+    #week-bar{
+      display:flex;gap:clamp(3px,1vw,7px);
+      margin:clamp(10px,2.5vw,16px) clamp(6px,1.5vw,10px) 0;
+      position:relative;z-index:1;flex-wrap:nowrap;
+    }
+    .day-pill{
+      display:flex;flex-direction:column;align-items:center;
+      padding:clamp(4px,1vw,7px) clamp(5px,1.3vw,9px);
+      border-radius:12px;
+      background:rgba(255,255,255,.4);
+      border:2px solid rgba(255,255,255,.3);
+      transition:all .35s cubic-bezier(.34,1.56,.64,1);
+      flex:1;min-width:0;
+    }
+    .day-pill .dp-emoji{font-size:clamp(14px,3.8vw,24px);line-height:1;}
+    .day-pill .dp-name{font-size:clamp(7px,1.8vw,11px);color:#880e4f;margin-top:1px;white-space:nowrap;}
+    .day-pill.highlight{
+      background:rgba(255,215,0,.38);
+      border-color:#ffd700;
+      box-shadow:0 0 14px rgba(255,215,0,.65);
+      transform:scale(1.12) translateY(-2px);
+    }
+
+    /* ── Question ── */
+    #question{
+      font-size:clamp(16px,4.2vw,26px);color:#880e4f;
+      text-align:center;text-shadow:0 1px 6px rgba(255,100,150,.15);
+      padding:0 16px;margin:clamp(8px,2vw,14px) 0;
+      position:relative;z-index:1;line-height:1.3;
+    }
+
+    /* ── Choices ── */
+    #choices{
+      display:grid;grid-template-columns:repeat(3,1fr);
+      gap:clamp(8px,2vw,14px);
+      padding:0 clamp(10px,2.5vw,18px);
+      width:100%;position:relative;z-index:1;
+    }
+    .day-btn{
+      min-height:clamp(90px,22vw,120px);
+      border-radius:22px;border:none;cursor:pointer;
+      display:flex;flex-direction:column;
+      align-items:center;justify-content:center;gap:4px;
+      box-shadow:0 4px 18px rgba(0,0,0,.22),inset 0 2px 0 rgba(255,255,255,.38);
+      transition:transform .1s;touch-action:manipulation;
+      padding:8px 4px;
+    }
+    .day-btn:active{transform:scale(.91);}
+    .day-btn .btn-emoji{font-size:clamp(28px,7vw,44px);line-height:1;}
+    .day-btn .btn-name{
+      font-size:clamp(11px,2.8vw,16px);color:#fff;
+      font-weight:bold;text-shadow:0 2px 6px rgba(0,0,0,.38);
+      text-align:center;
+    }
+    .day-btn.correct-flash{animation:correctPop .5s ease-out;}
+    @keyframes correctPop{
+      0%{transform:scale(1)}
+      40%{transform:scale(1.15);box-shadow:0 0 40px rgba(255,215,0,.8);}
+      100%{transform:scale(1)}
+    }
+    .day-btn.wrong-shake{animation:wrongShake .42s ease-out;}
+    @keyframes wrongShake{
+      0%,100%{transform:translateX(0)}
+      20%{transform:translateX(-10px)}
+      60%{transform:translateX(10px)}
+    }
+
+    /* ── Sparkles ── */
+    .sparkle{
+      position:fixed;pointer-events:none;z-index:90;
+      font-size:clamp(14px,3.5vw,22px);
+      animation:sparkleOut ease-out forwards;
+    }
+    @keyframes sparkleOut{
+      0%{transform:translate(-50%,-50%) scale(0);opacity:1}
+      50%{transform:translate(-50%,-50%) scale(1.3);opacity:1}
+      100%{transform:translate(-50%,-50%) scale(.2);opacity:0}
+    }
+    .confetti-p{
+      position:fixed;pointer-events:none;z-index:90;border-radius:3px;
+      animation:cfFall linear forwards;
+    }
+    @keyframes cfFall{0%{top:-20px;opacity:1}100%{top:110vh;opacity:.1}}
+
+    /* ── Celebrate overlay ── */
+    #celebrate{
+      position:fixed;inset:0;z-index:80;
+      display:none;flex-direction:column;
+      align-items:center;justify-content:center;gap:clamp(10px,2.5vw,16px);
+      background:rgba(255,245,255,.91);
+    }
+    #celebrate.show{display:flex;}
+    #cel-emoji{font-size:clamp(72px,18vw,110px);animation:bigPop .4s ease-out;}
+    @keyframes bigPop{0%{transform:scale(.3)}60%{transform:scale(1.22)}100%{transform:scale(1)}}
+    #cel-name{font-size:clamp(26px,7vw,52px);color:#880e4f;text-align:center;text-shadow:0 0 16px rgba(255,100,150,.3);}
+    #cel-msg {font-size:clamp(16px,4.2vw,26px);color:#ad1457;text-align:center;padding:0 16px;}
+    #next-btn{
+      padding:clamp(14px,4vw,20px) clamp(36px,9vw,60px);
+      font-size:clamp(20px,5.5vw,30px);border-radius:50px;border:none;
+      background:linear-gradient(135deg,#ffd700,#ff9800);color:#5d2e00;
+      font-family:inherit;cursor:pointer;touch-action:manipulation;
+      box-shadow:0 6px 22px rgba(255,180,0,.45);
+    }
+
+    /* ── Tier overlay ── */
+    #tier-overlay{
+      position:fixed;inset:0;z-index:85;
+      display:none;flex-direction:column;
+      align-items:center;justify-content:center;gap:16px;
+      background:rgba(0,0,0,.65);
+    }
+    #tier-overlay.show{display:flex;}
+    #to-icon {font-size:clamp(60px,16vw,96px);}
+    #to-title{font-size:clamp(26px,7vw,48px);color:#ffd700;text-shadow:0 0 20px #ff9800;text-align:center;}
+    #to-sub  {font-size:clamp(16px,4.5vw,24px);color:#fff;text-align:center;padding:0 24px;}
+    #to-btn  {
+      padding:clamp(14px,4vw,20px) clamp(32px,8vw,56px);
+      font-size:clamp(20px,5vw,28px);border-radius:50px;border:none;
+      background:linear-gradient(135deg,#ffd700,#ff9800);
+      color:#5d2e00;font-family:inherit;cursor:pointer;
+      box-shadow:0 4px 16px rgba(255,180,0,.5);touch-action:manipulation;
+    }
+
+    /* ── Win overlay ── */
+    #win-overlay{
+      position:fixed;inset:0;z-index:90;
+      display:none;flex-direction:column;
+      align-items:center;justify-content:center;gap:clamp(12px,3vw,20px);
+      background:linear-gradient(160deg,#880e4f 0%,#4a148c 100%);
+    }
+    #win-overlay.show{display:flex;}
+    #win-emoji {font-size:clamp(72px,18vw,110px);animation:startBob 2.4s ease-in-out infinite;}
+    @keyframes startBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
+    #win-title {font-size:clamp(28px,7.5vw,56px);color:#ffd700;text-shadow:0 0 24px rgba(255,215,0,.7);text-align:center;padding:0 20px;}
+    #win-sub   {font-size:clamp(16px,4.5vw,26px);color:rgba(255,255,255,.85);text-align:center;}
+    #play-again-btn{
+      padding:clamp(14px,4vw,20px) clamp(36px,9vw,64px);
+      font-size:clamp(18px,5vw,28px);border-radius:50px;border:none;
+      background:linear-gradient(135deg,#ffd700,#ff9800);color:#5d2e00;
+      font-family:inherit;cursor:pointer;
+      box-shadow:0 6px 24px rgba(255,180,0,.5);touch-action:manipulation;
+    }
+  </style>
+</head>
+<body>
+
+<div id="header">
+  <div id="tier-badge" class="tier-easy">🌸 Easy</div>
+  <div id="round-label">1 / 9</div>
+  <div id="score-row"></div>
+</div>
+<div id="progress-track"><div id="progress-fill"></div></div>
+
+<div id="week-bar"></div>
+<div id="question"></div>
+<div id="choices"></div>
+
+<div id="celebrate">
+  <div id="cel-emoji">🎉</div>
+  <div id="cel-name">Tuesday!</div>
+  <div id="cel-msg">Amazing! 🌟</div>
+  <button id="next-btn" onclick="doNext()">Next ➡️</button>
+</div>
+
+<div id="tier-overlay">
+  <div id="to-icon">🌟</div>
+  <div id="to-title">Moving to Medium!</div>
+  <div id="to-sub">More tricky days ahead! 📅</div>
+  <button id="to-btn" onclick="resumeFromTier()">Keep going! ➡️</button>
+</div>
+
+<div id="win-overlay">
+  <div id="win-emoji">📅</div>
+  <div id="win-title">Royal Calendar! 👑</div>
+  <div id="win-sub">You know all the days! 🌟</div>
+  <button id="play-again-btn" onclick="restartGame()">Play Again 🔄</button>
+</div>
+
+<script>
+  var DAYS = [
+    {name:'Monday',    emoji:'🌅', color:'linear-gradient(135deg,#ffb74d,#e65100)', desc:'Morning Magic day!'},
+    {name:'Tuesday',   emoji:'🎨', color:'linear-gradient(135deg,#f48fb1,#c2185b)', desc:'Royal Painting day!'},
+    {name:'Wednesday', emoji:'💎', color:'linear-gradient(135deg,#9575cd,#4527a0)', desc:'Gem Collection day!'},
+    {name:'Thursday',  emoji:'🌸', color:'linear-gradient(135deg,#81c784,#2e7d32)', desc:'Royal Garden day!'},
+    {name:'Friday',    emoji:'👑', color:'linear-gradient(135deg,#ffd700,#f57f17)',  desc:'Crown Celebration day!'},
+    {name:'Saturday',  emoji:'🎉', color:'linear-gradient(135deg,#4dd0e1,#00838f)', desc:'Big Party day!'},
+    {name:'Sunday',    emoji:'🌈', color:'linear-gradient(135deg,#f06292,#880e4f)', desc:'Rainbow Rest day!'},
+  ];
+
+  // answer = index into DAYS; context = day indices to highlight; distractors = wrong answer indices
+  var EASY_POOL = [
+    {prompt:'What day comes AFTER\nMonday? 🌅',     answer:1, context:[0],   distractors:[3,5]},
+    {prompt:'What day comes AFTER\nWednesday? 💎',  answer:3, context:[2],   distractors:[0,6]},
+    {prompt:'What day comes AFTER\nFriday? 👑',     answer:5, context:[4],   distractors:[1,2]},
+    {prompt:'What day comes AFTER\nSunday? 🌈',     answer:0, context:[6],   distractors:[3,4]},
+    {prompt:'What day comes AFTER\nTuesday? 🎨',    answer:2, context:[1],   distractors:[4,6]},
+    {prompt:'What day comes AFTER\nThursday? 🌸',   answer:4, context:[3],   distractors:[0,1]},
+  ];
+  var MED_POOL = [
+    {prompt:'What is the FIRST\nday of the week? 🌟', answer:0, context:[], distractors:[3,5]},
+    {prompt:'What is the LAST\nday of the week? 🌙',  answer:6, context:[], distractors:[1,4]},
+    {prompt:'What is the 3rd\nday of the week? 🔢',   answer:2, context:[], distractors:[0,5]},
+    {prompt:'What is the 4th\nday of the week? 🔢',   answer:3, context:[], distractors:[1,6]},
+    {prompt:'What is the 2nd\nday of the week? 🔢',   answer:1, context:[], distractors:[4,6]},
+    {prompt:'What is the 5th\nday of the week? 🔢',   answer:4, context:[], distractors:[2,6]},
+  ];
+  var HARD_POOL = [
+    {prompt:'Yesterday was Monday 🌅\nWhat day is TODAY?',     answer:1, context:[0,1], distractors:[4,6]},
+    {prompt:'Yesterday was Friday 👑\nWhat day is TODAY?',     answer:5, context:[4,5], distractors:[0,2]},
+    {prompt:'Yesterday was Sunday 🌈\nWhat day is TODAY?',     answer:0, context:[6,0], distractors:[3,5]},
+    {prompt:'Yesterday was Wednesday 💎\nWhat day is TODAY?',  answer:3, context:[2,3], distractors:[0,5]},
+    {prompt:'Yesterday was Tuesday 🎨\nWhat day is TODAY?',    answer:2, context:[1,2], distractors:[4,6]},
+    {prompt:'Yesterday was Thursday 🌸\nWhat day is TODAY?',   answer:4, context:[3,4], distractors:[1,6]},
+  ];
+
+  var TIER_INFO = [
+    {label:'🌸 Easy',   cls:'tier-easy',   icon:'🌟', title:'Moving to Medium!',  sub:'Trickier day questions ahead! 📅'},
+    {label:'💎 Medium', cls:'tier-medium', icon:'💫', title:'Almost There!',       sub:'Yesterday questions — think hard! 🤔'},
+    {label:'👑 Hard',   cls:'tier-hard',   icon:'👑', title:'Royal Calendar! 🎉', sub:'All done! What a star! ⭐'},
+  ];
+
+  var rounds=[], cur=0, score=0, locked=false;
+
+  // ── Audio ────────────────────────────────────────────────────────────────
+  var audioCtx=null;
+  function au(){ if(!audioCtx) audioCtx=new(window.AudioContext||window.webkitAudioContext)(); return audioCtx; }
+  function tone(f,type,d,v){
+    v=v||0.15;
+    try{
+      var c=au(),o=c.createOscillator(),g=c.createGain();
+      o.connect(g); g.connect(c.destination);
+      o.type=type; o.frequency.value=f;
+      g.gain.setValueAtTime(v,c.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001,c.currentTime+d);
+      o.start(); o.stop(c.currentTime+d);
+    }catch(e){}
+  }
+  function playCorrect()  { [523,659,784,1047].forEach(function(f,i){ setTimeout(function(){ tone(f,'sine',.2,.18); },i*75); }); }
+  function playWrong()    { tone(220,'sawtooth',.2,.1); }
+  function playTierUp()   { [392,494,587,784,988].forEach(function(f,i){ setTimeout(function(){ tone(f,'sine',.28,.17); },i*90); }); }
+  function playCelebrate(){ [523,587,659,784,880,1047,1319].forEach(function(f,i){ setTimeout(function(){ tone(f,'sine',.25,.16); },i*60); }); }
+
+  // ── Shuffle ──────────────────────────────────────────────────────────────
+  function shuffle(a){
+    var b=a.slice();
+    for(var i=b.length-1;i>0;i--){
+      var j=0|Math.random()*(i+1);
+      var t=b[i]; b[i]=b[j]; b[j]=t;
+    }
+    return b;
+  }
+
+  // ── Build week bar ───────────────────────────────────────────────────────
+  function buildWeekBar(){
+    var bar=document.getElementById('week-bar');
+    bar.innerHTML='';
+    DAYS.forEach(function(d,i){
+      var pill=document.createElement('div');
+      pill.className='day-pill';
+      pill.id='dp'+i;
+      pill.innerHTML='<span class="dp-emoji">'+d.emoji+'</span>'
+        +'<span class="dp-name">'+d.name.slice(0,3)+'</span>';
+      bar.appendChild(pill);
+    });
+  }
+
+  function highlightDays(ctx){
+    DAYS.forEach(function(_,i){
+      var p=document.getElementById('dp'+i);
+      if(ctx.indexOf(i)>=0){ p.classList.add('highlight'); }
+      else { p.classList.remove('highlight'); }
+    });
+  }
+
+  // ── HUD ─────────────────────────────────────────────────────────────────
+  function updateHUD(){
+    document.getElementById('score-row').textContent='⭐'.repeat(score);
+    document.getElementById('progress-fill').style.width=((cur/9)*100)+'%';
+    document.getElementById('round-label').textContent=(cur+1)+' / 9';
+  }
+
+  // ── Pick rounds ──────────────────────────────────────────────────────────
+  function pickRounds(){
+    var e=shuffle(EASY_POOL).slice(0,3);
+    var m=shuffle(MED_POOL).slice(0,3);
+    var h=shuffle(HARD_POOL).slice(0,3);
+    return e.concat(m).concat(h);
+  }
+
+  // ── Show round ───────────────────────────────────────────────────────────
+  function showRound(idx){
+    locked=false;
+    cur=idx;
+    updateHUD();
+
+    var r=rounds[idx];
+    var tIdx=Math.floor(idx/3);
+    var ti=TIER_INFO[tIdx];
+    var badge=document.getElementById('tier-badge');
+    badge.textContent=ti.label; badge.className=ti.cls;
+
+    highlightDays(r.context);
+    document.getElementById('question').textContent=r.prompt;
+
+    var grid=document.getElementById('choices');
+    grid.innerHTML='';
+    var opts=shuffle([r.answer].concat(r.distractors));
+    opts.forEach(function(di){
+      var d=DAYS[di];
+      var btn=document.createElement('button');
+      btn.className='day-btn';
+      btn.style.background=d.color;
+      btn.innerHTML='<span class="btn-emoji">'+d.emoji+'</span>'
+        +'<span class="btn-name">'+d.name+'</span>';
+      (function(chosenIdx){
+        btn.addEventListener('pointerdown', function(){ handleTap(btn, chosenIdx, r.answer); });
+      })(di);
+      grid.appendChild(btn);
+    });
+  }
+
+  // ── Handle tap ───────────────────────────────────────────────────────────
+  function handleTap(btn,chosen,answer){
+    if(locked) return;
+    if(chosen===answer){
+      locked=true;
+      btn.classList.add('correct-flash');
+      playCorrect();
+      score++;
+      var r=btn.getBoundingClientRect();
+      sparkleBurst(r.left+r.width/2, r.top+r.height/2);
+      var answerIdx=rounds[cur].answer;
+      setTimeout(function(){ showCelebrate(answerIdx); }, 450);
+    } else {
+      btn.classList.add('wrong-shake');
+      playWrong();
+      setTimeout(function(){ btn.classList.remove('wrong-shake'); },420);
+    }
+  }
+
+  // ── Sparkles ─────────────────────────────────────────────────────────────
+  function sparkleBurst(x,y){
+    var ems=['✨','💫','⭐','📅','👑','🌸','🎉'];
+    for(var i=0;i<18;i++){
+      var el=document.createElement('span');
+      el.className='sparkle';
+      el.textContent=ems[i%ems.length];
+      var angle=(i/18)*Math.PI*2;
+      var dist=55+Math.random()*95;
+      el.style.left=(x+Math.cos(angle)*dist)+'px';
+      el.style.top=(y+Math.sin(angle)*dist)+'px';
+      el.style.animationDelay=(Math.random()*.15)+'s';
+      el.style.animationDuration=(.8+Math.random()*.35)+'s';
+      document.body.appendChild(el);
+      setTimeout((function(e){ return function(){ e.remove(); }; })(el),1200);
+    }
+  }
+
+  function confettiBurst(n){
+    var cols=['#ffd700','#ff69b4','#00cfff','#7fff00','#ff6347','#da70d6','#fff','#f48fb1'];
+    for(var i=0;i<n;i++){
+      var el=document.createElement('div'); el.className='confetti-p';
+      var sz=8+Math.random()*8;
+      el.style.cssText='left:'+Math.random()*100+'vw;width:'+sz+'px;height:'+sz+'px;'
+        +'background:'+cols[i%cols.length]+';'
+        +'animation-duration:'+(1.2+Math.random()*1.6)+'s;animation-delay:'+Math.random()*.4+'s;';
+      document.body.appendChild(el);
+      setTimeout((function(e){ return function(){ e.remove(); }; })(el),2900);
+    }
+  }
+
+  // ── Celebrate overlay ────────────────────────────────────────────────────
+  var MSGS=['Amazing! 🌟','Brilliant! 💫','You know it! 👑','Wonderful! 🌈','Great job! 💖','Perfect! ✨'];
+  function showCelebrate(dayIdx){
+    var d=DAYS[dayIdx];
+    document.getElementById('cel-emoji').textContent=d.emoji;
+    document.getElementById('cel-name').textContent=d.name+'!';
+    document.getElementById('cel-msg').textContent=MSGS[Math.floor(Math.random()*MSGS.length)];
+    document.getElementById('celebrate').classList.add('show');
+    playCelebrate();
+    confettiBurst(28);
+  }
+
+  function doNext(){
+    document.getElementById('celebrate').classList.remove('show');
+    advanceRound();
+  }
+
+  // ── Advance round ────────────────────────────────────────────────────────
+  function advanceRound(){
+    var was=cur;
+    var next=was+1;
+    if(next>=rounds.length){ showWin(); return; }
+    var prevTier=Math.floor(was/3);
+    var newTier =Math.floor(next/3);
+    if(newTier!==prevTier){
+      playTierUp(); confettiBurst(42);
+      var ti=TIER_INFO[prevTier];
+      document.getElementById('to-icon').textContent=ti.icon;
+      document.getElementById('to-title').textContent=ti.title;
+      document.getElementById('to-sub').textContent=ti.sub;
+      document.getElementById('tier-overlay').classList.add('show');
+    } else {
+      showRound(next);
+    }
+    cur=next;
+  }
+
+  function resumeFromTier(){
+    document.getElementById('tier-overlay').classList.remove('show');
+    showRound(cur);
+  }
+
+  // ── Win ──────────────────────────────────────────────────────────────────
+  function showWin(){
+    document.getElementById('progress-fill').style.width='100%';
+    highlightDays([]);
+    document.getElementById('win-sub').textContent=score+' / 9 ⭐ You know all the days!';
+    document.getElementById('win-overlay').classList.add('show');
+    playCelebrate();
+    confettiBurst(60);
+    setTimeout(function(){ confettiBurst(40); },600);
+  }
+
+  // ── Background gems ──────────────────────────────────────────────────────
+  function makeBg(){
+    var gems=['📅','🌸','✨','👑','💫','🌈','🎉','🌅','💎','⭐'];
+    for(var i=0;i<10;i++){
+      var el=document.createElement('div'); el.className='bg-gem';
+      el.textContent=gems[i%gems.length];
+      el.style.left=(5+Math.random()*90)+'vw';
+      el.style.animationDuration=(9+Math.random()*14)+'s';
+      el.style.animationDelay=-(Math.random()*16)+'s';
+      document.body.appendChild(el);
+    }
+  }
+
+  // ── Restart ──────────────────────────────────────────────────────────────
+  function restartGame(){
+    document.getElementById('win-overlay').classList.remove('show');
+    score=0; cur=0;
+    rounds=pickRounds();
+    updateHUD();
+    showRound(0);
+  }
+
+  // ── Init ─────────────────────────────────────────────────────────────────
+  makeBg();
+  buildWeekBar();
+  rounds=pickRounds();
+  updateHUD();
+  showRound(0);
+</script>
+</body>
+</html>

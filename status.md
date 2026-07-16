@@ -1,9 +1,9 @@
 # Princess Compendium — Status
 
 ## Last update run
-Date: 2026-07-13
-- Improved: `041-princess-measures` → v1.1.0 (progress bar added; tier badge emojis 🌱/🌸/⭐; pool expanded 9→18 (6 per tier, 3 picked per game); full-screen tier overlay with confetti + tap-to-continue; win overlay with 42+42 confetti; bg gems 9→10; round label format updated)
-- Added: `048-royal-race` — "Royal Race 🏁" teaching fast vs slow / speed comparison; Easy=who is FASTER? (obvious pairs), Medium=who is FASTER? (trickier), Hard=who is SLOWER? (reversed challenge); 9 rounds; 18 sparkle dots + 8 emoji on correct; tier overlay with confetti; final 60+40 confetti
+Date: 2026-07-16
+- Improved: `042-shadow-magic` → v1.1.0 (added progress bar + score tracker; celebrate flash replaced with tap-to-continue overlay; pool expanded 18→24 items (8 per tier, 3 picked); sparkle burst 16→18; second confetti burst on win; tier badges updated with emoji labels)
+- Added: `049-royal-days` — "Royal Week 📅" teaching days of the week; Easy=what comes AFTER [day]?, Medium=what is the Nth day?, Hard=yesterday was [day] — what is today?; week-bar highlights context days; 9 rounds across 3 tiers; 18-sparkle burst; confetti on tier/win
 
 ## Improvement history
 
@@ -39,6 +39,7 @@ Date: 2026-07-13
 | 2026-07-07 | 040-royal-seasons | Color-coded tier badge, progress bar, hide scene labels Medium/Hard, sparkle 18→22 | 1.1.0 |
 | 2026-07-10 | 033-left-right | Color-coded tier badge, progress bar, 10 bg gems, pool 9→18, confetti 35→42, 4-note audio, tier overlay | 1.1.0 |
 | 2026-07-13 | 041-princess-measures | Progress bar, 🌱/🌸/⭐ tier badges, pool 9→18, full-screen tier overlay + confetti, win overlay, bg gems 9→10 | 1.1.0 |
+| 2026-07-16 | 042-shadow-magic | Progress bar, score tracker, tap-to-continue celebrate overlay, pool 18→24 (8 per tier), sparkle 16→18, double confetti win | 1.1.0 |
 
 ## Games due for improvement (all at v1.0.0)
 
@@ -76,4 +77,4 @@ See `CLAUDE.md` for the full prioritised list. Top 3 to build next:
 14. ~~Animal habitats / where animals live~~ — ✅ covered by `044-animal-homes`
 
 ## Next game ID
-`049-<slug>`
+`050-<slug>`

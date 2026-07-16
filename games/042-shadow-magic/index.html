@@ -16,7 +16,6 @@
       display:flex; flex-direction:column; align-items:center;
     }
 
-    /* ── Floating bg gems ── */
     .bg-gem{
       position:fixed; pointer-events:none; opacity:.10;
       animation:bgFloat linear infinite;
@@ -27,7 +26,6 @@
       100%{transform:translateY(-15vh) rotate(360deg)}
     }
 
-    /* ── Start screen ── */
     #start-screen{
       position:fixed; inset:0; z-index:30;
       display:flex; flex-direction:column; align-items:center; justify-content:center;
@@ -58,7 +56,6 @@
     }
     @keyframes startPulse{ 0%,100%{transform:scale(1)} 50%{transform:scale(1.06)} }
 
-    /* ── Header ── */
     #header{
       position:fixed; top:0; left:0; right:0; z-index:10;
       display:flex; justify-content:space-between; align-items:center;
@@ -66,23 +63,30 @@
     }
     #tier-badge{
       font-size:clamp(13px,3.5vw,18px); padding:5px 16px; border-radius:20px; font-weight:bold;
+      transition:background .4s;
     }
     .tier-easy  { background:linear-gradient(135deg,#a5d6a7,#66bb6a); color:#1b5e20; }
     .tier-medium{ background:linear-gradient(135deg,#ffe082,#ffd54f); color:#5a3000; }
     .tier-hard  { background:linear-gradient(135deg,#ce93d8,#ab47bc); color:#fff; }
-    #round-label{
-      font-size:clamp(13px,3.5vw,18px); color:#6a1b9a; font-weight:bold;
+    #round-label{ font-size:clamp(13px,3.5vw,18px); color:#6a1b9a; font-weight:bold; }
+    #score-row  { font-size:clamp(18px,4.5vw,26px); letter-spacing:2px; color:#6a1b9a; }
+
+    #progress-track{
+      position:fixed; top:clamp(46px,12vw,68px); left:0; right:0; z-index:10;
+      height:7px; background:rgba(150,50,200,.15);
+    }
+    #progress-fill{
+      height:100%; background:linear-gradient(90deg,#ffd700,#ff8c00);
+      transition:width .4s ease; width:0%;
     }
 
-    /* ── Game area ── */
     #game-area{
       position:fixed; inset:0; display:none; flex-direction:column;
       align-items:center; justify-content:space-evenly;
-      padding:clamp(60px,15vw,88px) clamp(14px,4vw,24px) clamp(14px,4vw,24px);
+      padding:clamp(72px,18vw,102px) clamp(14px,4vw,24px) clamp(14px,4vw,24px);
     }
     #game-area.active{ display:flex; }
 
-    /* ── Prompt ── */
     #prompt{
       font-size:clamp(19px,5.2vw,32px); color:#4a148c;
       text-align:center; line-height:1.25;
@@ -90,29 +94,21 @@
       padding:0 8px;
     }
 
-    /* ── Target card ── */
     #target-wrap{
       display:flex; flex-direction:column; align-items:center; gap:clamp(6px,1.5vw,10px);
     }
-    #target-label{
-      font-size:clamp(13px,3.5vw,18px); color:#7b1fa2; letter-spacing:.5px;
-    }
+    #target-label{ font-size:clamp(13px,3.5vw,18px); color:#7b1fa2; letter-spacing:.5px; }
     #target-emoji{
-      font-size:clamp(80px,22vw,140px);
-      display:block; line-height:1;
+      font-size:clamp(80px,22vw,140px); display:block; line-height:1;
       filter:drop-shadow(0 4px 14px rgba(150,50,200,.25));
       animation:targetFloat 3s ease-in-out infinite;
     }
     @keyframes targetFloat{ 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
 
-    /* ── Shadow choices ── */
     #shadows-label{
-      font-size:clamp(13px,3.5vw,18px); color:#7b1fa2; letter-spacing:.5px;
-      text-align:center;
+      font-size:clamp(13px,3.5vw,18px); color:#7b1fa2; letter-spacing:.5px; text-align:center;
     }
-    #choices{
-      display:flex; gap:clamp(12px,3.2vw,24px); justify-content:center;
-    }
+    #choices{ display:flex; gap:clamp(12px,3.2vw,24px); justify-content:center; }
     .shadow-btn{
       width:clamp(100px,26vw,150px); height:clamp(100px,26vw,150px);
       border-radius:24px;
@@ -129,16 +125,14 @@
       pointer-events:none;
     }
     .shadow-btn.correct-flash{
-      background:rgba(100,255,150,.35);
-      border-color:#7eff9e;
+      background:rgba(100,255,150,.35); border-color:#7eff9e;
       animation:correctPop .45s ease-out;
     }
     @keyframes correctPop{
       0%{transform:scale(1)} 40%{transform:scale(1.18)} 100%{transform:scale(1)}
     }
     .shadow-btn.wrong-shake{
-      background:rgba(255,80,80,.2);
-      border-color:#ff8080;
+      background:rgba(255,80,80,.2); border-color:#ff8080;
       animation:wrongShake .42s ease-out;
     }
     @keyframes wrongShake{
@@ -147,7 +141,6 @@
       70%{transform:translateX(-7px)}  90%{transform:translateX(5px)}
     }
 
-    /* ── Sparkles ── */
     .sparkle{
       position:fixed; pointer-events:none; z-index:60; border-radius:50%;
       animation:sparkOut ease-out forwards;
@@ -162,21 +155,26 @@
     }
     @keyframes cfFall{ 0%{top:-20px;opacity:1;transform:rotate(0)} 100%{top:110vh;opacity:.15;transform:rotate(720deg)} }
 
-    /* ── Celebrate flash ── */
     #celebrate{
       position:fixed; inset:0; z-index:50;
       display:none; flex-direction:column; align-items:center; justify-content:center;
-      background:rgba(250,240,255,.88); gap:10px;
+      background:rgba(250,240,255,.91); gap:clamp(10px,2.5vw,16px);
     }
     #celebrate.show{ display:flex; }
-    #celebrate-emoji{ font-size:clamp(60px,18vw,110px); animation:bigPop .4s ease-out; }
+    #celebrate-emoji{ font-size:clamp(72px,20vw,120px); animation:bigPop .4s ease-out; }
     @keyframes bigPop{ 0%{transform:scale(.3)} 60%{transform:scale(1.22)} 100%{transform:scale(1)} }
     #celebrate-text{
-      font-size:clamp(26px,7vw,52px); color:#6a1b9a;
-      text-shadow:0 0 16px rgba(150,50,200,.4); text-align:center;
+      font-size:clamp(24px,6.5vw,48px); color:#6a1b9a;
+      text-shadow:0 0 16px rgba(150,50,200,.4); text-align:center; padding:0 16px;
+    }
+    #next-btn{
+      padding:clamp(14px,4vw,20px) clamp(36px,9vw,64px);
+      font-size:clamp(20px,5.5vw,30px); border-radius:50px; border:none;
+      background:linear-gradient(135deg,#ffd700,#ff8c00); color:#5d2e00;
+      font-family:inherit; cursor:pointer;
+      box-shadow:0 6px 22px rgba(255,180,0,.45); touch-action:manipulation;
     }
 
-    /* ── Tier toast ── */
     #tier-toast{
       position:fixed; top:50%; left:50%; transform:translate(-50%,-50%) scale(0);
       background:rgba(255,245,255,.97);
@@ -188,13 +186,9 @@
     }
     #tier-toast.show{ transform:translate(-50%,-50%) scale(1); }
     #tier-toast-emoji{ font-size:clamp(44px,13vw,76px); }
-    #tier-toast-title{
-      font-size:clamp(20px,6vw,40px); color:#6a1b9a; margin:8px 0;
-      text-shadow:0 0 14px rgba(150,50,200,.3);
-    }
-    #tier-toast-sub{ font-size:clamp(13px,3.8vw,20px); color:#9c27b0; }
+    #tier-toast-title{ font-size:clamp(20px,6vw,40px); color:#6a1b9a; margin:8px 0; }
+    #tier-toast-sub  { font-size:clamp(13px,3.8vw,20px); color:#9c27b0; }
 
-    /* ── Win screen ── */
     #win-screen{
       position:fixed; inset:0; z-index:70;
       display:none; flex-direction:column; align-items:center; justify-content:center;
@@ -202,23 +196,19 @@
       background:linear-gradient(160deg,#4a148c 0%,#880e4f 100%);
     }
     #win-screen.show{ display:flex; }
-    #win-emoji{ font-size:clamp(64px,18vw,110px); animation:startBob 2.4s ease-in-out infinite; }
-    #win-title{ font-size:clamp(26px,7vw,52px); color:#ffd700; text-align:center; padding:0 20px; text-shadow:0 0 24px rgba(255,215,0,.7); }
-    #win-sub  { font-size:clamp(16px,4.5vw,26px); color:rgba(255,255,255,.85); text-align:center; }
+    #win-emoji { font-size:clamp(64px,18vw,110px); animation:startBob 2.4s ease-in-out infinite; }
+    #win-title { font-size:clamp(26px,7vw,52px); color:#ffd700; text-align:center; padding:0 20px; text-shadow:0 0 24px rgba(255,215,0,.7); }
+    #win-sub   { font-size:clamp(16px,4.5vw,26px); color:rgba(255,255,255,.85); text-align:center; }
     #win-btn{
       padding:clamp(14px,4vw,20px) clamp(36px,9vw,64px);
       font-size:clamp(18px,5vw,28px); border-radius:50px; border:none;
       background:linear-gradient(135deg,#ffd700,#ff8c00); color:#5d2e00;
-      font-family:inherit; cursor:pointer;
-      box-shadow:0 6px 24px rgba(255,180,0,.5);
+      font-family:inherit; cursor:pointer; box-shadow:0 6px 24px rgba(255,180,0,.5);
     }
   </style>
 </head>
 <body>
 
-  <!-- BG decorations injected by JS -->
-
-  <!-- Start screen -->
   <div id="start-screen">
     <div id="start-icon">🌒</div>
     <div id="start-title">Shadow Magic</div>
@@ -226,23 +216,20 @@
     <button id="start-btn" onclick="startGame()">Play ▶</button>
   </div>
 
-  <!-- Header -->
   <div id="header">
-    <div id="tier-badge" class="tier-easy">Easy</div>
-    <div id="round-label">Round 1 / 9</div>
+    <div id="tier-badge" class="tier-easy">🌸 Easy</div>
+    <div id="round-label">1 / 9</div>
+    <div id="score-row"></div>
   </div>
+  <div id="progress-track"><div id="progress-fill"></div></div>
 
-  <!-- Game -->
   <div id="game-area">
     <div id="prompt">Find the shadow! 🌒</div>
-
     <div id="target-wrap">
       <div id="target-label">Princess Treasure ✨</div>
       <div id="target-emoji">👑</div>
     </div>
-
     <div id="shadows-label">Which shadow matches? 🌑</div>
-
     <div id="choices">
       <div class="shadow-btn" id="s0" onclick="onTap(0)"><span class="shadow-emoji" id="se0">👑</span></div>
       <div class="shadow-btn" id="s1" onclick="onTap(1)"><span class="shadow-emoji" id="se1">⭐</span></div>
@@ -250,20 +237,18 @@
     </div>
   </div>
 
-  <!-- Celebrate flash -->
   <div id="celebrate">
     <div id="celebrate-emoji">✨</div>
-    <div id="celebrate-text">That's the one! 💫</div>
+    <div id="celebrate-text">Crown! Amazing! 🌟</div>
+    <button id="next-btn" onclick="doAdvance()">Next ➡️</button>
   </div>
 
-  <!-- Tier toast -->
   <div id="tier-toast">
     <div id="tier-toast-emoji">🌟</div>
     <div id="tier-toast-title">Moving Up!</div>
     <div id="tier-toast-sub">Getting trickier! 🧐</div>
   </div>
 
-  <!-- Win screen -->
   <div id="win-screen">
     <div id="win-emoji">👸</div>
     <div id="win-title">Shadow Master!</div>
@@ -272,229 +257,218 @@
   </div>
 
 <script>
-  // ── ROUND POOL (18 items; pick 3 random per tier = 9 per game) ───────────
-  // target: the item to match; distractors: the other two shadows shown
-  // label: what the target is (shown in celebrate message)
-  const ROUND_POOL = [
-    // TIER 1 — Easy (very distinct shapes in silhouette)
-    { target:'👑', distractors:['⭐','🦋'], label:'Crown 👑'       },
-    { target:'🌙', distractors:['🌸','💎'], label:'Moon 🌙'        },
-    { target:'🦄', distractors:['🏰','🎈'], label:'Unicorn 🦄'     },
-    { target:'🎀', distractors:['🍄','🌊'], label:'Bow 🎀'         },
-    { target:'💎', distractors:['🌙','🎈'], label:'Diamond 💎'     },
-    { target:'⭐', distractors:['🎀','🏰'], label:'Star ⭐'        },
+  // 24-item pool: 8 per tier, pick 3 at random each game
+  var ROUND_POOL = [
+    // TIER 1 — Easy (very distinct shapes)
+    { target:'👑', distractors:['⭐','🦋'],   label:'Crown 👑'        },
+    { target:'🌙', distractors:['🌸','💎'],   label:'Moon 🌙'         },
+    { target:'🦄', distractors:['🏰','🎈'],   label:'Unicorn 🦄'      },
+    { target:'🎀', distractors:['🍄','🌊'],   label:'Bow 🎀'          },
+    { target:'💎', distractors:['🌙','🎈'],   label:'Diamond 💎'      },
+    { target:'⭐', distractors:['🎀','🏰'],   label:'Star ⭐'         },
+    { target:'🌈', distractors:['☁️','🌞'],  label:'Rainbow 🌈'      },
+    { target:'🎠', distractors:['🏰','🌳'],   label:'Carousel 🎠'     },
 
     // TIER 2 — Medium (same category, different shapes)
-    { target:'🌸', distractors:['🌺','🌻'], label:'Cherry Blossom 🌸' },
-    { target:'🐱', distractors:['🐶','🐰'], label:'Cat 🐱'          },
-    { target:'🏰', distractors:['⛺','🗼'], label:'Castle 🏰'        },
-    { target:'🦋', distractors:['🐝','🐛'], label:'Butterfly 🦋'    },
-    { target:'🌹', distractors:['🌷','🌻'], label:'Rose 🌹'          },
-    { target:'🐬', distractors:['🐋','🦈'], label:'Dolphin 🐬'      },
+    { target:'🌸', distractors:['🌺','🌻'],   label:'Cherry Blossom 🌸'},
+    { target:'🐱', distractors:['🐶','🐰'],   label:'Cat 🐱'          },
+    { target:'🏰', distractors:['⛺','🗼'],   label:'Castle 🏰'       },
+    { target:'🦋', distractors:['🐝','🐛'],   label:'Butterfly 🦋'    },
+    { target:'🌹', distractors:['🌷','🌻'],   label:'Rose 🌹'         },
+    { target:'🐬', distractors:['🐋','🦈'],   label:'Dolphin 🐬'      },
+    { target:'🦊', distractors:['🐱','🐶'],   label:'Fox 🦊'          },
+    { target:'🌴', distractors:['🌳','🌲'],   label:'Palm Tree 🌴'    },
 
     // TIER 3 — Hard (similar outlines)
-    { target:'🌟', distractors:['⭐','✨'], label:'Glowing Star 🌟'  },
-    { target:'🌼', distractors:['🌸','🌺'], label:'Daisy 🌼'         },
-    { target:'🦁', distractors:['🐯','🐻'], label:'Lion 🦁'          },
-    { target:'🌙', distractors:['🌛','⭐'], label:'Moon 🌙'          },
-    { target:'🍄', distractors:['🍒','🍓'], label:'Mushroom 🍄'      },
-    { target:'🪄', distractors:['🔮','💫'], label:'Magic Wand 🪄'    },
+    { target:'🌟', distractors:['⭐','✨'],    label:'Glowing Star 🌟'  },
+    { target:'🌼', distractors:['🌸','🌺'],   label:'Daisy 🌼'         },
+    { target:'🦁', distractors:['🐯','🐻'],   label:'Lion 🦁'          },
+    { target:'🌛', distractors:['🌙','⭐'],   label:'Crescent Moon 🌛' },
+    { target:'🍄', distractors:['🍒','🍓'],   label:'Mushroom 🍄'      },
+    { target:'🪄', distractors:['🔮','💫'],   label:'Magic Wand 🪄'    },
+    { target:'💐', distractors:['🌹','🌸'],   label:'Bouquet 💐'       },
+    { target:'🦔', distractors:['🦡','🦦'],   label:'Hedgehog 🦔'      },
   ];
 
-  const TIER_INFO = [
-    { label:'Easy',   cls:'tier-easy',   toast:'🌟', toastTitle:'Moving Up!',    toastSub:'Medium shadows — sharper eyes needed! 🧐' },
-    { label:'Medium', cls:'tier-medium', toast:'💫', toastTitle:'Almost There!', toastSub:'Hard shadows ahead! They look alike! 🔍'  },
-    { label:'Hard',   cls:'tier-hard',   toast:'👸', toastTitle:'Shadow Master!', toastSub:'All done! 🌒'                            },
+  var TIER_INFO = [
+    { label:'🌸 Easy',   cls:'tier-easy',   toast:'🌟', toastTitle:'Moving to Medium!', toastSub:'Trickier shadows ahead! 🧐'         },
+    { label:'💎 Medium', cls:'tier-medium', toast:'💫', toastTitle:'Almost There!',     toastSub:'Hard shadows — they look alike! 🔍' },
+    { label:'👑 Hard',   cls:'tier-hard',   toast:'👸', toastTitle:'Shadow Master!',    toastSub:'All done! 🌒'                       },
   ];
 
-  // ── STATE ─────────────────────────────────────────────────────────────────
-  let gameRounds   = [];
-  let currentRound = 0;
-  let correctSlot  = 0;
-  let locked       = false;
+  var gameRounds = [], currentRound = 0, correctSlot = 0, locked = false, score = 0;
 
-  // ── AUDIO ─────────────────────────────────────────────────────────────────
-  let audioCtx = null;
-  function au(){ if(!audioCtx) audioCtx = new(window.AudioContext||window.webkitAudioContext)(); return audioCtx; }
-  function tone(f, type, d, v=0.15){
+  var audioCtx = null;
+  function au(){ if(!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)(); return audioCtx; }
+  function tone(f,type,d,v){
+    v = v||0.15;
     try{
-      const c=au(), o=c.createOscillator(), g=c.createGain();
+      var c=au(),o=c.createOscillator(),g=c.createGain();
       o.connect(g); g.connect(c.destination);
       o.type=type; o.frequency.value=f;
-      g.gain.setValueAtTime(v, c.currentTime);
-      g.gain.exponentialRampToValueAtTime(0.001, c.currentTime+d);
+      g.gain.setValueAtTime(v,c.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001,c.currentTime+d);
       o.start(); o.stop(c.currentTime+d);
     }catch(e){}
   }
-  function playCorrect(){ [523,659,784,1047].forEach((f,i)=>setTimeout(()=>tone(f,'sine',0.22),i*65)); }
-  function playWrong()  { tone(200,'sawtooth',0.18,0.1); setTimeout(()=>tone(160,'sawtooth',0.14,0.1),110); }
-  function playTierUp(){
-    [523,587,659,698,784,880,988,1047].forEach((f,i)=>setTimeout(()=>tone(f,'sine',0.28),i*75));
-  }
-  function playWin(){
-    [523,659,784,1047,784,1047,1319,1568].forEach((f,i)=>setTimeout(()=>tone(f,'sine',0.3),i*85));
-  }
+  function playCorrect(){ [523,659,784,1047].forEach(function(f,i){ setTimeout(function(){ tone(f,'sine',0.22,0.18); },i*65); }); }
+  function playWrong()  { tone(200,'sawtooth',0.18,0.1); setTimeout(function(){ tone(160,'sawtooth',0.14,0.1); },110); }
+  function playTierUp() { [523,587,659,698,784,880,988,1047].forEach(function(f,i){ setTimeout(function(){ tone(f,'sine',0.28,0.17); },i*75); }); }
+  function playWin()    { [523,659,784,1047,784,1047,1319,1568].forEach(function(f,i){ setTimeout(function(){ tone(f,'sine',0.3,0.17); },i*85); }); }
 
-  // ── SPARKLE ───────────────────────────────────────────────────────────────
-  function sparkleBurst(bx, by){
-    const cols=['#e040fb','#f48fb1','#ffd700','#fff','#ab47bc','#ff8a65','#80deea','#a5d6a7'];
-    const emojis=['✨','💫','🌟','💎'];
-    for(let i=0;i<16;i++){
-      const el=document.createElement('div'); el.className='sparkle';
-      const angle=(i/16)*Math.PI*2+Math.random()*0.4;
-      const dist=50+Math.random()*100;
-      if(i<4){
-        el.style.cssText=`left:${bx}px;top:${by}px;font-size:${14+Math.random()*12}px;`
-          +`background:none;border-radius:0;`
-          +`--dx:${Math.cos(angle)*dist}px;--dy:${Math.sin(angle)*dist}px;`
-          +`animation-duration:${0.55+Math.random()*0.4}s;`;
-        el.textContent=emojis[i%emojis.length];
+  function sparkleBurst(bx,by){
+    var cols=['#e040fb','#f48fb1','#ffd700','#fff','#ab47bc','#ff8a65','#80deea','#a5d6a7'];
+    var ems=['✨','💫','🌟','💎','🌒'];
+    for(var i=0;i<18;i++){
+      var el=document.createElement('div'); el.className='sparkle';
+      var angle=(i/18)*Math.PI*2+Math.random()*0.4;
+      var dist=50+Math.random()*110;
+      if(i<5){
+        el.style.cssText='left:'+bx+'px;top:'+by+'px;font-size:'+(14+Math.random()*14)+'px;'
+          +'background:none;border-radius:0;'
+          +'--dx:'+Math.cos(angle)*dist+'px;--dy:'+Math.sin(angle)*dist+'px;'
+          +'animation-duration:'+(0.55+Math.random()*0.4)+'s;';
+        el.textContent=ems[i%ems.length];
       } else {
-        const sz=7+Math.random()*10;
-        el.style.cssText=`width:${sz}px;height:${sz}px;left:${bx-sz/2}px;top:${by-sz/2}px;`
-          +`background:${cols[i%cols.length]};`
-          +`--dx:${Math.cos(angle)*dist}px;--dy:${Math.sin(angle)*dist}px;`
-          +`animation-duration:${0.5+Math.random()*0.45}s;`;
+        var sz=7+Math.random()*10;
+        el.style.cssText='width:'+sz+'px;height:'+sz+'px;left:'+(bx-sz/2)+'px;top:'+(by-sz/2)+'px;'
+          +'background:'+cols[i%cols.length]+';'
+          +'--dx:'+Math.cos(angle)*dist+'px;--dy:'+Math.sin(angle)*dist+'px;'
+          +'animation-duration:'+(0.5+Math.random()*0.45)+'s;';
       }
       document.body.appendChild(el);
-      setTimeout(()=>el.remove(),950);
+      setTimeout((function(e){ return function(){ e.remove(); }; })(el),950);
     }
   }
 
   function confettiBurst(n){
-    const cols=['#e040fb','#ffd700','#fff','#f48fb1','#ce93d8','#b2ebf2','#a5d6a7','#ff8a65'];
-    for(let i=0;i<n;i++){
-      const el=document.createElement('div'); el.className='confetti-p';
-      const sz=6+Math.random()*10;
-      el.style.cssText=`left:${Math.random()*100}vw;width:${sz}px;height:${sz}px;`
-        +`background:${cols[i%cols.length]};`
-        +`animation-duration:${1.4+Math.random()*2}s;animation-delay:${Math.random()*.5}s`;
+    var cols=['#e040fb','#ffd700','#fff','#f48fb1','#ce93d8','#b2ebf2','#a5d6a7','#ff8a65'];
+    for(var i=0;i<n;i++){
+      var el=document.createElement('div'); el.className='confetti-p';
+      var sz=6+Math.random()*10;
+      el.style.cssText='left:'+Math.random()*100+'vw;width:'+sz+'px;height:'+sz+'px;'
+        +'background:'+cols[i%cols.length]+';'
+        +'animation-duration:'+(1.4+Math.random()*2)+'s;animation-delay:'+Math.random()*0.5+'s';
       document.body.appendChild(el);
-      setTimeout(()=>el.remove(),3600);
+      setTimeout((function(e){ return function(){ e.remove(); }; })(el),3600);
     }
   }
 
-  // ── SHUFFLE & PICK ────────────────────────────────────────────────────────
   function shuffle(arr){
-    const a=[...arr];
-    for(let i=a.length-1;i>0;i--){
-      const j=Math.floor(Math.random()*(i+1));
-      [a[i],a[j]]=[a[j],a[i]];
+    var a=arr.slice();
+    for(var i=a.length-1;i>0;i--){
+      var j=0|Math.random()*(i+1);
+      var t=a[i]; a[i]=a[j]; a[j]=t;
     }
     return a;
   }
 
   function pickRounds(){
-    const t1=shuffle(ROUND_POOL.slice(0,6)).slice(0,3);
-    const t2=shuffle(ROUND_POOL.slice(6,12)).slice(0,3);
-    const t3=shuffle(ROUND_POOL.slice(12,18)).slice(0,3);
-    return [...t1,...t2,...t3];
+    var t1=shuffle(ROUND_POOL.slice(0,8)).slice(0,3);
+    var t2=shuffle(ROUND_POOL.slice(8,16)).slice(0,3);
+    var t3=shuffle(ROUND_POOL.slice(16,24)).slice(0,3);
+    return t1.concat(t2).concat(t3);
   }
 
-  // ── SETUP ROUND ───────────────────────────────────────────────────────────
+  function updateHUD(ri){
+    document.getElementById('score-row').textContent = '⭐'.repeat(score);
+    document.getElementById('progress-fill').style.width = ((ri/9)*100)+'%';
+    document.getElementById('round-label').textContent = (ri+1)+' / 9';
+  }
+
   function setupRound(ri){
     locked = false;
-    const rd = gameRounds[ri];
-
-    // Build display: target + 2 distractors, shuffled
-    const pool = shuffle([rd.target, ...rd.distractors]);
+    updateHUD(ri);
+    var rd = gameRounds[ri];
+    var pool = shuffle([rd.target].concat(rd.distractors));
     correctSlot = pool.indexOf(rd.target);
-
     document.getElementById('target-emoji').textContent = rd.target;
-
-    for(let i=0;i<3;i++){
+    for(var i=0;i<3;i++){
       document.getElementById('se'+i).textContent = pool[i];
-      const btn = document.getElementById('s'+i);
-      btn.className = 'shadow-btn';
+      document.getElementById('s'+i).className = 'shadow-btn';
     }
-
-    // HUD
-    const tier = Math.floor(ri/3);
-    const ti   = TIER_INFO[tier];
-    const badge = document.getElementById('tier-badge');
-    badge.textContent = ti.label;
-    badge.className   = ti.cls;
-    document.getElementById('round-label').textContent = `Round ${ri+1} / 9`;
-
-    const prompts = [
-      `Find the shadow! 🌒`,
-      `Which shadow matches? 🌑`,
-      `Tap the matching shadow! ✨`,
-      `Which is the right shadow? 🌙`,
+    var tier = Math.floor(ri/3);
+    var ti = TIER_INFO[tier];
+    var badge = document.getElementById('tier-badge');
+    badge.textContent = ti.label; badge.className = ti.cls;
+    var prompts=[
+      'Find the shadow! 🌒',
+      'Which shadow matches? 🌑',
+      'Tap the matching shadow! ✨',
+      'Which is the right shadow? 🌙',
     ];
-    document.getElementById('prompt').textContent = prompts[ri % prompts.length];
+    document.getElementById('prompt').textContent = prompts[ri%prompts.length];
   }
 
-  // ── TAP HANDLER ───────────────────────────────────────────────────────────
   function onTap(slot){
     if(locked) return;
-    const btn = document.getElementById('s'+slot);
-    if(slot === correctSlot){
-      locked = true;
+    var btn=document.getElementById('s'+slot);
+    if(slot===correctSlot){
+      locked=true;
       btn.classList.add('correct-flash');
       playCorrect();
-      const r = btn.getBoundingClientRect();
+      score++;
+      var r=btn.getBoundingClientRect();
       sparkleBurst(r.left+r.width/2, r.top+r.height/2);
-      const rd = gameRounds[currentRound];
-      showCelebrate(rd.target, rd.label);
+      var rd=gameRounds[currentRound];
+      setTimeout(function(){ showCelebrate(rd.target, rd.label); }, 420);
     } else {
       btn.classList.add('wrong-shake');
       playWrong();
-      setTimeout(()=>btn.classList.remove('wrong-shake'), 450);
+      setTimeout(function(){ btn.classList.remove('wrong-shake'); }, 450);
     }
   }
 
-  // ── CELEBRATE ─────────────────────────────────────────────────────────────
-  function showCelebrate(emoji, label){
+  var MSGS = ['Amazing! 🌟','Brilliant! 💫','You got it! 👑','Wonderful! 🌈','Great job! 💖','Perfect! ✨'];
+  function showCelebrate(emoji,label){
     document.getElementById('celebrate-emoji').textContent = emoji;
-    document.getElementById('celebrate-text').textContent  = `${label}! 🎉`;
-    const cel = document.getElementById('celebrate');
-    cel.classList.add('show');
-    setTimeout(()=>{ cel.classList.remove('show'); advanceRound(); }, 1000);
+    document.getElementById('celebrate-text').textContent  = label+'! '+MSGS[Math.floor(Math.random()*MSGS.length)];
+    document.getElementById('celebrate').classList.add('show');
+    confettiBurst(22);
   }
 
-  // ── ADVANCE ───────────────────────────────────────────────────────────────
+  function doAdvance(){
+    document.getElementById('celebrate').classList.remove('show');
+    advanceRound();
+  }
+
   function advanceRound(){
-    const was = currentRound;
+    var was=currentRound;
     currentRound++;
-
-    if(currentRound >= gameRounds.length){
-      showWin(); return;
-    }
-
-    const prevTier = Math.floor(was/3);
-    const newTier  = Math.floor(currentRound/3);
-
-    if(newTier !== prevTier){
+    if(currentRound>=gameRounds.length){ showWin(); return; }
+    var prevTier=Math.floor(was/3);
+    var newTier =Math.floor(currentRound/3);
+    if(newTier!==prevTier){
       playTierUp(); confettiBurst(42);
-      const ti = TIER_INFO[prevTier];
-      showTierToast(ti.toast, ti.toastTitle, ti.toastSub, ()=>setupRound(currentRound));
+      var ti=TIER_INFO[prevTier];
+      showTierToast(ti.toast, ti.toastTitle, ti.toastSub, function(){ setupRound(currentRound); });
     } else {
       setupRound(currentRound);
     }
   }
 
-  function showTierToast(emoji, title, sub, cb){
+  function showTierToast(emoji,title,sub,cb){
     document.getElementById('tier-toast-emoji').textContent = emoji;
     document.getElementById('tier-toast-title').textContent = title;
     document.getElementById('tier-toast-sub').textContent   = sub;
-    const t = document.getElementById('tier-toast');
+    var t=document.getElementById('tier-toast');
     t.classList.add('show');
-    setTimeout(()=>{ t.classList.remove('show'); setTimeout(cb, 280); }, 2200);
+    setTimeout(function(){ t.classList.remove('show'); setTimeout(cb,280); }, 2400);
   }
 
-  // ── WIN ───────────────────────────────────────────────────────────────────
   function showWin(){
+    document.getElementById('progress-fill').style.width='100%';
     document.getElementById('game-area').classList.remove('active');
+    document.getElementById('win-sub').textContent = score+' / 9 ⭐ You matched every shadow!';
     document.getElementById('win-screen').classList.add('show');
-    playWin(); confettiBurst(56);
+    playWin(); confettiBurst(60);
+    setTimeout(function(){ confettiBurst(40); }, 600);
   }
 
-  // ── BG DECORATIONS ────────────────────────────────────────────────────────
   function makeBgGems(){
-    const gems=['✨','💫','🌟','🌒','💎','🌙','🌸'];
-    for(let i=0;i<10;i++){
-      const el=document.createElement('div'); el.className='bg-gem';
+    var gems=['✨','💫','🌟','🌒','💎','🌙','🌸','💜','🔮'];
+    for(var i=0;i<10;i++){
+      var el=document.createElement('div'); el.className='bg-gem';
       el.textContent=gems[i%gems.length];
       el.style.left=(5+Math.random()*90)+'vw';
       el.style.animationDuration=(9+Math.random()*14)+'s';
@@ -503,20 +477,19 @@
     }
   }
 
-  // ── START / RESTART ───────────────────────────────────────────────────────
   function startGame(){
     document.getElementById('start-screen').classList.add('hidden');
     document.getElementById('game-area').classList.add('active');
-    gameRounds   = pickRounds();
-    currentRound = 0;
+    score=0; gameRounds=pickRounds(); currentRound=0;
+    updateHUD(0);
     setupRound(0);
   }
 
   function restartGame(){
     document.getElementById('win-screen').classList.remove('show');
     document.getElementById('game-area').classList.add('active');
-    gameRounds   = pickRounds();
-    currentRound = 0;
+    score=0; gameRounds=pickRounds(); currentRound=0;
+    updateHUD(0);
     setupRound(0);
   }
 
