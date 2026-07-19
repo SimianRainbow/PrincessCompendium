@@ -1,9 +1,9 @@
 # Princess Compendium — Status
 
 ## Last update run
-Date: 2026-07-16
-- Improved: `042-shadow-magic` → v1.1.0 (added progress bar + score tracker; celebrate flash replaced with tap-to-continue overlay; pool expanded 18→24 items (8 per tier, 3 picked); sparkle burst 16→18; second confetti burst on win; tier badges updated with emoji labels)
-- Added: `049-royal-days` — "Royal Week 📅" teaching days of the week; Easy=what comes AFTER [day]?, Medium=what is the Nth day?, Hard=yesterday was [day] — what is today?; week-bar highlights context days; 9 rounds across 3 tiers; 18-sparkle burst; confetti on tier/win
+Date: 2026-07-19
+- Improved: `045-princess-train` → v1.1.0 (progress bar added; emoji tier badges 🌱/🌸/⭐; pool expanded 9→18 items (6 per tier, 3 picked randomly per game); dynamic wrong-answer generation ±1-4 from answer; emoji sparkles added to burst (now 18 total); tier-transition overlay with confetti; two-digit number font scaling)
+- Added: `050-princess-clock` — "Princess Clock 🕐" teaching analog clock reading (hour positions); Easy=hours 1-4 (3 choices), Medium=hours 5-8 (4 choices), Hard=hours 9-12 (4 choices); animated SVG clock face with hour + minute hands; correct-answer overlay shows the clock + "It's X o'clock!"; 18-sparkle burst; confetti on round/win
 
 ## Improvement history
 
@@ -40,6 +40,7 @@ Date: 2026-07-16
 | 2026-07-10 | 033-left-right | Color-coded tier badge, progress bar, 10 bg gems, pool 9→18, confetti 35→42, 4-note audio, tier overlay | 1.1.0 |
 | 2026-07-13 | 041-princess-measures | Progress bar, 🌱/🌸/⭐ tier badges, pool 9→18, full-screen tier overlay + confetti, win overlay, bg gems 9→10 | 1.1.0 |
 | 2026-07-16 | 042-shadow-magic | Progress bar, score tracker, tap-to-continue celebrate overlay, pool 18→24 (8 per tier), sparkle 16→18, double confetti win | 1.1.0 |
+| 2026-07-19 | 045-princess-train | Progress bar, emoji tier badges, pool 9→18 (6 per tier), dynamic wrong answers, emoji sparkles in burst (18 total), tier overlay + confetti, two-digit font scaling | 1.1.0 |
 
 ## Games due for improvement (all at v1.0.0)
 
@@ -75,6 +76,7 @@ See `CLAUDE.md` for the full prioritised list. Top 3 to build next:
 12. ~~Visual discrimination / shadow matching~~ — ✅ covered by `042-shadow-magic`
 13. ~~Phonics / initial letter sounds~~ — ✅ covered by `043-letter-sounds`
 14. ~~Animal habitats / where animals live~~ — ✅ covered by `044-animal-homes`
+15. ~~Telling time (analog clock hours)~~ — ✅ covered by `050-princess-clock`
 
 ## Next game ID
-`050-<slug>`
+`051-<slug>`

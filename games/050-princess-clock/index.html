@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Princess Clock 🕐</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+    body {
+      background: linear-gradient(160deg, #1a0a2e 0%, #1a237e 55%, #4a148c 100%);
+      min-height:100vh; width:100vw; overflow:hidden;
+      font-family:'Fredoka One', Georgia, serif; user-select:none; position:relative;
+      display:flex; flex-direction:column; align-items:center;
+    }
+
+    .bg-star { position:fixed; pointer-events:none; animation:floatUp linear infinite; opacity:.16; font-size:clamp(14px,4vw,24px); }
+    @keyframes floatUp { 0%{transform:translateY(110vh) rotate(0deg)} 100%{transform:translateY(-15vh) rotate(360deg)} }
+
+    #header {
+      position:fixed; top:0; left:0; right:0; z-index:10;
+      padding:clamp(8px,2vw,14px) clamp(12px,3vw,20px);
+      display:flex; justify-content:space-between; align-items:center;
+    }
+    #tier-badge { font-size:clamp(13px,3.4vw,18px); padding:5px 15px; border-radius:20px; font-weight:bold; }
+    .tier-easy   { background:linear-gradient(135deg,#a5d6a7,#66bb6a); color:#1b5e20; }
+    .tier-medium { background:linear-gradient(135deg,#ffe082,#ffd54f); color:#5a3000; }
+    .tier-hard   { background:linear-gradient(135deg,#ce93d8,#ab47bc); color:#fff; }
+    #round-lbl { font-size:clamp(14px,3.5vw,20px); color:rgba(255,255,255,.9); font-weight:bold; text-shadow:0 1px 4px rgba(0,0,0,.5); }
+
+    #progress-wrap {
+      position:fixed; top:clamp(48px,11vw,70px); left:0; right:0;
+      padding:0 clamp(14px,4vw,24px); z-index:10;
+    }
+    #progress-track { background:rgba(255,255,255,.12); border-radius:20px; height:clamp(10px,2.5vw,14px); overflow:hidden; }
+    #progress-fill  { height:100%; border-radius:20px; background:linear-gradient(90deg,#ffd700,#fffde7); transition:width .35s ease; width:0%; box-shadow:0 0 8px rgba(255,215,0,.4); }
+
+    #prompt-wrap {
+      margin-top:clamp(72px,17vw,100px); text-align:center; padding:0 16px;
+    }
+    #prompt { font-size:clamp(18px,4.5vw,26px); color:#fff; text-shadow:0 2px 6px rgba(0,0,0,.5); }
+
+    #clock-wrap {
+      display:flex; justify-content:center; align-items:center;
+      margin-top:clamp(10px,2.5vw,18px);
+    }
+    #clock-svg {
+      width:clamp(170px,46vw,260px); height:clamp(170px,46vw,260px);
+      filter:drop-shadow(0 6px 24px rgba(0,0,0,.55));
+      animation:clockIn .5s cubic-bezier(.34,1.56,.64,1);
+    }
+    @keyframes clockIn { from{transform:scale(0.7);opacity:0} to{transform:scale(1);opacity:1} }
+
+    #choices {
+      display:flex; flex-wrap:wrap; gap:clamp(10px,2.5vw,16px); justify-content:center;
+      margin-top:clamp(14px,3.5vw,22px); padding:0 clamp(12px,3vw,20px); width:100%;
+    }
+    .choice-btn {
+      width:clamp(88px,22vw,118px); height:clamp(88px,22vw,118px);
+      border-radius:22px; border:3px solid rgba(255,215,0,.35);
+      background:rgba(255,255,255,.13);
+      color:#fff; font-size:clamp(32px,8.5vw,54px); font-weight:bold;
+      font-family:inherit; cursor:pointer; touch-action:manipulation;
+      display:flex; align-items:center; justify-content:center;
+      box-shadow:0 4px 18px rgba(0,0,0,.4), inset 0 2px 0 rgba(255,255,255,.18);
+      transition:transform .1s;
+    }
+    .choice-btn:active { transform:scale(.9); }
+    .choice-btn.correct-flash { animation:correctPop .5s ease-out; background:rgba(255,215,0,.38); border-color:#ffd700; }
+    .choice-btn.wrong-flash   { animation:wobble .45s ease-out; background:rgba(255,80,80,.28); }
+    @keyframes correctPop { 0%{transform:scale(1)} 45%{transform:scale(1.22);box-shadow:0 0 40px rgba(255,215,0,.8)} 100%{transform:scale(1)} }
+    @keyframes wobble { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-12px)} 65%{transform:translateX(12px)} }
+
+    .sparkle-dot { position:fixed; pointer-events:none; z-index:50; border-radius:50%; animation:sDot .7s ease-out forwards; }
+    @keyframes sDot { 0%{transform:scale(0);opacity:1} 100%{transform:scale(1.6);opacity:0} }
+    .sparkle-em { position:fixed; pointer-events:none; z-index:51; font-size:clamp(18px,4.5vw,26px); animation:sFloat .9s ease-out forwards; }
+    @keyframes sFloat { 0%{transform:translateY(0) scale(1);opacity:1} 100%{transform:translateY(-90px) scale(0);opacity:0} }
+
+    .overlay {
+      position:fixed; inset:0; background:rgba(10,5,40,.92);
+      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px;
+      z-index:99; opacity:0; pointer-events:none; transition:opacity .4s;
+    }
+    .overlay.show { opacity:1; pointer-events:all; }
+    .ov-clock { width:clamp(100px,26vw,150px); height:clamp(100px,26vw,150px); }
+    .ov-emoji { font-size:clamp(60px,16vw,100px); }
+    .ov-title { font-size:clamp(24px,6.5vw,46px); color:#ffd700; text-align:center; padding:0 20px; text-shadow:0 0 20px rgba(255,215,0,.5); }
+    .ov-sub   { font-size:clamp(14px,3.8vw,22px); color:rgba(255,255,255,.85); text-align:center; padding:0 20px; }
+    .btn-next {
+      padding:clamp(14px,4vw,20px) clamp(32px,8vw,56px); font-size:clamp(20px,5vw,28px);
+      border-radius:50px; border:none; background:linear-gradient(135deg,#ffd700,#ffb300);
+      color:#1a237e; font-weight:bold; cursor:pointer; font-family:inherit;
+      min-height:64px; min-width:180px; touch-action:manipulation;
+      box-shadow:0 4px 20px rgba(255,215,0,.4);
+    }
+    .confetti-piece { position:fixed; border-radius:50%; pointer-events:none; z-index:100; animation:cfFall linear forwards; }
+    @keyframes cfFall { 0%{top:-20px;opacity:1} 100%{top:110vh;opacity:.15} }
+  </style>
+</head>
+<body>
+
+<div id="header">
+  <div id="tier-badge" class="tier-easy">🌱 Easy</div>
+  <div id="round-lbl">1 / 9</div>
+</div>
+<div id="progress-wrap">
+  <div id="progress-track"><div id="progress-fill"></div></div>
+</div>
+
+<div id="prompt-wrap">
+  <div id="prompt">What time does the clock show? 🕐</div>
+</div>
+
+<div id="clock-wrap">
+  <svg id="clock-svg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"></svg>
+</div>
+
+<div id="choices"></div>
+
+<!-- Round result overlay (shown after correct answer) -->
+<div class="overlay" id="round-overlay">
+  <svg class="ov-clock" id="ov-clock-svg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"></svg>
+  <div class="ov-title" id="ov-title">It's 3 o'clock! 🕐</div>
+  <div class="ov-sub"   id="ov-sub">Well done, little princess! ✨</div>
+  <button class="btn-next" id="round-btn">Next ➡️</button>
+</div>
+
+<!-- Win overlay -->
+<div class="overlay" id="win-overlay">
+  <div class="ov-emoji">👑</div>
+  <div class="ov-title">Clock Champion! ✨</div>
+  <div class="ov-sub">You can read every royal clock!</div>
+  <button class="btn-next" onclick="startGame()">Play Again 🌸</button>
+</div>
+
+<script>
+  // ── Audio ─────────────────────────────────────────────────────────────────
+  var audioCtx = null;
+  function getAudio() {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    return audioCtx;
+  }
+  function tone(f, type, d, v) {
+    v = v || .18;
+    try {
+      var c=getAudio(), o=c.createOscillator(), g=c.createGain();
+      o.connect(g); g.connect(c.destination);
+      o.type=type; o.frequency.value=f;
+      g.gain.setValueAtTime(v,c.currentTime);
+      g.gain.exponentialRampToValueAtTime(.001,c.currentTime+d);
+      o.start(); o.stop(c.currentTime+d);
+    } catch(e) {}
+  }
+  function playCorrect()  { [523,659,784,1047].forEach(function(f,i){ setTimeout(function(){ tone(f,'sine',.18,.2); },i*65); }); }
+  function playWrong()    { tone(280,'sawtooth',.16,.13); setTimeout(function(){ tone(240,'sawtooth',.14,.11); },160); }
+  function playTierWin()  { [523,659,784,1047,1319].forEach(function(f,i){ setTimeout(function(){ tone(f,'triangle',.28,.2); },i*80); }); }
+  function playFinalWin() { [523,659,784,1047,784,1047,1319].forEach(function(f,i){ setTimeout(function(){ tone(f,'sine',.32,.22); },i*90); }); }
+  function playTick() {
+    tone(880,'square',.03,.07);
+    setTimeout(function(){ tone(660,'square',.03,.06); }, 220);
+  }
+
+  // ── SVG clock builder ─────────────────────────────────────────────────────
+  function buildClock(hour) {
+    var cx=100, cy=100, R=88;
+
+    // Hour hand angle: 12 o'clock = -90 deg, each hour = +30 deg
+    var hRad = ((hour%12)*30 - 90) * Math.PI / 180;
+    var hLen = 52;
+    var hx = (cx + hLen*Math.cos(hRad)).toFixed(2);
+    var hy = (cy + hLen*Math.sin(hRad)).toFixed(2);
+
+    // Minute hand always points up (12 o'clock)
+    var mx = cx, my = cy - 65;
+
+    // Number positions at radius 65
+    var nums = '';
+    for (var n=1;n<=12;n++) {
+      var a = (n*30-90)*Math.PI/180;
+      var nx = (cx + 65*Math.cos(a)).toFixed(2);
+      var ny = (cy + 65*Math.sin(a)).toFixed(2);
+      nums += '<text x="'+nx+'" y="'+ny+'" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#4a148c" font-weight="bold" font-family="Fredoka One,Georgia,serif">'+n+'</text>';
+    }
+
+    // Tick marks at outer edge
+    var ticks = '';
+    for (var i=0;i<60;i++) {
+      var isHour = i%5===0;
+      var ta = (i*6-90)*Math.PI/180;
+      var inner = isHour ? R-11 : R-6;
+      var sw = isHour ? 2.5 : 1;
+      ticks += '<line x1="'+(cx+(R-1)*Math.cos(ta)).toFixed(2)+'" y1="'+(cy+(R-1)*Math.sin(ta)).toFixed(2)+'" x2="'+(cx+inner*Math.cos(ta)).toFixed(2)+'" y2="'+(cy+inner*Math.sin(ta)).toFixed(2)+'" stroke="#ce93d8" stroke-width="'+sw+'" stroke-linecap="round"/>';
+    }
+
+    return [
+      '<defs>',
+      '  <radialGradient id="faceGrad" cx="45%" cy="35%" r="60%">',
+      '    <stop offset="0%" stop-color="#fce4ec"/>',
+      '    <stop offset="100%" stop-color="#f8bbd0"/>',
+      '  </radialGradient>',
+      '</defs>',
+      '<circle cx="'+cx+'" cy="'+cy+'" r="'+(R+5)+'" fill="none" stroke="rgba(255,215,0,0.35)" stroke-width="2"/>',
+      '<circle cx="'+cx+'" cy="'+cy+'" r="'+R+'" fill="url(#faceGrad)" stroke="#f48fb1" stroke-width="3"/>',
+      ticks,
+      nums,
+      '<text x="'+cx+'" y="'+(cy-R+15)+'" text-anchor="middle" dominant-baseline="central" font-size="11">👑</text>',
+      '<line x1="'+cx+'" y1="'+cy+'" x2="'+mx+'" y2="'+my+'" stroke="#f48fb1" stroke-width="4" stroke-linecap="round"/>',
+      '<line x1="'+cx+'" y1="'+cy+'" x2="'+hx+'" y2="'+hy+'" stroke="#7b1fa2" stroke-width="7" stroke-linecap="round"/>',
+      '<circle cx="'+cx+'" cy="'+cy+'" r="6" fill="#ab47bc"/>',
+      '<circle cx="'+cx+'" cy="'+cy+'" r="3" fill="#fff"/>',
+    ].join('');
+  }
+
+  // ── Round pool ─────────────────────────────────────────────────────────────
+  // Easy: hours 1-4 (3 choices)   Medium: hours 5-8 (4 choices)   Hard: hours 9-12 (4 choices)
+  var HOUR_POOL = {
+    easy:   [1, 2, 3, 4, 2, 3],
+    medium: [5, 6, 7, 8, 5, 7],
+    hard:   [9, 10, 11, 12, 9, 11],
+  };
+  var WRONG_POOL = {
+    easy:   [1,2,3,4],
+    medium: [1,2,3,4,5,6,7,8],
+    hard:   [1,2,3,4,5,6,7,8,9,10,11,12],
+  };
+  var TIER_LABELS  = ['🌱 Easy','🌸 Medium','⭐ Hard'];
+  var TIER_CLASSES = ['tier-easy','tier-medium','tier-hard'];
+  var TIER_KEYS    = ['easy','medium','hard'];
+  var TOTAL = 9;
+
+  var ROUNDS = [], roundIdx = 0, locked = false, currentHour = 1, currentTier = 0;
+
+  function shuffle(a) {
+    var b=a.slice();
+    for (var i=b.length-1;i>0;i--){
+      var j=Math.floor(Math.random()*(i+1)); var t=b[i]; b[i]=b[j]; b[j]=t;
+    }
+    return b;
+  }
+
+  function buildRounds() {
+    var out = [];
+    [0,1,2].forEach(function(t) {
+      var key = TIER_KEYS[t];
+      shuffle(HOUR_POOL[key]).slice(0,3).forEach(function(h) {
+        out.push({ hour:h, tier:t });
+      });
+    });
+    return out;
+  }
+
+  function getChoices(hour, tier) {
+    var pool  = WRONG_POOL[TIER_KEYS[tier]];
+    var wrong = shuffle(pool.filter(function(n){ return n!==hour; }));
+    var count = tier===0 ? 3 : 4;
+    return shuffle([hour].concat(wrong.slice(0, count-1)));
+  }
+
+  // ── Background stars ───────────────────────────────────────────────────────
+  function makeBgStars() {
+    var icons=['✨','💫','🌟','⭐','🕐','👑','🔮','🌙','🌠'];
+    for (var i=0;i<12;i++){
+      var el=document.createElement('div'); el.className='bg-star';
+      el.textContent=icons[i%icons.length];
+      el.style.left=(4+Math.random()*92)+'vw';
+      el.style.animationDuration=(9+Math.random()*14)+'s';
+      el.style.animationDelay=-(Math.random()*14)+'s';
+      document.body.appendChild(el);
+    }
+  }
+
+  // ── Render round ───────────────────────────────────────────────────────────
+  function showRound(idx) {
+    locked = false;
+    var r = ROUNDS[idx];
+    currentHour = r.hour;
+    currentTier = r.tier;
+
+    var badge = document.getElementById('tier-badge');
+    badge.textContent = TIER_LABELS[r.tier];
+    badge.className   = TIER_CLASSES[r.tier];
+    document.getElementById('round-lbl').textContent = (idx+1)+' / '+TOTAL;
+    document.getElementById('progress-fill').style.width = (idx/TOTAL*100)+'%';
+
+    var prompts = [
+      'What time does the clock show? 🕐',
+      'Where is the little hand pointing? 👉',
+      'Which hour is it? ⏰',
+      "What o'clock is this? 👑",
+    ];
+    document.getElementById('prompt').textContent = prompts[Math.floor(Math.random()*prompts.length)];
+
+    // Animate clock in by replacing its content
+    var svgEl = document.getElementById('clock-svg');
+    svgEl.innerHTML = buildClock(r.hour);
+    svgEl.style.animation='none'; void svgEl.offsetWidth; svgEl.style.animation='';
+
+    playTick();
+
+    // Choices
+    var choices = getChoices(r.hour, r.tier);
+    var choicesEl = document.getElementById('choices');
+    choicesEl.innerHTML = '';
+    choices.forEach(function(val) {
+      var btn = document.createElement('button');
+      btn.className   = 'choice-btn';
+      btn.textContent = String(val);
+      btn.dataset.val = val;
+      btn.addEventListener('pointerdown', function(){ handleTap(btn, val); });
+      choicesEl.appendChild(btn);
+    });
+  }
+
+  // ── Handle tap ─────────────────────────────────────────────────────────────
+  function handleTap(btn, val) {
+    if (locked) return;
+    if (Number(val)===currentHour) {
+      locked = true;
+      btn.classList.add('correct-flash');
+      playCorrect();
+      burstAt(btn);
+      setTimeout(function(){
+        btn.classList.remove('correct-flash');
+        showRoundOverlay();
+      }, 550);
+    } else {
+      btn.classList.add('wrong-flash');
+      playWrong();
+      setTimeout(function(){ btn.classList.remove('wrong-flash'); }, 450);
+    }
+  }
+
+  // ── Correct-answer reveal overlay ──────────────────────────────────────────
+  function showRoundOverlay() {
+    document.getElementById('ov-clock-svg').innerHTML = buildClock(currentHour);
+
+    var ordinals = ['','1st','2nd','3rd','4th','5th','6th','7th','8th','9th','10th','11th','12th'];
+    document.getElementById('ov-title').textContent = "It's "+currentHour+" o'clock! 🕐";
+    var subs = [
+      'Well done, little princess! ✨',
+      'Amazing clock reader! 💫',
+      "You're a royal time wizard! 🔮",
+      'Perfect, little scholar! 👑',
+    ];
+    document.getElementById('ov-sub').textContent = subs[Math.floor(Math.random()*subs.length)];
+
+    var nextIdx    = roundIdx+1;
+    var lastInTier = nextIdx>=TOTAL || ROUNDS[nextIdx].tier!==currentTier;
+    var roundBtn   = document.getElementById('round-btn');
+
+    if (nextIdx>=TOTAL) {
+      roundBtn.textContent = 'Finish 👑';
+      roundBtn.onclick = function() { endGame(); };
+    } else if (lastInTier) {
+      roundBtn.textContent = 'Next Round ⭐';
+      roundBtn.onclick = function() {
+        document.getElementById('round-overlay').classList.remove('show');
+        playTierWin(); confettiBurst();
+        setTimeout(function(){ roundIdx=nextIdx; showRound(roundIdx); }, 400);
+      };
+    } else {
+      roundBtn.textContent = 'Next ➡️';
+      roundBtn.onclick = function() {
+        document.getElementById('round-overlay').classList.remove('show');
+        roundIdx=nextIdx; showRound(roundIdx);
+      };
+    }
+
+    document.getElementById('round-overlay').classList.add('show');
+    confettiBurst();
+  }
+
+  function endGame() {
+    document.getElementById('round-overlay').classList.remove('show');
+    document.getElementById('progress-fill').style.width='100%';
+    playFinalWin();
+    confettiBurst(); setTimeout(confettiBurst,700);
+    document.getElementById('win-overlay').classList.add('show');
+  }
+
+  // ── Sparkle burst ──────────────────────────────────────────────────────────
+  function burstAt(el) {
+    var rect=el.getBoundingClientRect();
+    var cx=rect.left+rect.width/2, cy=rect.top+rect.height/2;
+    var cols=['#ffd700','#fff','#f48fb1','#ce93d8','#ab47bc','#80deea'];
+    var ems =['✨','💫','🕐','⭐','👑','🌟'];
+    for (var i=0;i<18;i++){
+      var a=Math.random()*Math.PI*2, d=28+Math.random()*72;
+      var el2=document.createElement('div');
+      if (i<6){
+        el2.className='sparkle-em';
+        el2.textContent=ems[i%ems.length];
+        el2.style.left=(cx+Math.cos(a)*d)+'px';
+        el2.style.top=(cy+Math.sin(a)*d)+'px';
+        el2.style.animationDelay=(Math.random()*.22)+'s';
+      } else {
+        el2.className='sparkle-dot';
+        var sz=6+Math.random()*12;
+        el2.style.cssText='left:'+(cx+Math.cos(a)*d-sz/2)+'px;top:'+(cy+Math.sin(a)*d-sz/2)+'px;width:'+sz+'px;height:'+sz+'px;background:'+cols[i%cols.length];
+      }
+      document.body.appendChild(el2);
+      setTimeout(function(e){ return function(){ e.remove(); }; }(el2),950);
+    }
+  }
+
+  function confettiBurst() {
+    var cols=['#ffd700','#fff','#f48fb1','#ce93d8','#ab47bc','#b2ebf2','#a5d6a7','#ff8a65'];
+    for (var i=0;i<42;i++){
+      var el=document.createElement('div'); el.className='confetti-piece';
+      var sz=6+Math.random()*10;
+      el.style.cssText='left:'+Math.random()*100+'vw;width:'+sz+'px;height:'+sz+'px;background:'+cols[i%cols.length]+';animation-duration:'+(1.5+Math.random()*2)+'s;animation-delay:'+(Math.random()*.6)+'s';
+      document.body.appendChild(el);
+      setTimeout(function(e){ return function(){ e.remove(); }; }(el),3600);
+    }
+  }
+
+  function startGame() {
+    document.getElementById('win-overlay').classList.remove('show');
+    document.getElementById('round-overlay').classList.remove('show');
+    ROUNDS = buildRounds();
+    roundIdx = 0;
+    showRound(0);
+  }
+
+  makeBgStars();
+  startGame();
+</script>
+</body>
+</html>

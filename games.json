@@ -530,12 +530,12 @@
   {
     "id": "045-princess-train",
     "title": "Princess Number Train",
-    "description": "Fill the missing carriage! Tap the number that belongs in the gap — 9 rounds from 1-5 up to teens!",
+    "description": "Fill the missing carriage! Tap the number that belongs in the gap — 18-item pool (6 per tier), progress bar, emoji tier badges, dynamic wrong-answer choices.",
     "icon": "🚂",
     "ageMin": 2,
     "ageMax": 5,
     "skill": "number sequences & missing numbers",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "category": "numbers",
     "path": "games/045-princess-train/index.html"
   },
@@ -586,5 +586,17 @@
     "version": "1.0.0",
     "category": "other",
     "path": "games/049-royal-days/index.html"
+  },
+  {
+    "id": "050-princess-clock",
+    "title": "Princess Clock",
+    "description": "Read the royal clock! Where is the little hand pointing? Easy: hours 1-4, Medium: hours 5-8, Hard: hours 9-12. 9 rounds across 3 tiers.",
+    "icon": "🕐",
+    "ageMin": 3,
+    "ageMax": 5,
+    "skill": "telling time — reading analog clock hours",
+    "version": "1.0.0",
+    "category": "numbers",
+    "path": "games/050-princess-clock/index.html"
   }
 ]
