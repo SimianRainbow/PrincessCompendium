@@ -14,7 +14,6 @@
       font-family:'Fredoka One', Georgia, serif; user-select:none; position:relative;
     }
 
-    /* Floating bg stars */
     .bg-star { position:fixed; pointer-events:none; animation:floatUp linear infinite; opacity:.18; font-size:clamp(16px,4vw,28px); }
     @keyframes floatUp { 0%{transform:translateY(110vh) rotate(0deg)} 100%{transform:translateY(-15vh) rotate(360deg)} }
 
@@ -45,7 +44,6 @@
     }
     #prompt { font-size:clamp(18px,4.5vw,28px); color:#fff; text-shadow:0 2px 6px rgba(0,0,0,.4); }
 
-    /* Mix display */
     #mix-wrap {
       position:fixed; left:0; right:0; top:clamp(112px,25vw,156px);
       display:flex; justify-content:center; z-index:5;
@@ -57,9 +55,7 @@
       padding:clamp(12px,3vw,20px) clamp(16px,5vw,28px);
       box-shadow:0 4px 24px rgba(0,0,0,.25);
     }
-    .potion {
-      display:flex; flex-direction:column; align-items:center; gap:6px;
-    }
+    .potion { display:flex; flex-direction:column; align-items:center; gap:6px; }
     .potion-circle {
       width:clamp(68px,17vw,96px); height:clamp(68px,17vw,96px);
       border-radius:50%; border:4px solid rgba(255,255,255,.5);
@@ -78,15 +74,11 @@
       text-shadow:0 0 12px rgba(255,255,255,.5);
     }
 
-    /* Answer buttons */
     #answers-wrap {
       position:fixed; left:0; right:0; bottom:clamp(10px,3vw,24px);
       display:flex; justify-content:center; z-index:5; padding:0 8px;
     }
-    #answers {
-      display:flex; flex-wrap:wrap; justify-content:center;
-      gap:clamp(10px,2.5vw,16px);
-    }
+    #answers { display:flex; flex-wrap:wrap; justify-content:center; gap:clamp(10px,2.5vw,16px); }
     .ans-btn {
       display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px;
       border:none; background:rgba(255,255,255,.14); border-radius:22px; cursor:pointer;
@@ -108,13 +100,11 @@
     @keyframes correctPop { 0%{transform:scale(1)} 40%{transform:scale(1.18);box-shadow:0 0 40px rgba(255,255,255,.7)} 100%{transform:scale(1)} }
     @keyframes wobble { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-12px)} 60%{transform:translateX(12px)} }
 
-    /* Sparkles */
     .sparkle-dot { position:fixed; pointer-events:none; z-index:50; border-radius:50%; animation:sDot .7s ease-out forwards; }
     @keyframes sDot { 0%{transform:scale(0);opacity:1} 100%{transform:scale(1.5);opacity:0} }
     .sparkle-em { position:fixed; font-size:clamp(18px,4.5vw,26px); pointer-events:none; z-index:51; animation:sFloat .9s ease-out forwards; }
     @keyframes sFloat { 0%{transform:translateY(0) scale(1);opacity:1} 100%{transform:translateY(-90px) scale(0);opacity:0} }
 
-    /* Overlays */
     .overlay {
       position:fixed; inset:0; background:rgba(30,0,60,.88);
       display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px;
@@ -140,6 +130,17 @@
     }
     .confetti-piece { position:fixed; width:10px; height:10px; border-radius:50%; animation:cfFall linear forwards; pointer-events:none; z-index:100; }
     @keyframes cfFall { 0%{top:-20px;opacity:1} 100%{top:110vh;opacity:.2} }
+
+    /* Tier-transition overlay */
+    #tier-overlay {
+      position:fixed; inset:0; background:rgba(20,0,50,.94);
+      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:18px;
+      z-index:98; opacity:0; pointer-events:none; transition:opacity .4s;
+    }
+    #tier-overlay.show { opacity:1; pointer-events:all; }
+    #tier-ov-icon { font-size:clamp(54px,14vw,90px); }
+    #tier-ov-badge { font-size:clamp(26px,7vw,50px); font-weight:bold; text-align:center; padding:0 20px; }
+    #tier-ov-msg   { font-size:clamp(16px,4.5vw,26px); color:rgba(255,255,255,.8); text-align:center; padding:0 24px; }
   </style>
 </head>
 <body>
@@ -173,6 +174,14 @@
 
   <div id="answers-wrap"><div id="answers"></div></div>
 
+  <!-- Tier-transition overlay -->
+  <div id="tier-overlay">
+    <div id="tier-ov-icon">🌸</div>
+    <div id="tier-ov-badge">Medium!</div>
+    <div id="tier-ov-msg">The mixtures get trickier now!</div>
+    <button class="btn-next" id="tier-ov-btn">Let's mix! ✨</button>
+  </div>
+
   <div class="overlay" id="round-overlay">
     <div class="ov-title" id="ov-title">You made…</div>
     <div class="ov-circle" id="ov-circle"></div>
@@ -188,7 +197,6 @@
   </div>
 
 <script>
-  // Color palette for distractors
   const PALETTE = [
     { name:'Red',      hex:'#e53935' },
     { name:'Blue',     hex:'#1e88e5' },
@@ -202,33 +210,53 @@
     { name:'Gold',     hex:'#f9a825' },
     { name:'Sky Blue', hex:'#29b6f6' },
     { name:'Lime',     hex:'#8bc34a' },
+    { name:'White',    hex:'#f8f8f8' },
+    { name:'Indigo',   hex:'#5c6bc0' },
+    { name:'Coral',    hex:'#ff7043' },
+    { name:'Lavender', hex:'#ce93d8' },
+    { name:'Mint',     hex:'#a5d6a7' },
+    { name:'Peach',    hex:'#ffab91' },
+    { name:'Magenta',  hex:'#d81b60' },
+    { name:'Olive',    hex:'#afb42b' },
+    { name:'Lilac',    hex:'#b39ddb' },
   ];
 
-  const MIXES = [
-    // Easy (2 choices)
-    { a:{name:'Red',hex:'#e53935'},    b:{name:'Blue',hex:'#1e88e5'},   result:{name:'Purple',hex:'#8e24aa'}  },
-    { a:{name:'Red',hex:'#e53935'},    b:{name:'Yellow',hex:'#fdd835'}, result:{name:'Orange',hex:'#fb8c00'}  },
-    { a:{name:'Blue',hex:'#1e88e5'},   b:{name:'Yellow',hex:'#fdd835'}, result:{name:'Green',hex:'#43a047'}   },
-    // Medium (3 choices)
-    { a:{name:'Red',hex:'#e53935'},    b:{name:'White',hex:'#f8f8f8'},  result:{name:'Pink',hex:'#e91e63'}    },
-    { a:{name:'Blue',hex:'#1e88e5'},   b:{name:'Green',hex:'#43a047'},  result:{name:'Teal',hex:'#00897b'}    },
-    { a:{name:'Yellow',hex:'#fdd835'}, b:{name:'Orange',hex:'#fb8c00'}, result:{name:'Gold',hex:'#f9a825'}    },
-    // Hard (4 choices)
-    { a:{name:'Red',hex:'#e53935'},    b:{name:'Green',hex:'#43a047'},  result:{name:'Brown',hex:'#6d4c41'}   },
-    { a:{name:'Blue',hex:'#1e88e5'},   b:{name:'White',hex:'#f8f8f8'}, result:{name:'Sky Blue',hex:'#29b6f6'} },
-    { a:{name:'Yellow',hex:'#fdd835'}, b:{name:'Green',hex:'#43a047'},  result:{name:'Lime',hex:'#8bc34a'}    },
+  // 18 mixes: 6 per tier (0=Easy, 1=Medium, 2=Hard); game picks 3 randomly per tier
+  const MIXES_ALL = [
+    // Easy — opts:2
+    { t:0, a:{name:'Red',hex:'#e53935'},    b:{name:'Blue',hex:'#1e88e5'},   result:{name:'Purple',hex:'#8e24aa'}  },
+    { t:0, a:{name:'Red',hex:'#e53935'},    b:{name:'Yellow',hex:'#fdd835'}, result:{name:'Orange',hex:'#fb8c00'}  },
+    { t:0, a:{name:'Blue',hex:'#1e88e5'},   b:{name:'Yellow',hex:'#fdd835'}, result:{name:'Green',hex:'#43a047'}   },
+    { t:0, a:{name:'Yellow',hex:'#fdd835'}, b:{name:'Orange',hex:'#fb8c00'}, result:{name:'Gold',hex:'#f9a825'}    },
+    { t:0, a:{name:'Blue',hex:'#1e88e5'},   b:{name:'Green',hex:'#43a047'},  result:{name:'Teal',hex:'#00897b'}    },
+    { t:0, a:{name:'Red',hex:'#e53935'},    b:{name:'Pink',hex:'#e91e63'},   result:{name:'Magenta',hex:'#d81b60'} },
+    // Medium — opts:3
+    { t:1, a:{name:'Red',hex:'#e53935'},    b:{name:'White',hex:'#f8f8f8'},  result:{name:'Pink',hex:'#e91e63'}    },
+    { t:1, a:{name:'Blue',hex:'#1e88e5'},   b:{name:'White',hex:'#f8f8f8'},  result:{name:'Sky Blue',hex:'#29b6f6'} },
+    { t:1, a:{name:'Yellow',hex:'#fdd835'}, b:{name:'Green',hex:'#43a047'},  result:{name:'Lime',hex:'#8bc34a'}    },
+    { t:1, a:{name:'Blue',hex:'#1e88e5'},   b:{name:'Purple',hex:'#8e24aa'}, result:{name:'Indigo',hex:'#5c6bc0'}  },
+    { t:1, a:{name:'Pink',hex:'#e91e63'},   b:{name:'Purple',hex:'#8e24aa'}, result:{name:'Lavender',hex:'#ce93d8'} },
+    { t:1, a:{name:'Green',hex:'#43a047'},  b:{name:'White',hex:'#f8f8f8'},  result:{name:'Mint',hex:'#a5d6a7'}    },
+    // Hard — opts:4
+    { t:2, a:{name:'Red',hex:'#e53935'},    b:{name:'Green',hex:'#43a047'},  result:{name:'Brown',hex:'#6d4c41'}   },
+    { t:2, a:{name:'Pink',hex:'#e91e63'},   b:{name:'Yellow',hex:'#fdd835'}, result:{name:'Peach',hex:'#ffab91'}   },
+    { t:2, a:{name:'Red',hex:'#e53935'},    b:{name:'Orange',hex:'#fb8c00'}, result:{name:'Coral',hex:'#ff7043'}   },
+    { t:2, a:{name:'Yellow',hex:'#fdd835'}, b:{name:'Purple',hex:'#8e24aa'}, result:{name:'Olive',hex:'#afb42b'}   },
+    { t:2, a:{name:'Pink',hex:'#e91e63'},   b:{name:'Blue',hex:'#1e88e5'},   result:{name:'Lilac',hex:'#b39ddb'}   },
+    { t:2, a:{name:'Blue',hex:'#1e88e5'},   b:{name:'White',hex:'#f8f8f8'},  result:{name:'Sky Blue',hex:'#29b6f6'} },
   ];
 
   const TIERS = [
-    { label:'🌱 Easy',   cls:'tier-easy',   indices:[0,1,2], opts:2 },
-    { label:'🌸 Medium', cls:'tier-medium', indices:[3,4,5], opts:3 },
-    { label:'⭐ Hard',   cls:'tier-hard',   indices:[6,7,8], opts:4 },
+    { label:'🌱 Easy',   cls:'tier-easy',   t:0, opts:2 },
+    { label:'🌸 Medium', cls:'tier-medium', t:1, opts:3 },
+    { label:'⭐ Hard',   cls:'tier-hard',   t:2, opts:4 },
   ];
   const TOTAL = 9;
 
   let audioCtx = null;
   function getAudio(){ if(!audioCtx) audioCtx=new(window.AudioContext||window.webkitAudioContext)(); return audioCtx; }
-  function tone(f,type,dur,vol=.18){
+  function tone(f,type,dur,vol){
+    vol = vol||.18;
     try{
       const c=getAudio(), o=c.createOscillator(), g=c.createGain();
       o.connect(g); g.connect(c.destination);
@@ -240,14 +268,8 @@
   }
   function playCorrect()  { [523,659,784,1047].forEach((f,i)=>setTimeout(()=>tone(f,'sine',.16,.2),i*65)); }
   function playWrong()    { tone(260,'sawtooth',.18,.14); setTimeout(()=>tone(210,'sawtooth',.14,.1),170); }
-  function playRoundWin() { [523,659,784,1047,1319].forEach((f,i)=>setTimeout(()=>tone(f,'triangle',.28,.2),i*85)); }
+  function playTierUp()   { [523,659,784,1047,1319].forEach((f,i)=>setTimeout(()=>tone(f,'triangle',.28,.2),i*85)); }
   function playFinalWin() { [523,659,784,1047,784,1047,1319].forEach((f,i)=>setTimeout(()=>tone(f,'sine',.32,.22),i*95)); }
-  function playMixSound(resultHex){
-    // Ascending tones — pitch varies with color brightness
-    const brightness = parseInt(resultHex.slice(1),16) % 400 + 300;
-    tone(brightness, 'sine', .25, .14);
-    setTimeout(()=>tone(brightness*1.26,'sine',.2,.12),200);
-  }
 
   let round=0, locked=false, currentMix=null, mixOrder=[];
 
@@ -257,13 +279,12 @@
   function startGame(){
     document.getElementById('end-overlay').classList.remove('show');
     document.getElementById('round-overlay').classList.remove('show');
+    document.getElementById('tier-overlay').classList.remove('show');
     round=0; locked=false;
-    // Shuffle within each tier for variety
-    mixOrder = [
-      ...shuffle([0,1,2]),
-      ...shuffle([3,4,5]),
-      ...shuffle([6,7,8]),
-    ];
+    const easy   = shuffle(MIXES_ALL.filter(m=>m.t===0)).slice(0,3);
+    const medium = shuffle(MIXES_ALL.filter(m=>m.t===1)).slice(0,3);
+    const hard   = shuffle(MIXES_ALL.filter(m=>m.t===2)).slice(0,3);
+    mixOrder = [...easy, ...medium, ...hard];
     makeBgStars();
     nextQuestion();
   }
@@ -271,27 +292,56 @@
   function nextQuestion(){
     document.getElementById('round-overlay').classList.remove('show');
     if(round >= TOTAL){ endGame(); return; }
-    round++;
-    locked=false;
-    updateHUD();
 
-    currentMix = MIXES[mixOrder[round-1]];
+    const prevTier = round > 0 ? getTier(round) : null;
+    round++;
+    const newTier = getTier(round);
+
+    if(prevTier && prevTier.t !== newTier.t){
+      showTierOverlay(newTier, ()=>{ locked=false; renderQuestion(); });
+    } else {
+      locked=false;
+      renderQuestion();
+    }
+  }
+
+  function showTierOverlay(tier, cb){
+    const msgs = [
+      '',
+      'The colour mixtures get trickier now! 🌸',
+      "You're a colour wizard! Ready for the hardest mixes? ⭐",
+    ];
+    const icons = ['', '🌸', '⭐'];
+    document.getElementById('tier-ov-icon').textContent = icons[tier.t];
+    document.getElementById('tier-ov-badge').textContent = tier.label;
+    document.getElementById('tier-ov-msg').textContent   = msgs[tier.t];
+    const btn = document.getElementById('tier-ov-btn');
+    btn.onclick = ()=>{
+      document.getElementById('tier-overlay').classList.remove('show');
+      playTierUp();
+      confettiBurst();
+      cb();
+    };
+    document.getElementById('tier-overlay').classList.add('show');
+  }
+
+  function renderQuestion(){
+    updateHUD();
+    currentMix = mixOrder[round-1];
     const tier = getTier(round);
 
-    // Update potion display
-    setPot('pot-a', 'pot-a-label', currentMix.a);
-    setPot('pot-b', 'pot-b-label', currentMix.b);
-
-    // Animate potions in
+    setPot('pot-a','pot-a-label', currentMix.a);
+    setPot('pot-b','pot-b-label', currentMix.b);
     ['pot-a','pot-b'].forEach(id=>{
-      const el = document.getElementById(id);
+      const el=document.getElementById(id);
       el.style.animation='none'; void el.offsetWidth; el.style.animation='';
     });
 
-    // Build answer choices: result + distractors from palette
+    const resultName = currentMix.result.name;
+    const ingNames   = new Set([currentMix.a.name, currentMix.b.name, resultName]);
     const distractors = shuffle(
-      PALETTE.filter(p=>p.name!==currentMix.result.name && p.name!==currentMix.a.name && p.name!==currentMix.b.name)
-    ).slice(0, tier.opts-1);
+      PALETTE.filter(p=> !ingNames.has(p.name))
+    ).slice(0, tier.opts - 1);
     const choices = shuffle([currentMix.result, ...distractors]);
 
     const answers = document.getElementById('answers');
@@ -299,29 +349,34 @@
     choices.forEach(col=>{
       const btn = document.createElement('button');
       btn.className='ans-btn';
-      btn.innerHTML=`<div class="ans-color" style="background:${col.hex}"></div><div class="ans-label">${col.name}</div>`;
+      const borderStyle = col.hex==='#f8f8f8' ? 'border:3px solid #ccc' : '';
+      btn.innerHTML=`<div class="ans-color" style="background:${col.hex};${borderStyle}"></div><div class="ans-label">${col.name}</div>`;
       btn.addEventListener('pointerdown', ()=>handleTap(btn, col));
       answers.appendChild(btn);
     });
 
-    // Play a subtle "mixing" sound cue
-    setTimeout(()=>playMixSound(currentMix.result.hex), 300);
+    setTimeout(()=>playMixCue(currentMix.result.hex), 300);
   }
 
   function setPot(circleId, labelId, color){
     document.getElementById(circleId).style.background = color.hex;
     document.getElementById(labelId).textContent = color.name;
-    // White potion needs a border to be visible
-    document.getElementById(circleId).style.borderColor = color.hex === '#f8f8f8' ? '#ccc' : 'rgba(255,255,255,.5)';
+    document.getElementById(circleId).style.borderColor = color.hex==='#f8f8f8' ? '#ccc' : 'rgba(255,255,255,.5)';
   }
 
   function updateHUD(){
     const tier = getTier(round);
     const badge = document.getElementById('tier-badge');
     badge.textContent = tier.label;
-    badge.className = tier.cls;
+    badge.className = 'tier-badge ' + tier.cls;
     document.getElementById('round-counter').textContent = round + ' / ' + TOTAL;
     document.getElementById('progress-fill').style.width = ((round-1)/TOTAL*100)+'%';
+  }
+
+  function playMixCue(hex){
+    const b = parseInt(hex.slice(1),16) % 400 + 300;
+    tone(b,'sine',.25,.14);
+    setTimeout(()=>tone(b*1.26,'sine',.2,.12),200);
   }
 
   function handleTap(btn, col){
@@ -347,18 +402,16 @@
     const titles = ['You made…','The magic colour is…','Yes! You mixed…','Correct! It\'s…'];
     document.getElementById('ov-title').textContent = titles[Math.floor(Math.random()*titles.length)];
     const circ = document.getElementById('ov-circle');
-    circ.style.background = r.hex;
+    const borderStyle = r.hex==='#f8f8f8' ? 'border-color:#ccc' : '';
+    circ.style.cssText = `background:${r.hex};${borderStyle}`;
     circ.style.animation='none'; void circ.offsetWidth; circ.style.animation='';
     document.getElementById('ov-name').textContent = r.name + '! 🎨';
-    document.getElementById('ov-name').style.color = r.hex === '#f8f8f8' ? '#fff' : r.hex;
+    document.getElementById('ov-name').style.color = r.hex==='#f8f8f8' ? '#fff' : r.hex;
 
-    if(round < TOTAL){
-      document.getElementById('round-btn').textContent='Next ➡️';
-      document.getElementById('round-btn').onclick=()=>{ playRoundWin(); confettiBurst(); nextQuestion(); };
-    } else {
-      document.getElementById('round-btn').textContent='Finish 👑';
-      document.getElementById('round-btn').onclick=()=>endGame();
-    }
+    const isLast = round >= TOTAL;
+    const btn = document.getElementById('round-btn');
+    btn.textContent = isLast ? 'Finish 👑' : 'Next ➡️';
+    btn.onclick = isLast ? ()=>endGame() : ()=>{ confettiBurst(); nextQuestion(); };
     document.getElementById('round-overlay').classList.add('show');
     confettiBurst();
   }
@@ -374,7 +427,7 @@
       document.body.appendChild(el);
       setTimeout(()=>el.remove(),800);
     }
-    const icons=['✨','💫','⭐','🌟','💖'];
+    const icons=['✨','💫','⭐','🌟','💖','🧪'];
     for(let i=0;i<8;i++){
       const el=document.createElement('div'); el.className='sparkle-em';
       el.textContent=icons[i%icons.length];
@@ -392,6 +445,7 @@
     playFinalWin();
     confettiBurst();
     setTimeout(confettiBurst,700);
+    document.getElementById('progress-fill').style.width='100%';
   }
 
   function confettiBurst(){
@@ -407,7 +461,7 @@
 
   function makeBgStars(){
     document.querySelectorAll('.bg-star').forEach(e=>e.remove());
-    const icons=['✨','💫','🌟','⭐','🔮'];
+    const icons=['✨','💫','🌟','⭐','🔮','🧪'];
     for(let i=0;i<12;i++){
       const el=document.createElement('div'); el.className='bg-star';
       el.textContent=icons[i%icons.length];

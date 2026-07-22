@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Princess Helpers 🌟</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+    body {
+      background: linear-gradient(160deg, #fce4ec 0%, #f3e5f5 50%, #e8eaf6 100%);
+      min-height:100vh; width:100vw; overflow:hidden;
+      font-family:'Fredoka One', Georgia, serif; user-select:none; position:relative;
+      display:flex; flex-direction:column; align-items:center;
+    }
+
+    .bg-gem { position:fixed; pointer-events:none; animation:floatUp linear infinite; opacity:.13; font-size:clamp(16px,4vw,26px); }
+    @keyframes floatUp { 0%{transform:translateY(110vh) rotate(0deg)} 100%{transform:translateY(-15vh) rotate(360deg)} }
+
+    #header {
+      position:fixed; top:0; left:0; right:0; z-index:10;
+      padding:clamp(8px,2vw,14px) clamp(12px,3vw,20px);
+      display:flex; justify-content:space-between; align-items:center;
+    }
+    #tier-badge { font-size:clamp(13px,3.4vw,18px); padding:5px 15px; border-radius:20px; font-weight:bold; }
+    .tier-easy   { background:linear-gradient(135deg,#a5d6a7,#66bb6a); color:#1b5e20; }
+    .tier-medium { background:linear-gradient(135deg,#ffe082,#ffd54f); color:#5a3000; }
+    .tier-hard   { background:linear-gradient(135deg,#ce93d8,#ab47bc); color:#fff; }
+    #round-lbl { font-size:clamp(14px,3.5vw,20px); color:#6a1b9a; font-weight:bold; }
+
+    #progress-wrap {
+      position:fixed; top:clamp(48px,11vw,70px); left:0; right:0;
+      padding:0 clamp(14px,4vw,24px); z-index:10;
+    }
+    #progress-track { background:rgba(171,71,188,.2); border-radius:20px; height:clamp(10px,2.5vw,14px); overflow:hidden; }
+    #progress-fill  { height:100%; border-radius:20px; background:linear-gradient(90deg,#e040fb,#f48fb1); transition:width .35s ease; width:0%; box-shadow:0 0 8px rgba(224,64,251,.3); }
+
+    /* Scene display */
+    #scene-wrap {
+      margin-top:clamp(78px,18vw,110px);
+      display:flex; flex-direction:column; align-items:center; gap:clamp(6px,1.5vw,12px);
+      padding:0 16px; width:100%; text-align:center;
+    }
+    #scene-emoji {
+      font-size:clamp(70px,18vw,110px);
+      line-height:1; animation:scenePop .5s cubic-bezier(.34,1.56,.64,1);
+    }
+    @keyframes scenePop { from{transform:scale(0);opacity:0} to{transform:scale(1);opacity:1} }
+    #scene-text {
+      font-size:clamp(18px,4.8vw,30px); color:#6a1b9a;
+      text-shadow:0 1px 4px rgba(100,0,180,.12); line-height:1.2;
+    }
+    #prompt {
+      font-size:clamp(20px,5vw,32px); color:#ad1457;
+      font-weight:bold; text-shadow:0 1px 4px rgba(173,20,87,.15);
+    }
+
+    /* Choice buttons */
+    #choices {
+      position:fixed; bottom:clamp(10px,3vw,22px); left:0; right:0;
+      display:flex; justify-content:center; flex-wrap:wrap;
+      gap:clamp(10px,2.5vw,16px); padding:0 clamp(12px,3vw,20px);
+      z-index:5;
+    }
+    .choice-btn {
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      gap:clamp(4px,1vw,8px);
+      min-width:clamp(100px,24vw,130px); min-height:clamp(100px,24vw,130px);
+      border-radius:22px; border:none; cursor:pointer; touch-action:manipulation;
+      background:linear-gradient(135deg,rgba(255,255,255,.9),rgba(243,229,245,.95));
+      box-shadow:0 5px 20px rgba(150,50,200,.2), inset 0 2px 0 rgba(255,255,255,.8);
+      transition:transform .1s, box-shadow .1s;
+      padding:8px;
+    }
+    .choice-btn:active { transform:scale(.91); box-shadow:0 2px 8px rgba(150,50,200,.15); }
+    .choice-em { font-size:clamp(40px,10vw,60px); line-height:1; }
+    .choice-name {
+      font-size:clamp(12px,3.2vw,18px); color:#6a1b9a;
+      text-shadow:none; text-align:center; line-height:1.1;
+    }
+    .choice-btn.correct-flash {
+      animation:correctPop .5s ease-out;
+      background:linear-gradient(135deg,rgba(255,255,180,.9),rgba(200,255,200,.9));
+      box-shadow:0 0 30px rgba(200,255,100,.7);
+    }
+    .choice-btn.wrong-shake { animation:wobble .45s ease-out; }
+    @keyframes correctPop { 0%{transform:scale(1)} 45%{transform:scale(1.18)} 100%{transform:scale(1)} }
+    @keyframes wobble { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-10px)} 60%{transform:translateX(10px)} }
+
+    /* Sparkles */
+    .sparkle { position:fixed; pointer-events:none; z-index:50; border-radius:50%; animation:spkOut .7s ease-out forwards; }
+    @keyframes spkOut { 0%{transform:scale(0);opacity:1} 100%{transform:scale(1.7);opacity:0} }
+    .sparkle-em { position:fixed; pointer-events:none; z-index:51; font-size:clamp(18px,4.5vw,26px); animation:sFloat .9s ease-out forwards; }
+    @keyframes sFloat { 0%{transform:translateY(0) scale(1);opacity:1} 100%{transform:translateY(-90px) scale(0);opacity:0} }
+    .confetti { position:fixed; pointer-events:none; z-index:100; border-radius:3px; animation:cfFall linear forwards; }
+    @keyframes cfFall { 0%{top:-20px;opacity:1;transform:rotate(0deg)} 100%{top:110vh;opacity:.2;transform:rotate(720deg)} }
+
+    /* Overlays */
+    .overlay {
+      position:fixed; inset:0; background:rgba(250,240,255,.95);
+      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px;
+      z-index:99; opacity:0; pointer-events:none; transition:opacity .4s;
+    }
+    .overlay.show { opacity:1; pointer-events:all; }
+    .ov-emoji { font-size:clamp(60px,16vw,100px); }
+    .ov-title { font-size:clamp(22px,6vw,44px); color:#6a1b9a; text-align:center; padding:0 20px; }
+    .ov-sub   { font-size:clamp(14px,3.8vw,22px); color:#7b1fa2; text-align:center; padding:0 20px; opacity:.85; }
+    .btn-next {
+      padding:clamp(14px,4vw,20px) clamp(32px,8vw,56px); font-size:clamp(20px,5vw,28px);
+      border-radius:50px; border:none; background:linear-gradient(135deg,#e040fb,#ab47bc);
+      color:#fff; font-weight:bold; cursor:pointer; font-family:inherit;
+      min-height:64px; min-width:180px; touch-action:manipulation;
+      box-shadow:0 4px 18px rgba(224,64,251,.4);
+    }
+  </style>
+</head>
+<body>
+
+<div id="header">
+  <div id="tier-badge" class="tier-easy">🌱 Easy</div>
+  <div id="round-lbl">🌟 1 / 9</div>
+</div>
+<div id="progress-wrap">
+  <div id="progress-track"><div id="progress-fill"></div></div>
+</div>
+
+<div id="scene-wrap">
+  <div id="scene-emoji">🌧️</div>
+  <div id="scene-text">It's raining outside!</div>
+  <div id="prompt">What does Princess need? 💭</div>
+</div>
+
+<div id="choices"></div>
+
+<!-- Tier overlay -->
+<div class="overlay" id="tier-overlay">
+  <div class="ov-emoji" id="t-emoji">🌸</div>
+  <div class="ov-title" id="t-title">Medium Time!</div>
+  <div class="ov-sub"   id="t-sub">The questions get trickier now!</div>
+  <button class="btn-next" id="t-btn">Let's help! 🌟</button>
+</div>
+
+<!-- Win overlay -->
+<div class="overlay" id="win-overlay">
+  <div class="ov-emoji">👑</div>
+  <div class="ov-title">Amazing Helper! 🌟</div>
+  <div class="ov-sub">Princess Jet knows exactly what to use! ✨</div>
+  <button class="btn-next" onclick="startGame()">Play Again 🌸</button>
+</div>
+
+<script>
+  // 18 scenarios: 6 per tier (t:0=Easy, t:1=Medium, t:2=Hard)
+  // Each has: scene emoji, text, correct item, pool of 3 distractors
+  // Game uses correct + (opts-1) distractors from the pool
+  const SCENARIOS = [
+    // --- EASY (2 choices) ---
+    { t:0, scene:'🌧️', text:"It's raining outside!",
+      correct:{e:'☂️',n:'Umbrella'},
+      wrong:[{e:'🥄',n:'Spoon'},{e:'✏️',n:'Pencil'},{e:'🛏️',n:'Bed'}] },
+    { t:0, scene:'🥣', text:"Time for yummy soup!",
+      correct:{e:'🥄',n:'Spoon'},
+      wrong:[{e:'☂️',n:'Umbrella'},{e:'🧤',n:'Gloves'},{e:'📖',n:'Book'}] },
+    { t:0, scene:'😴', text:"Princess is very sleepy!",
+      correct:{e:'🛏️',n:'Bed'},
+      wrong:[{e:'🎹',n:'Piano'},{e:'✏️',n:'Pencil'},{e:'☂️',n:'Umbrella'}] },
+    { t:0, scene:'✍️', text:"Time to draw a picture!",
+      correct:{e:'✏️',n:'Pencil'},
+      wrong:[{e:'🧤',n:'Gloves'},{e:'🛏️',n:'Bed'},{e:'🥄',n:'Spoon'}] },
+    { t:0, scene:'📚', text:"Story time with Princess!",
+      correct:{e:'📖',n:'Book'},
+      wrong:[{e:'☂️',n:'Umbrella'},{e:'🧹',n:'Broom'},{e:'🥄',n:'Spoon'}] },
+    { t:0, scene:'🎵', text:"Time to make music!",
+      correct:{e:'🎹',n:'Piano'},
+      wrong:[{e:'🛏️',n:'Bed'},{e:'☂️',n:'Umbrella'},{e:'✏️',n:'Pencil'}] },
+
+    // --- MEDIUM (3 choices) ---
+    { t:1, scene:'❄️', text:"Princess feels very cold!",
+      correct:{e:'🧤',n:'Gloves'},
+      wrong:[{e:'☂️',n:'Umbrella'},{e:'✏️',n:'Pencil'},{e:'🥄',n:'Spoon'}] },
+    { t:1, scene:'🤒', text:"Princess has a cold!",
+      correct:{e:'💊',n:'Medicine'},
+      wrong:[{e:'🎹',n:'Piano'},{e:'✏️',n:'Pencil'},{e:'🥄',n:'Spoon'}] },
+    { t:1, scene:'🏠', text:"The princess room is messy!",
+      correct:{e:'🧹',n:'Broom'},
+      wrong:[{e:'✏️',n:'Pencil'},{e:'👠',n:'Shoes'},{e:'🛏️',n:'Bed'}] },
+    { t:1, scene:'🍵', text:"It's princess tea time!",
+      correct:{e:'🫖',n:'Teapot'},
+      wrong:[{e:'🧤',n:'Gloves'},{e:'🛏️',n:'Bed'},{e:'🧹',n:'Broom'}] },
+    { t:1, scene:'🎨', text:"Time to paint a rainbow!",
+      correct:{e:'🖌️',n:'Paintbrush'},
+      wrong:[{e:'✏️',n:'Pencil'},{e:'🧹',n:'Broom'},{e:'🥄',n:'Spoon'}] },
+    { t:1, scene:'🩹', text:"Princess hurt her knee!",
+      correct:{e:'🩹',n:'Bandaid'},
+      wrong:[{e:'💊',n:'Medicine'},{e:'✏️',n:'Pencil'},{e:'🎹',n:'Piano'}] },
+
+    // --- HARD (4 choices) ---
+    { t:2, scene:'💃', text:"Princess is going to the ball!",
+      correct:{e:'👠',n:'Shoes'},
+      wrong:[{e:'☂️',n:'Umbrella'},{e:'🧹',n:'Broom'},{e:'🥄',n:'Spoon'}] },
+    { t:2, scene:'🌼', text:"The flowers need water!",
+      correct:{e:'🪣',n:'Watering Can'},
+      wrong:[{e:'☂️',n:'Umbrella'},{e:'✏️',n:'Pencil'},{e:'🧹',n:'Broom'}] },
+    { t:2, scene:'📸', text:"Princess wants to take a photo!",
+      correct:{e:'📷',n:'Camera'},
+      wrong:[{e:'✏️',n:'Pencil'},{e:'🛏️',n:'Bed'},{e:'🧤',n:'Gloves'}] },
+    { t:2, scene:'🎤', text:"Princess wants to sing a song!",
+      correct:{e:'🎤',n:'Microphone'},
+      wrong:[{e:'🎹',n:'Piano'},{e:'🛏️',n:'Bed'},{e:'🧤',n:'Gloves'}] },
+    { t:2, scene:'🌳', text:"Going on a royal picnic!",
+      correct:{e:'🧺',n:'Basket'},
+      wrong:[{e:'☂️',n:'Umbrella'},{e:'🧤',n:'Gloves'},{e:'🧹',n:'Broom'}] },
+    { t:2, scene:'🎁', text:"Wrapping a birthday present!",
+      correct:{e:'🎀',n:'Bow'},
+      wrong:[{e:'✏️',n:'Pencil'},{e:'👠',n:'Shoes'},{e:'🥄',n:'Spoon'}] },
+  ];
+
+  const TIERS = [
+    { t:0, label:'🌱 Easy',   cls:'tier-easy',   opts:2 },
+    { t:1, label:'🌸 Medium', cls:'tier-medium', opts:3 },
+    { t:2, label:'⭐ Hard',   cls:'tier-hard',   opts:4 },
+  ];
+  const TOTAL = 9;
+
+  let ctx = null;
+  function getCtx(){ if(!ctx) ctx=new(window.AudioContext||window.webkitAudioContext)(); return ctx; }
+  function tone(f,type,d,v){
+    v=v||.18;
+    try{
+      const c=getCtx(), o=c.createOscillator(), g=c.createGain();
+      o.connect(g); g.connect(c.destination);
+      o.type=type; o.frequency.value=f;
+      g.gain.setValueAtTime(v,c.currentTime);
+      g.gain.exponentialRampToValueAtTime(.001,c.currentTime+d);
+      o.start(); o.stop(c.currentTime+d);
+    }catch(e){}
+  }
+  function playCorrect()  { [523,659,784,1047].forEach((f,i)=>setTimeout(()=>tone(f,'sine',.18,.22),i*65)); }
+  function playWrong()    { tone(280,'sawtooth',.16,.13); setTimeout(()=>tone(240,'sawtooth',.14,.11),160); }
+  function playTierWin()  { [523,659,784,1047,1319].forEach((f,i)=>setTimeout(()=>tone(f,'triangle',.28,.22),i*80)); }
+  function playFinalWin() { [523,659,784,1047,784,1047,1319].forEach((f,i)=>setTimeout(()=>tone(f,'sine',.32,.22),i*90)); }
+
+  let round=0, locked=false, order=[];
+
+  function shuffle(a){ const b=[...a]; for(let i=b.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]]; } return b; }
+  function getTier(r){ return r<=3 ? TIERS[0] : r<=6 ? TIERS[1] : TIERS[2]; }
+
+  function startGame(){
+    document.getElementById('win-overlay').classList.remove('show');
+    document.getElementById('tier-overlay').classList.remove('show');
+    round=0; locked=false;
+    const easy   = shuffle(SCENARIOS.filter(s=>s.t===0)).slice(0,3);
+    const medium = shuffle(SCENARIOS.filter(s=>s.t===1)).slice(0,3);
+    const hard   = shuffle(SCENARIOS.filter(s=>s.t===2)).slice(0,3);
+    order = [...easy, ...medium, ...hard];
+    makeBgGems();
+    nextQuestion();
+  }
+
+  function nextQuestion(){
+    if(round >= TOTAL){ endGame(); return; }
+    const prevTier = round > 0 ? getTier(round) : null;
+    round++;
+    const newTier = getTier(round);
+    if(prevTier && prevTier.t !== newTier.t){
+      showTierOverlay(newTier, ()=>{ locked=false; renderQuestion(); });
+    } else {
+      locked=false; renderQuestion();
+    }
+  }
+
+  function showTierOverlay(tier, cb){
+    const msgs = [
+      '',
+      'The questions get trickier now! 🌸',
+      "You're a super helper! Ready for the hardest ones? ⭐",
+    ];
+    document.getElementById('t-emoji').textContent = tier.t===1 ? '🌸' : '⭐';
+    document.getElementById('t-title').textContent = tier.label;
+    document.getElementById('t-sub').textContent   = msgs[tier.t];
+    const btn = document.getElementById('t-btn');
+    btn.onclick = ()=>{
+      document.getElementById('tier-overlay').classList.remove('show');
+      playTierWin(); confetti();
+      cb();
+    };
+    document.getElementById('tier-overlay').classList.add('show');
+  }
+
+  function renderQuestion(){
+    const sc = order[round-1];
+    const tier = getTier(round);
+
+    // Scene
+    const sceneEl = document.getElementById('scene-emoji');
+    sceneEl.style.animation='none'; void sceneEl.offsetWidth; sceneEl.style.animation='';
+    sceneEl.textContent = sc.scene;
+    document.getElementById('scene-text').textContent = sc.text;
+    document.getElementById('prompt').textContent = 'What does Princess need? 💭';
+
+    // HUD
+    const badge = document.getElementById('tier-badge');
+    badge.textContent = tier.label;
+    badge.className = 'tier-badge ' + tier.cls;
+    document.getElementById('round-lbl').textContent = '🌟 '+round+' / '+TOTAL;
+    document.getElementById('progress-fill').style.width = ((round-1)/TOTAL*100)+'%';
+
+    // Choices: correct + (opts-1) distractors picked from wrong pool
+    const distractors = shuffle([...sc.wrong]).slice(0, tier.opts-1);
+    const choices = shuffle([sc.correct, ...distractors]);
+
+    const container = document.getElementById('choices');
+    container.innerHTML='';
+    choices.forEach(item=>{
+      const btn=document.createElement('button');
+      btn.className='choice-btn';
+      btn.innerHTML=`<div class="choice-em">${item.e}</div><div class="choice-name">${item.n}</div>`;
+      btn.addEventListener('pointerdown', ()=>handleTap(btn, item, sc.correct));
+      container.appendChild(btn);
+    });
+
+    // Cheerful sparkle when scene appears
+    setTimeout(()=>tone(880,'sine',.12,.1), 200);
+  }
+
+  function handleTap(btn, item, correct){
+    if(locked) return;
+    if(item.e === correct.e){
+      locked=true;
+      btn.classList.add('correct-flash');
+      playCorrect();
+      burst(btn);
+      // Show ✅ overlay on the scene emoji briefly
+      document.getElementById('scene-emoji').textContent = '✅';
+      setTimeout(()=>{
+        document.getElementById('scene-emoji').textContent = correct.e;
+        btn.classList.remove('correct-flash');
+        confetti();
+        setTimeout(()=>nextQuestion(), 800);
+      }, 650);
+    } else {
+      btn.classList.add('wrong-shake');
+      playWrong();
+      setTimeout(()=>btn.classList.remove('wrong-shake'), 450);
+    }
+  }
+
+  function burst(btn){
+    const r=btn.getBoundingClientRect();
+    const cx=r.left+r.width/2, cy=r.top+r.height/2;
+    const cols=['#ffd700','#e040fb','#fff','#f48fb1','#80deea','#a5d6a7','#ffcc02','#ce93d8'];
+    for(let i=0;i<18;i++){
+      const el=document.createElement('div'); el.className='sparkle';
+      const a=Math.random()*Math.PI*2, dist=30+Math.random()*80, sz=6+Math.random()*14;
+      el.style.cssText=`left:${cx+Math.cos(a)*dist-sz/2}px;top:${cy+Math.sin(a)*dist-sz/2}px;width:${sz}px;height:${sz}px;background:${cols[i%cols.length]}`;
+      document.body.appendChild(el); setTimeout(()=>el.remove(),800);
+    }
+    const icons=['✨','💫','⭐','🌟','💖','👑'];
+    for(let i=0;i<8;i++){
+      const el=document.createElement('div'); el.className='sparkle-em';
+      el.textContent=icons[i%icons.length];
+      el.style.left=(cx+(Math.random()-.5)*120)+'px';
+      el.style.top=(cy+(Math.random()-.5)*100)+'px';
+      el.style.animationDelay=(Math.random()*.2)+'s';
+      document.body.appendChild(el); setTimeout(()=>el.remove(),1100);
+    }
+  }
+
+  function confetti(){
+    const cols=['#e040fb','#ffd700','#fff','#f48fb1','#ce93d8','#b2ebf2','#a5d6a7','#ff8a65'];
+    for(let i=0;i<42;i++){
+      const el=document.createElement('div'); el.className='confetti';
+      const sz=6+Math.random()*10;
+      el.style.cssText=`left:${Math.random()*100}vw;width:${sz}px;height:${sz}px;background:${cols[i%cols.length]};animation-duration:${1.5+Math.random()*2}s;animation-delay:${Math.random()*.5}s`;
+      document.body.appendChild(el); setTimeout(()=>el.remove(),3500);
+    }
+  }
+
+  function endGame(){
+    document.getElementById('win-overlay').classList.add('show');
+    playFinalWin(); confetti(); setTimeout(confetti, 700);
+    document.getElementById('progress-fill').style.width='100%';
+  }
+
+  function makeBgGems(){
+    document.querySelectorAll('.bg-gem').forEach(e=>e.remove());
+    const icons=['💎','🌟','✨','👑','💖','🌸','⭐','🦄'];
+    for(let i=0;i<12;i++){
+      const el=document.createElement('div'); el.className='bg-gem';
+      el.textContent=icons[i%icons.length];
+      el.style.left=(4+Math.random()*92)+'vw';
+      el.style.animationDuration=(10+Math.random()*14)+'s';
+      el.style.animationDelay=-(Math.random()*16)+'s';
+      document.body.appendChild(el);
+    }
+  }
+
+  startGame();
+</script>
+</body>
+</html>

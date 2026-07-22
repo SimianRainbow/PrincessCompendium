@@ -338,12 +338,12 @@
   {
     "id": "029-colour-mixing",
     "title": "Colour Cauldron",
-    "description": "Mix two magical potions and tap the colour they make — Red+Blue=Purple, and more!",
+    "description": "Mix two magical potions and tap the colour they make — 18 mixes across 3 tiers, from Purple to Olive! Tier-transition overlay, 6-per-tier pool.",
     "icon": "🧪",
     "ageMin": 3,
     "ageMax": 5,
     "skill": "colour mixing & art science",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "category": "colours-shapes",
     "path": "games/029-colour-mixing/index.html"
   },
@@ -598,5 +598,17 @@
     "version": "1.0.0",
     "category": "numbers",
     "path": "games/050-princess-clock/index.html"
+  },
+  {
+    "id": "051-princess-helpers",
+    "title": "Princess Helpers",
+    "description": "What does Princess need? Tap the right object for the situation — umbrella for rain, spoon for soup, paintbrush for painting! 18 scenarios across 3 tiers.",
+    "icon": "🌟",
+    "ageMin": 2,
+    "ageMax": 5,
+    "skill": "matching objects to their use / functional understanding",
+    "version": "1.0.0",
+    "category": "other",
+    "path": "games/051-princess-helpers/index.html"
   }
 ]

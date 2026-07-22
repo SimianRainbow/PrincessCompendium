@@ -1,9 +1,9 @@
 # Princess Compendium — Status
 
 ## Last update run
-Date: 2026-07-19
-- Improved: `045-princess-train` → v1.1.0 (progress bar added; emoji tier badges 🌱/🌸/⭐; pool expanded 9→18 items (6 per tier, 3 picked randomly per game); dynamic wrong-answer generation ±1-4 from answer; emoji sparkles added to burst (now 18 total); tier-transition overlay with confetti; two-digit number font scaling)
-- Added: `050-princess-clock` — "Princess Clock 🕐" teaching analog clock reading (hour positions); Easy=hours 1-4 (3 choices), Medium=hours 5-8 (4 choices), Hard=hours 9-12 (4 choices); animated SVG clock face with hour + minute hands; correct-answer overlay shows the clock + "It's X o'clock!"; 18-sparkle burst; confetti on round/win
+Date: 2026-07-22
+- Improved: `029-colour-mixing` → v1.1.0 (pool expanded 9→18 mixes (6 per tier, 3 picked randomly); new colours: Gold, Teal, Magenta, Indigo, Lavender, Mint, Peach, Coral, Olive, Lilac; expanded PALETTE (21 colours); tier-transition overlay added with confetti; playTierUp melody)
+- Added: `051-princess-helpers` — "Princess Helpers 🌟" teaching matching objects to their use / functional understanding; Easy=2 choices (umbrella/rain, spoon/soup), Medium=3 choices (medicine/sick, teapot/tea), Hard=4 choices (shoes/ball, camera/photo); 18-scenario pool (6 per tier); tier overlay; sparkle burst + ✅ scene feedback; confetti
 
 ## Improvement history
 
@@ -41,6 +41,7 @@ Date: 2026-07-19
 | 2026-07-13 | 041-princess-measures | Progress bar, 🌱/🌸/⭐ tier badges, pool 9→18, full-screen tier overlay + confetti, win overlay, bg gems 9→10 | 1.1.0 |
 | 2026-07-16 | 042-shadow-magic | Progress bar, score tracker, tap-to-continue celebrate overlay, pool 18→24 (8 per tier), sparkle 16→18, double confetti win | 1.1.0 |
 | 2026-07-19 | 045-princess-train | Progress bar, emoji tier badges, pool 9→18 (6 per tier), dynamic wrong answers, emoji sparkles in burst (18 total), tier overlay + confetti, two-digit font scaling | 1.1.0 |
+| 2026-07-22 | 029-colour-mixing | Pool 9→18 (6 per tier, 3 random), 10 new colours (Magenta/Gold/Teal/Indigo/Lavender/Mint/Peach/Coral/Olive/Lilac), expanded PALETTE (21), tier-transition overlay, playTierUp melody | 1.1.0 |
 
 ## Games due for improvement (all at v1.0.0)
 
@@ -77,6 +78,7 @@ See `CLAUDE.md` for the full prioritised list. Top 3 to build next:
 13. ~~Phonics / initial letter sounds~~ — ✅ covered by `043-letter-sounds`
 14. ~~Animal habitats / where animals live~~ — ✅ covered by `044-animal-homes`
 15. ~~Telling time (analog clock hours)~~ — ✅ covered by `050-princess-clock`
+16. ~~Matching objects to their use (functional understanding)~~ — ✅ covered by `051-princess-helpers`
 
 ## Next game ID
-`051-<slug>`
+`052-<slug>`
