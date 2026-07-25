@@ -143,6 +143,18 @@
     <button class="btn-next" onclick="dismissTierOverlay()">Let's go! ➡️</button>
   </div>
 
+  <!-- Celebrate overlay (after each correct answer) -->
+  <div class="overlay" id="cel-overlay">
+    <div id="cel-row" style="display:flex;align-items:center;gap:clamp(10px,3vw,18px);line-height:1;">
+      <span id="cel-vehicle" style="font-size:clamp(56px,15vw,90px)">🚗</span>
+      <span style="font-size:clamp(26px,7vw,42px);opacity:.7">→</span>
+      <span id="cel-hab-emoji" style="font-size:clamp(56px,15vw,90px)">🛣️</span>
+    </div>
+    <div class="ov-title" id="cel-hab-label">Road! 🛣️</div>
+    <div class="ov-sub" id="cel-msg">Amazing! ✨</div>
+    <button class="btn-next" onclick="celebrateDone()">Next ➡️</button>
+  </div>
+
   <div class="overlay" id="end-overlay">
     <div class="ov-icon">👑</div>
     <div class="ov-title">Royal Driver! 🚗✈️⛵</div>
@@ -258,7 +270,7 @@
       return;
     }
     if(round===7){
-      showTierOverlay('🚂','Great job! ⭐ Hard!','Four choices now — road, sky, water and rail!');
+      showTierOverlay('🚂','Royal Driver! ⭐ Hard!','Four choices now — road, sky, water and rail!');
       return;
     }
 
@@ -271,7 +283,7 @@
     document.getElementById('tier-sub').textContent   = sub;
     document.getElementById('tier-overlay').classList.add('show');
     playTierUp();
-    confettiBurst(30);
+    confettiBurst(42);
   }
 
   function dismissTierOverlay(){
@@ -330,13 +342,29 @@
       burst(r.left+r.width/2, r.top+r.height/2);
       setTimeout(()=>{
         btn.classList.remove('correct-flash');
-        nextQuestion();
-      }, 620);
+        showCelebrate();
+      }, 550);
     } else {
       btn.classList.add('wrong-flash');
       playWrong();
       setTimeout(()=>btn.classList.remove('wrong-flash'), 450);
     }
+  }
+
+  function showCelebrate(){
+    const hab = HABITATS[currentVehicle.habitat];
+    document.getElementById('cel-vehicle').textContent   = currentVehicle.emoji;
+    document.getElementById('cel-hab-emoji').textContent = hab.emoji;
+    document.getElementById('cel-hab-label').textContent = hab.label;
+    const msgs=['Amazing! ✨','Brilliant! 💫','Great job! 🌟','You got it! ⭐','Wonderful! 👑'];
+    document.getElementById('cel-msg').textContent = msgs[Math.floor(Math.random()*msgs.length)];
+    document.getElementById('cel-overlay').classList.add('show');
+    confettiBurst(22);
+  }
+
+  function celebrateDone(){
+    document.getElementById('cel-overlay').classList.remove('show');
+    nextQuestion();
   }
 
   function burst(cx, cy){

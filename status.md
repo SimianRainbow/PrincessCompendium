@@ -1,9 +1,9 @@
 # Princess Compendium — Status
 
 ## Last update run
-Date: 2026-07-22
-- Improved: `029-colour-mixing` → v1.1.0 (pool expanded 9→18 mixes (6 per tier, 3 picked randomly); new colours: Gold, Teal, Magenta, Indigo, Lavender, Mint, Peach, Coral, Olive, Lilac; expanded PALETTE (21 colours); tier-transition overlay added with confetti; playTierUp melody)
-- Added: `051-princess-helpers` — "Princess Helpers 🌟" teaching matching objects to their use / functional understanding; Easy=2 choices (umbrella/rain, spoon/soup), Medium=3 choices (medicine/sick, teapot/tea), Hard=4 choices (shoes/ball, camera/photo); 18-scenario pool (6 per tier); tier overlay; sparkle burst + ✅ scene feedback; confetti
+Date: 2026-07-25
+- Improved: `047-royal-vehicles` → v1.1.0 (added tap-to-continue celebrate overlay after each correct answer showing vehicle→habitat mapping; increased tier-transition confetti 30→42)
+- Added: `052-princess-healthy` — "Princess Healthy 🌿" teaching healthy habits & self-care; Easy=2 choices (muddy hands→wash, sleepy→sleep), Medium=3 choices (sick→doctor, cut→plaster), Hard=4 choices (exercising→water, raining→umbrella); 18-scenario pool (6 per tier); tier overlay; sparkle burst + celebrate overlay per round; confetti
 
 ## Improvement history
 
@@ -42,6 +42,7 @@ Date: 2026-07-22
 | 2026-07-16 | 042-shadow-magic | Progress bar, score tracker, tap-to-continue celebrate overlay, pool 18→24 (8 per tier), sparkle 16→18, double confetti win | 1.1.0 |
 | 2026-07-19 | 045-princess-train | Progress bar, emoji tier badges, pool 9→18 (6 per tier), dynamic wrong answers, emoji sparkles in burst (18 total), tier overlay + confetti, two-digit font scaling | 1.1.0 |
 | 2026-07-22 | 029-colour-mixing | Pool 9→18 (6 per tier, 3 random), 10 new colours (Magenta/Gold/Teal/Indigo/Lavender/Mint/Peach/Coral/Olive/Lilac), expanded PALETTE (21), tier-transition overlay, playTierUp melody | 1.1.0 |
+| 2026-07-25 | 047-royal-vehicles | Celebrate overlay after each correct answer (vehicle→habitat feedback), tier confetti 30→42 | 1.1.0 |
 
 ## Games due for improvement (all at v1.0.0)
 
@@ -79,6 +80,7 @@ See `CLAUDE.md` for the full prioritised list. Top 3 to build next:
 14. ~~Animal habitats / where animals live~~ — ✅ covered by `044-animal-homes`
 15. ~~Telling time (analog clock hours)~~ — ✅ covered by `050-princess-clock`
 16. ~~Matching objects to their use (functional understanding)~~ — ✅ covered by `051-princess-helpers`
+17. ~~Healthy habits & self-care~~ — ✅ covered by `052-princess-healthy`
 
 ## Next game ID
-`052-<slug>`
+`053-<slug>`
