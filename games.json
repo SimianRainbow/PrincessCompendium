@@ -518,12 +518,12 @@
   {
     "id": "044-animal-homes",
     "title": "Royal Animal Homes",
-    "description": "Tap where the animal lives! Bird in a nest, fish in water, bee in a hive — 9 rounds across 3 tiers.",
+    "description": "Tap where the animal lives! Bird in a nest, fish in water, bee in a hive — 24-animal pool (8 per tier), win overlay, sparkle burst, 9 rounds across 3 tiers.",
     "icon": "🏡",
     "ageMin": 2,
     "ageMax": 5,
     "skill": "animal habitats — where animals live",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "category": "animals",
     "path": "games/044-animal-homes/index.html"
   },
@@ -622,5 +622,17 @@
     "version": "1.0.0",
     "category": "other",
     "path": "games/052-princess-healthy/index.html"
+  },
+  {
+    "id": "053-princess-dressup",
+    "title": "Princess Dress Up!",
+    "description": "What should Princess wear today? Match the outfit to the weather — sunny, rainy, snowy, windy and more! 18 scenarios across 3 tiers.",
+    "icon": "👗",
+    "ageMin": 2,
+    "ageMax": 5,
+    "skill": "matching clothing to weather / dressing for the weather",
+    "version": "1.0.0",
+    "category": "other",
+    "path": "games/053-princess-dressup/index.html"
   }
 ]

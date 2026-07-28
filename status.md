@@ -1,9 +1,9 @@
 # Princess Compendium — Status
 
 ## Last update run
-Date: 2026-07-25
-- Improved: `047-royal-vehicles` → v1.1.0 (added tap-to-continue celebrate overlay after each correct answer showing vehicle→habitat mapping; increased tier-transition confetti 30→42)
-- Added: `052-princess-healthy` — "Princess Healthy 🌿" teaching healthy habits & self-care; Easy=2 choices (muddy hands→wash, sleepy→sleep), Medium=3 choices (sick→doctor, cut→plaster), Hard=4 choices (exercising→water, raining→umbrella); 18-scenario pool (6 per tier); tier overlay; sparkle burst + celebrate overlay per round; confetti
+Date: 2026-07-28
+- Improved: `044-animal-homes` → v1.1.0 (expanded animal pool 6→8 per tier: added Clownfish+Dog/Seal+Wolf/Parrot+Shark; fixed progress bar starting at 0%; sparkle burst 14→18; score display "X ⭐"; added dedicated win overlay)
+- Added: `053-princess-dressup` — "Princess Dress Up! 👗" teaching matching clothing to weather; Easy=2 choices (dress for sun, coat for snow), Medium=3 choices (sunglasses, gloves, scarves), Hard=4 choices (hiking boots, windbreaker); 24-scenario pool (8 per tier, pick 3); celebrate overlay with clothing reveal; tier toast; win overlay; 18-particle sparkle burst
 
 ## Improvement history
 
@@ -43,6 +43,7 @@ Date: 2026-07-25
 | 2026-07-19 | 045-princess-train | Progress bar, emoji tier badges, pool 9→18 (6 per tier), dynamic wrong answers, emoji sparkles in burst (18 total), tier overlay + confetti, two-digit font scaling | 1.1.0 |
 | 2026-07-22 | 029-colour-mixing | Pool 9→18 (6 per tier, 3 random), 10 new colours (Magenta/Gold/Teal/Indigo/Lavender/Mint/Peach/Coral/Olive/Lilac), expanded PALETTE (21), tier-transition overlay, playTierUp melody | 1.1.0 |
 | 2026-07-25 | 047-royal-vehicles | Celebrate overlay after each correct answer (vehicle→habitat feedback), tier confetti 30→42 | 1.1.0 |
+| 2026-07-28 | 044-animal-homes | Pool 6→8 per tier (Clownfish/Dog/Seal/Wolf/Parrot/Shark), progress bar fix (0% start), sparkle 14→18, score "X ⭐", dedicated win overlay | 1.1.0 |
 
 ## Games due for improvement (all at v1.0.0)
 
@@ -83,4 +84,4 @@ See `CLAUDE.md` for the full prioritised list. Top 3 to build next:
 17. ~~Healthy habits & self-care~~ — ✅ covered by `052-princess-healthy`
 
 ## Next game ID
-`053-<slug>`
+`054-<slug>`
