@@ -15,22 +15,32 @@
       overflow:hidden; user-select:none; padding-bottom:16px;
     }
 
+    /* Background floaters */
+    .bg-gem { position:fixed; pointer-events:none; animation:floatUp linear infinite; opacity:.1; font-size:clamp(14px,3.5vw,24px); z-index:0; }
+    @keyframes floatUp { 0%{transform:translateY(110vh) rotate(0)} 100%{transform:translateY(-15vh) rotate(360deg)} }
+
     #header {
       width:100%; display:flex; justify-content:space-between; align-items:center;
-      padding:14px 18px 0;
+      padding:14px 18px 0; position:relative; z-index:1;
     }
     #tier-badge {
-      font-size:clamp(13px,3.5vw,18px); color:#fff;
-      background:rgba(255,255,255,0.2); padding:5px 14px; border-radius:20px;
-      text-shadow:0 1px 4px rgba(0,0,0,0.3);
+      font-size:clamp(13px,3.5vw,18px); padding:5px 14px; border-radius:20px; font-weight:bold;
     }
+    .tier-easy   { background:linear-gradient(135deg,#a5d6a7,#66bb6a); color:#1b5e20; }
+    .tier-medium { background:linear-gradient(135deg,#ffe082,#ffd54f); color:#5a3000; }
+    .tier-hard   { background:linear-gradient(135deg,#ce93d8,#ab47bc); color:#fff; }
     #round-label {
       font-size:clamp(13px,3.2vw,17px); color:rgba(255,255,255,0.85);
-      text-shadow:0 1px 4px rgba(0,0,0,0.3);
+      text-shadow:0 1px 4px rgba(0,0,0,0.3); position:relative; z-index:1;
     }
 
+    /* Progress bar */
+    #progress-wrap { width:100%; padding:6px 18px 0; position:relative; z-index:1; flex-shrink:0; }
+    #progress-track { background:rgba(255,255,255,.15); border-radius:20px; height:clamp(8px,2vw,12px); overflow:hidden; }
+    #progress-fill  { height:100%; border-radius:20px; background:linear-gradient(90deg,#ffd700,#e040fb); transition:width .35s ease; width:0%; box-shadow:0 0 8px rgba(255,215,0,.45); }
+
     #dragon-area {
-      display:flex; flex-direction:column; align-items:center; margin-top:10px; flex-shrink:0;
+      display:flex; flex-direction:column; align-items:center; margin-top:10px; flex-shrink:0; position:relative; z-index:1;
     }
     #dragon-emoji {
       font-size:clamp(44px,11vw,66px);
@@ -43,17 +53,17 @@
     #prompt-text {
       font-size:clamp(15px,4vw,21px); color:#fff; text-align:center;
       text-shadow:0 2px 6px rgba(0,0,0,0.4); padding:4px 16px;
-      min-height:2.6em; display:flex; align-items:center; justify-content:center;
+      min-height:2.6em; display:flex; align-items:center; justify-content:center; position:relative; z-index:1;
     }
     #equation-row {
       font-size:clamp(22px,6vw,38px); color:#fff; text-align:center;
       text-shadow:0 2px 8px rgba(0,0,0,0.4); min-height:1.6em;
-      margin-top:2px;
+      margin-top:2px; position:relative; z-index:1;
     }
 
     #gems-area {
       flex:1; display:flex; flex-direction:column;
-      align-items:center; justify-content:center; padding:0 16px; min-height:100px;
+      align-items:center; justify-content:center; padding:0 16px; min-height:100px; position:relative; z-index:1;
     }
     #gems-row {
       display:flex; flex-wrap:wrap; gap:6px; justify-content:center; align-items:center;
@@ -70,7 +80,7 @@
     #answer-area {
       width:100%; padding:10px 14px 0;
       display:grid; grid-template-columns:1fr 1fr;
-      gap:clamp(8px,2vw,12px); flex-shrink:0;
+      gap:clamp(8px,2vw,12px); flex-shrink:0; position:relative; z-index:1;
     }
     .ans-btn {
       border:3px solid rgba(255,255,255,0.35);
@@ -139,6 +149,21 @@
     }
     @keyframes confettiFall { 0%{top:-20px;opacity:1} 100%{top:110vh;opacity:.2} }
 
+    /* Win overlay */
+    #win-overlay {
+      position:fixed; inset:0; background:rgba(20,0,50,.9);
+      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:18px;
+      z-index:99; opacity:0; pointer-events:none; transition:opacity .4s;
+    }
+    #win-overlay.show { opacity:1; pointer-events:all; }
+    .win-emoji { font-size:clamp(64px,18vw,110px); }
+    .win-title { font-size:clamp(24px,7vw,48px); color:#ffd700; text-align:center; padding:0 20px; }
+    .win-sub   { font-size:clamp(15px,4vw,22px); color:#f8bbd0; text-align:center; padding:0 20px; opacity:.9; }
+    .win-btn   { padding:clamp(14px,4vw,20px) clamp(32px,8vw,56px); font-size:clamp(18px,5vw,26px);
+                 border-radius:50px; border:none; background:linear-gradient(135deg,#ffd700,#ff9800);
+                 color:#5d2e00; font-weight:bold; cursor:pointer; font-family:'Fredoka One',Georgia,serif;
+                 min-height:64px; min-width:180px; box-shadow:0 4px 18px rgba(255,180,0,.5); }
+
     #tier-toast {
       position:fixed; top:70px; left:50%; transform:translateX(-50%);
       background:linear-gradient(135deg,#ffd700,#ff9800);
@@ -155,10 +180,20 @@
 <body>
 
 <div id="header">
-  <div id="tier-badge">🌸 Easy</div>
+  <div id="tier-badge" class="tier-easy">🌸 Easy</div>
   <div id="round-label">Round 1 / 9</div>
 </div>
+<div id="progress-wrap">
+  <div id="progress-track"><div id="progress-fill"></div></div>
+</div>
 <div id="tier-toast"></div>
+
+<div id="win-overlay">
+  <div class="win-emoji">👑</div>
+  <div class="win-title">Subtraction Star! 🐉</div>
+  <div class="win-sub">Princess is so proud of you! ✨</div>
+  <button class="win-btn" onclick="restartGame()">Play Again 🌸</button>
+</div>
 
 <div id="dragon-area">
   <div id="dragon-emoji">🐉</div>
@@ -180,9 +215,9 @@
 
 <script>
   const TIERS = [
-    { label:'🌸 Easy',   maxStart:5,  maxTake:1 },
-    { label:'🌟 Medium', maxStart:7,  maxTake:2 },
-    { label:'👑 Hard',   maxStart:10, maxTake:5 },
+    { label:'🌸 Easy',   cls:'tier-easy',   maxStart:5,  maxTake:1 },
+    { label:'🌟 Medium', cls:'tier-medium', maxStart:7,  maxTake:2 },
+    { label:'👑 Hard',   cls:'tier-hard',   maxStart:10, maxTake:5 },
   ];
   const GEM_EMOJIS = ['💎','🌟','💜','🔮','🌸','⭐'];
   const TOTAL = 9;
@@ -213,6 +248,19 @@
     return TIERS[2];
   }
 
+  function makeBgGems() {
+    document.querySelectorAll('.bg-gem').forEach(e => e.remove());
+    const icons = ['💎','🌟','✨','💫','🐉','🌸','⭐','🔮'];
+    for (let i = 0; i < 10; i++) {
+      const el = document.createElement('div'); el.className = 'bg-gem';
+      el.textContent = icons[i % icons.length];
+      el.style.left = (4 + Math.random() * 92) + 'vw';
+      el.style.animationDuration = (10 + Math.random() * 14) + 's';
+      el.style.animationDelay = -(Math.random() * 14) + 's';
+      document.body.appendChild(el);
+    }
+  }
+
   function shuffle(arr) {
     const a = [...arr];
     for (let i = a.length-1; i > 0; i--) {
@@ -231,8 +279,11 @@
     const prevTier = round > 1 ? getTier(round-1) : null;
     if (prevTier && prevTier.label !== tier.label) showTierToast(tier.label);
 
-    document.getElementById('tier-badge').textContent  = tier.label;
+    const badge = document.getElementById('tier-badge');
+    badge.textContent = tier.label;
+    badge.className   = tier.cls;
     document.getElementById('round-label').textContent = `Round ${round} / ${TOTAL}`;
+    document.getElementById('progress-fill').style.width = ((round - 1) / TOTAL * 100) + '%';
 
     startCount  = 2 + Math.floor(Math.random() * (tier.maxStart - 1));
     takeCount   = 1 + Math.floor(Math.random() * Math.min(tier.maxTake, startCount - 1));
@@ -321,6 +372,12 @@
   }
 
   function showCelebration() {
+    document.getElementById('progress-fill').style.width = (round / TOTAL * 100) + '%';
+    if (round >= TOTAL) {
+      playCelebrate(); confettiBurst(); setTimeout(() => confettiBurst(), 700);
+      setTimeout(() => document.getElementById('win-overlay').classList.add('show'), 500);
+      return;
+    }
     const celebs = [
       { emoji:'🌟', text:'Perfect maths!' },
       { emoji:'👑', text:'Princess maths queen!' },
@@ -331,14 +388,8 @@
     const c = celebs[Math.floor(Math.random() * celebs.length)];
     document.getElementById('celebrate-emoji').textContent = c.emoji;
     document.getElementById('celebrate-text').textContent  = c.text + `\n${startCount} − ${takeCount} = ${remaining} 🌸`;
-    const btn = document.getElementById('next-btn');
-    if (round >= TOTAL) {
-      btn.textContent = 'Play Again 🔄';
-      btn.onclick = restartGame;
-    } else {
-      btn.textContent = 'Next ➡️';
-      btn.onclick = nextRound;
-    }
+    document.getElementById('next-btn').textContent = 'Next ➡️';
+    document.getElementById('next-btn').onclick = nextRound;
     document.getElementById('celebrate-overlay').classList.add('show');
     playCelebrate(); confettiBurst();
     sparkleBurst(window.innerWidth/2, window.innerHeight * 0.4);
@@ -347,6 +398,9 @@
   function restartGame() {
     round = 0;
     document.getElementById('celebrate-overlay').classList.remove('show');
+    document.getElementById('win-overlay').classList.remove('show');
+    document.getElementById('progress-fill').style.width = '0%';
+    makeBgGems();
     nextRound();
   }
 
@@ -378,7 +432,7 @@
 
   function confettiBurst() {
     const cols = ['#ffd700','#ff69b4','#ff99cc','#c0a0ff','#7fff00','#00cfff','#ffffff'];
-    for (let i = 0; i < 32; i++) {
+    for (let i = 0; i < 42; i++) {
       const el = document.createElement('div');
       el.className = 'confetti-piece';
       const sz = 8 + Math.random() * 8;
@@ -392,6 +446,7 @@
     }
   }
 
+  makeBgGems();
   nextRound();
 </script>
 </body>

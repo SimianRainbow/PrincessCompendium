@@ -1,9 +1,9 @@
 # Princess Compendium — Status
 
 ## Last update run
-Date: 2026-07-28
-- Improved: `044-animal-homes` → v1.1.0 (expanded animal pool 6→8 per tier: added Clownfish+Dog/Seal+Wolf/Parrot+Shark; fixed progress bar starting at 0%; sparkle burst 14→18; score display "X ⭐"; added dedicated win overlay)
-- Added: `053-princess-dressup` — "Princess Dress Up! 👗" teaching matching clothing to weather; Easy=2 choices (dress for sun, coat for snow), Medium=3 choices (sunglasses, gloves, scarves), Hard=4 choices (hiking boots, windbreaker); 24-scenario pool (8 per tier, pick 3); celebrate overlay with clothing reveal; tier toast; win overlay; 18-particle sparkle burst
+Date: 2026-07-31
+- Improved: `036-princess-takeaway` → v1.1.0 (added progress bar; color-coded tier badges green/yellow/purple; 10 background floating gems; confetti 32→42 + double burst on win; dedicated win overlay replacing reuse of celebrate overlay)
+- Added: `054-mirror-magic` — "Magic Mirror 🪞" teaching symmetry & mirror image recognition; Easy=2×2 colour grid, Medium=3×2, Hard=3×3; 18-question pool (6 per tier, pick 3); fills in mirror reflection on correct tap; tier-transition overlay; 18-particle sparkle burst; win overlay
 
 ## Improvement history
 
@@ -44,6 +44,7 @@ Date: 2026-07-28
 | 2026-07-22 | 029-colour-mixing | Pool 9→18 (6 per tier, 3 random), 10 new colours (Magenta/Gold/Teal/Indigo/Lavender/Mint/Peach/Coral/Olive/Lilac), expanded PALETTE (21), tier-transition overlay, playTierUp melody | 1.1.0 |
 | 2026-07-25 | 047-royal-vehicles | Celebrate overlay after each correct answer (vehicle→habitat feedback), tier confetti 30→42 | 1.1.0 |
 | 2026-07-28 | 044-animal-homes | Pool 6→8 per tier (Clownfish/Dog/Seal/Wolf/Parrot/Shark), progress bar fix (0% start), sparkle 14→18, score "X ⭐", dedicated win overlay | 1.1.0 |
+| 2026-07-31 | 036-princess-takeaway | Progress bar, color-coded tier badges, 10 bg gems, confetti 32→42 + double-burst on win, dedicated win overlay | 1.1.0 |
 
 ## Games due for improvement (all at v1.0.0)
 
@@ -82,6 +83,7 @@ See `CLAUDE.md` for the full prioritised list. Top 3 to build next:
 15. ~~Telling time (analog clock hours)~~ — ✅ covered by `050-princess-clock`
 16. ~~Matching objects to their use (functional understanding)~~ — ✅ covered by `051-princess-helpers`
 17. ~~Healthy habits & self-care~~ — ✅ covered by `052-princess-healthy`
+18. ~~Symmetry & mirror image recognition~~ — ✅ covered by `054-mirror-magic`
 
 ## Next game ID
-`054-<slug>`
+`055-<slug>`

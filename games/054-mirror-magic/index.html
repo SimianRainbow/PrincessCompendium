@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Magic Mirror 🪞</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+    body{
+      min-height:100vh;
+      background:linear-gradient(160deg,#1a0533 0%,#4a1272 50%,#c2185b 100%);
+      font-family:'Fredoka One',Georgia,serif;
+      display:flex;flex-direction:column;align-items:center;
+      overflow:hidden;user-select:none;padding-bottom:10px;
+    }
+
+    /* Floating bg */
+    .bg-gem{position:fixed;pointer-events:none;animation:floatUp linear infinite;opacity:.1;font-size:clamp(14px,3.5vw,22px);z-index:0;}
+    @keyframes floatUp{0%{transform:translateY(110vh) rotate(0)}100%{transform:translateY(-15vh) rotate(360deg)}}
+
+    /* Header */
+    #header{
+      width:100%;display:flex;justify-content:space-between;align-items:center;
+      padding:clamp(10px,2.5vw,16px) clamp(14px,4vw,22px) 0;
+      flex-shrink:0;position:relative;z-index:1;
+    }
+    #tier-badge{font-size:clamp(13px,3.2vw,18px);padding:5px 15px;border-radius:20px;font-weight:bold;}
+    .tier-easy  {background:linear-gradient(135deg,#a5d6a7,#66bb6a);color:#1b5e20;}
+    .tier-medium{background:linear-gradient(135deg,#ffe082,#ffd54f);color:#5a3000;}
+    .tier-hard  {background:linear-gradient(135deg,#ce93d8,#ab47bc);color:#fff;}
+    #round-label{font-size:clamp(13px,3.2vw,17px);color:rgba(255,255,255,.9);position:relative;z-index:1;}
+
+    /* Progress bar */
+    #progress-wrap{width:100%;padding:6px clamp(14px,4vw,22px) 0;flex-shrink:0;position:relative;z-index:1;}
+    #progress-track{background:rgba(255,255,255,.18);border-radius:20px;height:clamp(8px,2vw,12px);overflow:hidden;}
+    #progress-fill{height:100%;border-radius:20px;background:linear-gradient(90deg,#ffd700,#e040fb);transition:width .35s ease;width:0%;box-shadow:0 0 8px rgba(255,215,0,.45);}
+
+    /* Prompt */
+    #prompt{
+      font-size:clamp(17px,4.5vw,26px);color:#fff;
+      text-shadow:0 2px 6px rgba(0,0,0,.4);
+      text-align:center;padding:clamp(6px,1.5vw,12px) 16px 0;
+      flex-shrink:0;position:relative;z-index:1;
+    }
+
+    /* Mirror frame */
+    #mirror-area{
+      flex-shrink:0;
+      display:flex;align-items:center;justify-content:center;
+      padding:clamp(8px,2vw,14px) clamp(12px,3vw,20px) 0;
+      position:relative;z-index:1;width:100%;
+    }
+    #mirror-frame{
+      display:flex;align-items:stretch;
+      border-radius:24px;
+      box-shadow:0 0 0 4px rgba(255,215,0,.6),0 0 30px rgba(255,215,0,.35),0 8px 32px rgba(0,0,0,.5);
+      overflow:hidden;
+      background:rgba(255,255,255,.06);
+      max-width:380px;width:100%;
+    }
+    .mirror-half{
+      flex:1;display:grid;
+      gap:clamp(5px,1.5vw,8px);
+      padding:clamp(8px,2vw,14px);
+    }
+    #mirror-divider{
+      width:4px;background:linear-gradient(180deg,transparent,rgba(255,215,0,.8),transparent);
+      flex-shrink:0;position:relative;
+    }
+    #mirror-divider::after{
+      content:'🪞';font-size:clamp(20px,5vw,30px);
+      position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+      filter:drop-shadow(0 0 6px rgba(255,215,0,.8));
+    }
+
+    /* Color cells */
+    .cell{
+      border-radius:clamp(8px,2vw,12px);
+      aspect-ratio:1;
+      box-shadow:inset 0 2px 0 rgba(255,255,255,.3),0 2px 6px rgba(0,0,0,.4);
+      transition:transform .15s;
+    }
+    #right-half .cell{
+      background:rgba(255,255,255,.1);
+      border:2px dashed rgba(255,255,255,.25);
+    }
+
+    /* Choices */
+    #choices-wrap{
+      flex:1;display:flex;flex-direction:column;
+      align-items:center;justify-content:center;
+      gap:clamp(8px,2vw,12px);
+      padding:clamp(8px,2vw,14px) clamp(12px,3vw,20px);
+      width:100%;position:relative;z-index:1;
+    }
+    #choice-prompt{font-size:clamp(15px,3.8vw,20px);color:#f8bbd0;text-align:center;}
+    #choices{
+      display:flex;gap:clamp(10px,2.5vw,16px);
+      justify-content:center;align-items:flex-start;
+      width:100%;max-width:420px;
+    }
+    .choice-card{
+      flex:1;max-width:clamp(100px,28vw,140px);
+      border-radius:18px;border:3px solid rgba(255,255,255,.3);
+      background:rgba(255,255,255,.12);
+      cursor:pointer;padding:clamp(8px,2vw,12px);
+      display:grid;
+      gap:clamp(4px,1vw,6px);
+      box-shadow:0 4px 18px rgba(0,0,0,.3),inset 0 2px 0 rgba(255,255,255,.18);
+      touch-action:manipulation;transition:transform .12s,border-color .12s;
+    }
+    .choice-card:active{transform:scale(.92);}
+    .choice-card .cell{width:100%;aspect-ratio:1;box-shadow:inset 0 2px 0 rgba(255,255,255,.3);}
+    .choice-card.correct{border-color:#ffd700;background:rgba(255,215,0,.22);animation:correctPop .5s ease-out;}
+    .choice-card.wrong  {animation:wobble .45s ease-out;border-color:rgba(255,80,80,.7);}
+    @keyframes correctPop{0%{transform:scale(1)}40%{transform:scale(1.12);box-shadow:0 0 40px rgba(255,215,0,.8)}100%{transform:scale(1)}}
+    @keyframes wobble{0%,100%{transform:translateX(0)}20%{transform:translateX(-10px)}60%{transform:translateX(10px)}80%{transform:translateX(-5px)}}
+
+    /* Sparkles */
+    .sp{position:fixed;pointer-events:none;z-index:50;animation:sparkOut .75s ease-out forwards;}
+    @keyframes sparkOut{0%{transform:scale(0);opacity:1}100%{transform:scale(1.6);opacity:0}}
+
+    /* Overlays */
+    .overlay{
+      position:fixed;inset:0;background:rgba(20,0,50,.88);
+      display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;
+      z-index:99;opacity:0;pointer-events:none;transition:opacity .35s;
+    }
+    .overlay.show{opacity:1;pointer-events:all;}
+    .ov-emoji{font-size:clamp(60px,17vw,100px);}
+    .ov-title{font-size:clamp(24px,7vw,46px);color:#ffd700;text-align:center;padding:0 20px;}
+    .ov-sub  {font-size:clamp(15px,4vw,22px);color:#f8bbd0;text-align:center;padding:0 20px;opacity:.9;}
+    .btn-next{
+      padding:clamp(14px,4vw,20px) clamp(32px,8vw,54px);font-size:clamp(18px,5vw,26px);
+      border-radius:50px;border:none;background:linear-gradient(135deg,#ffd700,#ff8c00);
+      color:#5d2e00;font-weight:bold;cursor:pointer;font-family:inherit;
+      min-height:64px;min-width:180px;box-shadow:0 4px 18px rgba(255,180,0,.5);
+    }
+    .cf{position:fixed;pointer-events:none;z-index:100;border-radius:3px;animation:cfFall linear forwards;}
+    @keyframes cfFall{0%{top:-20px;opacity:1;transform:rotate(0)}100%{top:110vh;opacity:.2;transform:rotate(720deg)}}
+  </style>
+</head>
+<body>
+
+<div id="header">
+  <div id="tier-badge" class="tier-easy">🌱 Easy</div>
+  <div id="round-label">1 / 9</div>
+</div>
+<div id="progress-wrap">
+  <div id="progress-track"><div id="progress-fill"></div></div>
+</div>
+<div id="prompt">Which side completes the magic mirror? 🪞</div>
+
+<div id="mirror-area">
+  <div id="mirror-frame">
+    <div class="mirror-half" id="left-half"></div>
+    <div id="mirror-divider"></div>
+    <div class="mirror-half" id="right-half"></div>
+  </div>
+</div>
+
+<div id="choices-wrap">
+  <div id="choice-prompt">Tap the matching side! ✨</div>
+  <div id="choices"></div>
+</div>
+
+<div class="overlay" id="round-overlay">
+  <div class="ov-emoji" id="ov-emoji">⭐</div>
+  <div class="ov-title" id="ov-title">Amazing!</div>
+  <div class="ov-sub"   id="ov-sub">Keep going!</div>
+  <button class="btn-next" id="round-btn">Next ➡️</button>
+</div>
+
+<div class="overlay" id="end-overlay">
+  <div class="ov-emoji">👑</div>
+  <div class="ov-title">Mirror Champion! 🪞</div>
+  <div class="ov-sub">You can see both sides perfectly! ✨</div>
+  <button class="btn-next" onclick="startGame()">Play Again 🌸</button>
+</div>
+
+<script>
+// ── Audio ─────────────────────────────────────────────────────────────────────
+let audioCtx=null;
+function getAudio(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();return audioCtx;}
+function tone(f,type,d,v=.16){
+  try{const c=getAudio(),o=c.createOscillator(),g=c.createGain();
+    o.connect(g);g.connect(c.destination);
+    o.type=type;o.frequency.value=f;
+    g.gain.setValueAtTime(v,c.currentTime);
+    g.gain.exponentialRampToValueAtTime(.001,c.currentTime+d);
+    o.start();o.stop(c.currentTime+d);}catch(e){}
+}
+function playCorrect() {[523,659,784,1047].forEach((f,i)=>setTimeout(()=>tone(f,'sine',.18,.2),i*70));}
+function playWrong()   {tone(260,'sawtooth',.18,.13);setTimeout(()=>tone(210,'sawtooth',.14,.1),160);}
+function playTierUp()  {[523,659,784,880,1047,1319].forEach((f,i)=>setTimeout(()=>tone(f,'triangle',.28,.2),i*90));}
+function playWin()     {[523,659,784,1047,784,1047,1319,1047,1319,1568].forEach((f,i)=>setTimeout(()=>tone(f,'sine',.3,.22),i*90));}
+
+// ── Colour palette ────────────────────────────────────────────────────────────
+// 8 distinct pastel princess colours
+const PALETTE=[
+  {hex:'#f48fb1',name:'Pink'},
+  {hex:'#ce93d8',name:'Purple'},
+  {hex:'#90caf9',name:'Blue'},
+  {hex:'#a5d6a7',name:'Green'},
+  {hex:'#ffd700',name:'Gold'},
+  {hex:'#ff8a65',name:'Orange'},
+  {hex:'#fffde7',name:'Cream'},
+  {hex:'#ef9a9a',name:'Rose'},
+];
+
+// ── Pool ──────────────────────────────────────────────────────────────────────
+// Each entry: { rows, cols, left }
+// left: 2D array [row][col] = colour index
+// The correct right half is each row reversed.
+// Easy: 2 rows × 2 cols (uses colours 0-3)
+// Medium: 3 rows × 2 cols (uses colours 0-5)
+// Hard: 3 rows × 3 cols (uses all 8)
+
+const POOL=[
+  // EASY (2×2) — 6 questions
+  {rows:2,cols:2,left:[[0,1],[2,3]]},
+  {rows:2,cols:2,left:[[1,2],[0,3]]},
+  {rows:2,cols:2,left:[[3,0],[1,2]]},
+  {rows:2,cols:2,left:[[2,3],[0,1]]},
+  {rows:2,cols:2,left:[[0,2],[3,1]]},
+  {rows:2,cols:2,left:[[1,3],[2,0]]},
+  // MEDIUM (3×2) — 6 questions
+  {rows:3,cols:2,left:[[0,1],[2,3],[4,5]]},
+  {rows:3,cols:2,left:[[5,0],[3,1],[2,4]]},
+  {rows:3,cols:2,left:[[1,4],[0,5],[3,2]]},
+  {rows:3,cols:2,left:[[2,5],[4,0],[1,3]]},
+  {rows:3,cols:2,left:[[4,2],[1,3],[5,0]]},
+  {rows:3,cols:2,left:[[3,1],[5,2],[0,4]]},
+  // HARD (3×3) — 6 questions
+  {rows:3,cols:3,left:[[0,1,2],[3,4,5],[6,7,0]]},
+  {rows:3,cols:3,left:[[1,0,3],[5,2,4],[7,6,1]]},
+  {rows:3,cols:3,left:[[2,5,0],[1,3,7],[4,6,2]]},
+  {rows:3,cols:3,left:[[6,1,4],[0,7,3],[5,2,6]]},
+  {rows:3,cols:3,left:[[3,7,1],[6,0,4],[2,5,3]]},
+  {rows:3,cols:3,left:[[4,2,6],[7,5,0],[1,3,4]]},
+];
+
+const TIERS=[
+  {label:'🌱 Easy',  cls:'tier-easy',  indices:[0,1,2,3,4,5]},
+  {label:'🌸 Medium',cls:'tier-medium',indices:[6,7,8,9,10,11]},
+  {label:'🌺 Hard',  cls:'tier-hard',  indices:[12,13,14,15,16,17]},
+];
+const TOTAL=9;
+
+let round=0,locked=false,currentQ=null,gameOrder=[];
+
+function shuffle(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];}return b;}
+function getTierIdx(r){return r<=3?0:r<=6?1:2;}
+
+function startGame(){
+  document.getElementById('end-overlay').classList.remove('show');
+  document.getElementById('round-overlay').classList.remove('show');
+  round=0;locked=false;
+  gameOrder=[
+    ...shuffle(TIERS[0].indices).slice(0,3),
+    ...shuffle(TIERS[1].indices).slice(0,3),
+    ...shuffle(TIERS[2].indices).slice(0,3),
+  ];
+  makeBgGems();
+  nextRound();
+}
+
+function nextRound(){
+  document.getElementById('round-overlay').classList.remove('show');
+  if(round>=TOTAL){endGame();return;}
+  round++;locked=false;
+  updateHUD();
+
+  currentQ=POOL[gameOrder[round-1]];
+  renderMirror();
+  renderChoices();
+}
+
+function renderMirror(){
+  const q=currentQ;
+  const leftEl=document.getElementById('left-half');
+  const rightEl=document.getElementById('right-half');
+  leftEl.style.gridTemplateColumns=`repeat(${q.cols},1fr)`;
+  rightEl.style.gridTemplateColumns=`repeat(${q.cols},1fr)`;
+  leftEl.innerHTML='';rightEl.innerHTML='';
+
+  for(let r=0;r<q.rows;r++){
+    for(let c=0;c<q.cols;c++){
+      const cell=document.createElement('div');
+      cell.className='cell';
+      cell.style.background=PALETTE[q.left[r][c]].hex;
+      leftEl.appendChild(cell);
+    }
+    // Right side stays empty (dashed placeholders)
+    for(let c=0;c<q.cols;c++){
+      const cell=document.createElement('div');
+      cell.className='cell';
+      rightEl.appendChild(cell);
+    }
+  }
+}
+
+function mirrorOf(left){
+  // Correct mirror: each row reversed
+  return left.map(row=>[...row].reverse());
+}
+
+function randomWrong(correct,q){
+  // Generate a random different 2D array with same dimensions
+  let attempts=0;
+  while(attempts<50){
+    const grid=q.left.map(row=>row.map(()=>Math.floor(Math.random()*PALETTE.length)));
+    if(JSON.stringify(grid)!==JSON.stringify(correct)) return grid;
+    attempts++;
+  }
+  // Fallback: shift all colours by 1
+  return correct.map(row=>row.map(c=>(c+1)%PALETTE.length));
+}
+
+function renderChoices(){
+  const q=currentQ;
+  const correct=mirrorOf(q.left);
+  const wrongs=[randomWrong(correct,q),randomWrong(correct,q)];
+  const options=shuffle([
+    {grid:correct,ok:true},
+    {grid:wrongs[0],ok:false},
+    {grid:wrongs[1],ok:false},
+  ]);
+
+  const container=document.getElementById('choices');
+  container.innerHTML='';
+  options.forEach(opt=>{
+    const card=document.createElement('div');
+    card.className='choice-card';
+    card.style.gridTemplateColumns=`repeat(${q.cols},1fr)`;
+    opt.grid.forEach(row=>row.forEach(ci=>{
+      const cell=document.createElement('div');
+      cell.className='cell';
+      cell.style.background=PALETTE[ci].hex;
+      card.appendChild(cell);
+    }));
+    card.addEventListener('pointerdown',()=>handleTap(card,opt.ok));
+    container.appendChild(card);
+  });
+}
+
+function handleTap(card,ok){
+  if(locked)return;
+  try{getAudio().resume();}catch(e){}
+  if(ok){
+    locked=true;
+    card.classList.add('correct');
+    playCorrect();
+    const r=card.getBoundingClientRect();
+    burst(r.left+r.width/2,r.top+r.height/2);
+    // Fill in the right half of the mirror with correct answer
+    fillRightHalf();
+    setTimeout(showRoundOverlay,600);
+  } else {
+    card.classList.add('wrong');
+    playWrong();
+    setTimeout(()=>card.classList.remove('wrong'),460);
+  }
+}
+
+function fillRightHalf(){
+  const q=currentQ;
+  const correct=mirrorOf(q.left);
+  const rightEl=document.getElementById('right-half');
+  const cells=rightEl.querySelectorAll('.cell');
+  let i=0;
+  for(let r=0;r<q.rows;r++){
+    for(let c=0;c<q.cols;c++){
+      cells[i].style.background=PALETTE[correct[r][c]].hex;
+      cells[i].style.border='none';
+      i++;
+    }
+  }
+}
+
+function showRoundOverlay(){
+  const tierIdx=getTierIdx(round);
+  const nextTierIdx=getTierIdx(round+1);
+  const isTierEnd=(round<TOTAL && nextTierIdx>tierIdx);
+
+  if(isTierEnd){
+    playTierUp();confetti(42);
+    document.getElementById('ov-emoji').textContent='🎉';
+    document.getElementById('ov-title').textContent='Tier complete! ✨';
+    document.getElementById('ov-sub').textContent=TIERS[nextTierIdx].label+' starts now!';
+  } else {
+    const msgs=['You got it! 👑','Amazing! 🌟','Mirror magic! 🪞','Perfect! 💎','Brilliant! ✨','Wonderful! 🌸'];
+    document.getElementById('ov-emoji').textContent='🪞';
+    document.getElementById('ov-title').textContent=msgs[Math.floor(Math.random()*msgs.length)];
+    document.getElementById('ov-sub').textContent='The mirror is complete! ✨';
+  }
+  document.getElementById('round-btn').onclick=nextRound;
+  document.getElementById('round-overlay').classList.add('show');
+}
+
+function endGame(){
+  playWin();confetti(60);setTimeout(()=>confetti(40),700);
+  document.getElementById('end-overlay').classList.add('show');
+}
+
+function updateHUD(){
+  const tierIdx=getTierIdx(round);
+  const tier=TIERS[tierIdx];
+  const badge=document.getElementById('tier-badge');
+  badge.textContent=tier.label;badge.className=tier.cls;
+  document.getElementById('round-label').textContent=round+' / '+TOTAL;
+  document.getElementById('progress-fill').style.width=((round-1)/TOTAL*100)+'%';
+}
+
+// ── Particles ─────────────────────────────────────────────────────────────────
+function burst(cx,cy){
+  const cols=['#ffd700','#f48fb1','#fff','#ce93d8','#e040fb','#90caf9'];
+  const icons=['✨','💫','⭐','🪞','🌟'];
+  for(let i=0;i<18;i++){
+    const el=document.createElement('div');el.className='sp';
+    const a=Math.random()*Math.PI*2,dist=30+Math.random()*80,sz=7+Math.random()*10;
+    if(i<5){
+      el.style.cssText=`left:${cx+Math.cos(a)*dist}px;top:${cy+Math.sin(a)*dist}px;font-size:${18+Math.random()*10}px;background:none;border-radius:0;`;
+      el.textContent=icons[i%icons.length];
+    } else {
+      el.style.cssText=`left:${cx+Math.cos(a)*dist-sz/2}px;top:${cy+Math.sin(a)*dist-sz/2}px;width:${sz}px;height:${sz}px;background:${cols[i%cols.length]};border-radius:50%;`;
+    }
+    document.body.appendChild(el);setTimeout(()=>el.remove(),800);
+  }
+}
+
+function confetti(count){
+  const cols=['#e040fb','#ffd700','#fff','#f48fb1','#ce93d8','#b2ebf2','#a5d6a7','#ff8a65'];
+  for(let i=0;i<count;i++){
+    const el=document.createElement('div');el.className='cf';
+    const sz=6+Math.random()*10;
+    el.style.cssText=`left:${Math.random()*100}vw;top:-20px;width:${sz}px;height:${sz}px;background:${cols[i%cols.length]};animation-duration:${1.4+Math.random()*2}s;animation-delay:${Math.random()*.5}s`;
+    document.body.appendChild(el);setTimeout(()=>el.remove(),3500);
+  }
+}
+
+function makeBgGems(){
+  document.querySelectorAll('.bg-gem').forEach(e=>e.remove());
+  const icons=['✨','💫','🪞','⭐','🌟','💎','🎀','🌸'];
+  for(let i=0;i<10;i++){
+    const el=document.createElement('div');el.className='bg-gem';
+    el.textContent=icons[i%icons.length];
+    el.style.left=(4+Math.random()*92)+'vw';
+    el.style.animationDuration=(10+Math.random()*14)+'s';
+    el.style.animationDelay=-(Math.random()*14)+'s';
+    document.body.appendChild(el);
+  }
+}
+
+startGame();
+</script>
+</body>
+</html>
