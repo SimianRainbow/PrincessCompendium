@@ -15,27 +15,37 @@
       overflow:hidden; user-select:none; padding-bottom:12px;
     }
 
+    .bg-gem { position:fixed; pointer-events:none; opacity:.10;
+      font-size:clamp(16px,4vw,26px); animation:floatUp linear infinite; z-index:0; }
+    @keyframes floatUp { 0%{transform:translateY(110vh) rotate(0)} 100%{transform:translateY(-15vh) rotate(360deg)} }
+
     #header {
       width:100%; display:flex; justify-content:space-between; align-items:center;
       padding:clamp(10px,2.5vw,16px) clamp(14px,3.5vw,22px) 0;
+      position:relative; z-index:1; flex-shrink:0;
     }
     #tier-badge {
-      font-size:clamp(13px,3.2vw,18px);
-      background:rgba(255,255,255,.2); border:1.5px solid rgba(255,255,255,.4);
-      border-radius:20px; padding:4px 12px; color:#fff;
+      font-size:clamp(13px,3.2vw,18px); padding:5px 14px;
+      border-radius:20px; font-weight:bold; border:2px solid rgba(255,255,255,.3);
+      transition:background .35s;
     }
-    #round-counter {
-      font-size:clamp(13px,3.2vw,17px); color:rgba(255,255,255,.85);
-    }
-    #score-row { font-size:clamp(16px,4vw,24px); }
+    .tier-easy   { background:linear-gradient(135deg,#66bb6a,#2e7d32); color:#fff; }
+    .tier-medium { background:linear-gradient(135deg,#ffca28,#f57f17); color:#3e2000; }
+    .tier-hard   { background:linear-gradient(135deg,#ce93d8,#6a1b9a); color:#fff; }
+    #round-counter { font-size:clamp(13px,3.2vw,17px); color:rgba(255,255,255,.88); position:relative; z-index:1; }
+    #score-row     { font-size:clamp(16px,4vw,22px); position:relative; z-index:1; min-width:60px; text-align:right; }
+
+    #progress-wrap { width:100%; padding:6px clamp(14px,4vw,22px) 0; flex-shrink:0; position:relative; z-index:1; }
+    #progress-track { background:rgba(255,255,255,.2); border-radius:20px; height:clamp(8px,2vw,12px); overflow:hidden; }
+    #progress-fill  { height:100%; border-radius:20px; background:linear-gradient(90deg,#ffd700,#e040fb);
+      transition:width .35s ease; width:0%; box-shadow:0 0 8px rgba(255,215,0,.4); }
 
     #princess-area {
       display:flex; flex-direction:column; align-items:center;
-      margin-top:clamp(6px,1.5vw,12px);
+      margin-top:clamp(6px,1.5vw,12px); position:relative; z-index:1; flex-shrink:0;
     }
     #princess-face {
-      font-size:clamp(36px,10vw,60px);
-      animation:float 3s ease-in-out infinite;
+      font-size:clamp(36px,10vw,60px); animation:float 3s ease-in-out infinite;
     }
     @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-7px)} }
 
@@ -44,10 +54,9 @@
       padding:clamp(8px,2.5vw,14px) clamp(14px,4vw,24px);
       margin:clamp(6px,2vw,12px) 16px;
       text-align:center; box-shadow:0 4px 20px rgba(0,0,0,.2);
+      position:relative; z-index:1; flex-shrink:0;
     }
-    #prompt-label {
-      font-size:clamp(11px,2.8vw,15px); color:#7b1fa2; margin-bottom:2px;
-    }
+    #prompt-label { font-size:clamp(11px,2.8vw,15px); color:#7b1fa2; margin-bottom:2px; }
     #prompt-step {
       font-size:clamp(22px,6vw,36px); color:#4a148c; font-weight:bold;
       text-transform:uppercase; letter-spacing:2px;
@@ -57,7 +66,7 @@
     #cards-area {
       display:flex; gap:clamp(8px,2.5vw,16px); justify-content:center;
       padding:clamp(6px,2vw,12px) 12px;
-      flex:1; align-items:center;
+      flex:1; align-items:center; position:relative; z-index:1;
     }
 
     .story-card {
@@ -96,66 +105,97 @@
     }
     @keyframes badgePop { from{transform:scale(0)} to{transform:scale(1)} }
 
-    /* Tier-transition toast */
-    #tier-toast {
-      position:fixed; top:68px; left:50%; transform:translateX(-50%) translateY(-20px);
-      background:linear-gradient(135deg,#ffd700,#ff9800); color:#4a0000;
-      border-radius:24px; padding:10px 24px;
-      font-size:clamp(14px,3.5vw,19px);
-      box-shadow:0 4px 16px rgba(255,150,0,.4);
-      opacity:0; pointer-events:none; z-index:20;
-      transition:opacity .3s, transform .3s;
-      white-space:nowrap;
-    }
-    #tier-toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
-
+    /* Sparkles */
     .sparkle {
       position:fixed; font-size:clamp(12px,3.5vw,20px);
-      pointer-events:none; z-index:50;
-      animation:sparkleFly ease-out forwards;
+      pointer-events:none; z-index:50; animation:sparkleFly ease-out forwards;
     }
     @keyframes sparkleFly {
-      0%   { transform:translate(0,0) scale(1.2); opacity:1; }
-      100% { transform:translate(var(--tx),var(--ty)) scale(.1); opacity:0; }
+      0%  { transform:translate(0,0) scale(1.2); opacity:1; }
+      100%{ transform:translate(var(--tx),var(--ty)) scale(.1); opacity:0; }
     }
 
+    /* Tier overlay */
+    #tier-overlay {
+      position:fixed; inset:0; z-index:85;
+      display:flex; flex-direction:column;
+      align-items:center; justify-content:center; gap:16px;
+      background:rgba(0,0,0,.7); opacity:0; pointer-events:none; transition:opacity .3s;
+    }
+    #tier-overlay.show { opacity:1; pointer-events:all; }
+    #to-icon  { font-size:clamp(60px,16vw,96px); }
+    #to-title { font-size:clamp(26px,7vw,48px); color:#ffd700; text-shadow:0 0 20px #ff9800; text-align:center; }
+    #to-sub   { font-size:clamp(16px,4.5vw,24px); color:#fff; text-align:center; padding:0 24px; }
+    #to-btn {
+      padding:clamp(14px,4vw,20px) clamp(32px,8vw,56px);
+      font-size:clamp(20px,5vw,28px); border-radius:50px; border:none;
+      background:linear-gradient(135deg,#ffd700,#ff9800); color:#5d2e00;
+      font-family:inherit; cursor:pointer; box-shadow:0 4px 16px rgba(255,180,0,.5);
+      touch-action:manipulation;
+    }
+
+    /* Celebrate overlay */
     #celebrate-overlay {
-      position:fixed; inset:0; background:rgba(0,0,0,.55);
+      position:fixed; inset:0; background:rgba(0,0,0,.6);
       display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px;
       z-index:99; opacity:0; pointer-events:none; transition:opacity .3s;
     }
     #celebrate-overlay.show { opacity:1; pointer-events:all; }
-    #celebrate-icon { font-size:clamp(64px,18vw,110px); }
+    #celebrate-icon { font-size:clamp(64px,18vw,110px); animation:bigPop .4s ease-out; }
+    @keyframes bigPop { 0%{transform:scale(.3)} 60%{transform:scale(1.22)} 100%{transform:scale(1)} }
     #celebrate-text {
-      font-size:clamp(24px,6.5vw,48px); color:#fff;
-      text-shadow:0 0 20px #ffd700; text-align:center; padding:0 16px;
+      font-size:clamp(24px,6.5vw,48px); color:#ffd700;
+      text-shadow:0 0 20px rgba(255,215,0,.7); text-align:center; padding:0 16px;
     }
     #celebrate-sub {
-      font-size:clamp(16px,4.5vw,26px); color:#ffd700;
-      text-shadow:0 0 10px rgba(255,215,0,.6); text-align:center;
+      font-size:clamp(16px,4.5vw,26px); color:#fff;
+      text-align:center; padding:0 20px; opacity:.9;
     }
     #next-btn {
       padding:clamp(14px,4vw,20px) clamp(32px,8vw,56px);
       font-size:clamp(20px,5vw,28px); border-radius:50px; border:none;
       background:linear-gradient(135deg,#ffd700,#ff9800);
       color:#4a0000; font-weight:bold; cursor:pointer;
-      font-family:'Fredoka One',inherit;
-      box-shadow:0 4px 16px rgba(255,180,0,.5);
+      font-family:'Fredoka One',inherit; box-shadow:0 4px 16px rgba(255,180,0,.5);
+      touch-action:manipulation;
     }
-    .confetti-piece {
-      position:fixed; border-radius:50%;
-      animation:confettiFall linear forwards;
-      pointer-events:none; z-index:100;
+
+    /* Win overlay */
+    #win-overlay {
+      position:fixed; inset:0; z-index:100;
+      display:flex; flex-direction:column;
+      align-items:center; justify-content:center; gap:clamp(12px,3vw,20px);
+      background:linear-gradient(160deg,#4a148c 0%,#880e4f 100%);
+      opacity:0; pointer-events:none; transition:opacity .4s;
     }
-    @keyframes confettiFall { 0%{top:-20px;opacity:1} 100%{top:110vh;opacity:.2} }
+    #win-overlay.show { opacity:1; pointer-events:all; }
+    #win-emoji { font-size:clamp(72px,18vw,110px); animation:winBob 2.4s ease-in-out infinite; }
+    @keyframes winBob { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-14px)} }
+    #win-title { font-size:clamp(28px,7.5vw,56px); color:#ffd700;
+      text-shadow:0 0 24px rgba(255,215,0,.7); text-align:center; padding:0 20px; }
+    #win-sub   { font-size:clamp(16px,4.5vw,26px); color:rgba(255,255,255,.85); text-align:center; }
+    #play-again-btn {
+      padding:clamp(14px,4vw,20px) clamp(36px,9vw,64px);
+      font-size:clamp(18px,5vw,28px); border-radius:50px; border:none;
+      background:linear-gradient(135deg,#ffd700,#ff9800); color:#5d2e00;
+      font-family:inherit; cursor:pointer; box-shadow:0 6px 24px rgba(255,180,0,.5);
+      touch-action:manipulation;
+    }
+
+    .confetti-piece { position:fixed; border-radius:3px;
+      animation:confettiFall linear forwards; pointer-events:none; z-index:101; }
+    @keyframes confettiFall { 0%{top:-20px;opacity:1} 100%{top:110vh;opacity:.15} }
   </style>
 </head>
 <body>
 
   <div id="header">
-    <div id="tier-badge">⭐ Easy</div>
+    <div id="tier-badge" class="tier-easy">🌱 Easy</div>
     <div id="round-counter">1 / 9</div>
     <div id="score-row"></div>
+  </div>
+  <div id="progress-wrap">
+    <div id="progress-track"><div id="progress-fill"></div></div>
   </div>
 
   <div id="princess-area">
@@ -168,8 +208,15 @@
 
   <div id="cards-area"></div>
 
-  <div id="tier-toast"></div>
+  <!-- Tier overlay -->
+  <div id="tier-overlay">
+    <div id="to-icon">🌟</div>
+    <div id="to-title">Medium Round!</div>
+    <div id="to-sub">No more word hints — use your memory! 🧐</div>
+    <button id="to-btn" onclick="resumeTier()">Keep going! ➡️</button>
+  </div>
 
+  <!-- Correct celebrate overlay -->
   <div id="celebrate-overlay">
     <div id="celebrate-icon">🌟</div>
     <div id="celebrate-text">You got the order!</div>
@@ -177,11 +224,20 @@
     <button id="next-btn" onclick="nextRound()">Next ➡️</button>
   </div>
 
+  <!-- Win overlay -->
+  <div id="win-overlay">
+    <div id="win-emoji">📖</div>
+    <div id="win-title">Story Star! 👑</div>
+    <div id="win-sub">You know every order! 🌟</div>
+    <button id="play-again-btn" onclick="restartGame()">Play Again 🔄</button>
+  </div>
+
 <script>
   /* ── Audio ── */
   let audioCtx=null;
   function getAudio(){ if(!audioCtx) audioCtx=new(window.AudioContext||window.webkitAudioContext)(); return audioCtx; }
-  function tone(f,t,d,v=.15){
+  function tone(f,t,d,v){
+    v=v||.15;
     try{
       const c=getAudio(),o=c.createOscillator(),g=c.createGain();
       o.connect(g);g.connect(c.destination);
@@ -194,117 +250,105 @@
   function playStep(n){ const freqs=[523,659,784]; tone(freqs[n]||784,'sine',.2,.2); }
   function playWrong(){ tone(220,'sawtooth',.2,.1); }
   function playCelebrate(){ [523,659,784,880,1047,1175].forEach((f,i)=>setTimeout(()=>tone(f,'sine',.22,.18),i*70)); }
-  function playTierUp(){ [392,494,587,740,880,1047].forEach((f,i)=>setTimeout(()=>tone(f,'sine',.22,.18),i*80)); }
+  function playTierUp()   { [392,494,587,784,988,1047].forEach((f,i)=>setTimeout(()=>tone(f,'triangle',.28,.2),i*90)); }
+  function playFinalWin() { [523,659,784,1047,784,1047,1319].forEach((f,i)=>setTimeout(()=>tone(f,'sine',.32,.22),i*95)); }
 
-  /* ── Story data ── */
-  // Each story: [step0, step1, step2] in correct order
-  // Each step: { emoji, label (shown in Easy tier) }
-  const STORIES = [
-    { name:'Morning Magic', steps:[
-      { emoji:'😴', label:'Sleeping' },
-      { emoji:'🍳', label:'Breakfast' },
-      { emoji:'👸', label:'Ready!' },
-    ]},
-    { name:'Garden Grow', steps:[
-      { emoji:'🌱', label:'Plant seed' },
-      { emoji:'🌿', label:'Sprout' },
-      { emoji:'🌸', label:'Flower!' },
-    ]},
-    { name:'Caterpillar', steps:[
-      { emoji:'🐛', label:'Caterpillar' },
-      { emoji:'🫘', label:'Cocoon' },
-      { emoji:'🦋', label:'Butterfly!' },
-    ]},
-    { name:'Baking Day', steps:[
-      { emoji:'🥣', label:'Mix it' },
-      { emoji:'🎂', label:'Bake it' },
-      { emoji:'🍰', label:'Eat cake!' },
-    ]},
-    { name:'Rainy Day', steps:[
-      { emoji:'🌧️', label:'Rain clouds' },
-      { emoji:'🌈', label:'Rainbow' },
-      { emoji:'☀️', label:'Sunshine!' },
-    ]},
-    { name:'Frog Prince', steps:[
-      { emoji:'🐸', label:'Frog' },
-      { emoji:'🪄', label:'Magic!' },
-      { emoji:'🤴', label:'Prince!' },
-    ]},
-    { name:'Magic Egg', steps:[
-      { emoji:'🥚', label:'Egg' },
-      { emoji:'🐣', label:'Hatching' },
-      { emoji:'🐥', label:'Chick!' },
-    ]},
-    { name:'Mermaid Treasure', steps:[
-      { emoji:'🧜‍♀️', label:'Swimming' },
-      { emoji:'💎', label:'Find gem' },
-      { emoji:'👑', label:'Crown!' },
-    ]},
-    { name:'Starry Night', steps:[
-      { emoji:'🌅', label:'Sunrise' },
-      { emoji:'🌤️', label:'Daytime' },
-      { emoji:'🌙', label:'Night' },
-    ]},
+  /* ── Story data (18 stories, 6 per tier) ── */
+  const ALL_STORIES = [
+    // EASY — labels shown, obvious steps
+    { name:'Morning Magic', steps:[{e:'😴',l:'Sleeping'},{e:'🍳',l:'Breakfast'},{e:'👸',l:'Ready!'}] },
+    { name:'Garden Grow',   steps:[{e:'🌱',l:'Plant seed'},{e:'🌿',l:'Sprout'},{e:'🌸',l:'Flower!'}] },
+    { name:'Caterpillar',   steps:[{e:'🐛',l:'Caterpillar'},{e:'🫘',l:'Cocoon'},{e:'🦋',l:'Butterfly!'}] },
+    { name:'Baking Day',    steps:[{e:'🥣',l:'Mix it'},{e:'🎂',l:'Bake it'},{e:'🍰',l:'Eat cake!'}] },
+    { name:'Rainy Day',     steps:[{e:'🌧️',l:'Rain clouds'},{e:'🌈',l:'Rainbow'},{e:'☀️',l:'Sunshine!'}] },
+    { name:'Magic Egg',     steps:[{e:'🥚',l:'Egg'},{e:'🐣',l:'Hatching'},{e:'🐥',l:'Chick!'}] },
+    // MEDIUM — no labels
+    { name:'Frog Prince',    steps:[{e:'🐸',l:'Frog'},{e:'🪄',l:'Magic!'},{e:'🤴',l:'Prince!'}] },
+    { name:'Mermaid Treasure',steps:[{e:'🧜‍♀️',l:'Swimming'},{e:'💎',l:'Find gem'},{e:'👑',l:'Crown!'}] },
+    { name:'Starry Night',   steps:[{e:'🌅',l:'Sunrise'},{e:'🌤️',l:'Daytime'},{e:'🌙',l:'Night'}] },
+    { name:'Snowflake',      steps:[{e:'☁️',l:'Cloud forms'},{e:'❄️',l:'Snowflake'},{e:'⛄',l:'Snowman!'}] },
+    { name:'Royal Bath',     steps:[{e:'🛁',l:'Fill bath'},{e:'🧼',l:'Wash up'},{e:'✨',l:'All clean!'}] },
+    { name:'Birthday',       steps:[{e:'🎂',l:'Cake'},{e:'🕯️',l:'Candles'},{e:'🎉',l:'Party!'}] },
+    // HARD — no labels, trickier sequences
+    { name:'Acorn to Oak',   steps:[{e:'🌰',l:'Acorn'},{e:'🌱',l:'Sprout'},{e:'🌳',l:'Big tree!'}] },
+    { name:'Ice Cream',      steps:[{e:'🐄',l:'Cow'},{e:'🍼',l:'Milk'},{e:'🍦',l:'Ice cream!'}] },
+    { name:'Bee Honey',      steps:[{e:'🌸',l:'Flower'},{e:'🐝',l:'Bee visits'},{e:'🍯',l:'Honey!'}] },
+    { name:'Castle Build',   steps:[{e:'🪨',l:'Stones'},{e:'🧱',l:'Building'},{e:'🏰',l:'Castle!'}] },
+    { name:'Firefly Night',  steps:[{e:'🌅',l:'Sunset'},{e:'🌙',l:'Dark night'},{e:'🌟',l:'Fireflies!'}] },
+    { name:'Pumpkin Patch',  steps:[{e:'🌱',l:'Seedling'},{e:'🪴',l:'Vine grows'},{e:'🎃',l:'Pumpkin!'}] },
   ];
 
-  /* ── Tiers ── */
   const TIERS = [
-    { label:'⭐ Easy',   showLabels:true,  rounds:[0,1,2] },
-    { label:'⭐⭐ Medium', showLabels:false, rounds:[3,4,5] },
-    { label:'⭐⭐⭐ Hard', showLabels:false, rounds:[6,7,8] },
-  ];
-  const TIER_TOASTS = [
-    null,
-    '⭐⭐ Medium — no more hints! 🧐',
-    '⭐⭐⭐ Hard — you can do it! 💪',
+    { label:'🌱 Easy',   cls:'tier-easy',   storyRange:[0,6],   showLabels:true,
+      toIcon:'💫', toTitle:'Medium Round!', toSub:'No more word hints — use your eyes! 🧐' },
+    { label:'🌸 Medium', cls:'tier-medium', storyRange:[6,12],  showLabels:false,
+      toIcon:'👑', toTitle:'Hard Round!',   toSub:'Trickiest stories — you can do it! 💪' },
+    { label:'🌺 Hard',   cls:'tier-hard',   storyRange:[12,18], showLabels:false,
+      toIcon:'',   toTitle:'',              toSub:'' },
   ];
   const STEP_WORDS = ['FIRST 1️⃣','NEXT 2️⃣','LAST 3️⃣'];
+  const TOTAL = 9;
 
-  let tierIdx=0, roundNum=0, stepIdx=0, score=0;
+  let gameOrder=[], roundIdx=0, stepIdx=0, score=0, locked=false;
   let currentStory=null, shuffledOrder=[], showLabels=true;
 
-  function updateScore(){ document.getElementById('score-row').innerHTML=Array.from({length:score},()=>'⭐').join(''); }
-  function updateTier(){ document.getElementById('tier-badge').textContent=TIERS[tierIdx].label; }
-  function updateRound(){ document.getElementById('round-counter').textContent=`${roundNum+1} / 9`; }
+  function shuffle(a){ const b=[...a]; for(let i=b.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]]; } return b; }
+
+  function pickGameOrder(){
+    const out=[];
+    TIERS.forEach(tier=>{
+      const pool=ALL_STORIES.slice(tier.storyRange[0],tier.storyRange[1]);
+      shuffle(pool).slice(0,3).forEach(s=>out.push(s));
+    });
+    return out;
+  }
+
+  function getTierIdx(r){ return r<=3?0:r<=6?1:2; }
+
+  function updateHUD(){
+    const tIdx=getTierIdx(roundIdx);
+    const tier=TIERS[tIdx];
+    const badge=document.getElementById('tier-badge');
+    badge.textContent=tier.label; badge.className=tier.cls;
+    document.getElementById('round-counter').textContent=roundIdx+' / '+TOTAL;
+    document.getElementById('progress-fill').style.width=((roundIdx-1)/TOTAL*100)+'%';
+    document.getElementById('score-row').textContent='⭐'.repeat(score);
+  }
 
   function buildRound(){
-    const tier=TIERS[tierIdx];
-    currentStory=STORIES[tier.rounds[roundNum - tierIdx*3]];
-    showLabels=tier.showLabels;
-
-    // Shuffle card positions
-    shuffledOrder=[0,1,2];
-    shuffle(shuffledOrder);
-
+    locked=false;
+    const story=gameOrder[roundIdx-1];
+    currentStory=story;
+    showLabels=getTierIdx(roundIdx)===0;
     stepIdx=0;
     updatePrompt();
+    shuffledOrder=shuffle([0,1,2]);
     renderCards();
   }
 
   function updatePrompt(){
-    document.getElementById('prompt-step').innerHTML=
-      `<span class="step-word">${STEP_WORDS[stepIdx]}</span>`;
+    document.getElementById('prompt-step').innerHTML='<span class="step-word">'+STEP_WORDS[stepIdx]+'</span>';
   }
 
   function renderCards(){
     const area=document.getElementById('cards-area');
     area.innerHTML='';
-    shuffledOrder.forEach((storyIdx,cardPos)=>{
+    shuffledOrder.forEach(storyIdx=>{
       const step=currentStory.steps[storyIdx];
       const card=document.createElement('div');
       card.className='story-card';
       card.dataset.idx=storyIdx;
-      card.innerHTML=`<span class="card-emoji">${step.emoji}</span>`
-        +(showLabels?`<span class="card-label">${step.label}</span>`:'');
-      card.addEventListener('pointerdown',()=>onCardTap(card, storyIdx));
+      card.innerHTML='<span class="card-emoji">'+step.e+'</span>'
+        +(showLabels?'<span class="card-label">'+step.l+'</span>':'');
+      card.addEventListener('pointerdown',()=>onCardTap(card,storyIdx));
       area.appendChild(card);
     });
   }
 
-  function onCardTap(card, storyIdx){
-    if(card.classList.contains('answered')) return;
+  function onCardTap(card,storyIdx){
+    if(locked||card.classList.contains('answered')) return;
+    try{getAudio().resume();}catch(e){}
     if(storyIdx===stepIdx){
-      // Correct
       card.classList.add('answered');
       const badge=document.createElement('div');
       badge.className='order-badge';
@@ -314,9 +358,10 @@
       playStep(stepIdx);
       stepIdx++;
       if(stepIdx===3){
+        locked=true;
         score++;
-        updateScore();
-        setTimeout(showCelebrate, 500);
+        document.getElementById('score-row').textContent='⭐'.repeat(score);
+        setTimeout(showCelebrate,500);
       } else {
         updatePrompt();
       }
@@ -330,86 +375,105 @@
   function showCelebrate(){
     const msgs=['Great order! 🌟','You got it! 👑','So clever! ✨','Amazing! 🌸','Story star! 💫'];
     const subs=['First → Next → Last!','You know the order!','What a smart princess!'];
-    document.getElementById('celebrate-icon').textContent='📖';
+    document.getElementById('celebrate-icon').textContent=currentStory.steps[2].e;
     document.getElementById('celebrate-text').textContent=msgs[Math.floor(Math.random()*msgs.length)];
     document.getElementById('celebrate-sub').textContent=subs[Math.floor(Math.random()*subs.length)];
-    const isLastRoundOfTier=(roundNum%3===2);
-    if(isLastRoundOfTier && tierIdx<TIERS.length-1){
-      document.getElementById('celebrate-text').textContent='Level up! 👑';
-      document.getElementById('celebrate-icon').textContent='👑✨';
-      playTierUp();
-    } else {
-      playCelebrate();
-    }
-    document.getElementById('next-btn').textContent=
-      (roundNum>=8)?'Play Again 🔄':'Next ➡️';
-    document.getElementById('next-btn').onclick=nextRound;
     document.getElementById('celebrate-overlay').classList.add('show');
-    confettiBurst();
-  }
-
-  function showTierToast(msg){
-    const el=document.getElementById('tier-toast');
-    el.textContent=msg;
-    el.classList.add('show');
-    setTimeout(()=>el.classList.remove('show'),2400);
+    playCelebrate();
+    confettiBurst(36);
   }
 
   function nextRound(){
     document.getElementById('celebrate-overlay').classList.remove('show');
-
-    if(roundNum>=8){
-      // Restart
-      roundNum=0; tierIdx=0; score=0; stepIdx=0;
-      updateScore(); updateTier(); updateRound();
-      buildRound(); return;
+    if(roundIdx>=TOTAL){ showWin(); return; }
+    const prevTier=getTierIdx(roundIdx);
+    roundIdx++;
+    updateHUD();
+    const newTier=getTierIdx(roundIdx);
+    if(newTier!==prevTier){
+      const ti=TIERS[prevTier];
+      document.getElementById('to-icon').textContent=ti.toIcon;
+      document.getElementById('to-title').textContent=ti.toTitle;
+      document.getElementById('to-sub').textContent=ti.toSub;
+      document.getElementById('tier-overlay').classList.add('show');
+      playTierUp(); confettiBurst(42);
+    } else {
+      buildRound();
     }
+  }
 
-    roundNum++;
-    const newTierIdx=Math.floor(roundNum/3);
-    if(newTierIdx!==tierIdx){
-      tierIdx=newTierIdx;
-      updateTier();
-      if(TIER_TOASTS[tierIdx]) setTimeout(()=>showTierToast(TIER_TOASTS[tierIdx]),400);
-    }
-    updateRound();
+  function resumeTier(){
+    document.getElementById('tier-overlay').classList.remove('show');
     buildRound();
   }
 
-  function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]; } }
+  function showWin(){
+    document.getElementById('progress-fill').style.width='100%';
+    document.getElementById('win-sub').textContent=score+' / '+TOTAL+' ⭐ You know every order!';
+    document.getElementById('win-overlay').classList.add('show');
+    playFinalWin();
+    confettiBurst(60); setTimeout(()=>confettiBurst(42),650);
+  }
 
+  function restartGame(){
+    document.getElementById('win-overlay').classList.remove('show');
+    score=0; roundIdx=0;
+    gameOrder=pickGameOrder();
+    roundIdx=1;
+    updateHUD();
+    buildRound();
+  }
+
+  /* ── Particles ── */
   function sparkleBurst(el){
     const rect=el.getBoundingClientRect();
     const cx=rect.left+rect.width/2, cy=rect.top+rect.height/2;
-    const icons=['✨','🌸','⭐','💫','💖','🌟'];
-    for(let i=0;i<14;i++){
+    const icons=['✨','🌸','⭐','💫','💖','🌟','📖'];
+    for(let i=0;i<16;i++){
       const s=document.createElement('div'); s.className='sparkle';
-      s.textContent=icons[Math.floor(Math.random()*icons.length)];
-      const angle=(i/14)*Math.PI*2, dist=55+Math.random()*75;
+      if(i<4){ s.textContent=icons[i%icons.length]; s.style.fontSize=(16+Math.random()*10)+'px'; }
+      else { s.textContent=icons[Math.floor(Math.random()*icons.length)]; }
+      const angle=(i/16)*Math.PI*2, dist=55+Math.random()*80;
       s.style.setProperty('--tx',Math.cos(angle)*dist+'px');
       s.style.setProperty('--ty',Math.sin(angle)*dist-15+'px');
       s.style.left=(cx-10)+'px'; s.style.top=(cy-10)+'px';
-      s.style.animationDuration=(0.45+Math.random()*0.5)+'s';
-      s.style.animationDelay=(Math.random()*0.08)+'s';
+      s.style.animationDuration=(.45+Math.random()*.5)+'s';
+      s.style.animationDelay=(Math.random()*.08)+'s';
       document.body.appendChild(s); setTimeout(()=>s.remove(),1100);
     }
   }
 
-  function confettiBurst(){
-    const cols=['#ffd700','#ff69b4','#c0a0ff','#80deea','#a5d6a7','#ff8a65'];
-    for(let i=0;i<36;i++){
+  function confettiBurst(n){
+    const cols=['#ffd700','#ff69b4','#c0a0ff','#80deea','#a5d6a7','#ff8a65','#ce93d8','#fff'];
+    for(let i=0;i<n;i++){
       const el=document.createElement('div'); el.className='confetti-piece';
-      const sz=8+Math.random()*8;
-      el.style.width=sz+'px'; el.style.height=sz+'px';
+      const sz=7+Math.random()*9;
+      el.style.width=sz+'px'; el.style.height=sz*(0.4+Math.random()*.7)+'px';
       el.style.left=Math.random()*100+'vw';
-      el.style.background=cols[Math.floor(Math.random()*cols.length)];
-      el.style.animationDuration=(1.2+Math.random()*1.8)+'s';
+      el.style.background=cols[i%cols.length];
+      el.style.animationDuration=(1.3+Math.random()*1.8)+'s';
       el.style.animationDelay=(Math.random()*.5)+'s';
-      document.body.appendChild(el); setTimeout(()=>el.remove(),3000);
+      document.body.appendChild(el); setTimeout(()=>el.remove(),3200);
     }
   }
 
-  updateTier(); updateRound();
+  function makeBg(){
+    const icons=['📖','✨','👑','🌸','💫','⭐','🌟','🎀','💎','🦋'];
+    for(let i=0;i<10;i++){
+      const el=document.createElement('div'); el.className='bg-gem';
+      el.textContent=icons[i%icons.length];
+      el.style.left=(5+Math.random()*90)+'vw';
+      el.style.animationDuration=(10+Math.random()*14)+'s';
+      el.style.animationDelay=-(Math.random()*16)+'s';
+      document.body.appendChild(el);
+    }
+  }
+
+  /* ── Init ── */
+  makeBg();
+  gameOrder=pickGameOrder();
+  roundIdx=1;
+  updateHUD();
   buildRound();
 </script>
 </body>

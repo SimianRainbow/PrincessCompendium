@@ -1,9 +1,9 @@
 # Princess Compendium — Status
 
 ## Last update run
-Date: 2026-07-31
-- Improved: `036-princess-takeaway` → v1.1.0 (added progress bar; color-coded tier badges green/yellow/purple; 10 background floating gems; confetti 32→42 + double burst on win; dedicated win overlay replacing reuse of celebrate overlay)
-- Added: `054-mirror-magic` — "Magic Mirror 🪞" teaching symmetry & mirror image recognition; Easy=2×2 colour grid, Medium=3×2, Hard=3×3; 18-question pool (6 per tier, pick 3); fills in mirror reflection on correct tap; tier-transition overlay; 18-particle sparkle burst; win overlay
+Date: 2026-08-01
+- Improved: `034-princess-sequence` → v1.1.0 (color-coded tier badges Easy/Medium/Hard; progress bar; 10 bg floating gems; pool expanded 9→18 stories (6 per tier, pick 3); full-screen tier-transition overlay; dedicated win overlay; confetti 36→42 + double burst on win; 16-particle sparkle burst)
+- Added: `055-princess-senses` — "Princess Senses 🌸" teaching the five senses (see/hear/smell/taste/touch); 18-scenario pool (6 per tier); Easy=2 choices (see/hear), Medium=3 (add smell), Hard=4 (add taste/touch); 18-particle sparkle burst; tier overlay; win overlay
 
 ## Improvement history
 
@@ -45,6 +45,7 @@ Date: 2026-07-31
 | 2026-07-25 | 047-royal-vehicles | Celebrate overlay after each correct answer (vehicle→habitat feedback), tier confetti 30→42 | 1.1.0 |
 | 2026-07-28 | 044-animal-homes | Pool 6→8 per tier (Clownfish/Dog/Seal/Wolf/Parrot/Shark), progress bar fix (0% start), sparkle 14→18, score "X ⭐", dedicated win overlay | 1.1.0 |
 | 2026-07-31 | 036-princess-takeaway | Progress bar, color-coded tier badges, 10 bg gems, confetti 32→42 + double-burst on win, dedicated win overlay | 1.1.0 |
+| 2026-08-01 | 034-princess-sequence | Color-coded tier badges, progress bar, 10 bg gems, pool 9→18 (6 per tier), full-screen tier overlay, win overlay, confetti 36→42+double burst, 16-sparkle burst | 1.1.0 |
 
 ## Games due for improvement (all at v1.0.0)
 
@@ -84,6 +85,7 @@ See `CLAUDE.md` for the full prioritised list. Top 3 to build next:
 16. ~~Matching objects to their use (functional understanding)~~ — ✅ covered by `051-princess-helpers`
 17. ~~Healthy habits & self-care~~ — ✅ covered by `052-princess-healthy`
 18. ~~Symmetry & mirror image recognition~~ — ✅ covered by `054-mirror-magic`
+19. ~~The five senses (see, hear, smell, taste, touch)~~ — ✅ covered by `055-princess-senses`
 
 ## Next game ID
-`055-<slug>`
+`056-<slug>`

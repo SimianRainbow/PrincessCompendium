@@ -398,12 +398,12 @@
   {
     "id": "034-princess-sequence",
     "title": "Princess Story Order",
-    "description": "Tap the story pictures in the right order — FIRST, NEXT, LAST! 9 princess sequences.",
+    "description": "Tap the story pictures in the right order — FIRST, NEXT, LAST! 18-story pool across 3 tiers, color-coded badges, progress bar, win overlay.",
     "icon": "📖",
     "ageMin": 2,
     "ageMax": 5,
     "skill": "sequencing & ordinal concepts",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "category": "stories",
     "path": "games/034-princess-sequence/index.html"
   },
@@ -646,5 +646,17 @@
     "version": "1.0.0",
     "category": "colours-shapes",
     "path": "games/054-mirror-magic/index.html"
+  },
+  {
+    "id": "055-princess-senses",
+    "title": "Princess Senses",
+    "description": "Which sense helps you know? Tap eyes to see, ears to hear, nose to smell, mouth to taste, hands to touch — 18 scenarios across 3 tiers!",
+    "icon": "🌸",
+    "ageMin": 2,
+    "ageMax": 5,
+    "skill": "the five senses — see, hear, smell, taste, touch",
+    "version": "1.0.0",
+    "category": "other",
+    "path": "games/055-princess-senses/index.html"
   }
 ]
