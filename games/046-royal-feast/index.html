@@ -37,6 +37,7 @@
     .tier-medium { background: linear-gradient(135deg,#ffe082,#ffd54f); color: #5a3000; }
     .tier-hard   { background: linear-gradient(135deg,#ce93d8,#ab47bc); color: #fff; }
     #round-label { font-size: clamp(13px,3.2vw,17px); color: rgba(255,255,255,0.9); position: relative; z-index: 1; }
+    #score-display { font-size:clamp(15px,3.8vw,22px); color:#ffd700; font-weight:bold; text-shadow:0 0 8px rgba(255,215,0,.5); }
 
     /* Progress bar */
     #progress-wrap { width: 100%; padding: 6px clamp(14px,4vw,22px) 0; position: relative; z-index: 1; flex-shrink: 0; }
@@ -183,6 +184,7 @@
 
   <div id="header">
     <div id="tier-badge" class="tier-easy">🌸 Easy</div>
+    <div id="score-display">0 ⭐</div>
     <div id="round-label">1 / 9</div>
   </div>
   <div id="progress-wrap">
@@ -257,21 +259,25 @@ const FOODS = {
     {e:'🍓',n:'Strawberry'},{e:'🫐',n:'Blueberries'},{e:'🍌',n:'Banana'},
     {e:'🍑',n:'Peach'},     {e:'🍒',n:'Cherries'},   {e:'🍍',n:'Pineapple'},
     {e:'🥭',n:'Mango'},     {e:'🍐',n:'Pear'},
+    {e:'🍉',n:'Watermelon'},{e:'🥝',n:'Kiwi'},{e:'🫒',n:'Olive'},
   ],
   veggie: [
     {e:'🥕',n:'Carrot'},  {e:'🥦',n:'Broccoli'},{e:'🌽',n:'Corn'},
     {e:'🥬',n:'Lettuce'}, {e:'🍆',n:'Eggplant'},{e:'🥒',n:'Cucumber'},
     {e:'🫑',n:'Pepper'},  {e:'🍅',n:'Tomato'},  {e:'🧅',n:'Onion'},
+    {e:'🥑',n:'Avocado'},{e:'🧄',n:'Garlic'},{e:'🫛',n:'Peas'},
   ],
   grain: [
     {e:'🍞',n:'Bread'},  {e:'🥐',n:'Croissant'},{e:'🥛',n:'Milk'},
     {e:'🧀',n:'Cheese'}, {e:'🥚',n:'Egg'},      {e:'🍚',n:'Rice'},
     {e:'🥜',n:'Nuts'},
+    {e:'🫘',n:'Beans'},{e:'🥞',n:'Pancakes'},{e:'🥣',n:'Cereal'},
   ],
   treat: [
     {e:'🍰',n:'Cake'},   {e:'🍭',n:'Lollipop'},{e:'🍫',n:'Chocolate'},
     {e:'🍪',n:'Cookie'}, {e:'🍩',n:'Donut'},   {e:'🍦',n:'Ice Cream'},
     {e:'🧁',n:'Cupcake'},{e:'🍮',n:'Pudding'},
+    {e:'🎂',n:'Birthday Cake'},{e:'🍬',n:'Candy'},
   ],
 };
 
@@ -300,7 +306,7 @@ const TIERS = [
 const TOTAL = 9;
 
 // ── State ───────────────────────────────────────────────────────────────────────
-let round = 0, locked = false, current = null;
+let round = 0, locked = false, current = null, score = 0;
 let usedFood = { fruit: new Set(), veggie: new Set(), grain: new Set(), treat: new Set() };
 
 // ── Helpers ─────────────────────────────────────────────────────────────────────
@@ -342,6 +348,7 @@ function startGame() {
   document.getElementById('celebrate-overlay').classList.remove('show');
   document.getElementById('tier-toast').classList.remove('show');
   round = 0;
+  score = 0; document.getElementById('score-display').textContent = '0 ⭐';
   usedFood = { fruit: new Set(), veggie: new Set(), grain: new Set(), treat: new Set() };
   document.getElementById('progress-fill').style.width = '0%';
   nextRound();
@@ -428,6 +435,7 @@ function handleTap(btn, catKey) {
     locked = true;
     btn.classList.add('correct-flash');
     playCorrect();
+    score++; document.getElementById('score-display').textContent = score + ' ⭐';
     sparkleBurst(btn);
     setTimeout(() => {
       btn.classList.remove('correct-flash');
@@ -455,6 +463,7 @@ function showCelebrate() {
 
 function endGame() {
   document.getElementById('progress-fill').style.width = '100%';
+  document.getElementById('win-sub').textContent = score + ' / 9 ⭐ — You sorted all the royal foods!';
   document.getElementById('win-overlay').classList.add('show');
   playWin();
   confetti(60);

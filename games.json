@@ -547,7 +547,7 @@
     "ageMin": 2,
     "ageMax": 5,
     "skill": "food groups & nutrition sorting",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "category": "other",
     "path": "games/046-royal-feast/index.html"
   },
@@ -658,5 +658,17 @@
     "version": "1.0.0",
     "category": "other",
     "path": "games/055-princess-senses/index.html"
+  },
+  {
+    "id": "056-royal-3d-shapes",
+    "title": "Princess 3D Shapes",
+    "description": "Tap the right 3D shape! Sphere, Cube, Cone, Cylinder and Pyramid — real-world objects to match across 3 tiers, with SVG-drawn 3D shapes to tap.",
+    "icon": "💎",
+    "ageMin": 3,
+    "ageMax": 5,
+    "skill": "3D shape recognition (sphere, cube, cone, cylinder, pyramid)",
+    "version": "1.0.0",
+    "category": "colours-shapes",
+    "path": "games/056-royal-3d-shapes/index.html"
   }
 ]

@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Princess 3D Shapes 💎</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+    body{
+      min-height:100vh;
+      background:linear-gradient(160deg,#1a0a2e 0%,#3a0d6b 50%,#6a1b9a 100%);
+      font-family:'Fredoka One',Georgia,serif;
+      display:flex;flex-direction:column;align-items:center;
+      overflow:hidden;user-select:none;touch-action:manipulation;
+      padding-bottom:8px;
+    }
+
+    .bg-gem{
+      position:fixed;pointer-events:none;opacity:.10;
+      font-size:clamp(18px,4.5vw,30px);
+      animation:bgFloat linear infinite;z-index:0;
+    }
+    @keyframes bgFloat{
+      0%{transform:translateY(110vh) rotate(0)}
+      100%{transform:translateY(-15vh) rotate(360deg)}
+    }
+
+    /* ── Header ── */
+    #header{
+      width:100%;display:flex;justify-content:space-between;align-items:center;
+      padding:clamp(10px,2.5vw,16px) clamp(14px,4vw,22px) 0;
+      flex-shrink:0;position:relative;z-index:1;
+    }
+    #tier-badge{
+      font-size:clamp(13px,3.2vw,17px);padding:5px 14px;border-radius:20px;
+      color:#fff;font-weight:bold;border:2px solid rgba(255,255,255,.38);
+      transition:background .4s;
+    }
+    .tier-easy  {background:linear-gradient(135deg,#66bb6a,#2e7d32);}
+    .tier-medium{background:linear-gradient(135deg,#ffca28,#f57f17);color:#3e2000;}
+    .tier-hard  {background:linear-gradient(135deg,#ce93d8,#6a1b9a);}
+    #score-display{font-size:clamp(15px,3.8vw,22px);color:#ffd700;font-weight:bold;text-shadow:0 0 8px rgba(255,215,0,.5);}
+    #round-label{font-size:clamp(13px,3.2vw,17px);color:rgba(255,200,255,.9);position:relative;z-index:1;}
+
+    /* ── Progress bar ── */
+    #progress-track{
+      width:calc(100% - clamp(28px,7vw,44px));height:7px;
+      background:rgba(255,255,255,.15);border-radius:99px;
+      margin:clamp(6px,1.5vw,10px) auto 0;overflow:hidden;
+      position:relative;z-index:1;
+    }
+    #progress-fill{
+      height:100%;background:linear-gradient(90deg,#ffd700,#e040fb);
+      border-radius:99px;transition:width .4s ease;width:0%;
+    }
+
+    /* ── Question card ── */
+    #question-card{
+      background:rgba(255,255,255,.93);border-radius:28px;
+      padding:clamp(8px,2vw,14px) clamp(18px,5vw,32px);
+      display:flex;flex-direction:column;align-items:center;gap:4px;
+      box-shadow:0 8px 32px rgba(0,0,0,.35),0 0 0 3px rgba(255,215,0,.3);
+      margin:clamp(8px,2vw,14px) clamp(14px,4vw,22px) 0;
+      position:relative;z-index:1;flex-shrink:0;
+      animation:cardIn .4s cubic-bezier(.34,1.56,.64,1);
+    }
+    @keyframes cardIn{from{transform:scale(.65);opacity:0}to{transform:scale(1);opacity:1}}
+    #q-prompt{font-size:clamp(14px,3.5vw,20px);color:#6a1b9a;text-align:center;}
+    #q-emoji{font-size:clamp(64px,17vw,100px);line-height:1.05;}
+    #q-name{font-size:clamp(18px,4.8vw,28px);color:#4a148c;font-weight:bold;}
+
+    /* ── Shape buttons grid ── */
+    #shape-grid{
+      display:grid;
+      gap:clamp(8px,2vw,14px);
+      padding:clamp(8px,2vw,14px) clamp(12px,3vw,20px);
+      width:100%;max-width:480px;
+      position:relative;z-index:1;flex-shrink:0;
+    }
+    .grid-3{grid-template-columns:repeat(3,1fr);}
+    .grid-4{grid-template-columns:repeat(2,1fr);}
+    .grid-5{grid-template-columns:repeat(3,1fr);}
+
+    .shape-btn{
+      min-height:clamp(88px,22vw,118px);
+      border-radius:22px;border:3px solid rgba(255,255,255,.25);
+      cursor:pointer;
+      display:flex;flex-direction:column;align-items:center;justify-content:center;
+      gap:5px;padding:8px 4px;
+      box-shadow:0 4px 18px rgba(0,0,0,.38),inset 0 2px 0 rgba(255,255,255,.28);
+      transition:transform .1s;touch-action:manipulation;
+      background:rgba(255,255,255,.12);backdrop-filter:blur(4px);
+    }
+    .shape-btn:active{transform:scale(.9);}
+    .shape-btn .btn-label{
+      font-size:clamp(12px,3vw,17px);color:#fff;
+      font-weight:bold;text-shadow:0 2px 6px rgba(0,0,0,.55);
+      text-align:center;line-height:1.1;
+    }
+    .shape-btn.correct-flash{animation:correctPop .5s ease-out;border-color:#ffd700;background:rgba(255,215,0,.28);}
+    @keyframes correctPop{
+      0%{transform:scale(1)}
+      40%{transform:scale(1.15);box-shadow:0 0 40px rgba(255,215,0,.8);}
+      100%{transform:scale(1)}
+    }
+    .shape-btn.wrong-shake{animation:wrongShake .42s ease-out;}
+    @keyframes wrongShake{
+      0%,100%{transform:translateX(0)}
+      20%{transform:translateX(-10px)}
+      60%{transform:translateX(10px)}
+    }
+
+    /* ── Sparkles ── */
+    .sparkle{
+      position:fixed;pointer-events:none;z-index:90;
+      font-size:clamp(14px,3.5vw,22px);
+      animation:sparkOut ease-out forwards;
+    }
+    @keyframes sparkOut{
+      0%{transform:translate(-50%,-50%) scale(0);opacity:1}
+      50%{transform:translate(-50%,-50%) scale(1.4);opacity:1}
+      100%{transform:translate(-50%,-50%) scale(.1);opacity:0}
+    }
+    .spark-dot{
+      position:fixed;pointer-events:none;z-index:90;border-radius:50%;
+      animation:dotFly ease-out forwards;
+    }
+    @keyframes dotFly{
+      0%{transform:translate(0,0) scale(1);opacity:1}
+      100%{transform:translate(var(--tx),var(--ty)) scale(.05);opacity:0}
+    }
+    .confetti-p{
+      position:fixed;pointer-events:none;z-index:90;border-radius:3px;
+      animation:cfFall linear forwards;
+    }
+    @keyframes cfFall{0%{top:-20px;opacity:1}100%{top:110vh;opacity:.1}}
+
+    /* ── Celebrate overlay ── */
+    #celebrate{
+      position:fixed;inset:0;z-index:80;
+      display:none;flex-direction:column;
+      align-items:center;justify-content:center;gap:clamp(10px,2.5vw,18px);
+      background:rgba(30,0,60,.88);
+    }
+    #celebrate.show{display:flex;}
+    #cel-shape{width:clamp(90px,22vw,140px);height:clamp(90px,22vw,140px);}
+    #cel-name{font-size:clamp(28px,7.5vw,54px);color:#ffd700;text-align:center;text-shadow:0 0 18px rgba(255,215,0,.5);}
+    #cel-msg {font-size:clamp(15px,4vw,24px);color:rgba(255,255,255,.85);text-align:center;padding:0 20px;}
+    #cel-btn {
+      padding:clamp(14px,4vw,20px) clamp(36px,9vw,60px);
+      font-size:clamp(18px,5vw,28px);border-radius:50px;border:none;
+      background:linear-gradient(135deg,#ffd700,#ff9800);color:#5d2e00;
+      font-family:inherit;cursor:pointer;touch-action:manipulation;
+      box-shadow:0 6px 22px rgba(255,180,0,.45);min-height:60px;
+    }
+
+    /* ── Tier overlay ── */
+    #tier-overlay{
+      position:fixed;inset:0;z-index:85;
+      display:none;flex-direction:column;
+      align-items:center;justify-content:center;gap:16px;
+      background:rgba(0,0,0,.72);
+    }
+    #tier-overlay.show{display:flex;}
+    #to-icon {font-size:clamp(60px,16vw,96px);}
+    #to-title{font-size:clamp(26px,7vw,48px);color:#ffd700;text-shadow:0 0 20px #ff9800;text-align:center;padding:0 20px;}
+    #to-sub  {font-size:clamp(15px,4.2vw,22px);color:#fff;text-align:center;padding:0 24px;}
+    #to-btn  {
+      padding:clamp(14px,4vw,20px) clamp(32px,8vw,56px);
+      font-size:clamp(18px,5vw,26px);border-radius:50px;border:none;
+      background:linear-gradient(135deg,#ffd700,#ff9800);
+      color:#5d2e00;font-family:inherit;cursor:pointer;
+      box-shadow:0 4px 16px rgba(255,180,0,.5);touch-action:manipulation;min-height:60px;
+    }
+
+    /* ── Win overlay ── */
+    #win-overlay{
+      position:fixed;inset:0;z-index:90;
+      display:none;flex-direction:column;
+      align-items:center;justify-content:center;gap:clamp(12px,3vw,20px);
+      background:linear-gradient(160deg,#4a0080 0%,#1a0033 100%);
+    }
+    #win-overlay.show{display:flex;}
+    #win-emoji{font-size:clamp(72px,18vw,110px);animation:wBob 2.4s ease-in-out infinite;}
+    @keyframes wBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
+    #win-title{font-size:clamp(28px,7.5vw,56px);color:#ffd700;text-shadow:0 0 24px rgba(255,215,0,.7);text-align:center;padding:0 20px;}
+    #win-sub  {font-size:clamp(16px,4.2vw,24px);color:rgba(255,255,255,.85);text-align:center;padding:0 20px;}
+    #win-btn  {
+      padding:clamp(14px,4vw,20px) clamp(36px,9vw,64px);
+      font-size:clamp(18px,5vw,28px);border-radius:50px;border:none;
+      background:linear-gradient(135deg,#ffd700,#ff9800);color:#5d2e00;
+      font-family:inherit;cursor:pointer;
+      box-shadow:0 6px 24px rgba(255,180,0,.5);touch-action:manipulation;min-height:60px;
+    }
+  </style>
+</head>
+<body>
+
+<div id="header">
+  <div id="tier-badge" class="tier-easy">🌸 Easy</div>
+  <div id="score-display">0 ⭐</div>
+  <div id="round-label">1 / 9</div>
+</div>
+<div id="progress-track"><div id="progress-fill"></div></div>
+
+<div id="question-card">
+  <div id="q-prompt">What shape is this? 💎</div>
+  <div id="q-emoji">🔮</div>
+  <div id="q-name">Crystal Ball</div>
+</div>
+
+<div id="shape-grid" class="grid-3"></div>
+
+<!-- Celebrate overlay -->
+<div id="celebrate">
+  <svg id="cel-shape" viewBox="0 0 100 100"></svg>
+  <div id="cel-name">Sphere!</div>
+  <div id="cel-msg">Amazing! 🌟</div>
+  <button id="cel-btn" onclick="doNext()">Next ➡️</button>
+</div>
+
+<!-- Tier overlay -->
+<div id="tier-overlay">
+  <div id="to-icon">💎</div>
+  <div id="to-title">New Shape Unlocked!</div>
+  <div id="to-sub">A new 3D shape to discover! 🔮</div>
+  <button id="to-btn" onclick="resumeTier()">Let's go! ➡️</button>
+</div>
+
+<!-- Win overlay -->
+<div id="win-overlay">
+  <div id="win-emoji">💎</div>
+  <div id="win-title">Shape Wizard! 👑</div>
+  <div id="win-sub">You know all the royal shapes! ✨</div>
+  <button id="win-btn" onclick="restartGame()">Play Again 🌸</button>
+</div>
+
+<script>
+  // ── Audio ────────────────────────────────────────────────────────────────────
+  var audioCtx = null;
+  function au() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); return audioCtx; }
+  function tone(f, type, d, v) {
+    v = v || 0.15;
+    try {
+      var c = au(), o = c.createOscillator(), g = c.createGain();
+      o.connect(g); g.connect(c.destination);
+      o.type = type; o.frequency.value = f;
+      g.gain.setValueAtTime(v, c.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + d);
+      o.start(); o.stop(c.currentTime + d);
+    } catch(e) {}
+  }
+  function playCorrect()  { [523,659,784,1047].forEach(function(f,i){ setTimeout(function(){ tone(f,'sine',.2,.18); }, i*70); }); }
+  function playWrong()    { tone(220,'sawtooth',.2,.12); }
+  function playTierUp()   { [392,494,587,784,988,1175].forEach(function(f,i){ setTimeout(function(){ tone(f,'triangle',.28,.17); }, i*85); }); }
+  function playCelebrate(){ [523,587,659,784,880,1047,1319].forEach(function(f,i){ setTimeout(function(){ tone(f,'sine',.25,.16); }, i*65); }); }
+
+  // ── SVG shape drawings ────────────────────────────────────────────────────────
+  // Each returns SVG inner content for a 100×100 viewBox
+  var SHAPE_SVG = {
+    sphere: function() {
+      return '<defs><radialGradient id="sg" cx="35%" cy="28%" r="65%">'
+        + '<stop offset="0%" stop-color="#fff"/>'
+        + '<stop offset="35%" stop-color="#e1bee7"/>'
+        + '<stop offset="75%" stop-color="#9c4dcc"/>'
+        + '<stop offset="100%" stop-color="#4a148c"/>'
+        + '</radialGradient></defs>'
+        + '<circle cx="50" cy="50" r="42" fill="url(#sg)"/>'
+        + '<ellipse cx="38" cy="33" rx="10" ry="6" fill="rgba(255,255,255,.35)" transform="rotate(-30 38 33)"/>';
+    },
+    cube: function() {
+      return '<defs><linearGradient id="ct" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#e1bee7"/><stop offset="100%" stop-color="#ce93d8"/></linearGradient>'
+        + '<linearGradient id="cl" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#7b1fa2"/><stop offset="100%" stop-color="#9c4dcc"/></linearGradient>'
+        + '<linearGradient id="cr" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#6a1b9a"/><stop offset="100%" stop-color="#4a148c"/></linearGradient>'
+        + '</defs>'
+        + '<polygon points="50,10 82,27 82,27 50,44 18,27" fill="url(#ct)"/>'
+        + '<polygon points="18,27 50,44 50,78 18,61" fill="url(#cl)"/>'
+        + '<polygon points="82,27 50,44 50,78 82,61" fill="url(#cr)"/>'
+        + '<polygon points="50,10 82,27 82,61 50,78 18,61 18,27" fill="none" stroke="rgba(255,255,255,.25)" stroke-width="1.5"/>';
+    },
+    cone: function() {
+      return '<defs><linearGradient id="cng" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#ce93d8"/><stop offset="100%" stop-color="#9c4dcc"/></linearGradient></defs>'
+        + '<ellipse cx="50" cy="75" rx="32" ry="11" fill="#6a1b9a"/>'
+        + '<polygon points="50,10 18,75 82,75" fill="url(#cng)"/>'
+        + '<line x1="50" y1="10" x2="18" y2="75" stroke="rgba(255,255,255,.18)" stroke-width="1"/>';
+    },
+    cylinder: function() {
+      return '<defs><linearGradient id="cylg" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#7b1fa2"/><stop offset="50%" stop-color="#ce93d8"/><stop offset="100%" stop-color="#6a1b9a"/></linearGradient></defs>'
+        + '<rect x="18" y="26" width="64" height="50" fill="url(#cylg)"/>'
+        + '<ellipse cx="50" cy="76" rx="32" ry="11" fill="#4a148c"/>'
+        + '<ellipse cx="50" cy="26" rx="32" ry="11" fill="#e1bee7"/>'
+        + '<ellipse cx="44" cy="24" rx="10" ry="4" fill="rgba(255,255,255,.3)" transform="rotate(-15 44 24)"/>';
+    },
+    pyramid: function() {
+      return '<defs><linearGradient id="pyg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#f48fb1"/><stop offset="100%" stop-color="#ce93d8"/></linearGradient>'
+        + '<linearGradient id="pyr" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#9c4dcc"/><stop offset="100%" stop-color="#7b1fa2"/></linearGradient>'
+        + '</defs>'
+        + '<ellipse cx="52" cy="76" rx="34" ry="10" fill="#4a148c"/>'
+        + '<polygon points="52,10 18,76 52,68" fill="url(#pyg)"/>'
+        + '<polygon points="52,10 86,76 52,68" fill="url(#pyr)"/>'
+        + '<polygon points="18,76 86,76 52,68" fill="#6a1b9a"/>';
+    }
+  };
+
+  // ── Shape data ────────────────────────────────────────────────────────────────
+  var SHAPES = {
+    sphere:   { name:'Sphere',   color:'#7b1fa2' },
+    cube:     { name:'Cube',     color:'#1565c0' },
+    cone:     { name:'Cone',     color:'#e65100' },
+    cylinder: { name:'Cylinder', color:'#2e7d32' },
+    pyramid:  { name:'Pyramid',  color:'#b71c1c' },
+  };
+
+  var POOLS = {
+    sphere:   [{e:'🔮',n:'Crystal Ball'},{e:'🌍',n:'Earth'},{e:'⚽',n:'Football'},{e:'🍊',n:'Orange'},{e:'🎱',n:'Pool Ball'},{e:'🌕',n:'Full Moon'}],
+    cube:     [{e:'🎁',n:'Gift Box'},{e:'🎲',n:'Dice'},{e:'🧊',n:'Ice Cube'},{e:'📦',n:'Box'},{e:'🧱',n:'Brick'},{e:'📫',n:'Post Box'}],
+    cone:     [{e:'🍦',n:'Ice Cream Cone'},{e:'🎩',n:'Wizard Hat'},{e:'🌲',n:'Pine Tree'},{e:'🎪',n:'Big Top'},{e:'🔦',n:'Torch Tip'},{e:'⛰️',n:'Mountain Peak'}],
+    cylinder: [{e:'🥫',n:'Tin Can'},{e:'🥤',n:'Drink Cup'},{e:'🪣',n:'Bucket'},{e:'🔭',n:'Telescope'},{e:'🥁',n:'Drum'},{e:'🕯️',n:'Candle'}],
+    pyramid:  [{e:'🏛️',n:'Pyramid'},{e:'⛺',n:'Royal Tent'},{e:'🔺',n:'Magic Pyramid'},{e:'💎',n:'Diamond'},{e:'🌋',n:'Volcano'},{e:'🏔️',n:'Snowy Peak'}],
+  };
+
+  var TIER_INFO = [
+    { label:'🌸 Easy',   cls:'tier-easy',   shapes:['sphere','cube','cone'],                       icon:'💎', title:'New Shape Unlocked!',    sub:'Cylinder joins the game! 🥫' },
+    { label:'💎 Medium', cls:'tier-medium', shapes:['sphere','cube','cone','cylinder'],             icon:'⭐', title:'Final Shape Unlocked!',  sub:'The Royal Pyramid appears! 🏛️' },
+    { label:'⭐ Hard',   cls:'tier-hard',   shapes:['sphere','cube','cone','cylinder','pyramid'],   icon:'👑', title:'Shape Wizard!',          sub:'' },
+  ];
+
+  var TOTAL = 9, ROUNDS_PER_TIER = 3;
+  var rounds = [], cur = 0, score = 0, locked = false;
+
+  // ── Shuffle ───────────────────────────────────────────────────────────────────
+  function shuffle(a) {
+    var b = a.slice();
+    for (var i = b.length-1; i > 0; i--) {
+      var j = 0|Math.random()*(i+1), t = b[i]; b[i]=b[j]; b[j]=t;
+    }
+    return b;
+  }
+
+  function pickFromPool(shapeKey, used) {
+    var pool = POOLS[shapeKey];
+    var fresh = pool.filter(function(it){ return used.indexOf(it.n) < 0; });
+    var src = fresh.length ? fresh : pool;
+    return src[0|Math.random()*src.length];
+  }
+
+  // ── Build round list ──────────────────────────────────────────────────────────
+  function buildRounds() {
+    var out = [], used = {};
+    Object.keys(POOLS).forEach(function(k){ used[k]=[]; });
+    TIER_INFO.forEach(function(tier, tIdx) {
+      // Pick one item per shape in this tier (shuffled order)
+      var shapesCopy = shuffle(tier.shapes.slice());
+      // For 3 rounds from 3-5 shapes, ensure each round has a different shape
+      var picks = [];
+      shapesCopy.slice(0, ROUNDS_PER_TIER).forEach(function(shapeKey) {
+        var item = pickFromPool(shapeKey, used[shapeKey]);
+        used[shapeKey].push(item.n);
+        picks.push({ shape: shapeKey, item: item, tier: tIdx });
+      });
+      // Shuffle the picks so round order within tier varies
+      shuffle(picks).forEach(function(p){ out.push(p); });
+    });
+    return out;
+  }
+
+  // ── Render HUD ────────────────────────────────────────────────────────────────
+  function updateHUD() {
+    var tIdx = rounds[cur] ? rounds[cur].tier : 2;
+    var ti = TIER_INFO[tIdx];
+    var badge = document.getElementById('tier-badge');
+    badge.textContent = ti.label;
+    badge.className   = ti.cls;
+    document.getElementById('round-label').textContent = (cur+1) + ' / ' + TOTAL;
+    document.getElementById('progress-fill').style.width = (cur / TOTAL * 100) + '%';
+    document.getElementById('score-display').textContent = score + ' ⭐';
+  }
+
+  // ── Show question ──────────────────────────────────────────────────────────────
+  function showRound(idx) {
+    locked = false;
+    cur = idx;
+    updateHUD();
+
+    var r = rounds[idx];
+    var card = document.getElementById('question-card');
+    card.style.animation = 'none';
+    void card.offsetWidth;
+    card.style.animation = '';
+    document.getElementById('q-emoji').textContent = r.item.e;
+    document.getElementById('q-name').textContent  = r.item.n;
+
+    var tier = TIER_INFO[r.tier];
+    var grid = document.getElementById('shape-grid');
+    grid.className = 'grid-' + tier.shapes.length;
+    grid.innerHTML = '';
+
+    var shapeOrder = shuffle(tier.shapes.slice());
+    shapeOrder.forEach(function(shapeKey) {
+      var s = SHAPES[shapeKey];
+      var btn = document.createElement('button');
+      btn.className = 'shape-btn';
+      btn.style.background = 'rgba(255,255,255,.12)';
+      var svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
+      svg.setAttribute('viewBox','0 0 100 100');
+      svg.setAttribute('width','clamp(44px,11vw,66px)');
+      svg.setAttribute('height','clamp(44px,11vw,66px)');
+      svg.style.cssText = 'width:clamp(44px,11vw,66px);height:clamp(44px,11vw,66px);flex-shrink:0;';
+      svg.innerHTML = SHAPE_SVG[shapeKey]();
+      var label = document.createElement('span');
+      label.className = 'btn-label';
+      label.textContent = s.name;
+      btn.appendChild(svg);
+      btn.appendChild(label);
+      (function(sk){ btn.addEventListener('pointerdown', function(){ handleTap(btn, sk); }); })(shapeKey);
+      grid.appendChild(btn);
+    });
+  }
+
+  // ── Handle tap ────────────────────────────────────────────────────────────────
+  function handleTap(btn, shapeKey) {
+    if (locked) return;
+    var r = rounds[cur];
+    if (shapeKey === r.shape) {
+      locked = true;
+      btn.classList.add('correct-flash');
+      playCorrect();
+      score++;
+      var rect = btn.getBoundingClientRect();
+      sparkleBurst(rect.left + rect.width/2, rect.top + rect.height/2);
+      setTimeout(function(){ showCelebrate(r.shape); }, 450);
+    } else {
+      btn.classList.add('wrong-shake');
+      playWrong();
+      setTimeout(function(){ btn.classList.remove('wrong-shake'); }, 430);
+    }
+  }
+
+  // ── Celebrate overlay ─────────────────────────────────────────────────────────
+  var MSGS = ['Amazing! 🌟','Brilliant! 💫','You got it! 👑','Wonderful! 🌈','Perfect! ✨','Great job! 💎'];
+  function showCelebrate(shapeKey) {
+    var s = SHAPES[shapeKey];
+    document.getElementById('cel-shape').innerHTML = SHAPE_SVG[shapeKey]();
+    document.getElementById('cel-name').textContent = s.name + '!';
+    document.getElementById('cel-msg').textContent  = MSGS[0|Math.random()*MSGS.length];
+    document.getElementById('celebrate').classList.add('show');
+    playCelebrate();
+    confettiBurst(28);
+  }
+
+  function doNext() {
+    document.getElementById('celebrate').classList.remove('show');
+    var next = cur + 1;
+    if (next >= TOTAL) { showWin(); return; }
+    var prevTier = rounds[cur].tier;
+    var nextTier = rounds[next].tier;
+    if (nextTier !== prevTier) {
+      showTierOverlay(prevTier);
+    } else {
+      showRound(next);
+    }
+  }
+
+  // ── Tier overlay ──────────────────────────────────────────────────────────────
+  function showTierOverlay(completedTier) {
+    var next = TIER_INFO[completedTier + 1];
+    document.getElementById('to-icon').textContent  = next.icon;
+    document.getElementById('to-title').textContent = next.title;
+    document.getElementById('to-sub').textContent   = next.sub;
+    document.getElementById('tier-overlay').classList.add('show');
+    playTierUp();
+    confettiBurst(42);
+  }
+
+  function resumeTier() {
+    document.getElementById('tier-overlay').classList.remove('show');
+    showRound(cur + 1);
+  }
+
+  // ── Win ───────────────────────────────────────────────────────────────────────
+  function showWin() {
+    document.getElementById('progress-fill').style.width = '100%';
+    document.getElementById('score-display').textContent = score + ' ⭐';
+    document.getElementById('win-sub').textContent = score + ' / 9 ⭐ — You know all the royal 3D shapes!';
+    document.getElementById('win-overlay').classList.add('show');
+    playCelebrate();
+    confettiBurst(60);
+    setTimeout(function(){ confettiBurst(42); }, 700);
+  }
+
+  // ── Particles ──────────────────────────────────────────────────────────────────
+  function sparkleBurst(x, y) {
+    var ems  = ['✨','💫','⭐','💎','🌟','👑','🔮'];
+    var cols = ['#ffd700','#f48fb1','#ce93d8','#80deea','#a5d6a7','#ffab91','#fff'];
+    for (var i = 0; i < 20; i++) {
+      var el = document.createElement('span');
+      el.className = 'sparkle';
+      el.textContent = ems[i % ems.length];
+      var angle = (i / 20) * Math.PI * 2;
+      var dist  = 50 + Math.random() * 90;
+      el.style.left = (x + Math.cos(angle) * dist) + 'px';
+      el.style.top  = (y + Math.sin(angle) * dist) + 'px';
+      el.style.animationDelay    = (Math.random() * .14) + 's';
+      el.style.animationDuration = (.7 + Math.random() * .35) + 's';
+      document.body.appendChild(el);
+      setTimeout((function(e){ return function(){ e.remove(); }; })(el), 1200);
+    }
+    for (var j = 0; j < 10; j++) {
+      var dot = document.createElement('div');
+      dot.className = 'spark-dot';
+      var a2 = Math.random() * Math.PI * 2;
+      var d2 = 20 + Math.random() * 60;
+      var sz = 5 + Math.random() * 9;
+      dot.style.cssText = 'width:'+sz+'px;height:'+sz+'px;left:'+(x-sz/2)+'px;top:'+(y-sz/2)+'px;'
+        + 'background:'+cols[j%cols.length]+';'
+        + '--tx:'+(Math.cos(a2)*d2)+'px;--ty:'+(Math.sin(a2)*d2)+'px;'
+        + 'animation-duration:'+(0.6+Math.random()*.3)+'s;';
+      document.body.appendChild(dot);
+      setTimeout((function(e){ return function(){ e.remove(); }; })(dot), 1000);
+    }
+  }
+
+  function confettiBurst(n) {
+    var cols = ['#ffd700','#f48fb1','#ce93d8','#80deea','#a5d6a7','#ffab91','#e040fb','#fff'];
+    for (var i = 0; i < n; i++) {
+      var el  = document.createElement('div');
+      el.className = 'confetti-p';
+      var dur = 1.3 + Math.random() * 1.8;
+      var sz  = 6 + Math.random() * 9;
+      el.style.cssText = 'left:'+Math.random()*100+'vw;width:'+sz+'px;height:'+sz*(0.4+Math.random()*0.7)+'px;'
+        + 'background:'+cols[i%cols.length]+';animation-duration:'+dur+'s;animation-delay:'+Math.random()*.45+'s;';
+      document.body.appendChild(el);
+      setTimeout((function(e){ return function(){ e.remove(); }; })(el), (dur + 0.6) * 1000 + 200);
+    }
+  }
+
+  // ── Background gems ───────────────────────────────────────────────────────────
+  function makeBg() {
+    var gems = ['💎','✨','⭐','🔮','💫','👑','🌟','🔷','🟣','🔵'];
+    for (var i = 0; i < 10; i++) {
+      var el = document.createElement('div');
+      el.className = 'bg-gem';
+      el.textContent = gems[i % gems.length];
+      el.style.left = (5 + Math.random() * 90) + 'vw';
+      el.style.animationDuration = (9 + Math.random() * 14) + 's';
+      el.style.animationDelay    = -(Math.random() * 18) + 's';
+      document.body.appendChild(el);
+    }
+  }
+
+  // ── Restart ───────────────────────────────────────────────────────────────────
+  function restartGame() {
+    document.getElementById('win-overlay').classList.remove('show');
+    document.getElementById('tier-overlay').classList.remove('show');
+    document.getElementById('celebrate').classList.remove('show');
+    score = 0; cur = 0;
+    rounds = buildRounds();
+    document.getElementById('progress-fill').style.width = '0%';
+    showRound(0);
+  }
+
+  // ── Init ─────────────────────────────────────────────────────────────────────
+  makeBg();
+  rounds = buildRounds();
+  showRound(0);
+</script>
+</body>
+</html>

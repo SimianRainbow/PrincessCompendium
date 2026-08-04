@@ -1,9 +1,9 @@
 # Princess Compendium — Status
 
 ## Last update run
-Date: 2026-08-01
-- Improved: `034-princess-sequence` → v1.1.0 (color-coded tier badges Easy/Medium/Hard; progress bar; 10 bg floating gems; pool expanded 9→18 stories (6 per tier, pick 3); full-screen tier-transition overlay; dedicated win overlay; confetti 36→42 + double burst on win; 16-particle sparkle burst)
-- Added: `055-princess-senses` — "Princess Senses 🌸" teaching the five senses (see/hear/smell/taste/touch); 18-scenario pool (6 per tier); Easy=2 choices (see/hear), Medium=3 (add smell), Hard=4 (add taste/touch); 18-particle sparkle burst; tier overlay; win overlay
+Date: 2026-08-04
+- Improved: `046-royal-feast` → v1.1.0 (score counter ⭐ in header; food pool expanded +3 per category (Watermelon/Kiwi/Olive, Avocado/Garlic/Peas, Beans/Pancakes/Cereal, Birthday Cake/Candy); win overlay shows final score; double confetti burst on win)
+- Added: `056-royal-3d-shapes` — "Princess 3D Shapes 💎" teaching 3D shape recognition (sphere, cube, cone, cylinder, pyramid); 6-item pool per shape; Easy=3 shapes, Medium=4, Hard=5; SVG-drawn 3D shapes in answer buttons; celebrate overlay with shape SVG; tier overlay; win overlay; double confetti burst
 
 ## Improvement history
 
@@ -46,6 +46,7 @@ Date: 2026-08-01
 | 2026-07-28 | 044-animal-homes | Pool 6→8 per tier (Clownfish/Dog/Seal/Wolf/Parrot/Shark), progress bar fix (0% start), sparkle 14→18, score "X ⭐", dedicated win overlay | 1.1.0 |
 | 2026-07-31 | 036-princess-takeaway | Progress bar, color-coded tier badges, 10 bg gems, confetti 32→42 + double-burst on win, dedicated win overlay | 1.1.0 |
 | 2026-08-01 | 034-princess-sequence | Color-coded tier badges, progress bar, 10 bg gems, pool 9→18 (6 per tier), full-screen tier overlay, win overlay, confetti 36→42+double burst, 16-sparkle burst | 1.1.0 |
+| 2026-08-04 | 046-royal-feast | Score counter ⭐ in header, pool +3 per category (14/12/10/10 items), win overlay shows final score, double confetti burst on win | 1.1.0 |
 
 ## Games due for improvement (all at v1.0.0)
 
@@ -86,6 +87,7 @@ See `CLAUDE.md` for the full prioritised list. Top 3 to build next:
 17. ~~Healthy habits & self-care~~ — ✅ covered by `052-princess-healthy`
 18. ~~Symmetry & mirror image recognition~~ — ✅ covered by `054-mirror-magic`
 19. ~~The five senses (see, hear, smell, taste, touch)~~ — ✅ covered by `055-princess-senses`
+20. ~~3D shape recognition (sphere, cube, cone, cylinder, pyramid)~~ — ✅ covered by `056-royal-3d-shapes`
 
 ## Next game ID
-`056-<slug>`
+`057-<slug>`
