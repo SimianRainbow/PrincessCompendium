@@ -1,9 +1,9 @@
 # Princess Compendium — Status
 
 ## Last update run
-Date: 2026-08-04
-- Improved: `046-royal-feast` → v1.1.0 (score counter ⭐ in header; food pool expanded +3 per category (Watermelon/Kiwi/Olive, Avocado/Garlic/Peas, Beans/Pancakes/Cereal, Birthday Cake/Candy); win overlay shows final score; double confetti burst on win)
-- Added: `056-royal-3d-shapes` — "Princess 3D Shapes 💎" teaching 3D shape recognition (sphere, cube, cone, cylinder, pyramid); 6-item pool per shape; Easy=3 shapes, Medium=4, Hard=5; SVG-drawn 3D shapes in answer buttons; celebrate overlay with shape SVG; tier overlay; win overlay; double confetti burst
+Date: 2026-08-07
+- Improved: `048-royal-race` → v1.1.0 (score counter ⭐ in header; pair pool expanded 9→18, 6 per tier (Jet/Balloon, Motorbike/Worm, Helicopter/Walker, Train/Scooter, Rabbit/Crocodile, Speedboat/Rowboat, Race Car/Elephant, Eagle/Snail, Cheetah/Tortoise rematch as SLOWER); celebrate overlay with correct animal name after each right answer)
+- Added: `057-royal-podium` — "Royal Podium 🥇" teaching ordinal numbers (1st, 2nd, 3rd, 4th); 6 princess racer characters; Easy=3 racers ask 1st/last, Medium=3 racers ask any position, Hard=4 racers ask any position; podium display with medal icons; celebrate overlay names the position; tier overlay; win overlay; double confetti burst on win
 
 ## Improvement history
 
@@ -47,6 +47,7 @@ Date: 2026-08-04
 | 2026-07-31 | 036-princess-takeaway | Progress bar, color-coded tier badges, 10 bg gems, confetti 32→42 + double-burst on win, dedicated win overlay | 1.1.0 |
 | 2026-08-01 | 034-princess-sequence | Color-coded tier badges, progress bar, 10 bg gems, pool 9→18 (6 per tier), full-screen tier overlay, win overlay, confetti 36→42+double burst, 16-sparkle burst | 1.1.0 |
 | 2026-08-04 | 046-royal-feast | Score counter ⭐ in header, pool +3 per category (14/12/10/10 items), win overlay shows final score, double confetti burst on win | 1.1.0 |
+| 2026-08-07 | 048-royal-race | Score counter ⭐ in header, pool 9→18 (6 per tier), celebrate overlay naming correct animal, 9 new pairs (Jet/Balloon, Motorbike/Worm, Helicopter/Walker, Train/Scooter, Rabbit/Crocodile, Speedboat/Rowboat + 3 more tier-2 SLOWER pairs) | 1.1.0 |
 
 ## Games due for improvement (all at v1.0.0)
 
@@ -89,5 +90,9 @@ See `CLAUDE.md` for the full prioritised list. Top 3 to build next:
 19. ~~The five senses (see, hear, smell, taste, touch)~~ — ✅ covered by `055-princess-senses`
 20. ~~3D shape recognition (sphere, cube, cone, cylinder, pyramid)~~ — ✅ covered by `056-royal-3d-shapes`
 
+## Skills not yet covered (newly added concepts)
+
+21. **Ordinal numbers** — ✅ covered by `057-royal-podium`
+
 ## Next game ID
-`057-<slug>`
+`058-<slug>`
