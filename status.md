@@ -1,9 +1,9 @@
 # Princess Compendium — Status
 
 ## Last update run
-Date: 2026-08-07
-- Improved: `048-royal-race` → v1.1.0 (score counter ⭐ in header; pair pool expanded 9→18, 6 per tier (Jet/Balloon, Motorbike/Worm, Helicopter/Walker, Train/Scooter, Rabbit/Crocodile, Speedboat/Rowboat, Race Car/Elephant, Eagle/Snail, Cheetah/Tortoise rematch as SLOWER); celebrate overlay with correct animal name after each right answer)
-- Added: `057-royal-podium` — "Royal Podium 🥇" teaching ordinal numbers (1st, 2nd, 3rd, 4th); 6 princess racer characters; Easy=3 racers ask 1st/last, Medium=3 racers ask any position, Hard=4 racers ask any position; podium display with medal icons; celebrate overlay names the position; tier overlay; win overlay; double confetti burst on win
+Date: 2026-08-10
+- Improved: `032-princess-countdown` → v1.1.0 (fixed -1 bug: when orb shows 0, child now taps a big BLAST OFF 🚀 button instead of "-1"; score counter ⭐ in header; countdown trail showing "5 → 4 → 3 →..." below the orb; Medium tier start raised 7→8; double confetti burst on final win; win overlay shows final score; better tier messages)
+- Added: `058-royal-abc` — "Royal ABC Match 🔡" teaching uppercase-lowercase letter matching; Easy A-H (3 choices), Medium I-Q (3 choices), Hard R-Z (4 choices); 6 rounds per tier = 18 total; celebrate overlay shows "A → a" pair after each correct tap; score counter, progress bar, tier overlays, confetti win
 
 ## Improvement history
 
@@ -48,6 +48,7 @@ Date: 2026-08-07
 | 2026-08-01 | 034-princess-sequence | Color-coded tier badges, progress bar, 10 bg gems, pool 9→18 (6 per tier), full-screen tier overlay, win overlay, confetti 36→42+double burst, 16-sparkle burst | 1.1.0 |
 | 2026-08-04 | 046-royal-feast | Score counter ⭐ in header, pool +3 per category (14/12/10/10 items), win overlay shows final score, double confetti burst on win | 1.1.0 |
 | 2026-08-07 | 048-royal-race | Score counter ⭐ in header, pool 9→18 (6 per tier), celebrate overlay naming correct animal, 9 new pairs (Jet/Balloon, Motorbike/Worm, Helicopter/Walker, Train/Scooter, Rabbit/Crocodile, Speedboat/Rowboat + 3 more tier-2 SLOWER pairs) | 1.1.0 |
+| 2026-08-10 | 032-princess-countdown | Fixed -1 bug (BLAST OFF 🚀 button at 0), score counter ⭐, countdown trail display, Medium 7→8, double confetti win | 1.1.0 |
 
 ## Games due for improvement (all at v1.0.0)
 
@@ -93,6 +94,7 @@ See `CLAUDE.md` for the full prioritised list. Top 3 to build next:
 ## Skills not yet covered (newly added concepts)
 
 21. **Ordinal numbers** — ✅ covered by `057-royal-podium`
+22. **Uppercase-lowercase letter matching** — ✅ covered by `058-royal-abc`
 
 ## Next game ID
-`058-<slug>`
+`059-<slug>`

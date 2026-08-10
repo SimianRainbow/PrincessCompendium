@@ -362,12 +362,12 @@
   {
     "id": "032-princess-countdown",
     "title": "Princess Countdown",
-    "description": "Count backwards with Princess to light the royal fireworks — tap what comes next from 10 down to 0!",
+    "description": "Count backwards with Princess — tap each number down to 0, then press BLAST OFF! 🚀 Score counter, countdown trail, 3 tiers (5→8→10).",
     "icon": "🎆",
     "ageMin": 2,
     "ageMax": 5,
     "skill": "counting backwards / number sequence",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "category": "numbers",
     "path": "games/032-princess-countdown/index.html"
   },
@@ -682,5 +682,17 @@
     "version": "1.0.0",
     "category": "colours-shapes",
     "path": "games/056-royal-3d-shapes/index.html"
+  },
+  {
+    "id": "058-royal-abc",
+    "title": "Royal ABC Match",
+    "description": "Match the big royal letter to its little twin! Tap the lowercase letter that goes with the crown letter — A→a, B→b! 18 rounds across 3 tiers.",
+    "icon": "🔡",
+    "ageMin": 3,
+    "ageMax": 5,
+    "skill": "uppercase-lowercase letter matching",
+    "version": "1.0.0",
+    "category": "letters",
+    "path": "games/058-royal-abc/index.html"
   }
 ]
