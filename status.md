@@ -1,9 +1,9 @@
 # Princess Compendium — Status
 
 ## Last update run
-Date: 2026-08-10
-- Improved: `032-princess-countdown` → v1.1.0 (fixed -1 bug: when orb shows 0, child now taps a big BLAST OFF 🚀 button instead of "-1"; score counter ⭐ in header; countdown trail showing "5 → 4 → 3 →..." below the orb; Medium tier start raised 7→8; double confetti burst on final win; win overlay shows final score; better tier messages)
-- Added: `058-royal-abc` — "Royal ABC Match 🔡" teaching uppercase-lowercase letter matching; Easy A-H (3 choices), Medium I-Q (3 choices), Hard R-Z (4 choices); 6 rounds per tier = 18 total; celebrate overlay shows "A → a" pair after each correct tap; score counter, progress bar, tier overlays, confetti win
+Date: 2026-08-13
+- Improved: `037-princess-day` → v1.1.0 (score counter ⭐ in header; progress bar; color-coded tier badge green/orange/purple; 3 prompt variants per time-of-day; dedicated win overlay with final score; double confetti burst on win; 42 confetti pieces up from 38; 18-sparkle burst up from 16; confettiBurst on tier overlay)
+- Added: `059-royal-helper-call` — "Royal Helper Call 🚒" teaching community helpers (who to call in each situation); 6 helpers (Doctor, Firefighter, Teacher, Police, Chef, Vet); 18-scenario pool (6 per tier); Easy 2 choices, Medium 3 choices, Hard 4 choices; animated scene card with floating background icons; fact shown after each correct tap; score counter ⭐, progress bar, color-coded tier badge, win overlay with double confetti
 
 ## Improvement history
 
@@ -49,6 +49,7 @@ Date: 2026-08-10
 | 2026-08-04 | 046-royal-feast | Score counter ⭐ in header, pool +3 per category (14/12/10/10 items), win overlay shows final score, double confetti burst on win | 1.1.0 |
 | 2026-08-07 | 048-royal-race | Score counter ⭐ in header, pool 9→18 (6 per tier), celebrate overlay naming correct animal, 9 new pairs (Jet/Balloon, Motorbike/Worm, Helicopter/Walker, Train/Scooter, Rabbit/Crocodile, Speedboat/Rowboat + 3 more tier-2 SLOWER pairs) | 1.1.0 |
 | 2026-08-10 | 032-princess-countdown | Fixed -1 bug (BLAST OFF 🚀 button at 0), score counter ⭐, countdown trail display, Medium 7→8, double confetti win | 1.1.0 |
+| 2026-08-13 | 037-princess-day | Score counter ⭐, progress bar, color-coded tier badge, 3 prompt variants per time, dedicated win overlay, double confetti burst | 1.1.0 |
 
 ## Games due for improvement (all at v1.0.0)
 
@@ -95,6 +96,7 @@ See `CLAUDE.md` for the full prioritised list. Top 3 to build next:
 
 21. **Ordinal numbers** — ✅ covered by `057-royal-podium`
 22. **Uppercase-lowercase letter matching** — ✅ covered by `058-royal-abc`
+23. **Community helpers** — ✅ covered by `059-royal-helper-call`
 
 ## Next game ID
-`059-<slug>`
+`060-<slug>`

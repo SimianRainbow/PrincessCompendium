@@ -434,12 +434,12 @@
   {
     "id": "037-princess-day",
     "title": "Princess Day",
-    "description": "Tap what time of day the princess scene shows — morning, afternoon, evening or night!",
+    "description": "Tap what time of day the princess scene shows — morning, afternoon, evening or night! Score counter ⭐, progress bar, color-coded tier badge, win overlay with double confetti, 3 prompt variants per time, 42 confetti.",
     "icon": "🌙",
     "ageMin": 2,
     "ageMax": 5,
     "skill": "time of day concepts",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "category": "other",
     "path": "games/037-princess-day/index.html"
   },
@@ -694,5 +694,17 @@
     "version": "1.0.0",
     "category": "letters",
     "path": "games/058-royal-abc/index.html"
+  },
+  {
+    "id": "059-royal-helper-call",
+    "title": "Royal Helper Call",
+    "description": "Who should Princess call? Tap the right helper — Doctor when she's sick, Firefighter for fires, Teacher for learning, Vet for animals and more! 9 rounds across 3 tiers.",
+    "icon": "🚒",
+    "ageMin": 2,
+    "ageMax": 5,
+    "skill": "community helpers — who helps in each situation",
+    "version": "1.0.0",
+    "category": "other",
+    "path": "games/059-royal-helper-call/index.html"
   }
 ]

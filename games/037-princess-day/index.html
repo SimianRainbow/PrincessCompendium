@@ -19,7 +19,8 @@
     }
 
     #header {
-      width: 100%; display: flex;
+      width: 100%; max-width: 440px;
+      display: flex;
       justify-content: space-between; align-items: center;
       padding: 14px 18px 0;
       flex-shrink: 0;
@@ -27,17 +28,40 @@
     #tier-badge {
       font-size: clamp(13px, 3.5vw, 18px);
       color: #fff;
-      background: rgba(255,255,255,0.2);
       padding: 5px 14px; border-radius: 20px;
+      transition: background 0.4s;
+    }
+    #tier-badge.easy   { background: rgba(56,142,60,0.75); }
+    #tier-badge.medium { background: rgba(230,81,0,0.75); }
+    #tier-badge.hard   { background: rgba(81,45,168,0.75); }
+
+    #score-label {
+      font-size: clamp(13px, 3.2vw, 17px);
+      color: rgba(255,255,255,0.92);
     }
     #round-label {
       font-size: clamp(13px, 3.2vw, 17px);
       color: rgba(255,255,255,0.85);
     }
 
+    #progress-wrap {
+      width: 100%; max-width: 440px;
+      padding: 7px 18px 0;
+      flex-shrink: 0;
+    }
+    #progress-bg {
+      background: rgba(255,255,255,0.2);
+      border-radius: 8px; height: 8px; overflow: hidden;
+    }
+    #progress-fill {
+      height: 100%; border-radius: 8px;
+      background: linear-gradient(90deg,#ffd700,#ffb300);
+      width: 0%; transition: width 0.4s ease;
+    }
+
     #scene-wrap {
       width: 100%; max-width: 440px;
-      padding: 12px 16px 0;
+      padding: 10px 16px 0;
       flex-shrink: 0;
     }
     #scene {
@@ -156,6 +180,26 @@
       box-shadow: 0 4px 16px rgba(255,180,0,0.5);
     }
 
+    #win-overlay {
+      position: fixed; inset: 0;
+      background: linear-gradient(160deg,#4a0072 0%,#880e4f 100%);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 20px;
+      z-index: 110; opacity: 0; pointer-events: none; transition: opacity 0.4s;
+    }
+    #win-overlay.show { opacity: 1; pointer-events: all; }
+    #win-title { font-size: clamp(30px,8vw,52px); color:#ffd700; text-shadow:0 0 24px #ff9800; }
+    #win-score { font-size: clamp(22px,6vw,38px); color:#fff; }
+    #win-play-again {
+      padding: clamp(14px,4vw,20px) clamp(32px,8vw,56px);
+      font-size: clamp(20px,5vw,28px);
+      border-radius: 50px; border: none;
+      background: linear-gradient(135deg,#ffd700,#ff9800);
+      color: #5d2e00; font-weight: bold; cursor: pointer;
+      font-family: inherit;
+      box-shadow: 0 4px 16px rgba(255,180,0,0.5);
+    }
+
     #tier-toast {
       position: fixed; inset: 0;
       display: flex; align-items: center; justify-content: center;
@@ -183,8 +227,13 @@
 <body>
 
   <div id="header">
-    <div id="tier-badge">🌸 Easy</div>
-    <div id="round-label">Round 1 / 9</div>
+    <div id="tier-badge" class="easy">🌸 Easy</div>
+    <div id="score-label">0 ⭐</div>
+    <div id="round-label">1 / 9</div>
+  </div>
+
+  <div id="progress-wrap">
+    <div id="progress-bg"><div id="progress-fill"></div></div>
   </div>
 
   <div id="scene-wrap">
@@ -208,12 +257,19 @@
     <button id="next-btn" onclick="nextRound()">Next ➡️</button>
   </div>
 
+  <div id="win-overlay">
+    <div style="font-size:clamp(64px,18vw,110px)">🌟</div>
+    <div id="win-title">All Done! 🎉</div>
+    <div id="win-score">You got 0 ⭐</div>
+    <button id="win-play-again" onclick="restartGame()">Play Again 🔄</button>
+  </div>
+
   <div id="tier-toast">
     <div id="tier-toast-inner"></div>
   </div>
 
 <script>
-  /* ── audio ───────────────────────────────────────────── */
+  /* ── audio ─────────────────────────── */
   let audioCtx = null;
   function getAudio() { if (!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)(); return audioCtx; }
   function tone(f, t, d, v) {
@@ -230,8 +286,9 @@
   function playWrong()     { tone(220,'sawtooth',0.18,0.08); }
   function playCelebrate() { [523,659,784,880,1047,1175,1319].forEach((f,i)=>setTimeout(()=>tone(f,'sine',0.22,0.17),i*65)); }
   function playTierUp()    { [660,880,1047,1320].forEach((f,i)=>setTimeout(()=>tone(f,'triangle',0.25,0.18),i*100)); }
+  function playWin()       { [523,659,784,1047,1319,1568].forEach((f,i)=>setTimeout(()=>tone(f,'sine',0.3,0.18),i*70)); }
 
-  /* ── time-of-day definitions ──────────────────────────── */
+  /* ── time-of-day definitions ─────── */
   const TIME_DEFS = {
     morning: {
       label: 'Morning',
@@ -246,6 +303,11 @@
       ],
       groundColor: '#a5d6a7',
       groundEmoji: ['🌸','🌼','🌱','🌸','🌱'],
+      prompts: [
+        'What time of day is it? 🌅',
+        'Is it morning, afternoon, evening or night? 🐦',
+        'The sun is just rising! What time is this? 🌄',
+      ],
     },
     afternoon: {
       label: 'Afternoon',
@@ -260,6 +322,11 @@
       ],
       groundColor: '#66bb6a',
       groundEmoji: ['🌻','🌿','🌻','🌿','🌻'],
+      prompts: [
+        'What time of day is it? ☀️',
+        'The sun is high in the sky! What time is this? 🌤️',
+        'Is it morning, afternoon, evening or night? ⛅',
+      ],
     },
     evening: {
       label: 'Evening',
@@ -274,6 +341,11 @@
       ],
       groundColor: '#8d6e63',
       groundEmoji: ['🍂','🍁','🌿','🍂','🍁'],
+      prompts: [
+        'What time of day is it? 🌇',
+        'The sun is setting! What time is this? 🌙',
+        'Is it morning, afternoon, evening or night? 🍂',
+      ],
     },
     night: {
       label: 'Night',
@@ -290,24 +362,31 @@
       ],
       groundColor: '#1a2035',
       groundEmoji: ['🌙','✨','🌙','✨','🌙'],
+      prompts: [
+        'What time of day is it? 🌙',
+        'The stars are out! What time is this? ✨',
+        'Is it morning, afternoon, evening or night? 🌟',
+      ],
     },
   };
 
-  /* ── tiers ───────────────────────────────────────────── */
+  /* ── tiers ───────────────────────── */
   const TIERS = [
-    { label:'🌸 Easy',   times:['morning','night'],                         choices:2 },
-    { label:'🌟 Medium', times:['morning','afternoon','night'],              choices:3 },
-    { label:'👑 Hard',   times:['morning','afternoon','evening','night'],    choices:4 },
+    { label:'🌸 Easy',   cls:'easy',   times:['morning','night'],                         choices:2 },
+    { label:'🌟 Medium', cls:'medium', times:['morning','afternoon','night'],              choices:3 },
+    { label:'👑 Hard',   cls:'hard',   times:['morning','afternoon','evening','night'],    choices:4 },
   ];
 
   const TOTAL_ROUNDS = 9;
-  let round = 0, locked = false;
+  let round = 0, score = 0, locked = false;
   let roundsSeq = [];
+  let promptIdx = {};
   let currentTime = '';
 
-  /* ── sequence builder ────────────────────────────────── */
+  /* ── sequence builder ─────────────── */
   function buildSequence() {
     roundsSeq = [];
+    promptIdx = { morning:0, afternoon:0, evening:0, night:0 };
     TIERS.forEach(tier => {
       let last = null;
       for (let i = 0; i < 3; i++) {
@@ -321,7 +400,13 @@
 
   function getTierIndex(r) { return r <= 3 ? 0 : r <= 6 ? 1 : 2; }
 
-  /* ── scene rendering ─────────────────────────────────── */
+  /* ── progress bar ─────────────────── */
+  function updateProgress() {
+    const pct = ((round - 1) / TOTAL_ROUNDS) * 100;
+    document.getElementById('progress-fill').style.width = pct + '%';
+  }
+
+  /* ── scene rendering ─────────────── */
   function renderScene(timeName) {
     const def = TIME_DEFS[timeName];
     document.getElementById('scene').style.background = def.skyGrad;
@@ -341,9 +426,14 @@
     const ground = document.getElementById('scene-ground');
     ground.style.background = def.groundColor;
     ground.textContent = def.groundEmoji.join(' ');
+
+    const prompts = def.prompts;
+    const idx = promptIdx[timeName] % prompts.length;
+    promptIdx[timeName]++;
+    document.getElementById('prompt').textContent = prompts[idx];
   }
 
-  /* ── button rendering ────────────────────────────────── */
+  /* ── button rendering ─────────────── */
   function shuffle(arr) {
     const a = [...arr];
     for (let i = a.length-1; i > 0; i--) {
@@ -375,11 +465,13 @@
     });
   }
 
-  /* ── answer handling ─────────────────────────────────── */
+  /* ── answer handling ─────────────── */
   function handleAnswer(chosen, btnEl) {
     if (locked) return;
     if (chosen === currentTime) {
       locked = true;
+      score++;
+      document.getElementById('score-label').textContent = score + ' ⭐';
       playCorrect();
       const rect = btnEl.getBoundingClientRect();
       sparkleBurst(rect.left + rect.width/2, rect.top + rect.height/2);
@@ -394,45 +486,57 @@
     }
   }
 
-  /* ── celebration ─────────────────────────────────────── */
+  /* ── celebration ─────────────────── */
   function showCelebration() {
+    if (round >= TOTAL_ROUNDS) {
+      document.getElementById('celebrate-overlay').classList.remove('show');
+      showWinScreen();
+      return;
+    }
     const timeLabel = TIME_DEFS[currentTime].label;
     const celebs = [
-      { text:`Yes! It's ${timeLabel}! ✨`,  emoji:'🌟' },
-      { text:`${timeLabel} time! 💖`,       emoji:'👑' },
-      { text:`You got it! 🌸`,              emoji:'💎' },
-      { text:`Brilliant! It's ${timeLabel}!`,emoji:'⭐' },
-      { text:`Perfect! 🦄`,                 emoji:'🎀' },
+      { text:`Yes! It's ${timeLabel}! ✨`,    emoji:'🌟' },
+      { text:`${timeLabel} time! 💖`,         emoji:'👑' },
+      { text:`You got it! 🌸`,               emoji:'💎' },
+      { text:`Brilliant! It's ${timeLabel}!`, emoji:'⭐' },
+      { text:`Perfect! 🦄`,                  emoji:'🎀' },
     ];
     const c = celebs[Math.floor(Math.random() * celebs.length)];
     document.getElementById('celebrate-emoji').textContent = c.emoji;
     document.getElementById('celebrate-text').textContent  = c.text;
-    const btn = document.getElementById('next-btn');
-    if (round >= TOTAL_ROUNDS) {
-      btn.textContent = 'Play Again 🔄';
-      btn.onclick = restartGame;
-    } else {
-      btn.textContent = 'Next ➡️';
-      btn.onclick = nextRound;
-    }
+    document.getElementById('next-btn').textContent = 'Next ➡️';
+    document.getElementById('next-btn').onclick = nextRound;
     document.getElementById('celebrate-overlay').classList.add('show');
     playCelebrate(); confettiBurst();
   }
 
-  /* ── round flow ──────────────────────────────────────── */
+  function showWinScreen() {
+    document.getElementById('win-score').textContent = `You got ${score} ⭐`;
+    document.getElementById('win-overlay').classList.add('show');
+    document.getElementById('progress-fill').style.width = '100%';
+    playWin();
+    confettiBurst();
+    setTimeout(confettiBurst, 500);
+  }
+
+  /* ── round flow ──────────────────── */
   function nextRound() {
     document.getElementById('celebrate-overlay').classList.remove('show');
     const oldTier = getTierIndex(round);
     round++;
     const newTier = getTierIndex(round);
 
-    document.getElementById('tier-badge').textContent  = TIERS[newTier].label;
-    document.getElementById('round-label').textContent = `Round ${round} / ${TOTAL_ROUNDS}`;
+    const tier = TIERS[newTier];
+    const badge = document.getElementById('tier-badge');
+    badge.textContent = tier.label;
+    badge.className = tier.cls;
+    document.getElementById('round-label').textContent = `${round} / ${TOTAL_ROUNDS}`;
+    updateProgress();
 
     currentTime = roundsSeq[round - 1];
 
     if (newTier > oldTier) {
-      showTierToast(TIERS[newTier].label, startRound);
+      showTierToast(tier.label, startRound);
     } else {
       startRound();
     }
@@ -442,8 +546,6 @@
     locked = false;
     renderScene(currentTime);
     renderButtons(currentTime, getTierIndex(round));
-    const def = TIME_DEFS[currentTime];
-    document.getElementById('prompt').textContent = `What time of day is it? ${def.btnEmoji}`;
   }
 
   function showTierToast(label, callback) {
@@ -451,27 +553,29 @@
     document.getElementById('tier-toast-inner').textContent = `✨ ${label}! ✨`;
     toast.classList.add('show');
     playTierUp();
+    confettiBurst();
     setTimeout(() => {
       toast.classList.remove('show');
       setTimeout(callback, 320);
-    }, 1600);
+    }, 1800);
   }
 
   function restartGame() {
-    round = 0;
+    round = 0; score = 0;
+    document.getElementById('score-label').textContent = '0 ⭐';
+    document.getElementById('win-overlay').classList.remove('show');
     buildSequence();
-    document.getElementById('celebrate-overlay').classList.remove('show');
     nextRound();
   }
 
-  /* ── effects ─────────────────────────────────────────── */
+  /* ── effects ──────────────────────── */
   function sparkleBurst(cx, cy) {
     const icons = ['✨','🌸','⭐','💫','💖','🌟','🌙','☀️'];
-    for (let i = 0; i < 16; i++) {
+    for (let i = 0; i < 18; i++) {
       const el = document.createElement('div');
       el.className = 'sparkle';
       el.textContent = icons[Math.floor(Math.random() * icons.length)];
-      const angle = (i / 16) * Math.PI * 2;
+      const angle = (i / 18) * Math.PI * 2;
       const dist  = 60 + Math.random() * 80;
       el.style.setProperty('--tx', Math.cos(angle) * dist + 'px');
       el.style.setProperty('--ty', Math.sin(angle) * dist - 20 + 'px');
@@ -486,7 +590,7 @@
 
   function confettiBurst() {
     const cols = ['#ffd700','#ff69b4','#ff99cc','#c0a0ff','#7fff00','#00cfff','#ffffff','#ffb347'];
-    for (let i = 0; i < 38; i++) {
+    for (let i = 0; i < 42; i++) {
       const el = document.createElement('div');
       el.className = 'confetti-piece';
       const sz = 8 + Math.random() * 8;
@@ -500,7 +604,7 @@
     }
   }
 
-  /* ── init ────────────────────────────────────────────── */
+  /* ── init ─────────────────────────── */
   buildSequence();
   nextRound();
 </script>
