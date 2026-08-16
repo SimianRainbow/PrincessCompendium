@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Princess Letter Sounds 🔤</title>
+  <title>Princess Fractions 🍰</title>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
   <style>
     * { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
     body {
       min-height:100vh;
-      background:linear-gradient(160deg,#1a0533 0%,#6a1b9a 55%,#e91e63 100%);
+      background:linear-gradient(160deg,#1a0028 0%,#7b1fa2 55%,#e91e63 100%);
       font-family:'Fredoka One',Georgia,serif;
       display:flex; flex-direction:column; align-items:center;
       overflow:hidden; user-select:none; padding-bottom:12px;
@@ -33,55 +33,48 @@
     #progress-track { background:rgba(255,255,255,.18); border-radius:20px; height:clamp(8px,2vw,12px); overflow:hidden; }
     #progress-fill  { height:100%; border-radius:20px; background:linear-gradient(90deg,#ffd700,#e040fb); transition:width .35s ease; width:0%; box-shadow:0 0 8px rgba(255,215,0,.45); }
 
-    #orb-wrap {
-      flex-shrink:0;
-      padding:clamp(10px,3vw,20px) 16px clamp(6px,1.5vw,12px);
-      text-align:center;
+    #prompt-wrap {
+      flex-shrink:0; padding:clamp(10px,3vw,18px) 16px clamp(4px,1.5vw,8px); text-align:center;
     }
-    #letter-orb {
-      width:clamp(110px,30vw,160px); height:clamp(110px,30vw,160px);
-      border-radius:50%;
-      background:radial-gradient(circle at 35% 30%,#fffde7 0%,#ffd700 45%,#e040fb 100%);
-      box-shadow:0 0 40px rgba(255,215,0,.65),0 0 90px rgba(224,64,251,.3);
-      display:flex; align-items:center; justify-content:center;
-      margin:0 auto;
-      animation:orbPulse 2.2s ease-in-out infinite;
-    }
-    @keyframes orbPulse {
-      0%,100%{box-shadow:0 0 40px rgba(255,215,0,.65),0 0 90px rgba(224,64,251,.3)}
-      50%{box-shadow:0 0 65px rgba(255,215,0,.95),0 0 120px rgba(224,64,251,.5)}
-    }
-    #letter-display { font-size:clamp(62px,17vw,110px); color:#6a1b9a; line-height:1; text-shadow:0 2px 6px rgba(255,255,255,.55); }
+    #princess-emoji { font-size:clamp(36px,10vw,54px); display:block; margin-bottom:4px; }
     #prompt-text {
-      font-size:clamp(16px,4.5vw,26px); color:#fff; margin-top:clamp(8px,2vw,14px);
-      text-shadow:0 2px 6px rgba(0,0,0,.4); text-align:center; padding:0 16px;
+      font-size:clamp(17px,5vw,30px); color:#fff;
+      text-shadow:0 2px 8px rgba(0,0,0,.45);
+      padding:0 12px; line-height:1.2;
     }
 
     #choices-wrap {
       flex:1; display:flex; align-items:center; justify-content:center;
-      padding:0 clamp(12px,3vw,22px); width:100%;
+      padding:0 clamp(10px,3vw,20px); width:100%;
     }
     #choices {
-      display:grid; gap:clamp(12px,3vw,20px);
-      width:100%; max-width:400px;
+      display:grid; gap:clamp(10px,2.5vw,18px);
+      width:100%; max-width:420px;
     }
     #choices.cols-2 { grid-template-columns:1fr 1fr; }
     #choices.cols-3 { grid-template-columns:1fr 1fr 1fr; }
     #choices.cols-4 { grid-template-columns:1fr 1fr; }
 
     .choice-btn {
-      min-height:clamp(100px,24vw,130px);
-      border-radius:24px; border:3px solid rgba(255,255,255,.38);
+      border-radius:22px; border:3px solid rgba(255,255,255,.38);
       background:rgba(255,255,255,.16);
       backdrop-filter:blur(6px);
       display:flex; flex-direction:column; align-items:center; justify-content:center;
-      gap:6px; cursor:pointer;
+      gap:4px; cursor:pointer; padding:clamp(8px,2vw,14px) 6px;
       box-shadow:0 4px 18px rgba(0,0,0,.3),inset 0 2px 0 rgba(255,255,255,.2);
       transition:transform .1s; touch-action:manipulation;
+      min-height:clamp(90px,22vw,130px);
     }
     .choice-btn:active { transform:scale(.92); }
-    .choice-emoji { font-size:clamp(36px,10vw,56px); line-height:1; pointer-events:none; }
-    .choice-label { font-size:clamp(12px,3vw,17px); color:#fff; text-shadow:0 1px 4px rgba(0,0,0,.5); text-align:center; pointer-events:none; }
+
+    .cake-wrap {
+      width:clamp(60px,16vw,90px); height:clamp(60px,16vw,90px);
+      pointer-events:none;
+    }
+    .cols-3 .cake-wrap { width:clamp(52px,13vw,76px); height:clamp(52px,13vw,76px); }
+    .cols-4 .cake-wrap { width:clamp(48px,12vw,70px); height:clamp(48px,12vw,70px); }
+
+    .piece-dots { font-size:clamp(11px,2.8vw,16px); pointer-events:none; line-height:1.1; }
 
     .choice-btn.correct { animation:correctPop .5s ease-out; background:rgba(160,255,160,.35); border-color:#66bb6a; }
     .choice-btn.wrong   { animation:wobble .45s ease-out; background:rgba(255,100,100,.25); }
@@ -122,9 +115,9 @@
   <div id="progress-track"><div id="progress-fill"></div></div>
 </div>
 
-<div id="orb-wrap">
-  <div id="letter-orb"><span id="letter-display">B</span></div>
-  <div id="prompt-text">Which picture starts with <span id="prompt-letter">B</span>? 🔤</div>
+<div id="prompt-wrap">
+  <span id="princess-emoji">👸</span>
+  <div id="prompt-text">Which cake is cut in half? ✌️</div>
 </div>
 
 <div id="choices-wrap">
@@ -132,16 +125,16 @@
 </div>
 
 <div class="overlay" id="round-overlay">
-  <div class="ov-emoji" id="ov-emoji">⭐</div>
-  <div class="ov-title" id="ov-title">Amazing!</div>
+  <div class="ov-emoji" id="ov-emoji">🍰</div>
+  <div class="ov-title" id="ov-title">Wonderful!</div>
   <div class="ov-sub"   id="ov-sub">Ready for more?</div>
   <button class="btn-next" id="round-btn">Next Round ➡️</button>
 </div>
 
 <div class="overlay" id="end-overlay">
   <div class="ov-emoji">👑</div>
-  <div class="ov-title">Letter Sound Star! 🔤</div>
-  <div class="ov-sub">You know the sounds! ✨</div>
+  <div class="ov-title">Fraction Princess! 🍰</div>
+  <div class="ov-sub">You know how to share! ✨</div>
   <div class="ov-score" id="final-score">0 ⭐</div>
   <button class="btn-next" onclick="startGame()">Play Again 🌸</button>
 </div>
@@ -164,39 +157,90 @@ function playWrong()    { tone(260,'sawtooth',.18,.13); setTimeout(()=>tone(210,
 function playTierUp()   { [523,659,784,880,1047,1319].forEach((f,i)=>setTimeout(()=>tone(f,'triangle',.28,.2),i*90)); }
 function playFinalWin() { [523,659,784,1047,784,1047,1319].forEach((f,i)=>setTimeout(()=>tone(f,'sine',.32,.22),i*95)); }
 
-// 18 letters, 6 per tier. Fixed: H→House, T→Tiger, A→Apple (all now start with their letter).
-const POOL = [
-  // EASY — 6 (2 choices each)
-  { letter:'B', correct:{e:'🐻',n:'Bear'},    wrong:[{e:'🌙',n:'Moon'},  {e:'🌸',n:'Flower'},{e:'🌊',n:'Wave'}] },
-  { letter:'S', correct:{e:'⭐',n:'Star'},     wrong:[{e:'🐻',n:'Bear'},  {e:'🌙',n:'Moon'},  {e:'🌺',n:'Rose'}] },
-  { letter:'C', correct:{e:'👑',n:'Crown'},    wrong:[{e:'⭐',n:'Star'},  {e:'🌙',n:'Moon'},  {e:'🐟',n:'Fish'}] },
-  { letter:'M', correct:{e:'🌙',n:'Moon'},     wrong:[{e:'👑',n:'Crown'}, {e:'⭐',n:'Star'},  {e:'🌸',n:'Flower'}] },
-  { letter:'F', correct:{e:'🌸',n:'Flower'},   wrong:[{e:'🌙',n:'Moon'},  {e:'👑',n:'Crown'}, {e:'🐻',n:'Bear'}] },
-  { letter:'H', correct:{e:'🏠',n:'House'},    wrong:[{e:'🌸',n:'Flower'},{e:'⭐',n:'Star'},  {e:'🌙',n:'Moon'}] },
-  // MEDIUM — 6 (3 choices each)
-  { letter:'P', correct:{e:'👸',n:'Princess'}, wrong:[{e:'🐟',n:'Fish'}, {e:'🌺',n:'Rose'},   {e:'🦄',n:'Unicorn'}] },
-  { letter:'U', correct:{e:'🦄',n:'Unicorn'},  wrong:[{e:'👸',n:'Princess'},{e:'🌸',n:'Flower'},{e:'💎',n:'Gem'}] },
-  { letter:'D', correct:{e:'💎',n:'Diamond'},  wrong:[{e:'🦄',n:'Unicorn'},{e:'🌙',n:'Moon'}, {e:'🌺',n:'Rose'}] },
-  { letter:'R', correct:{e:'🌈',n:'Rainbow'},  wrong:[{e:'💎',n:'Diamond'},{e:'👸',n:'Princess'},{e:'⭐',n:'Star'}] },
-  { letter:'W', correct:{e:'🌊',n:'Wave'},     wrong:[{e:'🌈',n:'Rainbow'},{e:'🦄',n:'Unicorn'},{e:'👑',n:'Crown'}] },
-  { letter:'G', correct:{e:'💎',n:'Gem'},      wrong:[{e:'🌊',n:'Wave'}, {e:'🌸',n:'Flower'}, {e:'🏠',n:'House'}] },
-  // HARD — 6 (4 choices each)
-  { letter:'N', correct:{e:'🌙',n:'Night'},    wrong:[{e:'🌸',n:'Flower'},{e:'🦄',n:'Unicorn'},{e:'🌊',n:'Wave'}] },
-  { letter:'K', correct:{e:'👑',n:'King'},     wrong:[{e:'🌸',n:'Flower'},{e:'🐻',n:'Bear'},  {e:'🌈',n:'Rainbow'}] },
-  { letter:'T', correct:{e:'🐯',n:'Tiger'},    wrong:[{e:'🌸',n:'Flower'},{e:'👸',n:'Princess'},{e:'🌊',n:'Wave'}] },
-  { letter:'L', correct:{e:'🦁',n:'Lion'},     wrong:[{e:'🌸',n:'Flower'},{e:'🌈',n:'Rainbow'},{e:'🐻',n:'Bear'}] },
-  { letter:'A', correct:{e:'🍎',n:'Apple'},    wrong:[{e:'👑',n:'Crown'}, {e:'🌙',n:'Moon'},  {e:'🦄',n:'Unicorn'}] },
-  { letter:'E', correct:{e:'🥚',n:'Egg'},      wrong:[{e:'🌸',n:'Flower'},{e:'🌊',n:'Wave'},  {e:'🦁',n:'Lion'}] },
-];
+// SVG cake generator — draws a circle divided into 'den' equal slices
+function polarXY(cx, cy, r, deg) {
+  const rad = (deg - 90) * Math.PI / 180;
+  return [cx + r * Math.cos(rad), cy + r * Math.sin(rad)];
+}
 
-const TIERS=[
-  { label:'🌱 Easy',   cls:'tier-easy',   indices:[0,1,2,3,4,5],      choices:2 },
-  { label:'🌸 Medium', cls:'tier-medium', indices:[6,7,8,9,10,11],    choices:3 },
-  { label:'🌺 Hard',   cls:'tier-hard',   indices:[12,13,14,15,16,17],choices:4 },
-];
-const TOTAL=9;
+function slicePath(cx, cy, r, startDeg, endDeg) {
+  const [x1,y1] = polarXY(cx,cy,r,startDeg);
+  const [x2,y2] = polarXY(cx,cy,r,endDeg);
+  const large = (endDeg - startDeg) > 180 ? 1 : 0;
+  return `M${cx},${cy} L${x1.toFixed(1)},${y1.toFixed(1)} A${r},${r},0,${large},1,${x2.toFixed(1)},${y2.toFixed(1)} Z`;
+}
 
-let round=0, score=0, locked=false, currentQ=null, gameOrder=[];
+// Pastel slice colours cycling per piece
+const SLICE_COLORS = ['#ff4081','#f06292','#e91e63','#f48fb1','#ad1457','#ff80ab'];
+const PLATE_COLOR  = '#fff9e6';
+
+function makeCakeSVG(den) {
+  const cx=50, cy=50, r=40;
+  let body = `<circle cx="${cx}" cy="${cy}" r="47" fill="${PLATE_COLOR}" stroke="#ffd700" stroke-width="1.5"/>`;
+
+  if (den === 1) {
+    // Whole cake — solid with subtle swirl decoration
+    body += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="#ff4081"/>`;
+    body += `<circle cx="${cx}" cy="${cy}" r="${r-10}" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="2" stroke-dasharray="5,4"/>`;
+    body += `<circle cx="${cx}" cy="${cy}" r="8" fill="rgba(255,255,255,0.25)"/>`;
+  } else {
+    for (let i = 0; i < den; i++) {
+      const s = i * 360 / den, e = (i + 1) * 360 / den;
+      body += `<path d="${slicePath(cx,cy,r,s,e)}" fill="${SLICE_COLORS[i%SLICE_COLORS.length]}" stroke="white" stroke-width="2.5" stroke-linejoin="round"/>`;
+    }
+  }
+
+  // Frosted rim
+  body += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/>`;
+  // Cherry on top
+  body += `<circle cx="${cx}" cy="14" r="5.5" fill="#b71c1c"/>`;
+  body += `<line x1="${cx}" y1="19.5" x2="${cx}" y2="27" stroke="#388e3c" stroke-width="2" stroke-linecap="round"/>`;
+
+  return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">${body}</svg>`;
+}
+
+// piece-count indicators: N cake-slice emoji
+const PIECE_DOTS = ['','🍰','🍰🍰','🍰🍰🍰','🍰🍰🍰🍰'];
+const FRACTION_NAMES = ['','Whole','Half','Thirds','Quarters'];
+
+// Round pool — 6 per tier, 3 randomly chosen each game
+// correct = denominator (1=whole, 2=half, 3=thirds, 4=quarters)
+// opts = denominators to show as choices
+const POOL = {
+  easy: [
+    { q:"Which cake is cut in 2? ✌️",     pEmoji:'✌️',  correct:2, opts:[1,2] },
+    { q:"Tap the WHOLE cake! 🎂",           pEmoji:'🎂',  correct:1, opts:[1,2] },
+    { q:"Which cake has MORE pieces? 🔢",  pEmoji:'🔢',  correct:4, opts:[2,4] },
+    { q:"Which cake has FEWER pieces? 🎂", pEmoji:'🎂',  correct:2, opts:[2,4] },
+    { q:"Which is NOT cut? (1 piece!) 🎂", pEmoji:'🎂',  correct:1, opts:[1,4] },
+    { q:"Which has 2 equal pieces? ✂️",    pEmoji:'✂️',  correct:2, opts:[1,2] },
+  ],
+  medium: [
+    { q:"Which cake has 2 equal pieces? ✌️",   pEmoji:'✌️',  correct:2, opts:[1,2,4] },
+    { q:"Which cake has 4 equal pieces? 🤚",   pEmoji:'🤚',  correct:4, opts:[1,2,4] },
+    { q:"Tap the WHOLE cake! 🎂",               pEmoji:'🎂',  correct:1, opts:[1,2,4] },
+    { q:"Which has the MOST pieces? 🔢",       pEmoji:'🔢',  correct:4, opts:[1,2,4] },
+    { q:"Which has FEWEST pieces? 🎂",         pEmoji:'🎂',  correct:1, opts:[1,2,4] },
+    { q:"Tap the HALF! (2 equal pieces) ✌️",   pEmoji:'✌️',  correct:2, opts:[1,2,4] },
+  ],
+  hard: [
+    { q:"Tap the cake with 2 equal pieces! ✌️",   pEmoji:'✌️',  correct:2, opts:[1,2,3,4] },
+    { q:"Tap the cake with 4 equal pieces! 🤚",   pEmoji:'🤚',  correct:4, opts:[1,2,3,4] },
+    { q:"Tap the cake with 3 equal pieces! 3️⃣",  pEmoji:'3️⃣', correct:3, opts:[1,2,3,4] },
+    { q:"Tap the WHOLE cake! (1 big piece) 🎂",   pEmoji:'🎂',  correct:1, opts:[1,2,3,4] },
+    { q:"Which has the MOST pieces? 🔢",          pEmoji:'🔢',  correct:4, opts:[1,2,3,4] },
+    { q:"Tap the cake cut in HALF! ✌️",           pEmoji:'✌️',  correct:2, opts:[1,2,3,4] },
+  ],
+};
+
+const TIERS = [
+  { label:'🌱 Easy',   cls:'tier-easy',   pool:'easy',   choices:2 },
+  { label:'🌸 Medium', cls:'tier-medium', pool:'medium', choices:3 },
+  { label:'🌺 Hard',   cls:'tier-hard',   pool:'hard',   choices:4 },
+];
+const TOTAL = 9;
+
+let round=0, score=0, locked=false, currentQ=null, tierOrders={};
 
 function shuffle(a){ const b=[...a]; for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];} return b; }
 function getTierIdx(r){ return r<=3?0:r<=6?1:2; }
@@ -205,11 +249,12 @@ function startGame(){
   document.getElementById('end-overlay').classList.remove('show');
   document.getElementById('round-overlay').classList.remove('show');
   round=0; score=0; locked=false;
-  gameOrder=[
-    ...shuffle(TIERS[0].indices).slice(0,3),
-    ...shuffle(TIERS[1].indices).slice(0,3),
-    ...shuffle(TIERS[2].indices).slice(0,3),
-  ];
+  // Pre-shuffle each tier pool
+  tierOrders = {
+    easy:   shuffle([0,1,2,3,4,5]).slice(0,3),
+    medium: shuffle([0,1,2,3,4,5]).slice(0,3),
+    hard:   shuffle([0,1,2,3,4,5]).slice(0,3),
+  };
   makeBgGems();
   nextRound();
 }
@@ -220,31 +265,31 @@ function nextRound(){
   round++; locked=false;
   updateHUD();
 
-  const qIdx=gameOrder[round-1];
-  currentQ=POOL[qIdx];
-  const tierIdx=getTierIdx(round);
-  const tier=TIERS[tierIdx];
+  const tierIdx = getTierIdx(round);
+  const tier = TIERS[tierIdx];
+  const posInTier = ((round-1) % 3); // 0,1,2 within this tier
+  const qIdx = tierOrders[tier.pool][posInTier];
+  currentQ = POOL[tier.pool][qIdx];
 
-  document.getElementById('letter-display').textContent=currentQ.letter;
-  document.getElementById('prompt-letter').textContent=currentQ.letter;
+  document.getElementById('princess-emoji').textContent = currentQ.pEmoji;
+  document.getElementById('prompt-text').textContent = currentQ.q;
 
-  const wrongPick=shuffle(currentQ.wrong).slice(0,tier.choices-1);
-  const allCh=shuffle([{e:currentQ.correct.e,n:currentQ.correct.n,ok:true},...wrongPick.map(w=>({...w,ok:false}))]);
+  // Build option buttons
+  const grid = document.getElementById('choices');
+  grid.className = tier.choices===4?'cols-4':tier.choices===3?'cols-3':'cols-2';
+  grid.innerHTML = '';
 
-  const grid=document.getElementById('choices');
-  grid.className=tier.choices===4?'cols-4':tier.choices===3?'cols-3':'cols-2';
-
-  grid.innerHTML='';
-  allCh.forEach(ch=>{
-    const btn=document.createElement('button');
-    btn.className='choice-btn';
-    btn.innerHTML=`<span class="choice-emoji">${ch.e}</span><span class="choice-label">${ch.n}</span>`;
-    btn.addEventListener('pointerdown',()=>handleTap(btn,ch.ok));
+  currentQ.opts.forEach(den => {
+    const isCorrect = (den === currentQ.correct);
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.innerHTML = `<div class="cake-wrap">${makeCakeSVG(den)}</div><div class="piece-dots">${PIECE_DOTS[den]}</div>`;
+    btn.addEventListener('pointerdown', ()=>handleTap(btn, isCorrect, den));
     grid.appendChild(btn);
   });
 }
 
-function handleTap(btn, ok){
+function handleTap(btn, ok, den){
   if(locked) return;
   try{getAudio().resume();}catch(e){}
   if(ok){
@@ -254,7 +299,7 @@ function handleTap(btn, ok){
     const r=btn.getBoundingClientRect();
     burst(r.left+r.width/2, r.top+r.height/2);
     updateHUD();
-    setTimeout(()=>{ btn.classList.remove('correct'); showRoundOverlay(); },550);
+    setTimeout(()=>{ btn.classList.remove('correct'); showRoundOverlay(den); },560);
   } else {
     btn.classList.add('wrong');
     playWrong();
@@ -262,7 +307,7 @@ function handleTap(btn, ok){
   }
 }
 
-function showRoundOverlay(){
+function showRoundOverlay(correctDen){
   const tierIdx=getTierIdx(round);
   const nextTierIdx=getTierIdx(round+1);
   const isTierEnd=(round<TOTAL && nextTierIdx>tierIdx);
@@ -275,9 +320,9 @@ function showRoundOverlay(){
     document.getElementById('ov-sub').textContent=next.label+' starts now!';
   } else {
     const msgs=['Amazing! 🌟','You got it! 👑','Brilliant! ✨','Yes! 💎','Wonderful! 🌸','Perfect! 🎀'];
-    document.getElementById('ov-emoji').textContent=currentQ.correct.e;
+    document.getElementById('ov-emoji').textContent=PIECE_DOTS[correctDen];
     document.getElementById('ov-title').textContent=msgs[Math.floor(Math.random()*msgs.length)];
-    document.getElementById('ov-sub').textContent='"'+currentQ.correct.n+'" starts with '+currentQ.letter+'! 🔤';
+    document.getElementById('ov-sub').textContent=FRACTION_NAMES[correctDen]+'! That\'s '+correctDen+(correctDen===1?' piece!':' equal pieces!');
   }
 
   document.getElementById('round-btn').onclick=nextRound;
@@ -287,7 +332,7 @@ function showRoundOverlay(){
 function endGame(){
   document.getElementById('final-score').textContent=score+' ⭐';
   document.getElementById('end-overlay').classList.add('show');
-  playFinalWin(); confetti(60); setTimeout(()=>confetti(40),700);
+  playFinalWin(); confetti(60); setTimeout(()=>confetti(42),700);
 }
 
 function updateHUD(){
@@ -300,8 +345,8 @@ function updateHUD(){
 }
 
 function burst(cx,cy){
-  const cols=['#ffd700','#f48fb1','#fff','#ce93d8','#e040fb','#80deea'];
-  const icons=['✨','💫','⭐','🔤','🌟'];
+  const cols=['#ffd700','#f48fb1','#fff','#ce93d8','#e040fb','#ff8fab'];
+  const icons=['✨','💫','⭐','🍰','🌟'];
   for(let i=0;i<18;i++){
     const el=document.createElement('div'); el.className='sp';
     const a=Math.random()*Math.PI*2, dist=30+Math.random()*75, sz=7+Math.random()*10;
@@ -329,7 +374,7 @@ function confetti(count){
 
 function makeBgGems(){
   document.querySelectorAll('.bg-gem').forEach(e=>e.remove());
-  const icons=['✨','💫','🔤','⭐','🌟','💎','🎀'];
+  const icons=['✨','💫','🍰','⭐','🌟','💎','🎂'];
   for(let i=0;i<10;i++){
     const el=document.createElement('div'); el.className='bg-gem';
     el.textContent=icons[i%icons.length];

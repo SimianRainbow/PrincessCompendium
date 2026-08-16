@@ -1,9 +1,9 @@
 # Princess Compendium — Status
 
 ## Last update run
-Date: 2026-08-13
-- Improved: `037-princess-day` → v1.1.0 (score counter ⭐ in header; progress bar; color-coded tier badge green/orange/purple; 3 prompt variants per time-of-day; dedicated win overlay with final score; double confetti burst on win; 42 confetti pieces up from 38; 18-sparkle burst up from 16; confettiBurst on tier overlay)
-- Added: `059-royal-helper-call` — "Royal Helper Call 🚒" teaching community helpers (who to call in each situation); 6 helpers (Doctor, Firefighter, Teacher, Police, Chef, Vet); 18-scenario pool (6 per tier); Easy 2 choices, Medium 3 choices, Hard 4 choices; animated scene card with floating background icons; fact shown after each correct tap; score counter ⭐, progress bar, color-coded tier badge, win overlay with double confetti
+Date: 2026-08-16
+- Improved: `043-letter-sounds` → v1.1.0 (score counter ⭐ in header; final score in win overlay; fixed 3 wrong-answer bugs: H→House 🏠, T→Tiger 🐯, A→Apple 🍎; sparkle burst 16→18 particles)
+- Added: `060-princess-fractions` — "Princess Fractions 🍰" teaching whole/half/thirds/quarters; SVG pie-chart cakes drawn in-browser; 18-round pool (6 per tier, 3 randomly chosen); Easy 2 choices, Medium 3 choices, Hard 4 choices; piece-count 🍰 emoji indicators; score counter ⭐, progress bar, color-coded tier badge, sparkle burst, win overlay with double confetti
 
 ## Improvement history
 
@@ -50,6 +50,7 @@ Date: 2026-08-13
 | 2026-08-07 | 048-royal-race | Score counter ⭐ in header, pool 9→18 (6 per tier), celebrate overlay naming correct animal, 9 new pairs (Jet/Balloon, Motorbike/Worm, Helicopter/Walker, Train/Scooter, Rabbit/Crocodile, Speedboat/Rowboat + 3 more tier-2 SLOWER pairs) | 1.1.0 |
 | 2026-08-10 | 032-princess-countdown | Fixed -1 bug (BLAST OFF 🚀 button at 0), score counter ⭐, countdown trail display, Medium 7→8, double confetti win | 1.1.0 |
 | 2026-08-13 | 037-princess-day | Score counter ⭐, progress bar, color-coded tier badge, 3 prompt variants per time, dedicated win overlay, double confetti burst | 1.1.0 |
+| 2026-08-16 | 043-letter-sounds | Score counter ⭐, final score in win overlay, fixed H→House/T→Tiger/A→Apple bugs, sparkle 16→18 | 1.1.0 |
 
 ## Games due for improvement (all at v1.0.0)
 
@@ -97,6 +98,7 @@ See `CLAUDE.md` for the full prioritised list. Top 3 to build next:
 21. **Ordinal numbers** — ✅ covered by `057-royal-podium`
 22. **Uppercase-lowercase letter matching** — ✅ covered by `058-royal-abc`
 23. **Community helpers** — ✅ covered by `059-royal-helper-call`
+24. **Basic fractions (whole, half, thirds, quarters)** — ✅ covered by `060-princess-fractions`
 
 ## Next game ID
-`060-<slug>`
+`061-<slug>`
