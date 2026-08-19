@@ -1,9 +1,9 @@
 # Princess Compendium — Status
 
 ## Last update run
-Date: 2026-08-16
-- Improved: `043-letter-sounds` → v1.1.0 (score counter ⭐ in header; final score in win overlay; fixed 3 wrong-answer bugs: H→House 🏠, T→Tiger 🐯, A→Apple 🍎; sparkle burst 16→18 particles)
-- Added: `060-princess-fractions` — "Princess Fractions 🍰" teaching whole/half/thirds/quarters; SVG pie-chart cakes drawn in-browser; 18-round pool (6 per tier, 3 randomly chosen); Easy 2 choices, Medium 3 choices, Hard 4 choices; piece-count 🍰 emoji indicators; score counter ⭐, progress bar, color-coded tier badge, sparkle burst, win overlay with double confetti
+Date: 2026-08-19
+- Improved: `035-front-back` → v1.1.0 (expanded pool 9→18 items (6 per tier, 3 random); color-coded tier badge 🌱/💎/👑; progress bar; dedicated win overlay; 18-sparkle burst; confetti 36→42 on tier change; double 60+40 confetti burst on win; added Tummy/Hair/Chin/Elbows/Belly Button/Forehead/Nails/Chest/Shoulder Blades)
+- Added: `061-sink-or-float` — "Princess Pond 🌊" teaching basic science reasoning (sink vs float); 18-item pool (6 per tier, 3 random); fun science facts on each answer; tier overlay, celebrate overlay, win overlay; 18-sparkle burst, double confetti on win
 
 ## Improvement history
 
@@ -51,6 +51,7 @@ Date: 2026-08-16
 | 2026-08-10 | 032-princess-countdown | Fixed -1 bug (BLAST OFF 🚀 button at 0), score counter ⭐, countdown trail display, Medium 7→8, double confetti win | 1.1.0 |
 | 2026-08-13 | 037-princess-day | Score counter ⭐, progress bar, color-coded tier badge, 3 prompt variants per time, dedicated win overlay, double confetti burst | 1.1.0 |
 | 2026-08-16 | 043-letter-sounds | Score counter ⭐, final score in win overlay, fixed H→House/T→Tiger/A→Apple bugs, sparkle 16→18 | 1.1.0 |
+| 2026-08-19 | 035-front-back | Pool 9→18 (6 per tier), color-coded tier badge, progress bar, win overlay, 18-sparkle burst, double confetti on win | 1.1.0 |
 
 ## Games due for improvement (all at v1.0.0)
 
@@ -100,5 +101,7 @@ See `CLAUDE.md` for the full prioritised list. Top 3 to build next:
 23. **Community helpers** — ✅ covered by `059-royal-helper-call`
 24. **Basic fractions (whole, half, thirds, quarters)** — ✅ covered by `060-princess-fractions`
 
+25. **Sink or float** — ✅ covered by `061-sink-or-float`
+
 ## Next game ID
-`061-<slug>`
+`062-<slug>`

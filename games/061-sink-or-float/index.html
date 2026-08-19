@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Princess Pond 🌊</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+    body{
+      min-height:100vh;
+      background:linear-gradient(160deg,#e3f2fd 0%,#b3e5fc 40%,#81d4fa 100%);
+      font-family:'Fredoka One',Georgia,serif;
+      display:flex;flex-direction:column;align-items:center;
+      overflow:hidden;user-select:none;touch-action:manipulation;
+      padding-bottom:10px;
+    }
+
+    .bg-gem{
+      position:fixed;pointer-events:none;opacity:.1;
+      font-size:clamp(18px,4.5vw,30px);
+      animation:bgFloat linear infinite;z-index:0;
+    }
+    @keyframes bgFloat{
+      0%{transform:translateY(110vh) rotate(0)}
+      100%{transform:translateY(-15vh) rotate(360deg)}
+    }
+
+    /* ── Header ── */
+    #header{
+      width:100%;display:flex;justify-content:space-between;align-items:center;
+      padding:clamp(10px,2.5vw,16px) clamp(14px,4vw,22px) 0;
+      flex-shrink:0;position:relative;z-index:1;
+    }
+    #tier-badge{
+      font-size:clamp(13px,3.2vw,17px);padding:5px 14px;border-radius:20px;
+      color:#fff;font-weight:bold;border:2px solid rgba(255,255,255,.38);
+      transition:background .4s;
+    }
+    .tier-easy  {background:linear-gradient(135deg,#66bb6a,#2e7d32);}
+    .tier-medium{background:linear-gradient(135deg,#ffca28,#f57f17);color:#3e2000;}
+    .tier-hard  {background:linear-gradient(135deg,#ce93d8,#6a1b9a);}
+    #round-label{font-size:clamp(13px,3.2vw,17px);color:rgba(0,100,180,.9);}
+    #score-row  {font-size:clamp(18px,4.5vw,26px);letter-spacing:1px;}
+
+    /* ── Progress bar ── */
+    #progress-track{
+      width:calc(100% - clamp(28px,7vw,44px));height:7px;
+      background:rgba(0,100,200,.15);border-radius:99px;
+      margin:clamp(7px,1.8vw,11px) auto 0;overflow:hidden;
+      position:relative;z-index:1;
+    }
+    #progress-fill{
+      height:100%;background:linear-gradient(90deg,#29b6f6,#0288d1);
+      border-radius:99px;transition:width .4s ease;width:0%;
+    }
+
+    /* ── Object card ── */
+    #object-card{
+      margin:clamp(14px,3.5vw,22px) 20px 0;
+      background:rgba(255,255,255,.92);border-radius:28px;
+      padding:clamp(16px,4vw,28px) clamp(24px,6vw,40px);
+      display:flex;flex-direction:column;align-items:center;gap:6px;
+      box-shadow:0 6px 28px rgba(0,100,200,.22),inset 0 2px 0 rgba(255,255,255,.5);
+      position:relative;z-index:1;
+      animation:cardIn .4s cubic-bezier(.34,1.56,.64,1);
+    }
+    @keyframes cardIn{from{transform:scale(.65);opacity:0}to{transform:scale(1);opacity:1}}
+    #obj-emoji{font-size:clamp(64px,16vw,100px);line-height:1;}
+    #obj-name {
+      font-size:clamp(22px,6vw,36px);color:#01579b;font-weight:bold;
+      letter-spacing:2px;text-transform:uppercase;text-align:center;
+    }
+    #obj-hint {font-size:clamp(13px,3.3vw,18px);color:#0288d1;}
+
+    /* ── Choice buttons ── */
+    #choice-row{
+      display:flex;gap:clamp(14px,4vw,24px);
+      padding:clamp(12px,3vw,20px) 20px 0;
+      width:100%;justify-content:center;
+      flex-shrink:0;position:relative;z-index:1;
+    }
+    .choice-btn{
+      flex:1;max-width:clamp(130px,40vw,210px);
+      min-height:clamp(110px,28vw,150px);
+      border-radius:26px;border:none;cursor:pointer;
+      display:flex;flex-direction:column;align-items:center;justify-content:center;
+      gap:6px;touch-action:manipulation;
+      box-shadow:0 6px 24px rgba(0,0,0,.28),inset 0 2px 0 rgba(255,255,255,.3);
+      transition:transform .1s;
+    }
+    .choice-btn:active{transform:scale(.91);}
+    #btn-float{background:linear-gradient(135deg,#64b5f6,#1565c0);border:4px solid rgba(255,255,255,.5);}
+    #btn-sink {background:linear-gradient(135deg,#8d6e63,#4e342e);border:4px solid rgba(255,255,255,.25);}
+    .choice-btn .c-emoji{font-size:clamp(34px,9vw,52px);line-height:1;pointer-events:none;}
+    .choice-btn .c-label{
+      font-size:clamp(18px,5vw,28px);color:#fff;font-weight:bold;
+      text-shadow:0 2px 6px rgba(0,0,0,.4);pointer-events:none;letter-spacing:2px;
+    }
+    .choice-btn.correct-flash{animation:correctFlash .5s ease-out;}
+    @keyframes correctFlash{
+      0%{transform:scale(1)}
+      40%{transform:scale(1.18);filter:brightness(1.4);box-shadow:0 0 40px rgba(255,215,0,.8);}
+      100%{transform:scale(1)}
+    }
+    .choice-btn.wrong-shake{animation:wrongShake .42s ease-out;}
+    @keyframes wrongShake{
+      0%,100%{transform:translateX(0)}
+      25%{transform:translateX(-10px)}
+      75%{transform:translateX(10px)}
+    }
+
+    /* ── Sparkles / confetti ── */
+    .sparkle{
+      position:fixed;pointer-events:none;z-index:90;
+      font-size:clamp(14px,3.5vw,22px);
+      animation:sparkleOut ease-out forwards;
+    }
+    @keyframes sparkleOut{
+      0%{transform:translate(-50%,-50%) scale(0);opacity:1}
+      50%{transform:translate(-50%,-50%) scale(1.3);opacity:1}
+      100%{transform:translate(-50%,-50%) scale(.2);opacity:0}
+    }
+    .confetti-p{
+      position:fixed;pointer-events:none;z-index:90;border-radius:3px;
+      animation:cfFall linear forwards;
+    }
+    @keyframes cfFall{0%{top:-20px;opacity:1}100%{top:110vh;opacity:.1}}
+
+    /* ── Celebrate overlay ── */
+    #celebrate{
+      position:fixed;inset:0;z-index:80;
+      display:none;flex-direction:column;
+      align-items:center;justify-content:center;gap:clamp(10px,2.5vw,16px);
+      background:rgba(235,250,255,.93);
+    }
+    #celebrate.show{display:flex;}
+    #cel-emoji{font-size:clamp(72px,18vw,110px);animation:bigPop .4s ease-out;}
+    @keyframes bigPop{0%{transform:scale(.3)}60%{transform:scale(1.22)}100%{transform:scale(1)}}
+    #cel-name{font-size:clamp(22px,6vw,46px);color:#01579b;text-align:center;padding:0 12px;}
+    #cel-fact{font-size:clamp(14px,3.8vw,22px);color:#0288d1;text-align:center;padding:0 20px;max-width:340px;}
+    #cel-next{
+      padding:clamp(14px,4vw,20px) clamp(36px,9vw,60px);
+      font-size:clamp(20px,5.5vw,30px);border-radius:50px;border:none;
+      background:linear-gradient(135deg,#ffd700,#ff9800);color:#5d2e00;
+      font-family:inherit;cursor:pointer;
+      box-shadow:0 6px 22px rgba(255,180,0,.45);touch-action:manipulation;
+    }
+
+    /* ── Tier overlay ── */
+    #tier-overlay{
+      position:fixed;inset:0;z-index:85;
+      display:none;flex-direction:column;
+      align-items:center;justify-content:center;gap:16px;
+      background:rgba(0,0,0,.65);
+    }
+    #tier-overlay.show{display:flex;}
+    #to-icon {font-size:clamp(60px,16vw,96px);}
+    #to-title{font-size:clamp(26px,7vw,48px);color:#ffd700;text-shadow:0 0 20px #ff9800;text-align:center;}
+    #to-sub  {font-size:clamp(16px,4.5vw,24px);color:#fff;text-align:center;padding:0 24px;}
+    #to-btn  {
+      padding:clamp(14px,4vw,20px) clamp(32px,8vw,56px);
+      font-size:clamp(20px,5vw,28px);border-radius:50px;border:none;
+      background:linear-gradient(135deg,#ffd700,#ff9800);
+      color:#5d2e00;font-family:inherit;cursor:pointer;
+      box-shadow:0 4px 16px rgba(255,180,0,.5);touch-action:manipulation;
+    }
+
+    /* ── Win overlay ── */
+    #win-overlay{
+      position:fixed;inset:0;z-index:90;
+      display:none;flex-direction:column;
+      align-items:center;justify-content:center;gap:clamp(12px,3vw,20px);
+      background:linear-gradient(160deg,#01579b 0%,#4a148c 100%);
+    }
+    #win-overlay.show{display:flex;}
+    #win-emoji {font-size:clamp(72px,18vw,110px);animation:bob 2.4s ease-in-out infinite;}
+    @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
+    #win-title {font-size:clamp(28px,7.5vw,56px);color:#ffd700;text-shadow:0 0 24px rgba(255,215,0,.7);text-align:center;padding:0 20px;}
+    #win-sub   {font-size:clamp(16px,4.5vw,26px);color:rgba(255,255,255,.85);text-align:center;}
+    #play-again{
+      padding:clamp(14px,4vw,20px) clamp(36px,9vw,64px);
+      font-size:clamp(18px,5vw,28px);border-radius:50px;border:none;
+      background:linear-gradient(135deg,#ffd700,#ff9800);color:#5d2e00;
+      font-family:inherit;cursor:pointer;
+      box-shadow:0 6px 24px rgba(255,180,0,.5);touch-action:manipulation;
+    }
+  </style>
+</head>
+<body>
+
+<div id="header">
+  <div id="tier-badge" class="tier-easy">🌊 Easy</div>
+  <div id="round-label">1 / 9</div>
+  <div id="score-row"></div>
+</div>
+<div id="progress-track"><div id="progress-fill"></div></div>
+
+<div id="object-card">
+  <div id="obj-emoji">🪶</div>
+  <div id="obj-name">FEATHER</div>
+  <div id="obj-hint">Does it FLOAT or SINK? 🌊</div>
+</div>
+
+<div id="choice-row">
+  <button class="choice-btn" id="btn-float">
+    <span class="c-emoji">⬆️</span>
+    <span class="c-label">FLOAT</span>
+  </button>
+  <button class="choice-btn" id="btn-sink">
+    <span class="c-emoji">⬇️</span>
+    <span class="c-label">SINK</span>
+  </button>
+</div>
+
+<div id="celebrate" class="">
+  <div id="cel-emoji">⬆️</div>
+  <div id="cel-name">It FLOATS! 🌊</div>
+  <div id="cel-fact">Feathers are super light — they float!</div>
+  <button id="cel-next" onclick="doNext()">Next ➡️</button>
+</div>
+
+<div id="tier-overlay">
+  <div id="to-icon">🌟</div>
+  <div id="to-title">Moving to Medium!</div>
+  <div id="to-sub">Trickier objects ahead! 🌊</div>
+  <button id="to-btn" onclick="resumeFromTier()">Keep going! ➡️</button>
+</div>
+
+<div id="win-overlay">
+  <div id="win-emoji">🌊</div>
+  <div id="win-title">Royal Scientist! 🔬</div>
+  <div id="win-sub">You know what sinks and floats!</div>
+  <button id="play-again" onclick="restartGame()">Play Again 🔄</button>
+</div>
+
+<script>
+  /* answer: 'float' or 'sink' */
+  var POOLS = {
+    easy: [
+      { emoji:'🪶', name:'FEATHER',     answer:'float', fact:'Feathers are super light — they float on water! 🪶' },
+      { emoji:'🪨', name:'ROCK',        answer:'sink',  fact:'Rocks are heavy and hard — they sink to the bottom! 🪨' },
+      { emoji:'🦆', name:'RUBBER DUCK', answer:'float', fact:'Rubber ducks are hollow and light — they float! 🦆' },
+      { emoji:'🗝️', name:'KEY',         answer:'sink',  fact:'Metal keys are heavy and solid — they sink! 🗝️' },
+      { emoji:'🍃', name:'LEAF',        answer:'float', fact:'Leaves are very light and flat — they float! 🍃' },
+      { emoji:'🧲', name:'MAGNET',      answer:'sink',  fact:'Magnets are made of metal — they sink! 🧲' },
+    ],
+    medium: [
+      { emoji:'🍎', name:'APPLE',       answer:'float', fact:'Apples have lots of air inside — they actually float! 🍎' },
+      { emoji:'🪙', name:'COIN',        answer:'sink',  fact:'Coins are made of metal and are dense — they sink! 🪙' },
+      { emoji:'🧴', name:'PLASTIC BOTTLE', answer:'float', fact:'Empty plastic bottles have air inside — they float! 🧴' },
+      { emoji:'🔩', name:'BOLT',        answer:'sink',  fact:'Steel bolts are very dense — they sink straight down! 🔩' },
+      { emoji:'🍊', name:'ORANGE',      answer:'float', fact:'Oranges with their peel float — peel them and they sink! 🍊' },
+      { emoji:'🔮', name:'MARBLE',      answer:'sink',  fact:'Glass marbles are solid and heavy — they sink! 🔮' },
+    ],
+    hard: [
+      { emoji:'⛵', name:'BOAT',        answer:'float', fact:'Boats have hollow space — that shape helps them float! ⛵' },
+      { emoji:'✏️', name:'PENCIL',      answer:'float', fact:'Wood is lighter than water — pencils float! ✏️' },
+      { emoji:'🍇', name:'GRAPE',       answer:'sink',  fact:'Grapes are denser than water — they sink! 🍇' },
+      { emoji:'🎈', name:'BALLOON',     answer:'float', fact:'Balloons full of air are lighter than water — they float! 🎈' },
+      { emoji:'📎', name:'PAPERCLIP',   answer:'sink',  fact:'Tiny metal paperclips are dense — they sink! 📎' },
+      { emoji:'🥚', name:'EGG',         answer:'sink',  fact:'Fresh eggs sink in plain water — they\'re denser! 🥚' },
+    ]
+  };
+
+  var TIER_INFO = [
+    { label:'🌊 Easy',   cls:'tier-easy',   icon:'🌟', title:'Moving to Medium!',  sub:'Less obvious objects ahead! 🤔' },
+    { label:'💧 Medium', cls:'tier-medium', icon:'💫', title:'Almost There!',       sub:'Tricky science questions! 🔬' },
+    { label:'🔬 Hard',   cls:'tier-hard',   icon:'👑', title:'Royal Scientist! 🎉', sub:'All done — genius! ⭐' },
+  ];
+
+  var FLOAT_MSGS = ['It FLOATS! 🌊','Floating! ⬆️','It stays up! 🌊','Floats right up! ⬆️'];
+  var SINK_MSGS  = ['It SINKS! ⬇️','Down it goes! 🪨','Sinking! ⬇️','Straight to the bottom! ⬇️'];
+  var PRAISE     = ['Amazing! 🌟','Brilliant! 💫','You got it! 👑','Wonderful! 🌈','Super smart! 💖'];
+
+  var audioCtx=null;
+  function au(){ if(!audioCtx) audioCtx=new(window.AudioContext||window.webkitAudioContext)(); return audioCtx; }
+  function tone(f,type,d,v){
+    v=v||0.15;
+    try{
+      var c=au(),o=c.createOscillator(),g=c.createGain();
+      o.connect(g); g.connect(c.destination);
+      o.type=type||'sine'; o.frequency.value=f;
+      g.gain.setValueAtTime(v,c.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001,c.currentTime+d);
+      o.start(); o.stop(c.currentTime+d);
+    }catch(e){}
+  }
+  function playCorrect()  { [523,659,784,1047].forEach(function(f,i){ setTimeout(function(){ tone(f,'sine',.2,.18); },i*75); }); }
+  function playWrong()    { tone(220,'sawtooth',.2,.1); }
+  function playTierUp()   { [392,494,587,784,988].forEach(function(f,i){ setTimeout(function(){ tone(f,'sine',.28,.17); },i*90); }); }
+  function playCelebrate(){ [523,587,659,784,880,1047,1319].forEach(function(f,i){ setTimeout(function(){ tone(f,'sine',.25,.16); },i*60); }); }
+
+  function shuffle(a){
+    var b=a.slice();
+    for(var i=b.length-1;i>0;i--){
+      var j=0|Math.random()*(i+1);
+      var t=b[i]; b[i]=b[j]; b[j]=t;
+    }
+    return b;
+  }
+
+  var rounds=[], cur=0, score=0, locked=false;
+
+  function pickRounds(){
+    return shuffle(POOLS.easy).slice(0,3)
+      .concat(shuffle(POOLS.medium).slice(0,3))
+      .concat(shuffle(POOLS.hard).slice(0,3));
+  }
+
+  function updateHUD(){
+    document.getElementById('score-row').textContent='⭐'.repeat(score);
+    document.getElementById('round-label').textContent=(cur+1)+' / 9';
+    document.getElementById('progress-fill').style.width=((cur/9)*100)+'%';
+  }
+
+  function showRound(idx){
+    locked=false; cur=idx;
+    updateHUD();
+
+    var r=rounds[idx];
+    var tIdx=Math.floor(idx/3);
+    var ti=TIER_INFO[tIdx];
+    var badge=document.getElementById('tier-badge');
+    badge.textContent=ti.label; badge.className=ti.cls;
+
+    var card=document.getElementById('object-card');
+    card.style.animation='none'; void card.offsetWidth; card.style.animation='';
+    document.getElementById('obj-emoji').textContent=r.emoji;
+    document.getElementById('obj-name').textContent=r.name;
+  }
+
+  function handleTap(chosen){
+    if(locked) return;
+    var r=rounds[cur];
+    if(chosen===r.answer){
+      locked=true;
+      var btnEl=document.getElementById(chosen==='float'?'btn-float':'btn-sink');
+      btnEl.classList.add('correct-flash');
+      playCorrect(); score++;
+      var rect=btnEl.getBoundingClientRect();
+      sparkleBurst(rect.left+rect.width/2, rect.top+rect.height/2);
+      setTimeout(function(){
+        btnEl.classList.remove('correct-flash');
+        var msgs = chosen==='float' ? FLOAT_MSGS : SINK_MSGS;
+        document.getElementById('cel-emoji').textContent=chosen==='float'?'⬆️':'⬇️';
+        document.getElementById('cel-name').textContent=msgs[0|Math.random()*msgs.length]+' — '+PRAISE[0|Math.random()*PRAISE.length];
+        document.getElementById('cel-fact').textContent=r.fact;
+        document.getElementById('celebrate').classList.add('show');
+        playCelebrate(); confettiBurst(28);
+      },450);
+    } else {
+      var wrongBtn=document.getElementById(chosen==='float'?'btn-float':'btn-sink');
+      wrongBtn.classList.add('wrong-shake'); playWrong();
+      setTimeout(function(){ wrongBtn.classList.remove('wrong-shake'); },420);
+    }
+  }
+
+  document.getElementById('btn-float').addEventListener('pointerdown',function(){ handleTap('float'); });
+  document.getElementById('btn-sink').addEventListener('pointerdown',function(){ handleTap('sink'); });
+
+  function doNext(){
+    document.getElementById('celebrate').classList.remove('show');
+    advanceRound();
+  }
+
+  function advanceRound(){
+    var was=cur, next=was+1;
+    if(next>=9){ showWin(); return; }
+    var prevTier=Math.floor(was/3), newTier=Math.floor(next/3);
+    cur=next;
+    if(newTier!==prevTier){
+      playTierUp(); confettiBurst(42);
+      var ti=TIER_INFO[prevTier];
+      document.getElementById('to-icon').textContent=ti.icon;
+      document.getElementById('to-title').textContent=ti.title;
+      document.getElementById('to-sub').textContent=ti.sub;
+      document.getElementById('tier-overlay').classList.add('show');
+    } else {
+      showRound(next);
+    }
+  }
+
+  function resumeFromTier(){
+    document.getElementById('tier-overlay').classList.remove('show');
+    showRound(cur);
+  }
+
+  function showWin(){
+    document.getElementById('progress-fill').style.width='100%';
+    document.getElementById('win-sub').textContent=score+' / 9 ⭐  You know what sinks and floats!';
+    document.getElementById('win-overlay').classList.add('show');
+    playCelebrate(); confettiBurst(60);
+    setTimeout(function(){ confettiBurst(40); },600);
+  }
+
+  function restartGame(){
+    document.getElementById('win-overlay').classList.remove('show');
+    score=0; cur=0; rounds=pickRounds();
+    updateHUD(); showRound(0);
+  }
+
+  function sparkleBurst(x,y){
+    var ems=['✨','💫','⭐','🌊','💧','⬆️','⬇️','🌟','💎','🎉'];
+    for(var i=0;i<18;i++){
+      var el=document.createElement('span'); el.className='sparkle';
+      el.textContent=ems[i%ems.length];
+      var angle=(i/18)*Math.PI*2, dist=55+Math.random()*95;
+      el.style.left=(x+Math.cos(angle)*dist)+'px';
+      el.style.top=(y+Math.sin(angle)*dist)+'px';
+      el.style.animationDelay=(Math.random()*.15)+'s';
+      el.style.animationDuration=(.8+Math.random()*.35)+'s';
+      document.body.appendChild(el);
+      setTimeout((function(e){ return function(){ e.remove(); }; })(el),1200);
+    }
+  }
+
+  function confettiBurst(n){
+    var cols=['#29b6f6','#ffd700','#ff69b4','#00cfff','#7fff00','#ff6347','#fff','#4fc3f7'];
+    for(var i=0;i<n;i++){
+      var el=document.createElement('div'); el.className='confetti-p';
+      var sz=8+Math.random()*8;
+      el.style.cssText='left:'+Math.random()*100+'vw;top:-20px;width:'+sz+'px;height:'+sz+'px;'
+        +'background:'+cols[i%cols.length]+';'
+        +'animation-duration:'+(1.2+Math.random()*1.6)+'s;animation-delay:'+Math.random()*.4+'s;';
+      document.body.appendChild(el);
+      setTimeout((function(e){ return function(){ e.remove(); }; })(el),2900);
+    }
+  }
+
+  function makeBg(){
+    var gems=['🌊','💧','🪨','🪶','⬆️','⬇️','✨','💎','⭐','🔬'];
+    for(var i=0;i<10;i++){
+      var el=document.createElement('div'); el.className='bg-gem';
+      el.textContent=gems[i%gems.length];
+      el.style.left=(5+Math.random()*90)+'vw';
+      el.style.animationDuration=(9+Math.random()*14)+'s';
+      el.style.animationDelay=-(Math.random()*16)+'s';
+      document.body.appendChild(el);
+    }
+  }
+
+  makeBg();
+  rounds=pickRounds();
+  updateHUD();
+  showRound(0);
+</script>
+</body>
+</html>
