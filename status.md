@@ -1,9 +1,9 @@
 # Princess Compendium — Status
 
 ## Last update run
-Date: 2026-08-19
-- Improved: `035-front-back` → v1.1.0 (expanded pool 9→18 items (6 per tier, 3 random); color-coded tier badge 🌱/💎/👑; progress bar; dedicated win overlay; 18-sparkle burst; confetti 36→42 on tier change; double 60+40 confetti burst on win; added Tummy/Hair/Chin/Elbows/Belly Button/Forehead/Nails/Chest/Shoulder Blades)
-- Added: `061-sink-or-float` — "Princess Pond 🌊" teaching basic science reasoning (sink vs float); 18-item pool (6 per tier, 3 random); fun science facts on each answer; tier overlay, celebrate overlay, win overlay; 18-sparkle burst, double confetti on win
+Date: 2026-08-22
+- Improved: `049-royal-days` → v1.1.0 (added BEFORE questions to Easy pool 6→9; added 6th/7th day ordinals to Medium 6→8; added TOMORROW questions to Hard 6→9; celebrate overlay now shows day description e.g. "Royal Painting day! 🎨"; sparkle 18→20; tier badge class fix)
+- Added: `062-royal-bonds` — "Royal Gem Bonds 💎" teaching number bonds to 5 and 10; gem-slot visual grid fills on correct answer; 3-tier progression (make-5 Easy, make-10 Medium/Hard); 20-sparkle burst, double confetti win; equation shown in celebrate overlay (e.g. "2 + 3 = 5 💎")
 
 ## Improvement history
 
@@ -52,6 +52,7 @@ Date: 2026-08-19
 | 2026-08-13 | 037-princess-day | Score counter ⭐, progress bar, color-coded tier badge, 3 prompt variants per time, dedicated win overlay, double confetti burst | 1.1.0 |
 | 2026-08-16 | 043-letter-sounds | Score counter ⭐, final score in win overlay, fixed H→House/T→Tiger/A→Apple bugs, sparkle 16→18 | 1.1.0 |
 | 2026-08-19 | 035-front-back | Pool 9→18 (6 per tier), color-coded tier badge, progress bar, win overlay, 18-sparkle burst, double confetti on win | 1.1.0 |
+| 2026-08-22 | 049-royal-days | Added BEFORE questions (Easy 6→9), 6th/7th ordinals (Medium 6→8), TOMORROW questions (Hard 6→9), day description in celebrate, sparkle 18→20 | 1.1.0 |
 
 ## Games due for improvement (all at v1.0.0)
 
@@ -102,6 +103,7 @@ See `CLAUDE.md` for the full prioritised list. Top 3 to build next:
 24. **Basic fractions (whole, half, thirds, quarters)** — ✅ covered by `060-princess-fractions`
 
 25. **Sink or float** — ✅ covered by `061-sink-or-float`
+26. **Number bonds to 5 and 10** — ✅ covered by `062-royal-bonds`
 
 ## Next game ID
-`062-<slug>`
+`063-<slug>`

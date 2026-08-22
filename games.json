@@ -578,12 +578,12 @@
   {
     "id": "049-royal-days",
     "title": "Royal Week",
-    "description": "Learn the days of the week with the princess! What comes after Monday? What is the 3rd day? Yesterday was Friday — what day is today? 9 rounds across 3 tiers.",
+    "description": "Learn the days of the week! What comes AFTER Monday? What comes BEFORE Saturday? Yesterday was Friday — what day is today? Tomorrow is Wednesday — what day is today? 9-item pools, 3 tiers.",
     "icon": "📅",
     "ageMin": 3,
     "ageMax": 5,
     "skill": "days of the week — order & sequence",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "category": "other",
     "path": "games/049-royal-days/index.html"
   },
@@ -731,5 +731,17 @@
     "version": "1.0.0",
     "category": "other",
     "path": "games/061-sink-or-float/index.html"
+  },
+  {
+    "id": "062-royal-bonds",
+    "title": "Royal Gem Bonds",
+    "description": "Help Princess fill her treasure chest! Count the gems already inside, then tap how many MORE she needs to make 5 or 10 — learn number bonds with sparkling gem animations!",
+    "icon": "💎",
+    "ageMin": 3,
+    "ageMax": 6,
+    "skill": "number bonds to 5 and 10",
+    "version": "1.0.0",
+    "category": "numbers",
+    "path": "games/062-royal-bonds/index.html"
   }
 ]
