@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Royal Months 📆</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+    body {
+      background: linear-gradient(160deg, #0d1b4b 0%, #1565c0 50%, #1a237e 100%);
+      min-height:100vh; width:100vw; overflow:hidden;
+      font-family:'Fredoka One', Georgia, serif; user-select:none; position:relative;
+      display:flex; flex-direction:column; align-items:center;
+    }
+
+    .bg-float { position:fixed; pointer-events:none; animation:floatUp linear infinite; opacity:.15; font-size:clamp(16px,4.5vw,28px); }
+    @keyframes floatUp { 0%{transform:translateY(110vh) rotate(0deg)} 100%{transform:translateY(-15vh) rotate(360deg)} }
+
+    /* ── Header ── */
+    #header {
+      position:fixed; top:0; left:0; right:0; z-index:10;
+      padding:clamp(8px,2vw,14px) clamp(12px,3vw,20px);
+      display:flex; justify-content:space-between; align-items:center;
+    }
+    #tier-badge { font-size:clamp(13px,3.4vw,18px); padding:5px 15px; border-radius:20px; font-weight:bold; }
+    .tier-easy   { background:linear-gradient(135deg,#a5d6a7,#66bb6a); color:#1b5e20; }
+    .tier-medium { background:linear-gradient(135deg,#ffe082,#ffd54f); color:#5a3000; }
+    .tier-hard   { background:linear-gradient(135deg,#ce93d8,#ab47bc); color:#fff; }
+    #header-right { display:flex; align-items:center; gap:12px; }
+    #score-lbl { font-size:clamp(14px,3.5vw,20px); color:#ffd700; font-weight:bold; text-shadow:0 1px 4px rgba(0,0,0,.5); }
+    #round-lbl { font-size:clamp(14px,3.5vw,20px); color:rgba(255,255,255,.9); font-weight:bold; text-shadow:0 1px 4px rgba(0,0,0,.5); }
+
+    /* ── Progress bar ── */
+    #progress-wrap {
+      position:fixed; top:clamp(48px,11vw,70px); left:0; right:0;
+      padding:0 clamp(14px,4vw,24px); z-index:10;
+    }
+    #progress-track { background:rgba(255,255,255,.12); border-radius:20px; height:clamp(10px,2.5vw,14px); overflow:hidden; }
+    #progress-fill  { height:100%; border-radius:20px; background:linear-gradient(90deg,#ffd700,#fffde7); transition:width .35s ease; width:0%; box-shadow:0 0 8px rgba(255,215,0,.4); }
+
+    /* ── Main area ── */
+    #prompt-wrap {
+      margin-top:clamp(72px,17vw,100px); text-align:center; padding:0 16px;
+    }
+    #prompt { font-size:clamp(17px,4.4vw,25px); color:#fff; text-shadow:0 2px 6px rgba(0,0,0,.5); line-height:1.3; }
+
+    /* ── Month card display ── */
+    #display-wrap {
+      display:flex; align-items:center; justify-content:center; gap:clamp(8px,2vw,14px);
+      margin-top:clamp(10px,2.5vw,16px); padding:0 12px; width:100%;
+    }
+    .month-card-side {
+      background:rgba(255,255,255,.08); border:2px solid rgba(255,255,255,.15);
+      border-radius:16px; padding:clamp(8px,2vw,12px) clamp(10px,2.5vw,16px);
+      text-align:center; min-width:clamp(64px,16vw,90px); opacity:.55;
+    }
+    .month-card-side .mc-emoji { font-size:clamp(22px,6vw,34px); }
+    .month-card-side .mc-name  { font-size:clamp(9px,2.3vw,13px); color:rgba(255,255,255,.85); margin-top:4px; }
+    .month-card-main {
+      background:linear-gradient(135deg,rgba(255,215,0,.22),rgba(255,182,193,.2));
+      border:3px solid rgba(255,215,0,.6); border-radius:22px;
+      padding:clamp(14px,3.5vw,22px) clamp(18px,4.5vw,28px);
+      text-align:center; min-width:clamp(120px,30vw,170px);
+      box-shadow:0 6px 30px rgba(0,0,0,.4), 0 0 20px rgba(255,215,0,.18);
+      animation:cardIn .5s cubic-bezier(.34,1.56,.64,1);
+    }
+    @keyframes cardIn { from{transform:scale(0.7);opacity:0} to{transform:scale(1);opacity:1} }
+    .month-card-main .mc-emoji { font-size:clamp(38px,10vw,58px); }
+    .month-card-main .mc-name  { font-size:clamp(16px,4.2vw,24px); color:#fff; margin-top:6px; text-shadow:0 2px 6px rgba(0,0,0,.5); }
+    .month-card-main .mc-crown { font-size:clamp(14px,3.5vw,20px); margin-bottom:4px; }
+
+    /* Ordinal display for Hard tier */
+    .ordinal-card {
+      background:linear-gradient(135deg,rgba(206,147,216,.3),rgba(171,71,188,.3));
+      border:3px solid rgba(206,147,216,.7); border-radius:22px;
+      padding:clamp(16px,4vw,26px) clamp(24px,6vw,40px); text-align:center;
+      box-shadow:0 6px 30px rgba(0,0,0,.4);
+      animation:cardIn .5s cubic-bezier(.34,1.56,.64,1);
+    }
+    .ordinal-card .oc-num { font-size:clamp(52px,14vw,84px); color:#ffd700; text-shadow:0 0 20px rgba(255,215,0,.6); line-height:1; }
+    .ordinal-card .oc-label { font-size:clamp(16px,4vw,22px); color:rgba(255,255,255,.85); margin-top:6px; }
+
+    /* ── Choice buttons ── */
+    #choices {
+      display:flex; flex-wrap:wrap; gap:clamp(8px,2vw,14px); justify-content:center;
+      margin-top:clamp(12px,3vw,20px); padding:0 clamp(10px,2.5vw,18px); width:100%;
+    }
+    .choice-btn {
+      min-width:clamp(130px,33vw,170px); min-height:clamp(70px,16vw,90px);
+      border-radius:18px; border:3px solid rgba(255,215,0,.3);
+      background:rgba(255,255,255,.12);
+      color:#fff; font-family:inherit; cursor:pointer; touch-action:manipulation;
+      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px;
+      box-shadow:0 4px 18px rgba(0,0,0,.4), inset 0 2px 0 rgba(255,255,255,.18);
+      transition:transform .1s; padding:8px 12px;
+    }
+    .choice-btn:active { transform:scale(.9); }
+    .choice-btn .cb-emoji { font-size:clamp(24px,6.5vw,36px); }
+    .choice-btn .cb-name  { font-size:clamp(12px,3.2vw,18px); }
+    .choice-btn.correct-flash { animation:correctPop .5s ease-out; background:rgba(255,215,0,.38); border-color:#ffd700; }
+    .choice-btn.wrong-flash   { animation:wobble .45s ease-out; background:rgba(255,80,80,.28); }
+    @keyframes correctPop { 0%{transform:scale(1)} 45%{transform:scale(1.18);box-shadow:0 0 40px rgba(255,215,0,.8)} 100%{transform:scale(1)} }
+    @keyframes wobble { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-12px)} 65%{transform:translateX(12px)} }
+
+    /* ── Particles ── */
+    .sparkle-dot { position:fixed; pointer-events:none; z-index:50; border-radius:50%; animation:sDot .7s ease-out forwards; }
+    @keyframes sDot { 0%{transform:scale(0);opacity:1} 100%{transform:scale(1.6);opacity:0} }
+    .sparkle-em { position:fixed; pointer-events:none; z-index:51; font-size:clamp(18px,4.5vw,26px); animation:sFloat .9s ease-out forwards; }
+    @keyframes sFloat { 0%{transform:translateY(0) scale(1);opacity:1} 100%{transform:translateY(-90px) scale(0);opacity:0} }
+
+    /* ── Overlays ── */
+    .overlay {
+      position:fixed; inset:0; background:rgba(5,10,35,.93);
+      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px;
+      z-index:99; opacity:0; pointer-events:none; transition:opacity .4s;
+    }
+    .overlay.show { opacity:1; pointer-events:all; }
+    .ov-emoji { font-size:clamp(60px,16vw,96px); }
+    .ov-title { font-size:clamp(22px,6vw,42px); color:#ffd700; text-align:center; padding:0 20px; text-shadow:0 0 20px rgba(255,215,0,.5); }
+    .ov-sub   { font-size:clamp(14px,3.8vw,22px); color:rgba(255,255,255,.85); text-align:center; padding:0 20px; }
+    .btn-next {
+      padding:clamp(14px,4vw,20px) clamp(32px,8vw,56px); font-size:clamp(20px,5vw,28px);
+      border-radius:50px; border:none; background:linear-gradient(135deg,#ffd700,#ffb300);
+      color:#1a237e; font-weight:bold; cursor:pointer; font-family:inherit;
+      min-height:64px; min-width:180px; touch-action:manipulation;
+      box-shadow:0 4px 20px rgba(255,215,0,.4);
+    }
+    .confetti-piece { position:fixed; border-radius:50%; pointer-events:none; z-index:100; animation:cfFall linear forwards; }
+    @keyframes cfFall { 0%{top:-20px;opacity:1} 100%{top:110vh;opacity:.15} }
+
+    /* Tier toast */
+    #tier-toast {
+      position:fixed; inset:0; background:rgba(5,10,35,.93);
+      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px;
+      z-index:98; opacity:0; pointer-events:none; transition:opacity .4s;
+    }
+    #tier-toast.show { opacity:1; pointer-events:all; }
+    #tier-toast .tt-emoji { font-size:clamp(60px,16vw,90px); }
+    #tier-toast .tt-title { font-size:clamp(26px,7vw,46px); color:#ffd700; text-align:center; padding:0 20px; text-shadow:0 0 20px rgba(255,215,0,.5); }
+    #tier-toast .tt-sub   { font-size:clamp(15px,4vw,22px); color:rgba(255,255,255,.85); text-align:center; padding:0 20px; }
+  </style>
+</head>
+<body>
+
+<div id="header">
+  <div id="tier-badge" class="tier-easy">🌱 Easy</div>
+  <div id="header-right">
+    <div id="score-lbl">⭐ 0</div>
+    <div id="round-lbl">1 / 9</div>
+  </div>
+</div>
+<div id="progress-wrap">
+  <div id="progress-track"><div id="progress-fill"></div></div>
+</div>
+
+<div id="prompt-wrap">
+  <div id="prompt"></div>
+</div>
+
+<div id="display-wrap"></div>
+
+<div id="choices"></div>
+
+<!-- Tier toast -->
+<div id="tier-toast">
+  <div class="tt-emoji" id="tt-emoji">🌸</div>
+  <div class="tt-title" id="tt-title">Level Up!</div>
+  <div class="tt-sub"   id="tt-sub">Keep going!</div>
+  <button class="btn-next" id="tt-btn">Let's go! ➡️</button>
+</div>
+
+<!-- Celebrate overlay -->
+<div class="overlay" id="round-overlay">
+  <div class="ov-emoji" id="ov-emoji">📆</div>
+  <div class="ov-title" id="ov-title"></div>
+  <div class="ov-sub"   id="ov-sub"></div>
+  <button class="btn-next" id="round-btn">Next ➡️</button>
+</div>
+
+<!-- Win overlay -->
+<div class="overlay" id="win-overlay">
+  <div class="ov-emoji">🏆</div>
+  <div class="ov-title">Year Champion! 🌟</div>
+  <div class="ov-sub" id="win-score">You know all 12 months!</div>
+  <button class="btn-next" onclick="startGame()">Play Again 🌸</button>
+</div>
+
+<script>
+  // ── Month data ───────────────────────────────────────────────────────────────
+  var MONTHS = [
+    { name:'January',  emoji:'❄️',  short:'Jan' },
+    { name:'February', emoji:'💕',  short:'Feb' },
+    { name:'March',    emoji:'🌷',  short:'Mar' },
+    { name:'April',    emoji:'🌸',  short:'Apr' },
+    { name:'May',      emoji:'🌺',  short:'May' },
+    { name:'June',     emoji:'☀️',  short:'Jun' },
+    { name:'July',     emoji:'🏖️',  short:'Jul' },
+    { name:'August',   emoji:'🍉',  short:'Aug' },
+    { name:'September',emoji:'🍂',  short:'Sep' },
+    { name:'October',  emoji:'🎃',  short:'Oct' },
+    { name:'November', emoji:'🍁',  short:'Nov' },
+    { name:'December', emoji:'⛄',  short:'Dec' },
+  ];
+  var ORDINALS = ['1st','2nd','3rd','4th','5th','6th','7th','8th','9th','10th','11th','12th'];
+
+  // ── Round pools (0-indexed month numbers) ─────────────────────────────────
+  // Easy: "Which month comes AFTER [x]?" answer = x+1
+  var EASY_AFTER  = [0,1,2,3,4,5,6,7,8,9,10,11]; // any month, answer = next (Dec wraps to Jan)
+  // Medium: "Which month comes BEFORE [x]?" answer = x-1
+  var MED_BEFORE  = [1,2,3,4,5,6,7,8,9,10,11,0]; // mapped so answer = prev
+  // Hard: ordinal positions (answers are months 0,2,4,6,8,10 i.e. odd ordinals for variety)
+  var HARD_ORD    = [0,2,4,6,8,10]; // 1st,3rd,5th,7th,9th,11th months
+
+  // ── Game state ─────────────────────────────────────────────────────────────
+  var ROUNDS = [], roundIdx = 0, locked = false, score = 0;
+  var curAnswer = 0, curTier = 0, curType = '';
+
+  var TIER_LABELS  = ['🌱 Easy','🌸 Medium','⭐ Hard'];
+  var TIER_CLASSES = ['tier-easy','tier-medium','tier-hard'];
+  var TIER_EMOJIS  = ['🌱','🌸','⭐'];
+  var TIER_NAMES   = ['Easy','Medium','Hard!'];
+  var TIER_SUBS    = [
+    'Which month comes NEXT? 📆',
+    'Which month comes BEFORE? 🔙',
+    'Which month is it by number? 🔢',
+  ];
+  var TOTAL = 9;
+
+  // ── Audio ──────────────────────────────────────────────────────────────────
+  var audioCtx = null;
+  function getAudio() {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    return audioCtx;
+  }
+  function tone(f,type,d,v) {
+    v=v||.18;
+    try {
+      var c=getAudio(), o=c.createOscillator(), g=c.createGain();
+      o.connect(g); g.connect(c.destination);
+      o.type=type; o.frequency.value=f;
+      g.gain.setValueAtTime(v,c.currentTime);
+      g.gain.exponentialRampToValueAtTime(.001,c.currentTime+d);
+      o.start(); o.stop(c.currentTime+d);
+    } catch(e) {}
+  }
+  function playCorrect()  { [523,659,784,1047].forEach(function(f,i){ setTimeout(function(){ tone(f,'sine',.18,.2); },i*65); }); }
+  function playWrong()    { tone(280,'sawtooth',.16,.13); setTimeout(function(){ tone(240,'sawtooth',.14,.11); },160); }
+  function playTierWin()  { [523,659,784,1047,1319].forEach(function(f,i){ setTimeout(function(){ tone(f,'triangle',.28,.2); },i*80); }); }
+  function playFinalWin() { [523,659,784,1047,784,1047,1319].forEach(function(f,i){ setTimeout(function(){ tone(f,'sine',.32,.22); },i*90); }); }
+
+  // ── Shuffle ─────────────────────────────────────────────────────────────────
+  function shuffle(a) {
+    var b=a.slice();
+    for (var i=b.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=b[i]; b[i]=b[j]; b[j]=t; }
+    return b;
+  }
+
+  // ── Build rounds ─────────────────────────────────────────────────────────────
+  function buildRounds() {
+    var out = [];
+    // Easy: 3 random months, show "after" question
+    shuffle(EASY_AFTER).slice(0,3).forEach(function(m){
+      out.push({ tier:0, type:'after', month:m, answer:(m+1)%12 });
+    });
+    // Medium: 3 random months, show "before" question
+    shuffle(EASY_AFTER).slice(0,3).forEach(function(m){
+      out.push({ tier:1, type:'before', month:m, answer:(m+11)%12 });
+    });
+    // Hard: 3 random ordinals
+    shuffle(HARD_ORD).slice(0,3).forEach(function(m){
+      out.push({ tier:2, type:'ordinal', month:m, answer:m });
+    });
+    return out;
+  }
+
+  // ── Get wrong choices ───────────────────────────────────────────────────────
+  function getChoices(r) {
+    var answer = r.answer;
+    var count  = r.tier===0 ? 3 : 4;
+    // Wrong candidates: nearby months (within 3) that aren't the answer or the shown month
+    var wrong = [];
+    for (var offset=1; offset<=6 && wrong.length<(count-1)*2; offset++) {
+      var c1=(answer+offset)%12, c2=(answer+12-offset)%12;
+      if (c1!==answer && (r.type==='ordinal' || (c1!==r.month))) wrong.push(c1);
+      if (c2!==answer && (r.type==='ordinal' || (c2!==r.month)) && c2!==c1) wrong.push(c2);
+    }
+    return shuffle([answer].concat(shuffle(wrong).slice(0,count-1)));
+  }
+
+  // ── BG floaters ─────────────────────────────────────────────────────────────
+  function makeBg() {
+    var icons=['📆','📅','🗓️','👑','✨','💫','🌟','❄️','🌸','☀️','🍂','⭐','🎀','💜'];
+    for (var i=0;i<14;i++){
+      var el=document.createElement('div'); el.className='bg-float';
+      el.textContent=icons[i%icons.length];
+      el.style.left=(4+Math.random()*92)+'vw';
+      el.style.animationDuration=(10+Math.random()*15)+'s';
+      el.style.animationDelay=-(Math.random()*15)+'s';
+      document.body.appendChild(el);
+    }
+  }
+
+  // ── Render round ─────────────────────────────────────────────────────────────
+  function showRound(idx) {
+    locked = false;
+    var r = ROUNDS[idx];
+    curAnswer = r.answer;
+    curTier   = r.tier;
+    curType   = r.type;
+
+    document.getElementById('tier-badge').textContent = TIER_LABELS[r.tier];
+    document.getElementById('tier-badge').className   = 'tier-badge '+TIER_CLASSES[r.tier];
+    document.getElementById('score-lbl').textContent  = '⭐ '+score;
+    document.getElementById('round-lbl').textContent  = (idx+1)+' / '+TOTAL;
+    document.getElementById('progress-fill').style.width = (idx/TOTAL*100)+'%';
+
+    // Prompt text
+    var prompts;
+    var m = MONTHS[r.month];
+    if (r.type==='after') {
+      prompts = [
+        'Which month comes AFTER '+m.name+'? 👉',
+        'What month comes next after '+m.name+'? 📆',
+        m.name+' is done — what month comes next? ➡️',
+      ];
+    } else if (r.type==='before') {
+      prompts = [
+        'Which month comes BEFORE '+m.name+'? 👈',
+        'What month was just before '+m.name+'? 🔙',
+        m.name+' is here — what month was before it? 📆',
+      ];
+    } else {
+      prompts = [
+        'What is the '+ORDINALS[r.month]+' month of the year? 🔢',
+        'Which month is number '+String(r.month+1)+' in the year? 📆',
+        'Count to '+String(r.month+1)+' — which month do you land on? 👑',
+      ];
+    }
+    document.getElementById('prompt').textContent = prompts[Math.floor(Math.random()*prompts.length)];
+
+    // Display area
+    var dw = document.getElementById('display-wrap');
+    dw.innerHTML = '';
+    if (r.type==='ordinal') {
+      var oc = document.createElement('div');
+      oc.className = 'ordinal-card';
+      oc.innerHTML = '<div class="oc-num">'+ORDINALS[r.month]+'</div><div class="oc-label">month of the year</div>';
+      dw.appendChild(oc);
+    } else {
+      var prevM = (r.month+11)%12;
+      var nextM = (r.month+1)%12;
+
+      var sidePrev = document.createElement('div');
+      sidePrev.className = 'month-card-side';
+      sidePrev.innerHTML = '<div class="mc-emoji">'+MONTHS[prevM].emoji+'</div><div class="mc-name">'+MONTHS[prevM].short+'</div>';
+
+      var mainCard = document.createElement('div');
+      mainCard.className = 'month-card-main';
+      mainCard.innerHTML = '<div class="mc-crown">👑</div><div class="mc-emoji">'+m.emoji+'</div><div class="mc-name">'+m.name+'</div>';
+
+      var sideNext = document.createElement('div');
+      sideNext.className = 'month-card-side';
+      sideNext.innerHTML = '<div class="mc-emoji">'+MONTHS[nextM].emoji+'</div><div class="mc-name">'+MONTHS[nextM].short+'</div>';
+
+      if (r.type==='after') {
+        dw.appendChild(mainCard);
+        sideNext.innerHTML = '<div class="mc-emoji">❓</div><div class="mc-name">Next?</div>';
+        dw.appendChild(sideNext);
+      } else {
+        sidePrev.innerHTML = '<div class="mc-emoji">❓</div><div class="mc-name">Before?</div>';
+        dw.appendChild(sidePrev);
+        dw.appendChild(mainCard);
+      }
+    }
+
+    // Choices
+    var choices = getChoices(r);
+    var choicesEl = document.getElementById('choices');
+    choicesEl.innerHTML = '';
+    choices.forEach(function(idx2) {
+      var mo  = MONTHS[idx2];
+      var btn = document.createElement('button');
+      btn.className = 'choice-btn';
+      btn.innerHTML = '<span class="cb-emoji">'+mo.emoji+'</span><span class="cb-name">'+mo.name+'</span>';
+      btn.dataset.val = idx2;
+      btn.addEventListener('pointerdown', function(){ handleTap(btn, idx2); });
+      choicesEl.appendChild(btn);
+    });
+  }
+
+  // ── Handle tap ──────────────────────────────────────────────────────────────
+  function handleTap(btn, val) {
+    if (locked) return;
+    if (val===curAnswer) {
+      locked = true;
+      score++;
+      document.getElementById('score-lbl').textContent = '⭐ '+score;
+      btn.classList.add('correct-flash');
+      playCorrect();
+      burstAt(btn);
+      setTimeout(function(){ btn.classList.remove('correct-flash'); showRoundOverlay(); }, 550);
+    } else {
+      btn.classList.add('wrong-flash');
+      playWrong();
+      setTimeout(function(){ btn.classList.remove('wrong-flash'); }, 450);
+    }
+  }
+
+  // ── Celebrate overlay ────────────────────────────────────────────────────────
+  function showRoundOverlay() {
+    var am = MONTHS[curAnswer];
+    document.getElementById('ov-emoji').textContent = am.emoji;
+    document.getElementById('ov-title').textContent = am.name+'! '+am.emoji;
+    var subs = [
+      'Wonderful, little princess! ✨',
+      'You know your months! 👑',
+      'Amazing royal scholar! 💫',
+      'That\'s right! Calendar queen! 📆',
+      'Brilliant! The months love you! 🌟',
+    ];
+    document.getElementById('ov-sub').textContent = subs[Math.floor(Math.random()*subs.length)];
+
+    var nextIdx    = roundIdx+1;
+    var lastInTier = nextIdx>=TOTAL || ROUNDS[nextIdx].tier!==curTier;
+    var roundBtn   = document.getElementById('round-btn');
+
+    if (nextIdx>=TOTAL) {
+      roundBtn.textContent = 'Finish 👑';
+      roundBtn.onclick = function() { endGame(); };
+    } else if (lastInTier) {
+      roundBtn.textContent = 'Next Level ⭐';
+      roundBtn.onclick = function() {
+        document.getElementById('round-overlay').classList.remove('show');
+        showTierToast(ROUNDS[nextIdx].tier, function(){ roundIdx=nextIdx; showRound(roundIdx); });
+      };
+    } else {
+      roundBtn.textContent = 'Next ➡️';
+      roundBtn.onclick = function() {
+        document.getElementById('round-overlay').classList.remove('show');
+        roundIdx=nextIdx; showRound(roundIdx);
+      };
+    }
+    document.getElementById('round-overlay').classList.add('show');
+    confettiBurst();
+  }
+
+  // ── Tier toast ───────────────────────────────────────────────────────────────
+  function showTierToast(tier, callback) {
+    document.getElementById('tt-emoji').textContent = TIER_EMOJIS[tier];
+    document.getElementById('tt-title').textContent = TIER_NAMES[tier]+' level unlocked!';
+    document.getElementById('tt-sub').textContent   = TIER_SUBS[tier];
+    var btn = document.getElementById('tt-btn');
+    btn.textContent = 'Let\'s go! ➡️';
+    btn.onclick = function() {
+      document.getElementById('tier-toast').classList.remove('show');
+      callback();
+    };
+    document.getElementById('tier-toast').classList.add('show');
+    playTierWin(); confettiBurst();
+  }
+
+  function endGame() {
+    document.getElementById('round-overlay').classList.remove('show');
+    document.getElementById('progress-fill').style.width = '100%';
+    document.getElementById('score-lbl').textContent = '⭐ '+score;
+    document.getElementById('win-score').textContent = 'You scored ⭐ '+score+' / 9 — royal month master! 📆';
+    playFinalWin();
+    confettiBurst(); setTimeout(confettiBurst,700);
+    document.getElementById('win-overlay').classList.add('show');
+  }
+
+  // ── Sparkle burst ─────────────────────────────────────────────────────────────
+  function burstAt(el) {
+    var rect=el.getBoundingClientRect();
+    var cx=rect.left+rect.width/2, cy=rect.top+rect.height/2;
+    var cols=['#ffd700','#fff','#f48fb1','#ce93d8','#ab47bc','#80deea','#a5d6a7'];
+    var ems =['✨','💫','📆','⭐','👑','🌟','🎀'];
+    for (var i=0;i<20;i++){
+      var a=Math.random()*Math.PI*2, d=28+Math.random()*72;
+      var el2=document.createElement('div');
+      if (i<7){
+        el2.className='sparkle-em';
+        el2.textContent=ems[i%ems.length];
+        el2.style.left=(cx+Math.cos(a)*d)+'px';
+        el2.style.top=(cy+Math.sin(a)*d)+'px';
+        el2.style.animationDelay=(Math.random()*.22)+'s';
+      } else {
+        el2.className='sparkle-dot';
+        var sz=6+Math.random()*12;
+        el2.style.cssText='left:'+(cx+Math.cos(a)*d-sz/2)+'px;top:'+(cy+Math.sin(a)*d-sz/2)+'px;width:'+sz+'px;height:'+sz+'px;background:'+cols[i%cols.length];
+      }
+      document.body.appendChild(el2);
+      setTimeout(function(e){ return function(){ e.remove(); }; }(el2),950);
+    }
+  }
+
+  function confettiBurst() {
+    var cols=['#ffd700','#fff','#f48fb1','#ce93d8','#ab47bc','#b2ebf2','#a5d6a7','#ff8a65'];
+    for (var i=0;i<42;i++){
+      var el=document.createElement('div'); el.className='confetti-piece';
+      var sz=6+Math.random()*10;
+      el.style.cssText='left:'+Math.random()*100+'vw;width:'+sz+'px;height:'+sz+'px;background:'+cols[i%cols.length]+';animation-duration:'+(1.5+Math.random()*2)+'s;animation-delay:'+(Math.random()*.6)+'s';
+      document.body.appendChild(el);
+      setTimeout(function(e){ return function(){ e.remove(); }; }(el),3600);
+    }
+  }
+
+  function startGame() {
+    document.getElementById('win-overlay').classList.remove('show');
+    document.getElementById('round-overlay').classList.remove('show');
+    document.getElementById('tier-toast').classList.remove('show');
+    score = 0;
+    document.getElementById('score-lbl').textContent = '⭐ 0';
+    ROUNDS = buildRounds();
+    roundIdx = 0;
+    showRound(0);
+  }
+
+  makeBg();
+  startGame();
+</script>
+</body>
+</html>

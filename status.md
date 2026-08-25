@@ -1,9 +1,9 @@
 # Princess Compendium — Status
 
 ## Last update run
-Date: 2026-08-22
-- Improved: `049-royal-days` → v1.1.0 (added BEFORE questions to Easy pool 6→9; added 6th/7th day ordinals to Medium 6→8; added TOMORROW questions to Hard 6→9; celebrate overlay now shows day description e.g. "Royal Painting day! 🎨"; sparkle 18→20; tier badge class fix)
-- Added: `062-royal-bonds` — "Royal Gem Bonds 💎" teaching number bonds to 5 and 10; gem-slot visual grid fills on correct answer; 3-tier progression (make-5 Easy, make-10 Medium/Hard); 20-sparkle burst, double confetti win; equation shown in celebrate overlay (e.g. "2 + 3 = 5 💎")
+Date: 2026-08-25
+- Improved: `050-princess-clock` → v1.1.0 (score counter ⭐ in header; deduplicated hour pool (4 unique hours per tier, pick 3); tier-transition toast overlay with tap-to-continue; 5th prompt variant; 14 bg stars (was 12); sparkle 18→20; final score shown in win overlay)
+- Added: `063-royal-months` — "Royal Months 📆" teaching months of the year; Easy: which comes AFTER; Medium: which comes BEFORE; Hard: ordinal position (1st–12th); each month has emoji + seasonal decoration; tier-transition toast; 20-sparkle burst; 42 confetti win
 
 ## Improvement history
 
@@ -53,6 +53,7 @@ Date: 2026-08-22
 | 2026-08-16 | 043-letter-sounds | Score counter ⭐, final score in win overlay, fixed H→House/T→Tiger/A→Apple bugs, sparkle 16→18 | 1.1.0 |
 | 2026-08-19 | 035-front-back | Pool 9→18 (6 per tier), color-coded tier badge, progress bar, win overlay, 18-sparkle burst, double confetti on win | 1.1.0 |
 | 2026-08-22 | 049-royal-days | Added BEFORE questions (Easy 6→9), 6th/7th ordinals (Medium 6→8), TOMORROW questions (Hard 6→9), day description in celebrate, sparkle 18→20 | 1.1.0 |
+| 2026-08-25 | 050-princess-clock | Score counter ⭐, deduplicated hour pool (4 unique per tier), tier-transition toast, 5th prompt variant, sparkle 18→20, final score in win overlay | 1.1.0 |
 
 ## Games due for improvement (all at v1.0.0)
 
@@ -104,6 +105,7 @@ See `CLAUDE.md` for the full prioritised list. Top 3 to build next:
 
 25. **Sink or float** — ✅ covered by `061-sink-or-float`
 26. **Number bonds to 5 and 10** — ✅ covered by `062-royal-bonds`
+27. **Months of the year** — ✅ covered by `063-royal-months`
 
 ## Next game ID
-`063-<slug>`
+`064-<slug>`

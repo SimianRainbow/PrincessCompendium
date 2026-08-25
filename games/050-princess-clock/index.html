@@ -27,7 +27,9 @@
     .tier-easy   { background:linear-gradient(135deg,#a5d6a7,#66bb6a); color:#1b5e20; }
     .tier-medium { background:linear-gradient(135deg,#ffe082,#ffd54f); color:#5a3000; }
     .tier-hard   { background:linear-gradient(135deg,#ce93d8,#ab47bc); color:#fff; }
-    #round-lbl { font-size:clamp(14px,3.5vw,20px); color:rgba(255,255,255,.9); font-weight:bold; text-shadow:0 1px 4px rgba(0,0,0,.5); }
+    #header-right { display:flex; align-items:center; gap:12px; }
+    #score-lbl  { font-size:clamp(14px,3.5vw,20px); color:#ffd700; font-weight:bold; text-shadow:0 1px 4px rgba(0,0,0,.5); }
+    #round-lbl  { font-size:clamp(14px,3.5vw,20px); color:rgba(255,255,255,.9); font-weight:bold; text-shadow:0 1px 4px rgba(0,0,0,.5); }
 
     #progress-wrap {
       position:fixed; top:clamp(48px,11vw,70px); left:0; right:0;
@@ -96,13 +98,27 @@
     }
     .confetti-piece { position:fixed; border-radius:50%; pointer-events:none; z-index:100; animation:cfFall linear forwards; }
     @keyframes cfFall { 0%{top:-20px;opacity:1} 100%{top:110vh;opacity:.15} }
+
+    /* Tier-transition toast overlay */
+    #tier-toast {
+      position:fixed; inset:0; background:rgba(10,5,40,.93);
+      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px;
+      z-index:98; opacity:0; pointer-events:none; transition:opacity .4s;
+    }
+    #tier-toast.show { opacity:1; pointer-events:all; }
+    #tier-toast .tt-emoji { font-size:clamp(60px,16vw,90px); }
+    #tier-toast .tt-title { font-size:clamp(26px,7vw,48px); color:#ffd700; text-align:center; padding:0 20px; text-shadow:0 0 20px rgba(255,215,0,.5); }
+    #tier-toast .tt-sub   { font-size:clamp(15px,4vw,22px); color:rgba(255,255,255,.85); text-align:center; padding:0 20px; }
   </style>
 </head>
 <body>
 
 <div id="header">
   <div id="tier-badge" class="tier-easy">🌱 Easy</div>
-  <div id="round-lbl">1 / 9</div>
+  <div id="header-right">
+    <div id="score-lbl">⭐ 0</div>
+    <div id="round-lbl">1 / 9</div>
+  </div>
 </div>
 <div id="progress-wrap">
   <div id="progress-track"><div id="progress-fill"></div></div>
@@ -118,6 +134,14 @@
 
 <div id="choices"></div>
 
+<!-- Tier-transition toast -->
+<div id="tier-toast">
+  <div class="tt-emoji" id="tt-emoji">🌸</div>
+  <div class="tt-title" id="tt-title">Level Up!</div>
+  <div class="tt-sub"   id="tt-sub">Keep going!</div>
+  <button class="btn-next" id="tt-btn">Continue ➡️</button>
+</div>
+
 <!-- Round result overlay (shown after correct answer) -->
 <div class="overlay" id="round-overlay">
   <svg class="ov-clock" id="ov-clock-svg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"></svg>
@@ -130,7 +154,7 @@
 <div class="overlay" id="win-overlay">
   <div class="ov-emoji">👑</div>
   <div class="ov-title">Clock Champion! ✨</div>
-  <div class="ov-sub">You can read every royal clock!</div>
+  <div class="ov-sub" id="win-score">You can read every royal clock!</div>
   <button class="btn-next" onclick="startGame()">Play Again 🌸</button>
 </div>
 
@@ -164,17 +188,11 @@
   // ── SVG clock builder ─────────────────────────────────────────────────────
   function buildClock(hour) {
     var cx=100, cy=100, R=88;
-
-    // Hour hand angle: 12 o'clock = -90 deg, each hour = +30 deg
     var hRad = ((hour%12)*30 - 90) * Math.PI / 180;
     var hLen = 52;
     var hx = (cx + hLen*Math.cos(hRad)).toFixed(2);
     var hy = (cy + hLen*Math.sin(hRad)).toFixed(2);
-
-    // Minute hand always points up (12 o'clock)
     var mx = cx, my = cy - 65;
-
-    // Number positions at radius 65
     var nums = '';
     for (var n=1;n<=12;n++) {
       var a = (n*30-90)*Math.PI/180;
@@ -182,8 +200,6 @@
       var ny = (cy + 65*Math.sin(a)).toFixed(2);
       nums += '<text x="'+nx+'" y="'+ny+'" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#4a148c" font-weight="bold" font-family="Fredoka One,Georgia,serif">'+n+'</text>';
     }
-
-    // Tick marks at outer edge
     var ticks = '';
     for (var i=0;i<60;i++) {
       var isHour = i%5===0;
@@ -192,7 +208,6 @@
       var sw = isHour ? 2.5 : 1;
       ticks += '<line x1="'+(cx+(R-1)*Math.cos(ta)).toFixed(2)+'" y1="'+(cy+(R-1)*Math.sin(ta)).toFixed(2)+'" x2="'+(cx+inner*Math.cos(ta)).toFixed(2)+'" y2="'+(cy+inner*Math.sin(ta)).toFixed(2)+'" stroke="#ce93d8" stroke-width="'+sw+'" stroke-linecap="round"/>';
     }
-
     return [
       '<defs>',
       '  <radialGradient id="faceGrad" cx="45%" cy="35%" r="60%">',
@@ -202,8 +217,7 @@
       '</defs>',
       '<circle cx="'+cx+'" cy="'+cy+'" r="'+(R+5)+'" fill="none" stroke="rgba(255,215,0,0.35)" stroke-width="2"/>',
       '<circle cx="'+cx+'" cy="'+cy+'" r="'+R+'" fill="url(#faceGrad)" stroke="#f48fb1" stroke-width="3"/>',
-      ticks,
-      nums,
+      ticks, nums,
       '<text x="'+cx+'" y="'+(cy-R+15)+'" text-anchor="middle" dominant-baseline="central" font-size="11">👑</text>',
       '<line x1="'+cx+'" y1="'+cy+'" x2="'+mx+'" y2="'+my+'" stroke="#f48fb1" stroke-width="4" stroke-linecap="round"/>',
       '<line x1="'+cx+'" y1="'+cy+'" x2="'+hx+'" y2="'+hy+'" stroke="#7b1fa2" stroke-width="7" stroke-linecap="round"/>',
@@ -212,12 +226,11 @@
     ].join('');
   }
 
-  // ── Round pool ─────────────────────────────────────────────────────────────
-  // Easy: hours 1-4 (3 choices)   Medium: hours 5-8 (4 choices)   Hard: hours 9-12 (4 choices)
+  // ── Round pool — 4 unique hours per tier, pick 3 each game ─────────────────
   var HOUR_POOL = {
-    easy:   [1, 2, 3, 4, 2, 3],
-    medium: [5, 6, 7, 8, 5, 7],
-    hard:   [9, 10, 11, 12, 9, 11],
+    easy:   [1, 2, 3, 4],
+    medium: [5, 6, 7, 8],
+    hard:   [9, 10, 11, 12],
   };
   var WRONG_POOL = {
     easy:   [1,2,3,4],
@@ -227,9 +240,16 @@
   var TIER_LABELS  = ['🌱 Easy','🌸 Medium','⭐ Hard'];
   var TIER_CLASSES = ['tier-easy','tier-medium','tier-hard'];
   var TIER_KEYS    = ['easy','medium','hard'];
+  var TIER_EMOJIS  = ['🌱','🌸','⭐'];
+  var TIER_NAMES   = ['Easy','Medium','Hard!'];
+  var TIER_SUBS    = [
+    'Hours 1 to 4 — you know this! 🕐',
+    'Hours 5 to 8 — here we go! 🕖',
+    'Hours 9 to 12 — royal genius! 🕙',
+  ];
   var TOTAL = 9;
 
-  var ROUNDS = [], roundIdx = 0, locked = false, currentHour = 1, currentTier = 0;
+  var ROUNDS = [], roundIdx = 0, locked = false, score = 0, currentHour = 1, currentTier = 0;
 
   function shuffle(a) {
     var b=a.slice();
@@ -259,8 +279,8 @@
 
   // ── Background stars ───────────────────────────────────────────────────────
   function makeBgStars() {
-    var icons=['✨','💫','🌟','⭐','🕐','👑','🔮','🌙','🌠'];
-    for (var i=0;i<12;i++){
+    var icons=['✨','💫','🌟','⭐','🕐','👑','🔮','🌙','🌠','🎀','🌸','💜','🕛','💫'];
+    for (var i=0;i<14;i++){
       var el=document.createElement('div'); el.className='bg-star';
       el.textContent=icons[i%icons.length];
       el.style.left=(4+Math.random()*92)+'vw';
@@ -280,6 +300,7 @@
     var badge = document.getElementById('tier-badge');
     badge.textContent = TIER_LABELS[r.tier];
     badge.className   = TIER_CLASSES[r.tier];
+    document.getElementById('score-lbl').textContent = '⭐ '+score;
     document.getElementById('round-lbl').textContent = (idx+1)+' / '+TOTAL;
     document.getElementById('progress-fill').style.width = (idx/TOTAL*100)+'%';
 
@@ -288,17 +309,16 @@
       'Where is the little hand pointing? 👉',
       'Which hour is it? ⏰',
       "What o'clock is this? 👑",
+      'Read the royal clock! 🔮',
     ];
     document.getElementById('prompt').textContent = prompts[Math.floor(Math.random()*prompts.length)];
 
-    // Animate clock in by replacing its content
     var svgEl = document.getElementById('clock-svg');
     svgEl.innerHTML = buildClock(r.hour);
     svgEl.style.animation='none'; void svgEl.offsetWidth; svgEl.style.animation='';
 
     playTick();
 
-    // Choices
     var choices = getChoices(r.hour, r.tier);
     var choicesEl = document.getElementById('choices');
     choicesEl.innerHTML = '';
@@ -317,6 +337,8 @@
     if (locked) return;
     if (Number(val)===currentHour) {
       locked = true;
+      score++;
+      document.getElementById('score-lbl').textContent = '⭐ '+score;
       btn.classList.add('correct-flash');
       playCorrect();
       burstAt(btn);
@@ -334,14 +356,13 @@
   // ── Correct-answer reveal overlay ──────────────────────────────────────────
   function showRoundOverlay() {
     document.getElementById('ov-clock-svg').innerHTML = buildClock(currentHour);
-
-    var ordinals = ['','1st','2nd','3rd','4th','5th','6th','7th','8th','9th','10th','11th','12th'];
     document.getElementById('ov-title').textContent = "It's "+currentHour+" o'clock! 🕐";
     var subs = [
       'Well done, little princess! ✨',
       'Amazing clock reader! 💫',
       "You're a royal time wizard! 🔮",
       'Perfect, little scholar! 👑',
+      'Brilliant! You know your hours! ⏰',
     ];
     document.getElementById('ov-sub').textContent = subs[Math.floor(Math.random()*subs.length)];
 
@@ -353,11 +374,12 @@
       roundBtn.textContent = 'Finish 👑';
       roundBtn.onclick = function() { endGame(); };
     } else if (lastInTier) {
-      roundBtn.textContent = 'Next Round ⭐';
+      roundBtn.textContent = 'Next Level ⭐';
       roundBtn.onclick = function() {
         document.getElementById('round-overlay').classList.remove('show');
-        playTierWin(); confettiBurst();
-        setTimeout(function(){ roundIdx=nextIdx; showRound(roundIdx); }, 400);
+        showTierToast(ROUNDS[nextIdx].tier, function(){
+          roundIdx=nextIdx; showRound(roundIdx);
+        });
       };
     } else {
       roundBtn.textContent = 'Next ➡️';
@@ -371,9 +393,27 @@
     confettiBurst();
   }
 
+  // ── Tier-transition toast ──────────────────────────────────────────────────
+  function showTierToast(tier, callback) {
+    var toast = document.getElementById('tier-toast');
+    document.getElementById('tt-emoji').textContent = TIER_EMOJIS[tier];
+    document.getElementById('tt-title').textContent = TIER_NAMES[tier]+' level unlocked!';
+    document.getElementById('tt-sub').textContent   = TIER_SUBS[tier];
+    var btn = document.getElementById('tt-btn');
+    btn.textContent = 'Let\'s go! ➡️';
+    btn.onclick = function() {
+      toast.classList.remove('show');
+      callback();
+    };
+    toast.classList.add('show');
+    playTierWin(); confettiBurst();
+  }
+
   function endGame() {
     document.getElementById('round-overlay').classList.remove('show');
     document.getElementById('progress-fill').style.width='100%';
+    document.getElementById('score-lbl').textContent = '⭐ '+score;
+    document.getElementById('win-score').textContent = 'You scored ⭐ '+score+' / 9 — royal clock reader! 🕐';
     playFinalWin();
     confettiBurst(); setTimeout(confettiBurst,700);
     document.getElementById('win-overlay').classList.add('show');
@@ -384,11 +424,11 @@
     var rect=el.getBoundingClientRect();
     var cx=rect.left+rect.width/2, cy=rect.top+rect.height/2;
     var cols=['#ffd700','#fff','#f48fb1','#ce93d8','#ab47bc','#80deea'];
-    var ems =['✨','💫','🕐','⭐','👑','🌟'];
-    for (var i=0;i<18;i++){
+    var ems =['✨','💫','🕐','⭐','👑','🌟','🔮'];
+    for (var i=0;i<20;i++){
       var a=Math.random()*Math.PI*2, d=28+Math.random()*72;
       var el2=document.createElement('div');
-      if (i<6){
+      if (i<7){
         el2.className='sparkle-em';
         el2.textContent=ems[i%ems.length];
         el2.style.left=(cx+Math.cos(a)*d)+'px';
@@ -418,6 +458,9 @@
   function startGame() {
     document.getElementById('win-overlay').classList.remove('show');
     document.getElementById('round-overlay').classList.remove('show');
+    document.getElementById('tier-toast').classList.remove('show');
+    score = 0;
+    document.getElementById('score-lbl').textContent = '⭐ 0';
     ROUNDS = buildRounds();
     roundIdx = 0;
     showRound(0);
