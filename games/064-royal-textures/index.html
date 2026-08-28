@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Princess Helpers 🌟</title>
+  <title>Princess Touch 🤚</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
   <style>
     * { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
     body {
-      background: linear-gradient(160deg, #fce4ec 0%, #f3e5f5 50%, #e8eaf6 100%);
+      background: linear-gradient(160deg, #fce4ec 0%, #e8f5e9 50%, #e3f2fd 100%);
       min-height:100vh; width:100vw; overflow:hidden;
       font-family:'Fredoka One', Georgia, serif; user-select:none; position:relative;
       display:flex; flex-direction:column; align-items:center;
@@ -27,8 +27,8 @@
     .tier-easy   { background:linear-gradient(135deg,#a5d6a7,#66bb6a); color:#1b5e20; }
     .tier-medium { background:linear-gradient(135deg,#ffe082,#ffd54f); color:#5a3000; }
     .tier-hard   { background:linear-gradient(135deg,#ce93d8,#ab47bc); color:#fff; }
-    #round-lbl  { font-size:clamp(13px,3.2vw,18px); color:#6a1b9a; font-weight:bold; }
-    #score-lbl  { font-size:clamp(13px,3.2vw,18px); color:#ad1457; font-weight:bold; }
+    #round-lbl { font-size:clamp(13px,3.2vw,18px); color:#6a1b9a; font-weight:bold; }
+    #score-lbl { font-size:clamp(13px,3.2vw,18px); color:#ad1457; font-weight:bold; }
 
     #progress-wrap {
       position:fixed; top:clamp(48px,11vw,70px); left:0; right:0;
@@ -39,45 +39,46 @@
 
     #scene-wrap {
       margin-top:clamp(78px,18vw,110px);
-      display:flex; flex-direction:column; align-items:center; gap:clamp(6px,1.5vw,12px);
+      display:flex; flex-direction:column; align-items:center; gap:clamp(6px,1.5vw,10px);
       padding:0 16px; width:100%; text-align:center;
     }
-    #scene-emoji {
-      font-size:clamp(70px,18vw,110px);
-      line-height:1; animation:scenePop .5s cubic-bezier(.34,1.56,.64,1);
+    #obj-emoji {
+      font-size:clamp(80px,20vw,130px); line-height:1;
+      animation:scenePop .5s cubic-bezier(.34,1.56,.64,1);
+      filter: drop-shadow(0 4px 12px rgba(100,0,200,.2));
     }
     @keyframes scenePop { from{transform:scale(0);opacity:0} to{transform:scale(1);opacity:1} }
-    #scene-text {
-      font-size:clamp(18px,4.8vw,30px); color:#6a1b9a;
-      text-shadow:0 1px 4px rgba(100,0,180,.12); line-height:1.2;
+    #obj-name {
+      font-size:clamp(20px,5.5vw,36px); color:#4a148c; font-weight:bold;
+      text-shadow:0 1px 4px rgba(100,0,180,.12);
     }
     #prompt {
-      font-size:clamp(20px,5vw,32px); color:#ad1457;
+      font-size:clamp(18px,4.8vw,30px); color:#ad1457;
       font-weight:bold; text-shadow:0 1px 4px rgba(173,20,87,.15);
+      background:rgba(255,255,255,.55); border-radius:16px; padding:8px 20px;
+      margin-top:4px;
     }
 
     #choices {
       position:fixed; bottom:clamp(10px,3vw,22px); left:0; right:0;
       display:flex; justify-content:center; flex-wrap:wrap;
-      gap:clamp(10px,2.5vw,16px); padding:0 clamp(12px,3vw,20px);
+      gap:clamp(12px,3vw,20px); padding:0 clamp(12px,3vw,20px);
       z-index:5;
     }
     .choice-btn {
       display:flex; flex-direction:column; align-items:center; justify-content:center;
       gap:clamp(4px,1vw,8px);
-      min-width:clamp(100px,24vw,130px); min-height:clamp(100px,24vw,130px);
+      min-width:clamp(110px,26vw,150px); min-height:clamp(90px,22vw,120px);
       border-radius:22px; border:none; cursor:pointer; touch-action:manipulation;
       background:linear-gradient(135deg,rgba(255,255,255,.9),rgba(243,229,245,.95));
       box-shadow:0 5px 20px rgba(150,50,200,.2), inset 0 2px 0 rgba(255,255,255,.8);
-      transition:transform .1s, box-shadow .1s;
-      padding:8px;
+      transition:transform .1s, box-shadow .1s; padding:10px;
     }
-    .choice-btn:active { transform:scale(.91); box-shadow:0 2px 8px rgba(150,50,200,.15); }
-    .choice-em { font-size:clamp(40px,10vw,60px); line-height:1; }
-    .choice-name {
-      font-size:clamp(12px,3.2vw,18px); color:#6a1b9a;
-      text-shadow:none; text-align:center; line-height:1.1;
+    .choice-btn:active { transform:scale(.91); }
+    .choice-word {
+      font-size:clamp(22px,6vw,36px); color:#4a148c; font-weight:bold; line-height:1.1; text-align:center;
     }
+    .choice-icon { font-size:clamp(24px,6vw,36px); line-height:1; }
     .choice-btn.correct-flash {
       animation:correctPop .5s ease-out;
       background:linear-gradient(135deg,rgba(255,255,180,.9),rgba(200,255,200,.9));
@@ -96,7 +97,7 @@
 
     .overlay {
       position:fixed; inset:0; background:rgba(250,240,255,.95);
-      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px;
+      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px;
       z-index:99; opacity:0; pointer-events:none; transition:opacity .4s;
     }
     .overlay.show { opacity:1; pointer-events:all; }
@@ -124,130 +125,144 @@
 </div>
 
 <div id="scene-wrap">
-  <div id="scene-emoji">🌧️</div>
-  <div id="scene-text">It's raining outside!</div>
-  <div id="prompt">What does Princess need? 💭</div>
+  <div id="obj-emoji">🪨</div>
+  <div id="obj-name">Rock</div>
+  <div id="prompt">Is this ROUGH or SMOOTH? 🤚</div>
 </div>
 
 <div id="choices"></div>
 
 <!-- Celebrate overlay -->
 <div class="overlay" id="cel-overlay">
-  <div class="ov-emoji" id="cel-em">☂️</div>
-  <div class="ov-title" id="cel-name">Umbrella!</div>
-  <div class="ov-sub"   id="cel-msg">Keeps Princess dry in the rain! ☔</div>
-  <button class="btn-next" id="cel-btn">Yay! ✨</button>
+  <div class="ov-emoji" id="cel-em">🪨</div>
+  <div class="ov-title" id="cel-word">ROUGH!</div>
+  <div class="ov-sub"   id="cel-fact">Rocks are bumpy and rough to touch!</div>
+  <button class="btn-next" id="cel-btn">Cool! ✨</button>
 </div>
 
 <!-- Tier overlay -->
 <div class="overlay" id="tier-overlay">
   <div class="ov-emoji" id="t-emoji">🌸</div>
-  <div class="ov-title" id="t-title">Medium Time!</div>
-  <div class="ov-sub"   id="t-sub">The questions get trickier now!</div>
-  <button class="btn-next" id="t-btn">Let's help! 🌟</button>
+  <div class="ov-title" id="t-title">New Feeling!</div>
+  <div class="ov-sub"   id="t-sub">Now we learn HARD and SOFT!</div>
+  <button class="btn-next" id="t-btn">Let's touch! 🤚</button>
 </div>
 
 <!-- Win overlay -->
 <div class="overlay" id="win-overlay">
   <div class="ov-emoji">👑</div>
-  <div class="ov-title">Amazing Helper! 🌟</div>
-  <div class="ov-sub" id="win-sub">Princess Jet knows exactly what to use! ✨</div>
+  <div class="ov-title">Amazing Toucher! 🤚</div>
+  <div class="ov-sub" id="win-sub">Princess Jet knows all the textures! ✨</div>
   <button class="btn-next" onclick="startGame()">Play Again 🌸</button>
 </div>
 
 <script>
+  // Each scenario: emoji, name, tier (0=Easy ROUGH/SMOOTH, 1=Medium HARD/SOFT, 2=Hard WET/DRY)
+  // answer: the correct word; wrong: array of wrong word+icon pairs
   const SCENARIOS = [
-    // --- EASY (2 choices) ---
-    { t:0, scene:'🌧️', text:"It's raining outside!",
-      celebrate:"Umbrella keeps Princess dry in the rain! ☔",
-      correct:{e:'☂️',n:'Umbrella'},
-      wrong:[{e:'🥄',n:'Spoon'},{e:'✏️',n:'Pencil'},{e:'🛏️',n:'Bed'}] },
-    { t:0, scene:'🥣', text:"Time for yummy soup!",
-      celebrate:"Spoon is perfect for scooping up soup! 🥣",
-      correct:{e:'🥄',n:'Spoon'},
-      wrong:[{e:'☂️',n:'Umbrella'},{e:'🧤',n:'Gloves'},{e:'📖',n:'Book'}] },
-    { t:0, scene:'😴', text:"Princess is very sleepy!",
-      celebrate:"Bed is the coziest place to rest! 🌙",
-      correct:{e:'🛏️',n:'Bed'},
-      wrong:[{e:'🎹',n:'Piano'},{e:'✏️',n:'Pencil'},{e:'☂️',n:'Umbrella'}] },
-    { t:0, scene:'✍️', text:"Time to draw a picture!",
-      celebrate:"Pencil draws all the best princess pictures! 🎨",
-      correct:{e:'✏️',n:'Pencil'},
-      wrong:[{e:'🧤',n:'Gloves'},{e:'🛏️',n:'Bed'},{e:'🥄',n:'Spoon'}] },
-    { t:0, scene:'📚', text:"Story time with Princess!",
-      celebrate:"Book is full of wonderful royal stories! 📖",
-      correct:{e:'📖',n:'Book'},
-      wrong:[{e:'☂️',n:'Umbrella'},{e:'🧹',n:'Broom'},{e:'🥄',n:'Spoon'}] },
-    { t:0, scene:'🎵', text:"Time to make music!",
-      celebrate:"Piano makes the most beautiful royal melodies! 🎵",
-      correct:{e:'🎹',n:'Piano'},
-      wrong:[{e:'🛏️',n:'Bed'},{e:'☂️',n:'Umbrella'},{e:'✏️',n:'Pencil'}] },
+    // --- EASY: ROUGH vs SMOOTH ---
+    { t:0, emoji:'🪨', name:'Rock',
+      answer:{word:'ROUGH 🪨', icon:'🪨'},
+      wrong:[{word:'SMOOTH ✨', icon:'✨'}],
+      fact:'Rocks are bumpy and rough to touch! 🪨',
+      question:'Is this ROUGH or SMOOTH? 🤚' },
+    { t:0, emoji:'🪶', name:'Feather',
+      answer:{word:'SMOOTH 🪶', icon:'🪶'},
+      wrong:[{word:'ROUGH 🪨', icon:'🪨'}],
+      fact:'Feathers are silky and smooth to stroke! 🪶',
+      question:'Is this ROUGH or SMOOTH? 🤚' },
+    { t:0, emoji:'🌵', name:'Cactus',
+      answer:{word:'ROUGH 🌵', icon:'🌵'},
+      wrong:[{word:'SMOOTH ✨', icon:'✨'}],
+      fact:'Cactus has prickly rough spikes! 🌵',
+      question:'Is this ROUGH or SMOOTH? 🤚' },
+    { t:0, emoji:'💎', name:'Diamond',
+      answer:{word:'SMOOTH 💎', icon:'💎'},
+      wrong:[{word:'ROUGH 🪨', icon:'🪨'}],
+      fact:'Diamonds are glittery and perfectly smooth! 💎',
+      question:'Is this ROUGH or SMOOTH? 🤚' },
+    { t:0, emoji:'🌳', name:'Tree Bark',
+      answer:{word:'ROUGH 🌳', icon:'🌳'},
+      wrong:[{word:'SMOOTH ✨', icon:'✨'}],
+      fact:'Tree bark is rough and bumpy all over! 🌳',
+      question:'Is this ROUGH or SMOOTH? 🤚' },
+    { t:0, emoji:'🐱', name:'Kitten',
+      answer:{word:'SMOOTH 🐱', icon:'🐱'},
+      wrong:[{word:'ROUGH 🪨', icon:'🪨'}],
+      fact:"Kitten's fur is so soft and smooth to pet! 🐱",
+      question:'Is this ROUGH or SMOOTH? 🤚' },
 
-    // --- MEDIUM (3 choices) ---
-    { t:1, scene:'❄️', text:"Princess feels very cold!",
-      celebrate:"Gloves keep Princess's hands nice and warm! 🧤",
-      correct:{e:'🧤',n:'Gloves'},
-      wrong:[{e:'☂️',n:'Umbrella'},{e:'✏️',n:'Pencil'},{e:'🥄',n:'Spoon'}] },
-    { t:1, scene:'🤒', text:"Princess has a cold!",
-      celebrate:"Medicine helps Princess feel better again! 💊",
-      correct:{e:'💊',n:'Medicine'},
-      wrong:[{e:'🎹',n:'Piano'},{e:'✏️',n:'Pencil'},{e:'🥄',n:'Spoon'}] },
-    { t:1, scene:'🏠', text:"The princess room is messy!",
-      celebrate:"Broom sweeps away all the mess! 🧹",
-      correct:{e:'🧹',n:'Broom'},
-      wrong:[{e:'✏️',n:'Pencil'},{e:'👠',n:'Shoes'},{e:'🛏️',n:'Bed'}] },
-    { t:1, scene:'🍵', text:"It's princess tea time!",
-      celebrate:"Teapot pours the most delicious royal tea! 🫖",
-      correct:{e:'🫖',n:'Teapot'},
-      wrong:[{e:'🧤',n:'Gloves'},{e:'🛏️',n:'Bed'},{e:'🧹',n:'Broom'}] },
-    { t:1, scene:'🎨', text:"Time to paint a rainbow!",
-      celebrate:"Paintbrush makes the most colourful rainbows! 🌈",
-      correct:{e:'🖌️',n:'Paintbrush'},
-      wrong:[{e:'✏️',n:'Pencil'},{e:'🧹',n:'Broom'},{e:'🥄',n:'Spoon'}] },
-    { t:1, scene:'🩹', text:"Princess hurt her knee!",
-      celebrate:"Bandaid makes the ouchy feel all better! 🩹",
-      correct:{e:'🩹',n:'Bandaid'},
-      wrong:[{e:'💊',n:'Medicine'},{e:'✏️',n:'Pencil'},{e:'🎹',n:'Piano'}] },
+    // --- MEDIUM: HARD vs SOFT ---
+    { t:1, emoji:'🪨', name:'Rock',
+      answer:{word:'HARD 🪨', icon:'🪨'},
+      wrong:[{word:'SOFT 🛏️', icon:'🛏️'}],
+      fact:'Rocks are very hard and heavy! 🪨',
+      question:'Is this HARD or SOFT? 🤚' },
+    { t:1, emoji:'🛏️', name:'Pillow',
+      answer:{word:'SOFT 🛏️', icon:'🛏️'},
+      wrong:[{word:'HARD 🪨', icon:'🪨'}],
+      fact:'Pillows are fluffy, squidgy and soft! 🛏️',
+      question:'Is this HARD or SOFT? 🤚' },
+    { t:1, emoji:'🧊', name:'Ice Cube',
+      answer:{word:'HARD 🧊', icon:'🧊'},
+      wrong:[{word:'SOFT 🛏️', icon:'🛏️'}],
+      fact:'Ice is frozen and super hard and cold! 🧊',
+      question:'Is this HARD or SOFT? 🤚' },
+    { t:1, emoji:'🧸', name:'Teddy Bear',
+      answer:{word:'SOFT 🧸', icon:'🧸'},
+      wrong:[{word:'HARD 🪨', icon:'🪨'}],
+      fact:'Teddy bears are cosy and soft to cuddle! 🧸',
+      question:'Is this HARD or SOFT? 🤚' },
+    { t:1, emoji:'💎', name:'Diamond',
+      answer:{word:'HARD 💎', icon:'💎'},
+      wrong:[{word:'SOFT 🧸', icon:'🧸'}],
+      fact:'Diamonds are the hardest thing in the world! 💎',
+      question:'Is this HARD or SOFT? 🤚' },
+    { t:1, emoji:'🌸', name:'Flower Petal',
+      answer:{word:'SOFT 🌸', icon:'🌸'},
+      wrong:[{word:'HARD 💎', icon:'💎'}],
+      fact:'Flower petals are gentle, velvety and soft! 🌸',
+      question:'Is this HARD or SOFT? 🤚' },
 
-    // --- HARD (4 choices) ---
-    { t:2, scene:'💃', text:"Princess is going to the ball!",
-      celebrate:"Shoes make Princess dance like a royal star! 👠",
-      correct:{e:'👠',n:'Shoes'},
-      wrong:[{e:'☂️',n:'Umbrella'},{e:'🧹',n:'Broom'},{e:'🥄',n:'Spoon'}] },
-    { t:2, scene:'🌼', text:"The flowers need water!",
-      celebrate:"Watering can gives the flowers a lovely drink! 🌸",
-      correct:{e:'🪣',n:'Watering Can'},
-      wrong:[{e:'☂️',n:'Umbrella'},{e:'✏️',n:'Pencil'},{e:'🧹',n:'Broom'}] },
-    { t:2, scene:'📸', text:"Princess wants to take a photo!",
-      celebrate:"Camera captures the most magical memories! 📷",
-      correct:{e:'📷',n:'Camera'},
-      wrong:[{e:'✏️',n:'Pencil'},{e:'🛏️',n:'Bed'},{e:'🧤',n:'Gloves'}] },
-    { t:2, scene:'🎤', text:"Princess wants to sing a song!",
-      celebrate:"Microphone lets Princess share her beautiful voice! 🎶",
-      correct:{e:'🎤',n:'Microphone'},
-      wrong:[{e:'🎹',n:'Piano'},{e:'🛏️',n:'Bed'},{e:'🧤',n:'Gloves'}] },
-    { t:2, scene:'🌳', text:"Going on a royal picnic!",
-      celebrate:"Basket carries all the yummy royal picnic treats! 🧺",
-      correct:{e:'🧺',n:'Basket'},
-      wrong:[{e:'☂️',n:'Umbrella'},{e:'🧤',n:'Gloves'},{e:'🧹',n:'Broom'}] },
-    { t:2, scene:'🎁', text:"Wrapping a birthday present!",
-      celebrate:"Bow makes the present look absolutely magical! 🎀",
-      correct:{e:'🎀',n:'Bow'},
-      wrong:[{e:'✏️',n:'Pencil'},{e:'👠',n:'Shoes'},{e:'🥄',n:'Spoon'}] },
-  ];
-
-  const PROMPTS = [
-    'What does Princess need? 💭',
-    'Help Princess choose! 🌟',
-    'Which one is just right? 👑',
-    'What should Princess pick? ✨',
-    'What will Princess use? 🌸',
+    // --- HARD: WET vs DRY ---
+    { t:2, emoji:'☔', name:'Rain',
+      answer:{word:'WET 💧', icon:'💧'},
+      wrong:[{word:'DRY 🏜️', icon:'🏜️'},{word:'ROUGH 🪨', icon:'🪨'}],
+      fact:'Rain makes everything wet and splashy! ☔',
+      question:'Is this WET or DRY? 🤚' },
+    { t:2, emoji:'🏖️', name:'Beach Sand',
+      answer:{word:'DRY 🏜️', icon:'🏜️'},
+      wrong:[{word:'WET 💧', icon:'💧'},{word:'SOFT 🧸', icon:'🧸'}],
+      fact:'Dry beach sand is warm, grainy and dry! 🏖️',
+      question:'Is this WET or DRY? 🤚' },
+    { t:2, emoji:'🧽', name:'Wet Sponge',
+      answer:{word:'WET 💧', icon:'💧'},
+      wrong:[{word:'DRY 🏜️', icon:'🏜️'},{word:'HARD 🪨', icon:'🪨'}],
+      fact:'Wet sponges are full of water and dripping! 🧽',
+      question:'Is this WET or DRY? 🤚' },
+    { t:2, emoji:'🌵', name:'Desert Cactus',
+      answer:{word:'DRY 🏜️', icon:'🏜️'},
+      wrong:[{word:'WET 💧', icon:'💧'},{word:'SMOOTH ✨', icon:'✨'}],
+      fact:'Cactus grows in the hot dry desert! 🌵',
+      question:'Is this WET or DRY? 🤚' },
+    { t:2, emoji:'💧', name:'Puddle',
+      answer:{word:'WET 💧', icon:'💧'},
+      wrong:[{word:'DRY 🏜️', icon:'🏜️'},{word:'SMOOTH ✨', icon:'✨'}],
+      fact:'Puddles are full of splashy wet water! 💧',
+      question:'Is this WET or DRY? 🤚' },
+    { t:2, emoji:'🪨', name:'Sun-baked Stone',
+      answer:{word:'DRY 🏜️', icon:'🏜️'},
+      wrong:[{word:'WET 💧', icon:'💧'},{word:'SOFT 🧸', icon:'🧸'}],
+      fact:'Stones baked in sunshine are warm and dry! ☀️',
+      question:'Is this WET or DRY? 🤚' },
   ];
 
   const TIERS = [
-    { t:0, label:'🌱 Easy',   cls:'tier-easy',   opts:2 },
-    { t:1, label:'🌸 Medium', cls:'tier-medium', opts:3 },
-    { t:2, label:'⭐ Hard',   cls:'tier-hard',   opts:4 },
+    { t:0, label:'🌱 Easy',   cls:'tier-easy',   opts:2,
+      toastEmoji:'🌸', toastTitle:'New Feeling Time!', toastSub:'Now we learn HARD and SOFT! 🪨🧸' },
+    { t:1, label:'🌸 Medium', cls:'tier-medium', opts:2,
+      toastEmoji:'💧', toastTitle:'One More Feeling!', toastSub:'Now we learn WET and DRY! 💧🏜️' },
+    { t:2, label:'⭐ Hard',   cls:'tier-hard',   opts:3, toastEmoji:'⭐', toastTitle:'', toastSub:'' },
   ];
   const TOTAL = 9;
 
@@ -275,9 +290,7 @@
   function getTier(r){ return r<=3 ? TIERS[0] : r<=6 ? TIERS[1] : TIERS[2]; }
 
   function startGame(){
-    document.getElementById('win-overlay').classList.remove('show');
-    document.getElementById('tier-overlay').classList.remove('show');
-    document.getElementById('cel-overlay').classList.remove('show');
+    ['win-overlay','tier-overlay','cel-overlay'].forEach(id=>document.getElementById(id).classList.remove('show'));
     round=0; score=0; locked=false;
     document.getElementById('score-lbl').textContent='⭐ 0';
     const easy   = shuffle(SCENARIOS.filter(s=>s.t===0)).slice(0,3);
@@ -294,21 +307,18 @@
     round++;
     const newTier = getTier(round);
     if(prevTier && prevTier.t !== newTier.t){
-      showTierOverlay(newTier, ()=>{ locked=false; renderQuestion(); });
+      showTierOverlay(prevTier, ()=>{ locked=false; renderQuestion(); });
     } else {
       locked=false; renderQuestion();
     }
   }
 
-  function showTierOverlay(tier, cb){
-    const msgs = [
-      '',
-      'The questions get trickier now! 🌸',
-      "You're a super helper! Ready for the hardest ones? ⭐",
-    ];
-    document.getElementById('t-emoji').textContent = tier.t===1 ? '🌸' : '⭐';
-    document.getElementById('t-title').textContent = tier.label;
-    document.getElementById('t-sub').textContent   = msgs[tier.t];
+  function showTierOverlay(prevTier, cb){
+    const next = TIERS[prevTier.t + 1];
+    if(!next){ cb(); return; }
+    document.getElementById('t-emoji').textContent = next.toastEmoji;
+    document.getElementById('t-title').textContent = next.toastTitle;
+    document.getElementById('t-sub').textContent   = next.toastSub;
     const btn = document.getElementById('t-btn');
     btn.onclick = ()=>{
       document.getElementById('tier-overlay').classList.remove('show');
@@ -322,11 +332,11 @@
     const sc = order[round-1];
     const tier = getTier(round);
 
-    const sceneEl = document.getElementById('scene-emoji');
-    sceneEl.style.animation='none'; void sceneEl.offsetWidth; sceneEl.style.animation='';
-    sceneEl.textContent = sc.scene;
-    document.getElementById('scene-text').textContent = sc.text;
-    document.getElementById('prompt').textContent = PROMPTS[Math.floor(Math.random()*PROMPTS.length)];
+    const objEl = document.getElementById('obj-emoji');
+    objEl.style.animation='none'; void objEl.offsetWidth; objEl.style.animation='';
+    objEl.textContent = sc.emoji;
+    document.getElementById('obj-name').textContent = sc.name;
+    document.getElementById('prompt').textContent = sc.question;
 
     const badge = document.getElementById('tier-badge');
     badge.textContent = tier.label;
@@ -335,15 +345,16 @@
     document.getElementById('score-lbl').textContent = '⭐ '+score;
     document.getElementById('progress-fill').style.width = ((round-1)/TOTAL*100)+'%';
 
-    const distractors = shuffle([...sc.wrong]).slice(0, tier.opts-1);
-    const choices = shuffle([sc.correct, ...distractors]);
+    // Pick wrong answers: grab (opts-1) from sc.wrong
+    const wrongChoices = shuffle([...sc.wrong]).slice(0, tier.opts-1);
+    const choices = shuffle([sc.answer, ...wrongChoices]);
 
     const container = document.getElementById('choices');
     container.innerHTML='';
     choices.forEach(item=>{
       const btn=document.createElement('button');
       btn.className='choice-btn';
-      btn.innerHTML=`<div class="choice-em">${item.e}</div><div class="choice-name">${item.n}</div>`;
+      btn.innerHTML=`<div class="choice-icon">${item.icon}</div><div class="choice-word">${item.word}</div>`;
       btn.addEventListener('pointerdown', ()=>handleTap(btn, item, sc));
       container.appendChild(btn);
     });
@@ -353,14 +364,14 @@
 
   function handleTap(btn, item, sc){
     if(locked) return;
-    if(item.e === sc.correct.e){
+    if(item.word === sc.answer.word){
       locked=true;
       score++;
       btn.classList.add('correct-flash');
       playCorrect();
       burst(btn);
       document.getElementById('score-lbl').textContent='⭐ '+score;
-      setTimeout(()=>showCelebrate(sc, item), 500);
+      setTimeout(()=>showCelebrate(sc), 500);
     } else {
       btn.classList.add('wrong-shake');
       playWrong();
@@ -368,10 +379,10 @@
     }
   }
 
-  function showCelebrate(sc, item){
-    document.getElementById('cel-em').textContent   = item.e;
-    document.getElementById('cel-name').textContent = item.n + '! 🎉';
-    document.getElementById('cel-msg').textContent  = sc.celebrate;
+  function showCelebrate(sc){
+    document.getElementById('cel-em').textContent   = sc.emoji;
+    document.getElementById('cel-word').textContent = sc.answer.word + ' ✅';
+    document.getElementById('cel-fact').textContent = sc.fact;
     const btn = document.getElementById('cel-btn');
     btn.onclick = ()=>{
       document.getElementById('cel-overlay').classList.remove('show');
@@ -391,7 +402,7 @@
       el.style.cssText=`left:${cx+Math.cos(a)*dist-sz/2}px;top:${cy+Math.sin(a)*dist-sz/2}px;width:${sz}px;height:${sz}px;background:${cols[i%cols.length]}`;
       document.body.appendChild(el); setTimeout(()=>el.remove(),800);
     }
-    const icons=['✨','💫','⭐','🌟','💖','👑'];
+    const icons=['✨','💫','⭐','🌟','💖','🤚'];
     for(let i=0;i<8;i++){
       const el=document.createElement('div'); el.className='sparkle-em';
       el.textContent=icons[i%icons.length];
@@ -403,7 +414,7 @@
   }
 
   function confetti(){
-    const cols=['#e040fb','#ffd700','#fff','#f48fb1','#ce93d8','#b2ebf2','#a5d6a7','#ff8a65'];
+    const cols=['#e040fb','#ffd700','#fff','#f48fb1','#ce93d8','#b2ebf2','#a5d6a7','#80deea'];
     for(let i=0;i<42;i++){
       const el=document.createElement('div'); el.className='confetti';
       const sz=6+Math.random()*10;
@@ -414,7 +425,7 @@
 
   function endGame(){
     document.getElementById('win-sub').textContent =
-      'You scored ⭐ '+score+' out of '+TOTAL+'! Amazing helper! 🌟';
+      'You scored ⭐ '+score+' out of '+TOTAL+'! Brilliant texture expert! 🌟';
     document.getElementById('win-overlay').classList.add('show');
     playFinalWin(); confetti(); setTimeout(confetti, 700);
     document.getElementById('progress-fill').style.width='100%';
@@ -423,7 +434,7 @@
 
   function makeBgGems(){
     document.querySelectorAll('.bg-gem').forEach(e=>e.remove());
-    const icons=['💎','🌟','✨','👑','💖','🌸','⭐','🦄'];
+    const icons=['💎','🌟','✨','👑','💖','🌸','⭐','🤚','🪨','🌵'];
     for(let i=0;i<14;i++){
       const el=document.createElement('div'); el.className='bg-gem';
       el.textContent=icons[i%icons.length];

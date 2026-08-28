@@ -1,9 +1,9 @@
 # Princess Compendium — Status
 
 ## Last update run
-Date: 2026-08-25
-- Improved: `050-princess-clock` → v1.1.0 (score counter ⭐ in header; deduplicated hour pool (4 unique hours per tier, pick 3); tier-transition toast overlay with tap-to-continue; 5th prompt variant; 14 bg stars (was 12); sparkle 18→20; final score shown in win overlay)
-- Added: `063-royal-months` — "Royal Months 📆" teaching months of the year; Easy: which comes AFTER; Medium: which comes BEFORE; Hard: ordinal position (1st–12th); each month has emoji + seasonal decoration; tier-transition toast; 20-sparkle burst; 42 confetti win
+Date: 2026-08-28
+- Improved: `051-princess-helpers` → v1.1.0 (celebrate overlay after each correct answer showing item name + fun fact, tap-to-continue; score counter ⭐ in header; final score in win overlay; 5 prompt variants; sparkle 18→20; bg gems 12→14)
+- Added: `064-royal-textures` — "Princess Touch 🤚" teaching texture recognition; Easy: ROUGH vs SMOOTH; Medium: HARD vs SOFT; Hard: WET vs DRY (3 choices); celebrate overlay with texture fun fact after each answer; score counter ⭐; 18 objects across 3 tiers; 42-confetti win with double burst
 
 ## Improvement history
 
@@ -54,6 +54,7 @@ Date: 2026-08-25
 | 2026-08-19 | 035-front-back | Pool 9→18 (6 per tier), color-coded tier badge, progress bar, win overlay, 18-sparkle burst, double confetti on win | 1.1.0 |
 | 2026-08-22 | 049-royal-days | Added BEFORE questions (Easy 6→9), 6th/7th ordinals (Medium 6→8), TOMORROW questions (Hard 6→9), day description in celebrate, sparkle 18→20 | 1.1.0 |
 | 2026-08-25 | 050-princess-clock | Score counter ⭐, deduplicated hour pool (4 unique per tier), tier-transition toast, 5th prompt variant, sparkle 18→20, final score in win overlay | 1.1.0 |
+| 2026-08-28 | 051-princess-helpers | Celebrate overlay (item name + fun fact, tap-to-continue), score counter ⭐, final score in win overlay, 5 prompt variants, sparkle 18→20, bg gems 12→14 | 1.1.0 |
 
 ## Games due for improvement (all at v1.0.0)
 
@@ -106,6 +107,7 @@ See `CLAUDE.md` for the full prioritised list. Top 3 to build next:
 25. **Sink or float** — ✅ covered by `061-sink-or-float`
 26. **Number bonds to 5 and 10** — ✅ covered by `062-royal-bonds`
 27. **Months of the year** — ✅ covered by `063-royal-months`
+28. **Texture recognition (rough/smooth, hard/soft, wet/dry)** — ✅ covered by `064-royal-textures`
 
 ## Next game ID
-`064-<slug>`
+`065-<slug>`

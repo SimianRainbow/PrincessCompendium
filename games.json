@@ -602,12 +602,12 @@
   {
     "id": "051-princess-helpers",
     "title": "Princess Helpers",
-    "description": "What does Princess need? Tap the right object for the situation — umbrella for rain, spoon for soup, paintbrush for painting! 18 scenarios across 3 tiers.",
+    "description": "What does Princess need? Tap the right object — umbrella for rain, spoon for soup, paintbrush for painting! Celebrate overlay names each item, score counter ⭐, 5 prompt variants, 14 bg gems, 20-sparkle burst.",
     "icon": "🌟",
     "ageMin": 2,
     "ageMax": 5,
     "skill": "matching objects to their use / functional understanding",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "category": "other",
     "path": "games/051-princess-helpers/index.html"
   },
@@ -755,5 +755,17 @@
     "version": "1.0.0",
     "category": "other",
     "path": "games/063-royal-months/index.html"
+  },
+  {
+    "id": "064-royal-textures",
+    "title": "Princess Touch",
+    "description": "Is this ROUGH or SMOOTH? HARD or SOFT? WET or DRY? Feel the royal treasures! Celebrate overlay with fun texture facts, score counter ⭐, 18 objects across 3 tiers.",
+    "icon": "🤚",
+    "ageMin": 2,
+    "ageMax": 5,
+    "skill": "texture recognition — rough/smooth, hard/soft, wet/dry",
+    "version": "1.0.0",
+    "category": "other",
+    "path": "games/064-royal-textures/index.html"
   }
 ]
