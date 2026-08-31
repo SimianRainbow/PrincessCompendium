@@ -1,9 +1,9 @@
 # Princess Compendium — Status
 
 ## Last update run
-Date: 2026-08-28
-- Improved: `051-princess-helpers` → v1.1.0 (celebrate overlay after each correct answer showing item name + fun fact, tap-to-continue; score counter ⭐ in header; final score in win overlay; 5 prompt variants; sparkle 18→20; bg gems 12→14)
-- Added: `064-royal-textures` — "Princess Touch 🤚" teaching texture recognition; Easy: ROUGH vs SMOOTH; Medium: HARD vs SOFT; Hard: WET vs DRY (3 choices); celebrate overlay with texture fun fact after each answer; score counter ⭐; 18 objects across 3 tiers; 42-confetti win with double burst
+Date: 2026-08-31
+- Improved: `052-princess-healthy` → v1.1.0 (score counter ⭐ in header; final score in win overlay; sparkle emoji 8→10, dots 18→20; bg health icons 12→14)
+- Added: `065-even-odd` — "Princess Even & Odd 🔢" teaching even and odd numbers; gem-pair visual display (paired gems 💜, leftover gem 💔); Easy: numbers 1-8 with text hint; Medium: 1-14 no hint; Hard: 10-20; score counter ⭐; celebrate overlay explains why even/odd; 5 prompt variants; 9 rounds across 3 tiers
 
 ## Improvement history
 
@@ -55,6 +55,7 @@ Date: 2026-08-28
 | 2026-08-22 | 049-royal-days | Added BEFORE questions (Easy 6→9), 6th/7th ordinals (Medium 6→8), TOMORROW questions (Hard 6→9), day description in celebrate, sparkle 18→20 | 1.1.0 |
 | 2026-08-25 | 050-princess-clock | Score counter ⭐, deduplicated hour pool (4 unique per tier), tier-transition toast, 5th prompt variant, sparkle 18→20, final score in win overlay | 1.1.0 |
 | 2026-08-28 | 051-princess-helpers | Celebrate overlay (item name + fun fact, tap-to-continue), score counter ⭐, final score in win overlay, 5 prompt variants, sparkle 18→20, bg gems 12→14 | 1.1.0 |
+| 2026-08-31 | 052-princess-healthy | Score counter ⭐ in header, final score in win overlay, sparkle emoji 8→10, dots 18→20, bg icons 12→14 | 1.1.0 |
 
 ## Games due for improvement (all at v1.0.0)
 
@@ -108,6 +109,7 @@ See `CLAUDE.md` for the full prioritised list. Top 3 to build next:
 26. **Number bonds to 5 and 10** — ✅ covered by `062-royal-bonds`
 27. **Months of the year** — ✅ covered by `063-royal-months`
 28. **Texture recognition (rough/smooth, hard/soft, wet/dry)** — ✅ covered by `064-royal-textures`
+29. **Even and odd numbers** — ✅ covered by `065-even-odd`
 
 ## Next game ID
-`065-<slug>`
+`066-<slug>`
