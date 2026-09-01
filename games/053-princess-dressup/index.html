@@ -37,8 +37,9 @@
       transition:background .4s;
     }
     .tier-easy   { background:linear-gradient(135deg,#66bb6a,#2e7d32); }
-    .tier-medium { background:linear-gradient(135deg,#ffca28,#f57f17); color:#3e2000; }
+    .tier-medium { background:linear-gradient(135deg,#ffca28,#f57f17); color:#3e2000 !important; }
     .tier-hard   { background:linear-gradient(135deg,#ce93d8,#6a1b9a); }
+    #score-label { font-size:clamp(13px,3.2vw,17px); color:#880e4f; font-weight:bold; position:relative; z-index:1; }
     #round-label { font-size:clamp(13px,3.2vw,17px); color:rgba(255,80,150,.9); position:relative; z-index:1; }
 
     #progress-track {
@@ -120,6 +121,14 @@
       50% {transform:translate(-50%,-50%) scale(1.3);opacity:1}
       100%{transform:translate(-50%,-50%) scale(.2);opacity:0}
     }
+    .sp-dot {
+      position:fixed; pointer-events:none; z-index:90; border-radius:50%;
+      animation:dotFly .8s ease-out forwards;
+    }
+    @keyframes dotFly {
+      0%  {transform:translate(0,0) scale(1);opacity:1}
+      100%{transform:translate(var(--tx),var(--ty)) scale(.1);opacity:0}
+    }
     .confetti-p {
       position:fixed; pointer-events:none; z-index:90; border-radius:3px;
       animation:cfFall linear forwards;
@@ -129,20 +138,21 @@
     #celebrate {
       position:fixed; inset:0; z-index:80;
       display:none; flex-direction:column;
-      align-items:center; justify-content:center; gap:clamp(10px,2.5vw,16px);
+      align-items:center; justify-content:center; gap:clamp(8px,2vw,14px);
       background:rgba(255,245,255,.93);
     }
     #celebrate.show { display:flex; }
     #cel-scene { font-size:clamp(48px,12vw,80px); }
     #cel-item  { font-size:clamp(72px,18vw,110px); animation:bigPop .4s ease-out; }
     @keyframes bigPop { 0%{transform:scale(.3)} 60%{transform:scale(1.22)} 100%{transform:scale(1)} }
-    #cel-msg   { font-size:clamp(16px,4.2vw,24px); color:#880e4f; text-align:center; padding:0 20px; }
+    #cel-name  { font-size:clamp(20px,5vw,30px); color:#880e4f; font-weight:bold; }
+    #cel-fact  { font-size:clamp(13px,3.4vw,18px); color:#6a1b9a; text-align:center; padding:0 20px; }
     #next-btn {
       padding:clamp(14px,4vw,20px) clamp(36px,9vw,60px);
       font-size:clamp(20px,5.5vw,30px); border-radius:50px; border:none;
       background:linear-gradient(135deg,#ffd700,#ff9800); color:#5d2e00;
       font-family:inherit; cursor:pointer; touch-action:manipulation;
-      box-shadow:0 6px 22px rgba(255,180,0,.45);
+      box-shadow:0 6px 22px rgba(255,180,0,.45); margin-top:6px;
     }
 
     #tier-overlay {
@@ -174,6 +184,7 @@
     @keyframes winBob { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-14px)} }
     #win-title { font-size:clamp(28px,7.5vw,56px); color:#ffd700; text-shadow:0 0 24px rgba(255,215,0,.7); text-align:center; padding:0 20px; }
     #win-sub   { font-size:clamp(16px,4.5vw,26px); color:rgba(255,255,255,.85); text-align:center; }
+    #win-score { font-size:clamp(20px,5.5vw,32px); color:#ffd700; text-align:center; font-weight:bold; }
     #play-again-btn {
       padding:clamp(14px,4vw,20px) clamp(36px,9vw,64px);
       font-size:clamp(18px,5vw,28px); border-radius:50px; border:none;
@@ -187,6 +198,7 @@
 
 <div id="header">
   <div id="tier-badge" class="tier-easy">🌸 Easy</div>
+  <div id="score-label">⭐ 0</div>
   <div id="round-label">1 / 9</div>
 </div>
 <div id="progress-track"><div id="progress-fill"></div></div>
@@ -201,7 +213,8 @@
 <div id="celebrate">
   <div id="cel-scene">☀️</div>
   <div id="cel-item">👗</div>
-  <div id="cel-msg">Perfect choice! ✨</div>
+  <div id="cel-name">Summer Dress</div>
+  <div id="cel-fact">Perfect for warm sunny weather! ☀️</div>
   <button id="next-btn" onclick="doNext()">Next ➡️</button>
 </div>
 
@@ -216,39 +229,40 @@
   <div id="win-emoji">👗</div>
   <div id="win-title">Royal Stylist! 👑</div>
   <div id="win-sub">You know just what to wear! 🌟</div>
+  <div id="win-score">⭐ 0 / 9</div>
   <button id="play-again-btn" onclick="restartGame()">Play Again 🔄</button>
 </div>
 
 <script>
   var EASY = [
-    { scene:'☀️', desc:'Hot sunny day!',       answer:'👗', name:'Summer Dress', wrong:['🧥'] },
-    { scene:'❄️', desc:'It\'s snowing!',        answer:'🧥', name:'Winter Coat',  wrong:['👗'] },
-    { scene:'🌧️', desc:'It\'s raining!',        answer:'☂️', name:'Umbrella',     wrong:['👒'] },
-    { scene:'🏖️', desc:'We\'re at the beach!', answer:'🩱', name:'Swimsuit',     wrong:['🧥'] },
-    { scene:'🥶', desc:'Very cold today!',      answer:'🧤', name:'Gloves',       wrong:['🩴'] },
-    { scene:'🌞', desc:'Sunny warm day!',        answer:'👒', name:'Sun Hat',      wrong:['🧣'] },
-    { scene:'⛄', desc:'Playing in snow!',       answer:'🧣', name:'Scarf',        wrong:['🩱'] },
-    { scene:'🌬️', desc:'Windy outside!',        answer:'🧥', name:'Jacket',       wrong:['👗'] },
+    { scene:'☀️', desc:'Hot sunny day!',       answer:'👗', name:'Summer Dress', fact:'Light dresses keep you cool in the summer sun! ☀️', wrong:['🧥'] },
+    { scene:'❄️', desc:'It\'s snowing!',        answer:'🧥', name:'Winter Coat',  fact:'Coats trap warm air to keep out the cold! ❄️',     wrong:['👗'] },
+    { scene:'🌧️', desc:'It\'s raining!',        answer:'☂️', name:'Umbrella',     fact:'Umbrellas have been used for over 4000 years! ☂️', wrong:['👒'] },
+    { scene:'🏖️', desc:'We\'re at the beach!', answer:'🩱', name:'Swimsuit',     fact:'Swimsuits help you move freely in water! 🌊',      wrong:['🧥'] },
+    { scene:'🥶', desc:'Very cold today!',      answer:'🧤', name:'Gloves',       fact:'Gloves keep your fingers nice and warm! 🤲',       wrong:['🩴'] },
+    { scene:'🌞', desc:'Sunny warm day!',        answer:'👒', name:'Sun Hat',      fact:'Hats protect your face from the bright sun! ☀️',  wrong:['🧣'] },
+    { scene:'⛄', desc:'Playing in snow!',       answer:'🧣', name:'Scarf',        fact:'Scarves keep your neck warm and cosy! 🌬️',        wrong:['🩱'] },
+    { scene:'🌬️', desc:'Windy outside!',        answer:'🧥', name:'Jacket',       fact:'Jackets block cold wind from reaching your body! 💨',wrong:['👗'] },
   ];
   var MED = [
-    { scene:'🌧️', desc:'Drizzly rainy walk',   answer:'☂️',  name:'Umbrella',   wrong:['🕶️','🩱'] },
-    { scene:'☀️', desc:'Sunny & warm outside',  answer:'🕶️', name:'Sunglasses', wrong:['🧤','🧣'] },
-    { scene:'❄️', desc:'Ice skating time!',      answer:'🧤',  name:'Gloves',     wrong:['👒','🩱'] },
-    { scene:'🍂', desc:'Cool autumn breeze',    answer:'🧥',  name:'Jacket',     wrong:['🩱','👒'] },
-    { scene:'🌊', desc:'Swimming pool party!',  answer:'🩱',  name:'Swimsuit',   wrong:['🧥','🧣'] },
-    { scene:'🌬️', desc:'Breezy cool day',      answer:'🧣',  name:'Scarf',      wrong:['👒','🩱'] },
-    { scene:'⛷️', desc:'Skiing in the snow!',  answer:'🧤',  name:'Gloves',     wrong:['👗','🩴'] },
-    { scene:'🌞', desc:'Summer park picnic',    answer:'👒',  name:'Sun Hat',    wrong:['🧥','🧤'] },
+    { scene:'🌧️', desc:'Drizzly rainy walk',   answer:'☂️',  name:'Umbrella',    fact:'Open your umbrella before you get wet! ☂️',           wrong:['🕶️','🩱'] },
+    { scene:'☀️', desc:'Sunny & warm outside',  answer:'🕶️', name:'Sunglasses',  fact:'Sunglasses protect your eyes from bright light! ✨',   wrong:['🧤','🧣'] },
+    { scene:'❄️', desc:'Ice skating time!',      answer:'🧤',  name:'Gloves',      fact:'Warm gloves help you hold your ice skates! ⛸️',       wrong:['👒','🩱'] },
+    { scene:'🍂', desc:'Cool autumn breeze',    answer:'🧥',  name:'Jacket',      fact:'A jacket is perfect for cool autumn days! 🍂',        wrong:['🩱','👒'] },
+    { scene:'🌊', desc:'Swimming pool party!',  answer:'🩱',  name:'Swimsuit',    fact:'Swimsuits dry quickly after swimming! 🌊',             wrong:['🧥','🧣'] },
+    { scene:'🌬️', desc:'Breezy cool day',      answer:'🧣',  name:'Scarf',       fact:'Wrap your scarf twice to stay extra warm! 🌬️',       wrong:['👒','🩱'] },
+    { scene:'⛷️', desc:'Skiing in the snow!',  answer:'🧤',  name:'Gloves',      fact:'Ski gloves are extra thick to stay warm! 🎿',         wrong:['👗','🩴'] },
+    { scene:'🌞', desc:'Summer park picnic',    answer:'👒',  name:'Sun Hat',     fact:'Wide-brimmed hats shade your whole face! 🌞',         wrong:['🧥','🧤'] },
   ];
   var HARD = [
-    { scene:'⛈️', desc:'Thunderstorm!',          answer:'☂️',  name:'Umbrella',     wrong:['🕶️','🩱','🧣'] },
-    { scene:'🏔️', desc:'Mountain hike',          answer:'🥾',  name:'Hiking Boots', wrong:['🩴','👗','👒'] },
-    { scene:'🌊', desc:'Hot beach holiday',       answer:'🩱',  name:'Swimsuit',     wrong:['🧥','🧤','🧣'] },
-    { scene:'🌨️', desc:'Blizzard snowstorm!',    answer:'🧥',  name:'Winter Coat',  wrong:['👗','🩴','🕶️'] },
-    { scene:'☀️', desc:'Cycling on a sunny day', answer:'🕶️', name:'Sunglasses',   wrong:['🧥','🧣','🧤'] },
-    { scene:'🌬️', desc:'Very strong wind!',      answer:'🧥',  name:'Windbreaker',  wrong:['🩱','👒','🕶️'] },
-    { scene:'❄️', desc:'Making snowballs!',       answer:'🧤',  name:'Gloves',       wrong:['🕶️','🩱','🩴'] },
-    { scene:'🌧️', desc:'Heavy pouring rain',     answer:'🥾',  name:'Rain Boots',   wrong:['👒','🩴','🕶️'] },
+    { scene:'⛈️', desc:'Thunderstorm!',          answer:'☂️',  name:'Umbrella',     fact:'Never go outside in thunder without shelter! ⛈️',      wrong:['🕶️','🩱','🧣'] },
+    { scene:'🏔️', desc:'Mountain hike',          answer:'🥾',  name:'Hiking Boots', fact:'Hiking boots grip rocky paths and keep feet dry! 🏔️', wrong:['🩴','👗','👒'] },
+    { scene:'🌊', desc:'Hot beach holiday',       answer:'🩱',  name:'Swimsuit',     fact:'Swimsuits are made to move in water! 🏄',              wrong:['🧥','🧤','🧣'] },
+    { scene:'🌨️', desc:'Blizzard snowstorm!',    answer:'🧥',  name:'Winter Coat',  fact:'Thick coats have special fluff inside to trap heat! ❄️',wrong:['👗','🩴','🕶️'] },
+    { scene:'☀️', desc:'Cycling on a sunny day', answer:'🕶️', name:'Sunglasses',   fact:'Sunglasses make it easier to see in bright sun! ☀️',  wrong:['🧥','🧣','🧤'] },
+    { scene:'🌬️', desc:'Very strong wind!',      answer:'🧥',  name:'Windbreaker',  fact:'Windbreakers have a tight weave to block the wind! 💨',wrong:['🩱','👒','🕶️'] },
+    { scene:'❄️', desc:'Making snowballs!',       answer:'🧤',  name:'Gloves',       fact:'Gloves keep your hands from freezing in the snow! ☃️', wrong:['🕶️','🩱','🩴'] },
+    { scene:'🌧️', desc:'Heavy pouring rain',     answer:'🥾',  name:'Rain Boots',   fact:'Rubber rain boots keep your feet perfectly dry! 🌧️', wrong:['👒','🩴','🕶️'] },
   ];
 
   var TIERS = [
@@ -261,33 +275,34 @@
   ];
   var TOTAL = 9;
   var MSGS  = ['Amazing! 🌟','Brilliant! 💫','You know it! 👑','Wonderful! 🌈','Great choice! 💖','Perfect! ✨'];
+  var PROMPTS = [
+    'What should Princess wear? 👗',
+    'What does Princess need today? 🌂',
+    'Which outfit fits this weather? ☀️',
+    'Help Princess get dressed! 👑',
+    'What is best to wear now? 🌈',
+  ];
 
-  var CLOTHING_NAMES = {
-    '👗':'Dress','🧥':'Coat','☂️':'Umbrella','🩱':'Swimsuit',
-    '🧤':'Gloves','👒':'Sun Hat','🧣':'Scarf','🕶️':'Sunglasses',
-    '🥾':'Boots','🩴':'Sandals',
-  };
-  function clothingName(e) { return CLOTHING_NAMES[e] || e; }
-
-  var rounds = [], cur = 0, locked = false;
+  var rounds = [], cur = 0, locked = false, score = 0;
 
   var audioCtx = null;
   function au() { if (!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)(); return audioCtx; }
-  function tone(f, type, d, v) {
-    v = v || 0.15;
+  function tone(f, type, d, v, delay) {
+    v = v || 0.15; delay = delay || 0;
     try {
       var c=au(), o=c.createOscillator(), g=c.createGain();
       o.connect(g); g.connect(c.destination);
       o.type=type; o.frequency.value=f;
-      g.gain.setValueAtTime(v,c.currentTime);
-      g.gain.exponentialRampToValueAtTime(0.001,c.currentTime+d);
-      o.start(); o.stop(c.currentTime+d);
+      var t0=c.currentTime+delay;
+      g.gain.setValueAtTime(v,t0);
+      g.gain.exponentialRampToValueAtTime(0.001,t0+d);
+      o.start(t0); o.stop(t0+d);
     } catch(e) {}
   }
-  function playCorrect()  { [523,659,784,1047].forEach(function(f,i){ setTimeout(function(){ tone(f,'sine',.2,.18); },i*75); }); }
+  function playCorrect()  { [523,659,784,1047].forEach(function(f,i){ tone(f,'sine',.2,.18,i*.075); }); }
   function playWrong()    { tone(220,'sawtooth',.2,.1); }
-  function playTierUp()   { [392,494,587,784,988].forEach(function(f,i){ setTimeout(function(){ tone(f,'sine',.28,.17); },i*90); }); }
-  function playCelebrate(){ [523,587,659,784,880,1047,1319].forEach(function(f,i){ setTimeout(function(){ tone(f,'sine',.25,.16); },i*60); }); }
+  function playTierUp()   { [392,494,587,784,988].forEach(function(f,i){ tone(f,'sine',.28,.17,i*.09); }); }
+  function playCelebrate(){ [523,587,659,784,880,1047,1319].forEach(function(f,i){ tone(f,'sine',.25,.16,i*.065); }); }
 
   function shuffle(a) {
     var b = a.slice();
@@ -310,6 +325,7 @@
   function updateHUD() {
     document.getElementById('progress-fill').style.width = (cur / TOTAL * 100) + '%';
     document.getElementById('round-label').textContent   = (cur + 1) + ' / ' + TOTAL;
+    document.getElementById('score-label').textContent   = '⭐ ' + score;
   }
 
   function showRound(idx) {
@@ -322,6 +338,8 @@
     var badge = document.getElementById('tier-badge');
     badge.textContent = tier.label;
     badge.className   = tier.cls;
+
+    document.getElementById('prompt').textContent = PROMPTS[(idx) % PROMPTS.length];
 
     var card = document.getElementById('weather-card');
     card.classList.remove('pop-in');
@@ -338,7 +356,7 @@
       var btn = document.createElement('button');
       btn.className = 'choice-btn';
       btn.innerHTML = '<span class="choice-emoji">' + emoji + '</span>'
-        + '<span class="choice-label">' + clothingName(emoji) + '</span>';
+        + '<span class="choice-label">' + (r.q.answer === emoji ? r.q.name : (emoji)) + '</span>';
       (function(e) {
         btn.addEventListener('pointerdown', function() { handleTap(btn, e, r.q.answer, r.q); });
       })(emoji);
@@ -350,6 +368,8 @@
     if (locked) return;
     if (chosen === answer) {
       locked = true;
+      score++;
+      document.getElementById('score-label').textContent = '⭐ ' + score;
       btn.classList.add('correct-flash');
       playCorrect();
       var r2 = btn.getBoundingClientRect();
@@ -365,7 +385,8 @@
   function showCelebrate(q) {
     document.getElementById('cel-scene').textContent = q.scene;
     document.getElementById('cel-item').textContent  = q.answer;
-    document.getElementById('cel-msg').textContent   = q.name + '! ' + MSGS[Math.floor(Math.random()*MSGS.length)];
+    document.getElementById('cel-name').textContent  = q.name + '! ' + MSGS[Math.floor(Math.random()*MSGS.length)];
+    document.getElementById('cel-fact').textContent  = q.fact;
     document.getElementById('celebrate').classList.add('show');
     playCelebrate();
     confettiBurst(28);
@@ -402,6 +423,7 @@
 
   function showWin() {
     document.getElementById('progress-fill').style.width = '100%';
+    document.getElementById('win-score').textContent = '⭐ ' + score + ' / 9';
     document.getElementById('win-overlay').classList.add('show');
     playCelebrate();
     confettiBurst(60);
@@ -409,18 +431,21 @@
   }
 
   function restartGame() {
+    score = 0;
+    document.getElementById('score-label').textContent = '⭐ 0';
     document.getElementById('win-overlay').classList.remove('show');
     rounds = buildRounds();
     showRound(0);
   }
 
   function sparkleBurst(x, y) {
-    var ems = ['✨','💫','⭐','👑','🌸','🎀','👗','🌈'];
-    for (var i = 0; i < 18; i++) {
+    var ems  = ['✨','💫','⭐','👑','🌸','🎀','👗','🌈'];
+    var cols = ['#ffd700','#ff69b4','#ce93d8','#80deea','#ffab91','#a5d6a7','#fff'];
+    for (var i = 0; i < 20; i++) {
       var el = document.createElement('span');
       el.className = 'sparkle';
       el.textContent = ems[i % ems.length];
-      var angle = (i/18) * Math.PI * 2;
+      var angle = (i/20) * Math.PI * 2;
       var dist  = 55 + Math.random() * 90;
       el.style.left = (x + Math.cos(angle)*dist) + 'px';
       el.style.top  = (y + Math.sin(angle)*dist) + 'px';
@@ -428,6 +453,17 @@
       el.style.animationDuration = (.8 + Math.random()*.35) + 's';
       document.body.appendChild(el);
       setTimeout((function(e){ return function(){ e.remove(); }; })(el), 1200);
+    }
+    for (var j = 0; j < 16; j++) {
+      var dot  = document.createElement('div');
+      dot.className = 'sp-dot';
+      var a   = Math.random() * Math.PI * 2;
+      var d   = 25 + Math.random() * 75;
+      var sz  = 5 + Math.random() * 9;
+      dot.style.cssText = 'width:'+sz+'px;height:'+sz+'px;left:'+(x-sz/2)+'px;top:'+(y-sz/2)+'px;'
+        +'background:'+cols[j%cols.length]+';--tx:'+(Math.cos(a)*d)+'px;--ty:'+(Math.sin(a)*d)+'px;';
+      document.body.appendChild(dot);
+      setTimeout((function(e){ return function(){ e.remove(); }; })(dot), 950);
     }
   }
 
@@ -445,8 +481,8 @@
   }
 
   function makeBg() {
-    var items = ['🌸','☀️','❄️','🌧️','👗','🧥','☂️','🩱','🧤','✨'];
-    for (var i = 0; i < 10; i++) {
+    var items = ['🌸','☀️','❄️','🌧️','👗','🧥','☂️','🩱','🧤','✨','💫','👑'];
+    for (var i = 0; i < 12; i++) {
       var el = document.createElement('div'); el.className = 'bg-float';
       el.textContent = items[i % items.length];
       el.style.left = (5 + Math.random()*90) + 'vw';
