@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Royal Music Makers 🎹</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+    body{
+      min-height:100vh;
+      background:linear-gradient(160deg,#0d1b4a 0%,#1a237e 45%,#7b1fa2 100%);
+      font-family:'Fredoka One',Georgia,serif;
+      display:flex;flex-direction:column;align-items:center;
+      overflow:hidden;user-select:none;padding-bottom:10px;
+    }
+    .bg-note{position:fixed;pointer-events:none;animation:floatNote linear infinite;opacity:.08;font-size:clamp(16px,4vw,26px);z-index:0;}
+    @keyframes floatNote{0%{transform:translateY(110vh) rotate(0deg)}100%{transform:translateY(-15vh) rotate(360deg)}}
+
+    #header{
+      width:100%;display:flex;justify-content:space-between;align-items:center;
+      padding:clamp(10px,2.5vw,16px) clamp(14px,4vw,22px) 0;
+      flex-shrink:0;position:relative;z-index:1;
+    }
+    #tier-badge{font-size:clamp(13px,3.2vw,18px);padding:5px 15px;border-radius:20px;font-weight:bold;}
+    .tier-easy  {background:linear-gradient(135deg,#a5d6a7,#66bb6a);color:#1b5e20;}
+    .tier-medium{background:linear-gradient(135deg,#ffe082,#ffd54f);color:#5a3000;}
+    .tier-hard  {background:linear-gradient(135deg,#ce93d8,#ab47bc);color:#fff;}
+    #score-display{font-size:clamp(14px,3.5vw,19px);color:#ffd700;letter-spacing:1px;}
+    #round-label{font-size:clamp(13px,3.2vw,17px);color:rgba(255,255,255,.9);}
+
+    #progress-wrap{width:100%;padding:6px clamp(14px,4vw,22px) 0;flex-shrink:0;position:relative;z-index:1;}
+    #progress-track{background:rgba(255,255,255,.18);border-radius:20px;height:clamp(8px,2vw,12px);overflow:hidden;}
+    #progress-fill{height:100%;border-radius:20px;background:linear-gradient(90deg,#ffd700,#e040fb);transition:width .35s ease;width:0%;box-shadow:0 0 8px rgba(255,215,0,.45);}
+
+    #prompt{
+      font-size:clamp(18px,4.8vw,28px);color:#fff;
+      text-shadow:0 2px 8px rgba(0,0,0,.5);
+      text-align:center;padding:clamp(8px,2vw,14px) 20px 0;
+      flex-shrink:0;position:relative;z-index:1;line-height:1.2;
+    }
+
+    /* Big instrument display */
+    #instrument-stage{
+      flex-shrink:0;
+      display:flex;flex-direction:column;align-items:center;justify-content:center;
+      padding:clamp(6px,1.5vw,12px) 20px 0;
+      position:relative;z-index:1;
+    }
+    #instrument-bubble{
+      width:clamp(120px,32vw,170px);height:clamp(120px,32vw,170px);
+      border-radius:50%;
+      background:radial-gradient(circle at 35% 35%,rgba(255,255,255,.22),rgba(255,255,255,.04));
+      border:4px solid rgba(255,215,0,.6);
+      box-shadow:0 0 0 8px rgba(255,215,0,.12),0 8px 32px rgba(0,0,0,.5);
+      display:flex;align-items:center;justify-content:center;
+      font-size:clamp(60px,17vw,96px);
+      animation:gentlePulse 3s ease-in-out infinite;
+    }
+    @keyframes gentlePulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05);box-shadow:0 0 0 12px rgba(255,215,0,.18),0 8px 32px rgba(0,0,0,.5)}}
+
+    /* Choices */
+    #choices-wrap{
+      flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+      gap:clamp(8px,2vw,12px);
+      padding:clamp(8px,2vw,14px) clamp(12px,3vw,20px);
+      width:100%;position:relative;z-index:1;
+    }
+    #sub-prompt{font-size:clamp(15px,3.8vw,20px);color:#b39ddb;text-align:center;}
+    #choices{
+      display:flex;gap:clamp(8px,2vw,14px);
+      justify-content:center;align-items:stretch;
+      width:100%;max-width:460px;flex-wrap:wrap;
+    }
+    .choice-btn{
+      flex:1;min-width:clamp(80px,22vw,120px);max-width:clamp(100px,27vw,140px);
+      min-height:clamp(90px,24vw,120px);
+      border-radius:22px;border:3px solid rgba(255,255,255,.3);
+      background:rgba(255,255,255,.1);
+      cursor:pointer;
+      display:flex;flex-direction:column;align-items:center;justify-content:center;
+      gap:clamp(4px,1vw,7px);
+      box-shadow:0 4px 18px rgba(0,0,0,.3),inset 0 2px 0 rgba(255,255,255,.18);
+      touch-action:manipulation;transition:transform .12s,border-color .12s;
+    }
+    .choice-btn:active{transform:scale(.91);}
+    .choice-emoji{font-size:clamp(32px,9vw,52px);line-height:1;}
+    .choice-label{font-size:clamp(13px,3.3vw,17px);color:#fff;text-align:center;padding:0 4px;}
+    .choice-btn.correct{border-color:#ffd700;background:rgba(255,215,0,.22);animation:correctPop .5s ease-out;}
+    .choice-btn.wrong  {animation:wobble .45s ease-out;border-color:rgba(255,80,80,.7);}
+    @keyframes correctPop{0%{transform:scale(1)}40%{transform:scale(1.13);box-shadow:0 0 40px rgba(255,215,0,.8)}100%{transform:scale(1)}}
+    @keyframes wobble{0%,100%{transform:translateX(0)}20%{transform:translateX(-12px)}60%{transform:translateX(12px)}80%{transform:translateX(-6px)}}
+
+    .sp{position:fixed;pointer-events:none;z-index:50;animation:sparkOut .75s ease-out forwards;}
+    @keyframes sparkOut{0%{transform:scale(0);opacity:1}100%{transform:scale(1.6);opacity:0}}
+
+    .overlay{
+      position:fixed;inset:0;background:rgba(10,0,40,.9);
+      display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;
+      z-index:99;opacity:0;pointer-events:none;transition:opacity .35s;
+      padding:20px;
+    }
+    .overlay.show{opacity:1;pointer-events:all;}
+    .ov-emoji{font-size:clamp(60px,17vw,100px);}
+    .ov-title{font-size:clamp(24px,7vw,46px);color:#ffd700;text-align:center;}
+    .ov-sub  {font-size:clamp(15px,4vw,22px);color:#f8bbd0;text-align:center;max-width:320px;line-height:1.3;}
+    .ov-fact {font-size:clamp(13px,3.5vw,19px);color:#b39ddb;text-align:center;max-width:340px;line-height:1.4;}
+    .btn-next{
+      padding:clamp(14px,4vw,20px) clamp(32px,8vw,54px);font-size:clamp(18px,5vw,26px);
+      border-radius:50px;border:none;background:linear-gradient(135deg,#ffd700,#ff8c00);
+      color:#5d2e00;font-weight:bold;cursor:pointer;font-family:inherit;
+      min-height:64px;min-width:180px;box-shadow:0 4px 18px rgba(255,180,0,.5);
+      touch-action:manipulation;
+    }
+    .cf{position:fixed;pointer-events:none;z-index:100;border-radius:3px;animation:cfFall linear forwards;}
+    @keyframes cfFall{0%{top:-20px;opacity:1;transform:rotate(0)}100%{top:110vh;opacity:.2;transform:rotate(720deg)}}
+  </style>
+</head>
+<body>
+
+<div id="header">
+  <div id="tier-badge" class="tier-easy">🌱 Easy</div>
+  <div id="score-display">⭐ 0</div>
+  <div id="round-label">1 / 9</div>
+</div>
+<div id="progress-wrap">
+  <div id="progress-track"><div id="progress-fill"></div></div>
+</div>
+<div id="prompt">What instrument is Princess playing?</div>
+
+<div id="instrument-stage">
+  <div id="instrument-bubble">🥁</div>
+</div>
+
+<div id="choices-wrap">
+  <div id="sub-prompt">Tap the right instrument! 🎵</div>
+  <div id="choices"></div>
+</div>
+
+<div class="overlay" id="round-overlay">
+  <div class="ov-emoji" id="ov-emoji">🎵</div>
+  <div class="ov-title" id="ov-title">Amazing!</div>
+  <div class="ov-sub"   id="ov-sub">Great listening!</div>
+  <div class="ov-fact"  id="ov-fact"></div>
+  <button class="btn-next" id="round-btn">Next ➡️</button>
+</div>
+
+<div class="overlay" id="end-overlay">
+  <div class="ov-emoji">👑</div>
+  <div class="ov-title">Royal Musician! 🎹</div>
+  <div class="ov-sub" id="end-score">You know all the instruments! ✨</div>
+  <button class="btn-next" onclick="startGame()">Play Again 🌸</button>
+</div>
+
+<script>
+// ── Audio ──────────────────────────────────────────────────────────────────────
+let audioCtx=null;
+function getAudio(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();return audioCtx;}
+function tone(f,type,d,v=.18,del=0){
+  try{
+    const c=getAudio();
+    setTimeout(()=>{
+      try{
+        const o=c.createOscillator(),g=c.createGain();
+        o.connect(g);g.connect(c.destination);
+        o.type=type;o.frequency.value=f;
+        g.gain.setValueAtTime(v,c.currentTime);
+        g.gain.exponentialRampToValueAtTime(.001,c.currentTime+d);
+        o.start();o.stop(c.currentTime+d);
+      }catch(e){}
+    },del);
+  }catch(e){}
+}
+function playCorrect(){[523,659,784,1047].forEach((f,i)=>tone(f,'sine',.18,.2,i*70));}
+function playWrong()  {tone(260,'sawtooth',.18,.13);tone(210,'sawtooth',.14,.1,160);}
+function playTierUp() {[523,659,784,880,1047,1319].forEach((f,i)=>tone(f,'triangle',.28,.2,i*90));}
+function playWin()    {[523,659,784,1047,784,1047,1319,1047,1319,1568].forEach((f,i)=>tone(f,'sine',.3,.22,i*90));}
+
+// Instrument-specific preview sounds
+function playInstrumentSound(key){
+  const sounds={
+    drum:   ()=>{ tone(80,'sine',.25,.35);tone(100,'sawtooth',.15,.2,50); },
+    piano:  ()=>{ [523,659,784].forEach((f,i)=>tone(f,'sine',.5,.22,i*100)); },
+    guitar: ()=>{ [329,415,523].forEach((f,i)=>tone(f,'triangle',.45,.2,i*60)); },
+    violin: ()=>{ tone(659,'sawtooth',.6,.14);tone(784,'sawtooth',.5,.12,200); },
+    trumpet:()=>{ tone(587,'square',.4,.2);tone(698,'square',.3,.18,300); },
+    flute:  ()=>{ tone(880,'sine',.55,.15);tone(1047,'sine',.4,.12,400); },
+    accordion:()=>{ [349,440,523].forEach((f,i)=>tone(f,'sawtooth',.5,.12,i*80)); },
+    saxophone:()=>{ tone(466,'sawtooth',.5,.18);tone(554,'sawtooth',.4,.15,250); },
+    banjo:  ()=>{ [415,523,622].forEach((f,i)=>tone(f,'triangle',.35,.22,i*80)); },
+  };
+  if(sounds[key]) sounds[key]();
+}
+
+// ── Instruments ───────────────────────────────────────────────────────────────
+const INSTRUMENTS=[
+  {key:'drum',     emoji:'🥁', name:'Drum',      fact:'🥁 Drums are one of the oldest instruments — people have played them for thousands of years!'},
+  {key:'piano',    emoji:'🎹', name:'Piano',     fact:'🎹 A piano has 88 keys — that is more keys than any other keyboard instrument!'},
+  {key:'guitar',   emoji:'🎸', name:'Guitar',    fact:'🎸 Guitars have 6 strings that vibrate to make sound when you pluck or strum them!'},
+  {key:'violin',   emoji:'🎻', name:'Violin',    fact:'🎻 Violins are made from wood and played with a bow made from horse hair!'},
+  {key:'trumpet',  emoji:'🎺', name:'Trumpet',   fact:'🎺 Trumpets are so loud they can be heard from very far away!'},
+  {key:'flute',    emoji:'🪈', name:'Flute',     fact:'🪈 Flutes make sound when you blow air across a small hole — like blowing over a bottle!'},
+  {key:'accordion',emoji:'🪗', name:'Accordion', fact:'🪗 Accordions have bellows you push and pull — like the instrument is breathing!'},
+  {key:'saxophone',emoji:'🎷', name:'Saxophone', fact:'🎷 The saxophone was invented by Adolphe Sax in the 1840s — it is named after him!'},
+  {key:'banjo',    emoji:'🪕', name:'Banjo',     fact:'🪕 Banjos have a round drum body and strings — they make a cheerful twangy sound!'},
+];
+
+// Tier definitions: which instruments appear, how many choices
+const TIERS=[
+  {label:'🌱 Easy',  cls:'tier-easy',  pool:[0,1,2],     choices:2},
+  {label:'🌸 Medium',cls:'tier-medium',pool:[0,1,2,3,4], choices:3},
+  {label:'🌺 Hard',  cls:'tier-hard',  pool:[0,1,2,3,4,5,6,7,8],choices:4},
+];
+const TOTAL=9;
+const ROUNDS_PER_TIER=3;
+
+const PROMPTS=[
+  'What instrument is Princess playing?',
+  'Can you name this royal instrument?',
+  'Which instrument is this? 🎵',
+  'What is Princess making music with?',
+  'Name this magical instrument! 🌟',
+];
+
+let round=0,score=0,locked=false,gameRounds=[],promptIdx=0;
+
+function shuffle(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];}return b;}
+function getTierIdx(r){return r<=3?0:r<=6?1:2;}
+
+function buildRounds(){
+  const rounds=[];
+  TIERS.forEach((tier,ti)=>{
+    const picks=shuffle([...tier.pool]).slice(0,ROUNDS_PER_TIER);
+    picks.forEach(targetIdx=>{
+      // choose wrong options from the same tier pool (excluding target)
+      const wrongPool=tier.pool.filter(i=>i!==targetIdx);
+      const wrongs=shuffle(wrongPool).slice(0,tier.choices-1);
+      const opts=shuffle([targetIdx,...wrongs]);
+      rounds.push({tierIdx:ti,target:targetIdx,opts,choices:tier.choices});
+    });
+  });
+  return rounds;
+}
+
+function startGame(){
+  document.getElementById('end-overlay').classList.remove('show');
+  document.getElementById('round-overlay').classList.remove('show');
+  round=0;score=0;locked=false;
+  promptIdx=Math.floor(Math.random()*PROMPTS.length);
+  gameRounds=buildRounds();
+  makeBgNotes();
+  nextRound();
+}
+
+function nextRound(){
+  document.getElementById('round-overlay').classList.remove('show');
+  if(round>=TOTAL){endGame();return;}
+  round++;locked=false;
+  updateHUD();
+  if(round%2===0) promptIdx=(promptIdx+1)%PROMPTS.length;
+  document.getElementById('prompt').textContent=PROMPTS[promptIdx];
+
+  const rd=gameRounds[round-1];
+  const target=INSTRUMENTS[rd.target];
+
+  // Show big instrument
+  document.getElementById('instrument-bubble').textContent=target.emoji;
+  // Play its sound briefly
+  setTimeout(()=>{ try{getAudio().resume();}catch(e){} playInstrumentSound(target.key); },200);
+
+  renderChoices(rd);
+}
+
+function renderChoices(rd){
+  const container=document.getElementById('choices');
+  container.innerHTML='';
+  const numChoices=rd.opts.length;
+  // Adjust layout for 4 choices — 2x2 grid
+  container.style.flexWrap = numChoices===4 ? 'wrap' : 'nowrap';
+
+  rd.opts.forEach(idx=>{
+    const inst=INSTRUMENTS[idx];
+    const isCorrect=(idx===rd.target);
+    const btn=document.createElement('button');
+    btn.className='choice-btn';
+
+    const em=document.createElement('div');em.className='choice-emoji';em.textContent=inst.emoji;
+    const lb=document.createElement('div');lb.className='choice-label';lb.textContent=inst.name;
+    btn.appendChild(em);btn.appendChild(lb);
+
+    btn.addEventListener('pointerdown',()=>handleTap(btn,isCorrect,idx,rd.target));
+    container.appendChild(btn);
+  });
+}
+
+function handleTap(btn,ok,tappedIdx,targetIdx){
+  if(locked)return;
+  try{getAudio().resume();}catch(e){}
+  playInstrumentSound(INSTRUMENTS[tappedIdx].key);
+  if(ok){
+    locked=true;
+    score++;
+    btn.classList.add('correct');
+    playCorrect();
+    const r=btn.getBoundingClientRect();
+    burst(r.left+r.width/2,r.top+r.height/2);
+    updateHUD();
+    setTimeout(showRoundOverlay,650);
+  } else {
+    btn.classList.add('wrong');
+    playWrong();
+    setTimeout(()=>btn.classList.remove('wrong'),460);
+  }
+}
+
+function showRoundOverlay(){
+  const rd=gameRounds[round-1];
+  const target=INSTRUMENTS[rd.target];
+  const tierIdx=getTierIdx(round);
+  const nextTierIdx=getTierIdx(round+1);
+  const isTierEnd=(round<TOTAL && nextTierIdx>tierIdx);
+
+  if(isTierEnd){
+    playTierUp();confetti(42);
+    document.getElementById('ov-emoji').textContent='🎉';
+    document.getElementById('ov-title').textContent='Tier complete! ✨';
+    document.getElementById('ov-sub').textContent=TIERS[nextTierIdx].label+' starts now!';
+  } else {
+    const msgs=['Amazing! 🌟','Brilliant! ✨','You got it! 👑','Superstar! ⭐','Wonderful! 🎵','Perfect! 💎','Bravo! 🎶'];
+    document.getElementById('ov-emoji').textContent=target.emoji;
+    document.getElementById('ov-title').textContent=msgs[Math.floor(Math.random()*msgs.length)];
+    document.getElementById('ov-sub').textContent='That is the '+target.name+'! 🎵';
+  }
+  document.getElementById('ov-fact').textContent=target.fact;
+  document.getElementById('round-btn').onclick=nextRound;
+  document.getElementById('round-overlay').classList.add('show');
+}
+
+function endGame(){
+  playWin();confetti(60);setTimeout(()=>confetti(40),700);
+  document.getElementById('end-score').textContent=`You scored ${score} out of ${TOTAL}! ✨`;
+  document.getElementById('end-overlay').classList.add('show');
+}
+
+function updateHUD(){
+  const tierIdx=getTierIdx(round);
+  const tier=TIERS[tierIdx];
+  const badge=document.getElementById('tier-badge');
+  badge.textContent=tier.label;badge.className='tier-badge '+tier.cls;
+  document.getElementById('score-display').textContent='⭐ '+score;
+  document.getElementById('round-label').textContent=round+' / '+TOTAL;
+  document.getElementById('progress-fill').style.width=((round-1)/TOTAL*100)+'%';
+}
+
+// ── Particles ──────────────────────────────────────────────────────────────────
+function burst(cx,cy){
+  const cols=['#ffd700','#f48fb1','#fff','#ce93d8','#e040fb','#90caf9','#b2ebf2'];
+  const icons=['✨','💫','⭐','🎵','🎶','🌟','🎹'];
+  for(let i=0;i<20;i++){
+    const el=document.createElement('div');el.className='sp';
+    const a=Math.random()*Math.PI*2,dist=35+Math.random()*85,sz=7+Math.random()*10;
+    if(i<7){
+      el.style.cssText=`left:${cx+Math.cos(a)*dist}px;top:${cy+Math.sin(a)*dist}px;font-size:${16+Math.random()*12}px;background:none;border-radius:0;`;
+      el.textContent=icons[i%icons.length];
+    } else {
+      el.style.cssText=`left:${cx+Math.cos(a)*dist-sz/2}px;top:${cy+Math.sin(a)*dist-sz/2}px;width:${sz}px;height:${sz}px;background:${cols[i%cols.length]};border-radius:50%;`;
+    }
+    document.body.appendChild(el);setTimeout(()=>el.remove(),800);
+  }
+}
+
+function confetti(count){
+  const cols=['#e040fb','#ffd700','#fff','#f48fb1','#ce93d8','#b2ebf2','#a5d6a7','#ff8a65'];
+  for(let i=0;i<count;i++){
+    const el=document.createElement('div');el.className='cf';
+    const sz=6+Math.random()*10;
+    el.style.cssText=`left:${Math.random()*100}vw;top:-20px;width:${sz}px;height:${sz}px;background:${cols[i%cols.length]};animation-duration:${1.4+Math.random()*2}s;animation-delay:${Math.random()*.5}s`;
+    document.body.appendChild(el);setTimeout(()=>el.remove(),3500);
+  }
+}
+
+function makeBgNotes(){
+  document.querySelectorAll('.bg-note').forEach(e=>e.remove());
+  const icons=['🎵','🎶','🎹','🥁','🎸','🎻','🎺','🪈','✨','💫','🌟','⭐','👑','🎀'];
+  for(let i=0;i<14;i++){
+    const el=document.createElement('div');el.className='bg-note';
+    el.textContent=icons[i%icons.length];
+    el.style.left=(3+Math.random()*94)+'vw';
+    el.style.animationDuration=(9+Math.random()*14)+'s';
+    el.style.animationDelay=-(Math.random()*14)+'s';
+    document.body.appendChild(el);
+  }
+}
+
+startGame();
+</script>
+</body>
+</html>

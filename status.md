@@ -1,9 +1,9 @@
 # Princess Compendium — Status
 
 ## Last update run
-Date: 2026-09-01
-- Improved: `053-princess-dressup` → v1.1.0 (score counter ⭐ in header; final score in win overlay; 5 prompt variants; clothing fun facts in celebrate overlay; dot-particle sparkle burst 18 emoji→20 emoji+16 dots; bg floaters 10→12)
-- Added: `065-princess-butterfly` — "Princess Butterfly 🦋" teaching life cycles & growing stages; Butterfly/Frog/Chick/Flower cycles; Easy: 2 choices; Medium: 3 choices; Hard: 4 choices; score counter ⭐; fun nature facts in celebrate overlay; 9 rounds across 3 tiers
+Date: 2026-09-04
+- Improved: `054-mirror-magic` → v1.1.0 (score counter ⭐ in header; final score in win overlay; 5 prompt variants; 10 symmetry fun facts in celebrate overlay; sparkle burst 18→20; bg gems 10→12)
+- Added: `066-royal-music-makers` — "Royal Music Makers 🎹" teaching musical instrument recognition; 9 instruments (Drum, Piano, Guitar, Violin, Trumpet, Flute, Accordion, Saxophone, Banjo); Easy: 2 choices; Medium: 3 choices; Hard: 4 choices; instrument preview audio tones; score counter ⭐; instrument fun facts in celebrate overlay; 9 rounds across 3 tiers
 
 ## Improvement history
 
@@ -56,6 +56,7 @@ Date: 2026-09-01
 | 2026-08-25 | 050-princess-clock | Score counter ⭐, deduplicated hour pool (4 unique per tier), tier-transition toast, 5th prompt variant, sparkle 18→20, final score in win overlay | 1.1.0 |
 | 2026-08-28 | 051-princess-helpers | Celebrate overlay (item name + fun fact, tap-to-continue), score counter ⭐, final score in win overlay, 5 prompt variants, sparkle 18→20, bg gems 12→14 | 1.1.0 |
 | 2026-09-01 | 053-princess-dressup | Score counter ⭐, final score in win overlay, 5 prompt variants, clothing fun facts in celebrate overlay, dot-particle sparkle burst, bg floaters 10→12 | 1.1.0 |
+| 2026-09-04 | 054-mirror-magic | Score counter ⭐, final score in win overlay, 5 prompt variants, 10 symmetry facts in celebrate overlay, sparkle 18→20, bg gems 10→12 | 1.1.0 |
 
 ## Games due for improvement (all at v1.0.0)
 
@@ -112,4 +113,4 @@ See `CLAUDE.md` for the full prioritised list. Top 3 to build next:
 29. **Life cycles & growing stages** — ✅ covered by `065-princess-butterfly`
 
 ## Next game ID
-`066-<slug>`
+`067-<slug>`

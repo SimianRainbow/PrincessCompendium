@@ -15,11 +15,9 @@
       overflow:hidden;user-select:none;padding-bottom:10px;
     }
 
-    /* Floating bg */
     .bg-gem{position:fixed;pointer-events:none;animation:floatUp linear infinite;opacity:.1;font-size:clamp(14px,3.5vw,22px);z-index:0;}
     @keyframes floatUp{0%{transform:translateY(110vh) rotate(0)}100%{transform:translateY(-15vh) rotate(360deg)}}
 
-    /* Header */
     #header{
       width:100%;display:flex;justify-content:space-between;align-items:center;
       padding:clamp(10px,2.5vw,16px) clamp(14px,4vw,22px) 0;
@@ -29,14 +27,13 @@
     .tier-easy  {background:linear-gradient(135deg,#a5d6a7,#66bb6a);color:#1b5e20;}
     .tier-medium{background:linear-gradient(135deg,#ffe082,#ffd54f);color:#5a3000;}
     .tier-hard  {background:linear-gradient(135deg,#ce93d8,#ab47bc);color:#fff;}
+    #score-display{font-size:clamp(14px,3.5vw,19px);color:#ffd700;letter-spacing:1px;}
     #round-label{font-size:clamp(13px,3.2vw,17px);color:rgba(255,255,255,.9);position:relative;z-index:1;}
 
-    /* Progress bar */
     #progress-wrap{width:100%;padding:6px clamp(14px,4vw,22px) 0;flex-shrink:0;position:relative;z-index:1;}
     #progress-track{background:rgba(255,255,255,.18);border-radius:20px;height:clamp(8px,2vw,12px);overflow:hidden;}
     #progress-fill{height:100%;border-radius:20px;background:linear-gradient(90deg,#ffd700,#e040fb);transition:width .35s ease;width:0%;box-shadow:0 0 8px rgba(255,215,0,.45);}
 
-    /* Prompt */
     #prompt{
       font-size:clamp(17px,4.5vw,26px);color:#fff;
       text-shadow:0 2px 6px rgba(0,0,0,.4);
@@ -44,7 +41,6 @@
       flex-shrink:0;position:relative;z-index:1;
     }
 
-    /* Mirror frame */
     #mirror-area{
       flex-shrink:0;
       display:flex;align-items:center;justify-content:center;
@@ -74,7 +70,6 @@
       filter:drop-shadow(0 0 6px rgba(255,215,0,.8));
     }
 
-    /* Color cells */
     .cell{
       border-radius:clamp(8px,2vw,12px);
       aspect-ratio:1;
@@ -86,7 +81,6 @@
       border:2px dashed rgba(255,255,255,.25);
     }
 
-    /* Choices */
     #choices-wrap{
       flex:1;display:flex;flex-direction:column;
       align-items:center;justify-content:center;
@@ -117,11 +111,9 @@
     @keyframes correctPop{0%{transform:scale(1)}40%{transform:scale(1.12);box-shadow:0 0 40px rgba(255,215,0,.8)}100%{transform:scale(1)}}
     @keyframes wobble{0%,100%{transform:translateX(0)}20%{transform:translateX(-10px)}60%{transform:translateX(10px)}80%{transform:translateX(-5px)}}
 
-    /* Sparkles */
     .sp{position:fixed;pointer-events:none;z-index:50;animation:sparkOut .75s ease-out forwards;}
     @keyframes sparkOut{0%{transform:scale(0);opacity:1}100%{transform:scale(1.6);opacity:0}}
 
-    /* Overlays */
     .overlay{
       position:fixed;inset:0;background:rgba(20,0,50,.88);
       display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;
@@ -131,6 +123,7 @@
     .ov-emoji{font-size:clamp(60px,17vw,100px);}
     .ov-title{font-size:clamp(24px,7vw,46px);color:#ffd700;text-align:center;padding:0 20px;}
     .ov-sub  {font-size:clamp(15px,4vw,22px);color:#f8bbd0;text-align:center;padding:0 20px;opacity:.9;}
+    .ov-fact {font-size:clamp(13px,3.5vw,19px);color:#e1bee7;text-align:center;padding:0 24px;opacity:.85;max-width:340px;line-height:1.4;}
     .btn-next{
       padding:clamp(14px,4vw,20px) clamp(32px,8vw,54px);font-size:clamp(18px,5vw,26px);
       border-radius:50px;border:none;background:linear-gradient(135deg,#ffd700,#ff8c00);
@@ -145,6 +138,7 @@
 
 <div id="header">
   <div id="tier-badge" class="tier-easy">🌱 Easy</div>
+  <div id="score-display">⭐ 0</div>
   <div id="round-label">1 / 9</div>
 </div>
 <div id="progress-wrap">
@@ -169,13 +163,14 @@
   <div class="ov-emoji" id="ov-emoji">⭐</div>
   <div class="ov-title" id="ov-title">Amazing!</div>
   <div class="ov-sub"   id="ov-sub">Keep going!</div>
+  <div class="ov-fact"  id="ov-fact"></div>
   <button class="btn-next" id="round-btn">Next ➡️</button>
 </div>
 
 <div class="overlay" id="end-overlay">
   <div class="ov-emoji">👑</div>
   <div class="ov-title">Mirror Champion! 🪞</div>
-  <div class="ov-sub">You can see both sides perfectly! ✨</div>
+  <div class="ov-sub" id="end-score">You can see both sides perfectly! ✨</div>
   <button class="btn-next" onclick="startGame()">Play Again 🌸</button>
 </div>
 
@@ -197,7 +192,6 @@ function playTierUp()  {[523,659,784,880,1047,1319].forEach((f,i)=>setTimeout(()
 function playWin()     {[523,659,784,1047,784,1047,1319,1047,1319,1568].forEach((f,i)=>setTimeout(()=>tone(f,'sine',.3,.22),i*90));}
 
 // ── Colour palette ────────────────────────────────────────────────────────────
-// 8 distinct pastel princess colours
 const PALETTE=[
   {hex:'#f48fb1',name:'Pink'},
   {hex:'#ce93d8',name:'Purple'},
@@ -210,13 +204,6 @@ const PALETTE=[
 ];
 
 // ── Pool ──────────────────────────────────────────────────────────────────────
-// Each entry: { rows, cols, left }
-// left: 2D array [row][col] = colour index
-// The correct right half is each row reversed.
-// Easy: 2 rows × 2 cols (uses colours 0-3)
-// Medium: 3 rows × 2 cols (uses colours 0-5)
-// Hard: 3 rows × 3 cols (uses all 8)
-
 const POOL=[
   // EASY (2×2) — 6 questions
   {rows:2,cols:2,left:[[0,1],[2,3]]},
@@ -248,7 +235,29 @@ const TIERS=[
 ];
 const TOTAL=9;
 
-let round=0,locked=false,currentQ=null,gameOrder=[];
+const PROMPTS=[
+  'Which side completes the magic mirror? 🪞',
+  'Help Princess find the mirror half! ✨',
+  'Which piece makes the reflection? 💎',
+  'Complete the royal mirror! 👑',
+  'Which side matches the left? 🌟',
+];
+
+const FACTS=[
+  '🦋 Butterflies are perfectly symmetrical — both wings match!',
+  '❄️ Every snowflake has 6 lines of symmetry!',
+  '🌺 Flowers have symmetrical petals all the way around!',
+  '🐞 Ladybirds have a line of symmetry right down the middle!',
+  '🦁 Faces have a mirror line between the eyes!',
+  '🌙 The moon looks the same on both sides!',
+  '🍁 Maple leaves are almost perfectly symmetrical!',
+  '🎀 Bows have two matching sides — they are symmetrical!',
+  '⭐ A five-pointed star has 5 lines of symmetry!',
+  '🏰 Many castles are built symmetrically!',
+];
+
+let round=0,score=0,locked=false,currentQ=null,gameOrder=[];
+let promptIdx=0,factIdx=0;
 
 function shuffle(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];}return b;}
 function getTierIdx(r){return r<=3?0:r<=6?1:2;}
@@ -256,7 +265,11 @@ function getTierIdx(r){return r<=3?0:r<=6?1:2;}
 function startGame(){
   document.getElementById('end-overlay').classList.remove('show');
   document.getElementById('round-overlay').classList.remove('show');
-  round=0;locked=false;
+  round=0;score=0;locked=false;
+  promptIdx=Math.floor(Math.random()*PROMPTS.length);
+  factIdx=0;
+  const shuffledFacts=shuffle([...FACTS]);
+  window._facts=shuffledFacts;
   gameOrder=[
     ...shuffle(TIERS[0].indices).slice(0,3),
     ...shuffle(TIERS[1].indices).slice(0,3),
@@ -271,6 +284,10 @@ function nextRound(){
   if(round>=TOTAL){endGame();return;}
   round++;locked=false;
   updateHUD();
+
+  // rotate prompt every 2 rounds
+  if(round%2===0) promptIdx=(promptIdx+1)%PROMPTS.length;
+  document.getElementById('prompt').textContent=PROMPTS[promptIdx];
 
   currentQ=POOL[gameOrder[round-1]];
   renderMirror();
@@ -292,7 +309,6 @@ function renderMirror(){
       cell.style.background=PALETTE[q.left[r][c]].hex;
       leftEl.appendChild(cell);
     }
-    // Right side stays empty (dashed placeholders)
     for(let c=0;c<q.cols;c++){
       const cell=document.createElement('div');
       cell.className='cell';
@@ -301,20 +317,15 @@ function renderMirror(){
   }
 }
 
-function mirrorOf(left){
-  // Correct mirror: each row reversed
-  return left.map(row=>[...row].reverse());
-}
+function mirrorOf(left){return left.map(row=>[...row].reverse());}
 
 function randomWrong(correct,q){
-  // Generate a random different 2D array with same dimensions
   let attempts=0;
   while(attempts<50){
     const grid=q.left.map(row=>row.map(()=>Math.floor(Math.random()*PALETTE.length)));
     if(JSON.stringify(grid)!==JSON.stringify(correct)) return grid;
     attempts++;
   }
-  // Fallback: shift all colours by 1
   return correct.map(row=>row.map(c=>(c+1)%PALETTE.length));
 }
 
@@ -350,12 +361,13 @@ function handleTap(card,ok){
   try{getAudio().resume();}catch(e){}
   if(ok){
     locked=true;
+    score++;
     card.classList.add('correct');
     playCorrect();
     const r=card.getBoundingClientRect();
     burst(r.left+r.width/2,r.top+r.height/2);
-    // Fill in the right half of the mirror with correct answer
     fillRightHalf();
+    updateHUD();
     setTimeout(showRoundOverlay,600);
   } else {
     card.classList.add('wrong');
@@ -383,17 +395,21 @@ function showRoundOverlay(){
   const tierIdx=getTierIdx(round);
   const nextTierIdx=getTierIdx(round+1);
   const isTierEnd=(round<TOTAL && nextTierIdx>tierIdx);
+  const fact=window._facts[factIdx%window._facts.length];
+  factIdx++;
 
   if(isTierEnd){
     playTierUp();confetti(42);
     document.getElementById('ov-emoji').textContent='🎉';
     document.getElementById('ov-title').textContent='Tier complete! ✨';
     document.getElementById('ov-sub').textContent=TIERS[nextTierIdx].label+' starts now!';
+    document.getElementById('ov-fact').textContent=fact;
   } else {
-    const msgs=['You got it! 👑','Amazing! 🌟','Mirror magic! 🪞','Perfect! 💎','Brilliant! ✨','Wonderful! 🌸'];
+    const msgs=['You got it! 👑','Amazing! 🌟','Mirror magic! 🪞','Perfect! 💎','Brilliant! ✨','Wonderful! 🌸','Superstar! ⭐'];
     document.getElementById('ov-emoji').textContent='🪞';
     document.getElementById('ov-title').textContent=msgs[Math.floor(Math.random()*msgs.length)];
-    document.getElementById('ov-sub').textContent='The mirror is complete! ✨';
+    document.getElementById('ov-sub').textContent='The mirror is complete!';
+    document.getElementById('ov-fact').textContent=fact;
   }
   document.getElementById('round-btn').onclick=nextRound;
   document.getElementById('round-overlay').classList.add('show');
@@ -401,6 +417,7 @@ function showRoundOverlay(){
 
 function endGame(){
   playWin();confetti(60);setTimeout(()=>confetti(40),700);
+  document.getElementById('end-score').textContent=`You scored ${score} out of ${TOTAL}! ✨`;
   document.getElementById('end-overlay').classList.add('show');
 }
 
@@ -408,7 +425,8 @@ function updateHUD(){
   const tierIdx=getTierIdx(round);
   const tier=TIERS[tierIdx];
   const badge=document.getElementById('tier-badge');
-  badge.textContent=tier.label;badge.className=tier.cls;
+  badge.textContent=tier.label;badge.className='tier-badge '+tier.cls;
+  document.getElementById('score-display').textContent='⭐ '+score;
   document.getElementById('round-label').textContent=round+' / '+TOTAL;
   document.getElementById('progress-fill').style.width=((round-1)/TOTAL*100)+'%';
 }
@@ -417,10 +435,10 @@ function updateHUD(){
 function burst(cx,cy){
   const cols=['#ffd700','#f48fb1','#fff','#ce93d8','#e040fb','#90caf9'];
   const icons=['✨','💫','⭐','🪞','🌟'];
-  for(let i=0;i<18;i++){
+  for(let i=0;i<20;i++){
     const el=document.createElement('div');el.className='sp';
     const a=Math.random()*Math.PI*2,dist=30+Math.random()*80,sz=7+Math.random()*10;
-    if(i<5){
+    if(i<6){
       el.style.cssText=`left:${cx+Math.cos(a)*dist}px;top:${cy+Math.sin(a)*dist}px;font-size:${18+Math.random()*10}px;background:none;border-radius:0;`;
       el.textContent=icons[i%icons.length];
     } else {
@@ -442,8 +460,8 @@ function confetti(count){
 
 function makeBgGems(){
   document.querySelectorAll('.bg-gem').forEach(e=>e.remove());
-  const icons=['✨','💫','🪞','⭐','🌟','💎','🎀','🌸'];
-  for(let i=0;i<10;i++){
+  const icons=['✨','💫','🪞','⭐','🌟','💎','🎀','🌸','👑','🦋','🌺','🌙'];
+  for(let i=0;i<12;i++){
     const el=document.createElement('div');el.className='bg-gem';
     el.textContent=icons[i%icons.length];
     el.style.left=(4+Math.random()*92)+'vw';

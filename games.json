@@ -638,12 +638,12 @@
   {
     "id": "054-mirror-magic",
     "title": "Magic Mirror",
-    "description": "Complete the magic mirror! Pick the right side to make a perfect reflection — 3 tiers from 2×2 up to 3×3 coloured gem patterns.",
+    "description": "Complete the magic mirror! Pick the right side to make a perfect reflection — score counter ⭐, 10 symmetry facts in celebrate overlay, 5 prompt variants, 20-sparkle burst, 12 bg gems.",
     "icon": "🪞",
     "ageMin": 2,
     "ageMax": 5,
     "skill": "symmetry & mirror image recognition",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "category": "colours-shapes",
     "path": "games/054-mirror-magic/index.html"
   },
@@ -779,5 +779,17 @@
     "version": "1.0.0",
     "category": "animals",
     "path": "games/065-princess-butterfly/index.html"
+  },
+  {
+    "id": "066-royal-music-makers",
+    "title": "Royal Music Makers",
+    "description": "What instrument is Princess playing? Tap the right one — Drum, Piano, Guitar, Violin, Trumpet and more! Score counter ⭐, instrument fun facts, 9 rounds across 3 tiers.",
+    "icon": "🎹",
+    "ageMin": 2,
+    "ageMax": 5,
+    "skill": "musical instrument recognition",
+    "version": "1.0.0",
+    "category": "music",
+    "path": "games/066-royal-music-makers/index.html"
   }
 ]
