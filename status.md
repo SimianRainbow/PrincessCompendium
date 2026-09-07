@@ -1,9 +1,9 @@
 # Princess Compendium — Status
 
 ## Last update run
-Date: 2026-09-04
-- Improved: `054-mirror-magic` → v1.1.0 (score counter ⭐ in header; final score in win overlay; 5 prompt variants; 10 symmetry fun facts in celebrate overlay; sparkle burst 18→20; bg gems 10→12)
-- Added: `066-royal-music-makers` — "Royal Music Makers 🎹" teaching musical instrument recognition; 9 instruments (Drum, Piano, Guitar, Violin, Trumpet, Flute, Accordion, Saxophone, Banjo); Easy: 2 choices; Medium: 3 choices; Hard: 4 choices; instrument preview audio tones; score counter ⭐; instrument fun facts in celebrate overlay; 9 rounds across 3 tiers
+Date: 2026-09-07
+- Improved: `052-princess-healthy` → v1.1.0 (score counter ⭐ in header; final score in win overlay; 5 prompt variants; health fun facts in celebrate overlay; sparkle burst 8→16 emoji + 18→20 dots; bg icons 12→14)
+- Added: `067-alphabet-march` — "Princess Alphabet March 🔤" teaching alphabet sequence (before/after/missing letters); Easy: what comes AFTER? (3 choices); Medium: what comes BEFORE? (3 choices); Hard: fill in the gap A B ? D (4 choices); letter fun facts in celebrate overlay; score counter ⭐; 9 rounds across 3 tiers
 
 ## Improvement history
 
@@ -57,6 +57,7 @@ Date: 2026-09-04
 | 2026-08-28 | 051-princess-helpers | Celebrate overlay (item name + fun fact, tap-to-continue), score counter ⭐, final score in win overlay, 5 prompt variants, sparkle 18→20, bg gems 12→14 | 1.1.0 |
 | 2026-09-01 | 053-princess-dressup | Score counter ⭐, final score in win overlay, 5 prompt variants, clothing fun facts in celebrate overlay, dot-particle sparkle burst, bg floaters 10→12 | 1.1.0 |
 | 2026-09-04 | 054-mirror-magic | Score counter ⭐, final score in win overlay, 5 prompt variants, 10 symmetry facts in celebrate overlay, sparkle 18→20, bg gems 10→12 | 1.1.0 |
+| 2026-09-07 | 052-princess-healthy | Score counter ⭐, final score in win overlay, 5 prompt variants, health fun facts in celebrate overlay, sparkle burst 8→16 emoji + 18→20 dots, bg icons 12→14 | 1.1.0 |
 
 ## Games due for improvement (all at v1.0.0)
 
@@ -112,5 +113,7 @@ See `CLAUDE.md` for the full prioritised list. Top 3 to build next:
 28. **Texture recognition (rough/smooth, hard/soft, wet/dry)** — ✅ covered by `064-royal-textures`
 29. **Life cycles & growing stages** — ✅ covered by `065-princess-butterfly`
 
+30. **Alphabet sequence (before/after/missing letters)** — ✅ covered by `067-alphabet-march`
+
 ## Next game ID
-`067-<slug>`
+`068-<slug>`

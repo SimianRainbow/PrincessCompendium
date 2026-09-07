@@ -614,12 +614,12 @@
   {
     "id": "052-princess-healthy",
     "title": "Princess Healthy",
-    "description": "Help Princess make healthy choices! Tap what she needs — wash hands, drink water, rest, see a doctor and more! 18 scenarios across 3 tiers.",
+    "description": "Help Princess make healthy choices! Tap what she needs — wash hands, drink water, rest, see a doctor and more! Score counter ⭐, health fun facts, 5 prompt variants, 16-sparkle burst, 18 scenarios across 3 tiers.",
     "icon": "🌿",
     "ageMin": 2,
     "ageMax": 5,
     "skill": "healthy habits & self-care",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "category": "other",
     "path": "games/052-princess-healthy/index.html"
   },
@@ -791,5 +791,17 @@
     "version": "1.0.0",
     "category": "music",
     "path": "games/066-royal-music-makers/index.html"
+  },
+  {
+    "id": "067-alphabet-march",
+    "title": "Princess Alphabet March",
+    "description": "Which letter comes NEXT? Tap the letter that comes after, before, or fills the gap in the parade — learn A-Z alphabet order across 3 tiers! Score counter ⭐, letter fun facts.",
+    "icon": "🔤",
+    "ageMin": 3,
+    "ageMax": 5,
+    "skill": "alphabet sequence — before, after & missing letters",
+    "version": "1.0.0",
+    "category": "letters",
+    "path": "games/067-alphabet-march/index.html"
   }
 ]
