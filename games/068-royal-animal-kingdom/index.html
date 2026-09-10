@@ -3,19 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Princess Senses 🌸</title>
+  <title>Royal Animal Kingdom 🦁</title>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
   <style>
     * { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
     body {
       min-height:100vh;
-      background:linear-gradient(160deg,#1a0533 0%,#5e1292 55%,#c2185b 100%);
+      background:linear-gradient(160deg,#0d2b1a 0%,#1b5e20 45%,#4a148c 100%);
       font-family:'Fredoka One',Georgia,serif;
       display:flex; flex-direction:column; align-items:center;
       overflow:hidden; user-select:none; padding-bottom:12px;
     }
 
-    .bg-gem { position:fixed; pointer-events:none; opacity:.11;
+    .bg-gem { position:fixed; pointer-events:none; opacity:.10;
       font-size:clamp(16px,4vw,26px); animation:floatUp linear infinite; z-index:0; }
     @keyframes floatUp { 0%{transform:translateY(110vh) rotate(0)} 100%{transform:translateY(-15vh) rotate(360deg)} }
 
@@ -30,65 +30,65 @@
     .tier-easy   { background:linear-gradient(135deg,#66bb6a,#2e7d32); color:#fff; }
     .tier-medium { background:linear-gradient(135deg,#ffca28,#f57f17); color:#3e2000; }
     .tier-hard   { background:linear-gradient(135deg,#ce93d8,#6a1b9a); color:#fff; }
-    #score-label  { font-size:clamp(14px,3.5vw,19px); color:#ffd700; font-weight:bold;
+    #score-label { font-size:clamp(14px,3.5vw,19px); color:#ffd700; font-weight:bold;
       text-shadow:0 1px 4px rgba(0,0,0,.4); position:relative; z-index:1; }
     #round-label { font-size:clamp(13px,3.2vw,17px); color:rgba(255,255,255,.9); position:relative; z-index:1; }
 
     /* ── Progress bar ── */
     #progress-wrap { width:100%; padding:6px clamp(14px,4vw,22px) 0; flex-shrink:0; position:relative; z-index:1; }
     #progress-track { background:rgba(255,255,255,.18); border-radius:20px; height:clamp(8px,2vw,12px); overflow:hidden; }
-    #progress-fill  { height:100%; border-radius:20px; background:linear-gradient(90deg,#ffd700,#e040fb);
-      transition:width .35s ease; width:0%; box-shadow:0 0 8px rgba(255,215,0,.4); }
+    #progress-fill  { height:100%; border-radius:20px; background:linear-gradient(90deg,#a5d6a7,#e040fb);
+      transition:width .35s ease; width:0%; box-shadow:0 0 8px rgba(165,214,167,.4); }
 
-    /* ── Scene card ── */
+    /* ── Animal card ── */
     #scene-wrap {
       flex-shrink:0; display:flex; flex-direction:column; align-items:center;
-      padding:clamp(10px,2.5vw,18px) 16px clamp(6px,1.5vw,10px);
+      padding:clamp(8px,2vw,14px) 16px clamp(4px,1vw,8px);
       position:relative; z-index:1;
     }
     #scene-card {
       background:rgba(255,255,255,.95); border-radius:28px;
-      padding:clamp(10px,2.5vw,18px) clamp(20px,5vw,36px);
+      padding:clamp(10px,2.5vw,18px) clamp(24px,6vw,42px);
       display:flex; flex-direction:column; align-items:center; gap:6px;
-      box-shadow:0 6px 30px rgba(0,0,0,.28), 0 0 0 3px rgba(255,215,0,.32);
+      box-shadow:0 6px 30px rgba(0,0,0,.28), 0 0 0 3px rgba(165,214,167,.45);
     }
     #scene-card.pop { animation:cardPop .45s cubic-bezier(.34,1.56,.64,1); }
     @keyframes cardPop { from{transform:scale(.65);opacity:0} to{transform:scale(1);opacity:1} }
-    #scene-emoji { font-size:clamp(72px,18vw,110px); line-height:1.1; }
-    #scene-desc  { font-size:clamp(15px,3.8vw,22px); color:#4a148c; font-weight:bold; text-align:center; }
+    #animal-emoji { font-size:clamp(72px,18vw,110px); line-height:1.1; }
+    #animal-name  { font-size:clamp(20px,5vw,30px); color:#1b5e20; font-weight:bold; text-align:center; }
 
     #prompt {
-      font-size:clamp(16px,4.2vw,22px); color:#fff;
+      font-size:clamp(15px,4vw,21px); color:#fff;
       text-align:center; padding:0 16px;
-      margin-bottom:clamp(8px,2vw,12px);
-      position:relative; z-index:1; text-shadow:0 1px 4px rgba(0,0,0,.4);
+      margin-bottom:clamp(6px,1.5vw,10px);
+      position:relative; z-index:1; text-shadow:0 1px 4px rgba(0,0,0,.5);
     }
 
-    /* ── Sense buttons ── */
+    /* ── Class buttons ── */
     #choices-wrap { flex:1; display:flex; align-items:center; justify-content:center;
-      padding:0 clamp(12px,3vw,22px); width:100%; position:relative; z-index:1; }
-    #choices { display:grid; gap:clamp(10px,2.5vw,16px); width:100%; max-width:420px; }
+      padding:0 clamp(10px,2.5vw,18px); width:100%; position:relative; z-index:1; }
+    #choices { display:grid; gap:clamp(8px,2vw,14px); width:100%; max-width:440px; }
     #choices.cols-2 { grid-template-columns:1fr 1fr; }
     #choices.cols-3 { grid-template-columns:1fr 1fr 1fr; }
     #choices.cols-4 { grid-template-columns:1fr 1fr; }
 
-    .sense-btn {
-      min-height:clamp(96px,23vw,125px);
-      border-radius:24px; border:3px solid rgba(255,255,255,.32);
-      background:rgba(255,255,255,.15); backdrop-filter:blur(6px);
+    .class-btn {
+      min-height:clamp(90px,21vw,118px);
+      border-radius:22px; border:3px solid rgba(255,255,255,.32);
+      background:rgba(255,255,255,.13); backdrop-filter:blur(6px);
       display:flex; flex-direction:column; align-items:center; justify-content:center;
-      gap:6px; cursor:pointer;
-      box-shadow:0 4px 18px rgba(0,0,0,.3),inset 0 2px 0 rgba(255,255,255,.2);
+      gap:5px; cursor:pointer;
+      box-shadow:0 4px 16px rgba(0,0,0,.3),inset 0 2px 0 rgba(255,255,255,.2);
       transition:transform .1s; touch-action:manipulation;
     }
-    .sense-btn:active { transform:scale(.92); }
-    .sense-emoji { font-size:clamp(38px,10vw,56px); line-height:1; pointer-events:none; }
-    .sense-label { font-size:clamp(12px,3vw,17px); color:#fff; text-shadow:0 1px 4px rgba(0,0,0,.5);
-      text-align:center; pointer-events:none; }
+    .class-btn:active { transform:scale(.92); }
+    .class-icon  { font-size:clamp(32px,8.5vw,50px); line-height:1; pointer-events:none; }
+    .class-label { font-size:clamp(11px,2.8vw,16px); color:#fff; text-shadow:0 1px 4px rgba(0,0,0,.5);
+      text-align:center; pointer-events:none; padding:0 4px; }
 
-    .sense-btn.correct { animation:correctPop .5s ease-out; background:rgba(160,255,160,.35); border-color:#66bb6a; }
-    .sense-btn.wrong   { animation:wobble .45s ease-out; background:rgba(255,100,100,.25); }
-    @keyframes correctPop { 0%{transform:scale(1)} 40%{transform:scale(1.15);box-shadow:0 0 40px rgba(255,215,0,.8)} 100%{transform:scale(1)} }
+    .class-btn.correct { animation:correctPop .5s ease-out; background:rgba(160,255,160,.35); border-color:#66bb6a; }
+    .class-btn.wrong   { animation:wobble .45s ease-out; background:rgba(255,100,100,.25); }
+    @keyframes correctPop { 0%{transform:scale(1)} 40%{transform:scale(1.15);box-shadow:0 0 40px rgba(165,214,167,.8)} 100%{transform:scale(1)} }
     @keyframes wobble { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-11px)} 60%{transform:translateX(11px)} 80%{transform:translateX(-6px)} }
 
     /* ── Sparkles ── */
@@ -96,17 +96,17 @@
     @keyframes sparkOut { 0%{transform:scale(0);opacity:1} 100%{transform:scale(1.6);opacity:0} }
 
     /* ── Overlays ── */
-    .overlay { position:fixed; inset:0; background:rgba(20,0,50,.88);
-      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px;
-      z-index:99; opacity:0; pointer-events:none; transition:opacity .35s; padding:0 20px; }
+    .overlay { position:fixed; inset:0; background:rgba(5,20,10,.90);
+      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px;
+      z-index:99; opacity:0; pointer-events:none; transition:opacity .35s; padding:0 22px; }
     .overlay.show { opacity:1; pointer-events:all; }
     .ov-emoji { font-size:clamp(60px,17vw,100px); }
-    .ov-title { font-size:clamp(24px,7vw,46px); color:#ffd700; text-align:center; }
-    .ov-sub   { font-size:clamp(15px,4vw,22px); color:#f8bbd0; text-align:center; opacity:.9; }
-    .ov-fact  { font-size:clamp(13px,3.4vw,18px); color:#e1bee7; text-align:center; opacity:.85;
+    .ov-title { font-size:clamp(22px,6.5vw,44px); color:#ffd700; text-align:center; }
+    .ov-sub   { font-size:clamp(14px,3.8vw,21px); color:#f8bbd0; text-align:center; opacity:.9; }
+    .ov-fact  { font-size:clamp(13px,3.2vw,17px); color:#c8e6c9; text-align:center; opacity:.88;
       background:rgba(255,255,255,.08); border-radius:14px; padding:10px 16px; max-width:360px; }
     .btn-next {
-      padding:clamp(14px,4vw,20px) clamp(32px,8vw,54px); font-size:clamp(18px,5vw,26px);
+      padding:clamp(14px,4vw,20px) clamp(30px,7.5vw,52px); font-size:clamp(18px,5vw,26px);
       border-radius:50px; border:none; background:linear-gradient(135deg,#ffd700,#ff8c00);
       color:#5d2e00; font-weight:bold; cursor:pointer; font-family:inherit;
       min-height:64px; min-width:180px; box-shadow:0 4px 18px rgba(255,180,0,.5);
@@ -131,11 +131,11 @@
 
 <div id="scene-wrap">
   <div id="scene-card">
-    <div id="scene-emoji">🌈</div>
-    <div id="scene-desc">A beautiful rainbow!</div>
+    <div id="animal-emoji">🐘</div>
+    <div id="animal-name">Elephant</div>
   </div>
 </div>
-<div id="prompt">Which sense helps you know this? 🌟</div>
+<div id="prompt">Is an Elephant a MAMMAL or a BIRD? 🌿</div>
 <div id="choices-wrap">
   <div id="choices" class="cols-2"></div>
 </div>
@@ -143,15 +143,15 @@
 <div class="overlay" id="round-overlay">
   <div class="ov-emoji" id="ov-emoji">⭐</div>
   <div class="ov-title" id="ov-title">Amazing!</div>
-  <div class="ov-sub"   id="ov-sub">Ready for more?</div>
+  <div class="ov-sub"   id="ov-sub">Well done!</div>
   <div class="ov-fact"  id="ov-fact" hidden></div>
-  <button class="btn-next" id="round-btn">Next Round ➡️</button>
+  <button class="btn-next" id="round-btn">Next ➡️</button>
 </div>
 
 <div class="overlay" id="end-overlay">
   <div class="ov-emoji">👑</div>
-  <div class="ov-title">Sense Star! 🌸</div>
-  <div class="ov-sub" id="end-sub">You know all five senses! ✨</div>
+  <div class="ov-title">Animal Expert! 🦁</div>
+  <div class="ov-sub" id="end-sub">You know the animal kingdom! ✨</div>
   <button class="btn-next" onclick="startGame()">Play Again 🔄</button>
 </div>
 
@@ -175,85 +175,62 @@ function playWrong()    { tone(260,'sawtooth',.18,.13); setTimeout(()=>tone(210,
 function playTierUp()   { [523,659,784,880,1047,1319].forEach((f,i)=>setTimeout(()=>tone(f,'triangle',.28,.2),i*90)); }
 function playFinalWin() { [523,659,784,1047,784,1047,1319].forEach((f,i)=>setTimeout(()=>tone(f,'sine',.32,.22),i*95)); }
 
+// ── Animal classes ─────────────────────────────────────────────────────────────
+const CLASSES = {
+  mammal:  { e:'🐾', n:'Mammal',  fact:'Mammals feed warm milk to their babies! 🍼',         color:'#ef9a9a' },
+  bird:    { e:'🪶', n:'Bird',    fact:'Birds are the only animals with feathers! 🌈',        color:'#90caf9' },
+  reptile: { e:'🐍', n:'Reptile', fact:'Reptiles are cold-blooded and love the sun! ☀️',      color:'#a5d6a7' },
+  fish:    { e:'🐠', n:'Fish',    fact:'Fish breathe through gills under the water! 🫧',      color:'#80deea' },
+  insect:  { e:'🐝', n:'Insect',  fact:'Insects have 6 legs and 3 body parts! 🔬',           color:'#ffe082' },
+};
+
 // ── Prompt variants ────────────────────────────────────────────────────────────
-const PROMPTS = [
-  'Which sense helps you know this? 🌟',
-  'Which sense does Princess use? 👑',
-  'How would you discover this? ✨',
-  'Which royal sense finds out? 💫',
-  'Use which sense to know? 🌸',
-];
+function makePrompt(name, choiceKeys){
+  const labels=choiceKeys.map(k=>CLASSES[k].n.toUpperCase()).join(' or ');
+  const variants=[
+    `Is a ${name} a ${labels}? 🌿`,
+    `Which type is the ${name}? 🔍`,
+    `Sort the ${name} into the right group! 🌟`,
+    `Where does the ${name} belong? 👑`,
+    `What kind of animal is a ${name}? ✨`,
+  ];
+  return variants[Math.floor(Math.random()*variants.length)];
+}
 
-// ── Senses dictionary ─────────────────────────────────────────────────────────
-const SENSES = {
-  see:   { e:'👀', n:'See',   desc:'with your EYES' },
-  hear:  { e:'👂', n:'Hear',  desc:'with your EARS' },
-  smell: { e:'👃', n:'Smell', desc:'with your NOSE' },
-  taste: { e:'👅', n:'Taste', desc:'with your MOUTH' },
-  touch: { e:'🤚', n:'Touch', desc:'with your HANDS' },
-};
-
-const FACTS = {
-  see:   [
-    'Your eyes can see about 10 million different colours! 🌈',
-    'Eyes are the second most complex organ after the brain! 🧠',
-    'Butterflies have four eyes to help them see in all directions! 🦋',
-  ],
-  hear:  [
-    'Your ears never stop working — even when you sleep! 😴',
-    'Elephants can hear sounds from miles away! 🐘',
-    'The smallest bones in your body are deep inside your ears!',
-  ],
-  smell: [
-    'Your nose can detect over a trillion different smells! 🌹',
-    'Dogs have noses 100,000 times stronger than ours! 🐶',
-    'Your sense of smell helps you taste food too! 🍓',
-  ],
-  taste: [
-    'Your tongue has about 10,000 tiny taste buds! 👅',
-    'You can taste four things: sweet, sour, salty and bitter! 🍋',
-    'Taste buds are replaced with brand new ones every two weeks!',
-  ],
-  touch: [
-    'Your skin has about 4 million tiny touch receptors! 🤚',
-    'Fingertips are one of the most sensitive parts of your body!',
-    'Cats use their whiskers to sense what is around them! 🐱',
-  ],
-};
-
-// ── Question pool (18 questions: 6 per tier) ──────────────────────────────────
+// ── Animal pool ────────────────────────────────────────────────────────────────
+// 6 per tier (Easy: mammal vs bird, Medium: +fish, Hard: +reptile +insect)
 const POOL = [
-  // EASY — see vs hear (2 choices)
-  { scene:'🌈', desc:'A beautiful rainbow!',      correct:'see',  wrong:['hear','smell','taste','touch'] },
-  { scene:'🐦', desc:'A bird singing sweetly',    correct:'hear', wrong:['see','smell','taste','touch'] },
-  { scene:'👑', desc:'A sparkly golden crown',    correct:'see',  wrong:['hear','smell','taste','touch'] },
-  { scene:'🔔', desc:'Castle bells ringing!',     correct:'hear', wrong:['see','smell','taste','touch'] },
-  { scene:'🦋', desc:'A pretty butterfly',        correct:'see',  wrong:['hear','smell','taste','touch'] },
-  { scene:'🎶', desc:'Princess singing a song',   correct:'hear', wrong:['see','smell','taste','touch'] },
-  // MEDIUM — see / hear / smell (3 choices)
-  { scene:'🌸', desc:'A flower with sweet petals', correct:'smell', wrong:['see','hear','taste','touch'] },
-  { scene:'⛈️', desc:'Thunder crashing loudly!',  correct:'hear',  wrong:['see','smell','taste','touch'] },
-  { scene:'🦄', desc:'A magical unicorn!',         correct:'see',   wrong:['hear','smell','taste','touch'] },
-  { scene:'🍞', desc:'Freshly baked warm bread',   correct:'smell', wrong:['see','hear','taste','touch'] },
-  { scene:'🎵', desc:'A beautiful royal melody',   correct:'hear',  wrong:['see','smell','touch','taste'] },
-  { scene:'💐', desc:'A royal bouquet of roses',   correct:'smell', wrong:['see','hear','taste','touch'] },
-  // HARD — all 5 senses (4 choices shown)
-  { scene:'🍓', desc:'Sweet juicy strawberries!',  correct:'taste', wrong:['see','smell','touch','hear'] },
-  { scene:'🛏️', desc:'A soft fluffy pillow',       correct:'touch', wrong:['see','hear','smell','taste'] },
-  { scene:'🍰', desc:'A slice of princess cake!',  correct:'taste', wrong:['smell','see','touch','hear'] },
-  { scene:'🐱', desc:'Silky soft kitten fur',      correct:'touch', wrong:['see','hear','taste','smell'] },
-  { scene:'🍋', desc:'A sour lemon drop candy!',   correct:'taste', wrong:['smell','see','touch','hear'] },
-  { scene:'🌊', desc:'Cool ocean waves on feet',   correct:'touch', wrong:['see','hear','smell','taste'] },
+  // EASY — mammal vs bird (2 choices)
+  { e:'🐘', n:'Elephant',  cls:'mammal',  fact:'Elephants are the biggest land animals — and they never forget! 🧠' },
+  { e:'🦅', n:'Eagle',     cls:'bird',    fact:'Eagles can spot tiny prey from 2 kilometres in the sky! 👁️' },
+  { e:'🐭', n:'Mouse',     cls:'mammal',  fact:'Mice have very strong little teeth that never stop growing!' },
+  { e:'🦜', n:'Parrot',    cls:'bird',    fact:'Parrots can copy sounds — even human words! 🗣️' },
+  { e:'🐬', n:'Dolphin',   cls:'mammal',  fact:'Dolphins are super smart — they recognise themselves in mirrors! 🪞' },
+  { e:'🐧', n:'Penguin',   cls:'bird',    fact:'Penguins cannot fly, but they zoom through water! 🏊' },
+  // MEDIUM — mammal vs bird vs fish (3 choices)
+  { e:'🦈', n:'Shark',     cls:'fish',    fact:'Sharks have been swimming in the ocean since before the dinosaurs! 🦖' },
+  { e:'🐻', n:'Bear',      cls:'mammal',  fact:'Bears sleep all winter in a cosy den — that is called hibernation! 😴' },
+  { e:'🦩', n:'Flamingo',  cls:'bird',    fact:'Flamingos get their pink colour from the pink shrimps they eat! 🦐' },
+  { e:'🐠', n:'Clownfish', cls:'fish',    fact:'Clownfish live inside spiky sea anemones for protection! 🌊' },
+  { e:'🦊', n:'Fox',       cls:'mammal',  fact:'Foxes are very clever — they can even open locks!' },
+  { e:'🦢', n:'Swan',      cls:'bird',    fact:'Swans stay with the same partner for their whole life! 💕' },
+  // HARD — mammal / bird / reptile / insect (4 choices)
+  { e:'🦎', n:'Lizard',    cls:'reptile', fact:'Lizards bask in the sun to warm up their cold blood! ☀️' },
+  { e:'🐝', n:'Bee',       cls:'insect',  fact:'One bee visits 5,000 flowers to make just one jar of honey! 🍯' },
+  { e:'🐊', n:'Crocodile', cls:'reptile', fact:'Crocodiles have been around for over 200 million years!' },
+  { e:'🦋', n:'Butterfly', cls:'insect',  fact:'A butterfly tastes things with the tiny sensors on its feet! 🦶' },
+  { e:'🐢', n:'Turtle',    cls:'reptile', fact:'Turtles carry their home on their back wherever they go! 🏡' },
+  { e:'🐞', n:'Ladybug',   cls:'insect',  fact:'Ladybugs eat tiny pests to help protect flowers and plants! 🌸' },
 ];
 
 const TIERS = [
-  { label:'🌱 Easy',   cls:'tier-easy',   indices:[0,1,2,3,4,5],      choices:2 },
-  { label:'🌸 Medium', cls:'tier-medium', indices:[6,7,8,9,10,11],    choices:3 },
-  { label:'🌺 Hard',   cls:'tier-hard',   indices:[12,13,14,15,16,17],choices:4 },
+  { label:'🌱 Easy',   cls:'tier-easy',   pool:POOL.slice(0,6),  choiceClasses:['mammal','bird'] },
+  { label:'🌸 Medium', cls:'tier-medium', pool:POOL.slice(6,12), choiceClasses:['mammal','bird','fish'] },
+  { label:'🌺 Hard',   cls:'tier-hard',   pool:POOL.slice(12),   choiceClasses:['mammal','bird','reptile','insect'] },
 ];
 const TOTAL=9;
 
-let round=0, score=0, locked=false, currentQ=null, gameOrder=[];
+let round=0, score=0, locked=false, currentAnimal=null, currentChoices=[], gameOrder=[];
 
 function shuffle(a){ const b=[...a]; for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];} return b; }
 function getTierIdx(r){ return r<=3?0:r<=6?1:2; }
@@ -262,10 +239,11 @@ function startGame(){
   document.getElementById('end-overlay').classList.remove('show');
   document.getElementById('round-overlay').classList.remove('show');
   round=0; score=0; locked=false;
+  // Pick 3 random animals from each tier's pool
   gameOrder=[
-    ...shuffle(TIERS[0].indices).slice(0,3),
-    ...shuffle(TIERS[1].indices).slice(0,3),
-    ...shuffle(TIERS[2].indices).slice(0,3),
+    ...shuffle(TIERS[0].pool).slice(0,3),
+    ...shuffle(TIERS[1].pool).slice(0,3),
+    ...shuffle(TIERS[2].pool).slice(0,3),
   ];
   makeBgGems();
   nextRound();
@@ -277,40 +255,37 @@ function nextRound(){
   round++; locked=false;
   updateHUD();
 
-  // Randomise prompt
-  document.getElementById('prompt').textContent=PROMPTS[Math.floor(Math.random()*PROMPTS.length)];
-
-  const qIdx=gameOrder[round-1];
-  currentQ=POOL[qIdx];
   const tierIdx=getTierIdx(round);
   const tier=TIERS[tierIdx];
+  currentAnimal=gameOrder[round-1];
 
-  // Scene card
+  // Card
   const card=document.getElementById('scene-card');
   card.classList.remove('pop');
   void card.offsetWidth;
   card.classList.add('pop');
-  document.getElementById('scene-emoji').textContent=currentQ.scene;
-  document.getElementById('scene-desc').textContent=currentQ.desc;
+  document.getElementById('animal-emoji').textContent=currentAnimal.e;
+  document.getElementById('animal-name').textContent=currentAnimal.n;
 
-  // Build choices: correct sense + (tier.choices-1) random wrong senses
-  const wrongPool=shuffle(currentQ.wrong).slice(0,tier.choices-1);
-  const allKeys=shuffle([currentQ.correct,...wrongPool]);
+  // Build choices: always show all tier classes (correct class is one of them)
+  currentChoices=shuffle([...tier.choiceClasses]);
+  document.getElementById('prompt').textContent=makePrompt(currentAnimal.n, currentChoices);
 
   const grid=document.getElementById('choices');
-  grid.className='cols-'+tier.choices;
+  grid.className='cols-'+currentChoices.length;
   grid.innerHTML='';
-  allKeys.forEach(key=>{
-    const s=SENSES[key];
+  currentChoices.forEach(cls=>{
+    const c=CLASSES[cls];
     const btn=document.createElement('button');
-    btn.className='sense-btn';
-    btn.innerHTML='<span class="sense-emoji">'+s.e+'</span><span class="sense-label">'+s.n+'</span>';
-    btn.addEventListener('pointerdown',()=>handleTap(btn,key===currentQ.correct,key));
+    btn.className='class-btn';
+    btn.style.borderColor=c.color+'88';
+    btn.innerHTML='<span class="class-icon">'+c.e+'</span><span class="class-label">'+c.n+'</span>';
+    btn.addEventListener('pointerdown',()=>handleTap(btn,cls===currentAnimal.cls,cls));
     grid.appendChild(btn);
   });
 }
 
-function handleTap(btn,ok,chosenKey){
+function handleTap(btn,ok){
   if(locked) return;
   try{getAudio().resume();}catch(e){}
   if(ok){
@@ -339,16 +314,15 @@ function showRoundOverlay(){
     const next=TIERS[nextTierIdx];
     document.getElementById('ov-emoji').textContent='🎉';
     document.getElementById('ov-title').textContent='Level up! ✨';
-    document.getElementById('ov-sub').textContent=next.label+' starts — new senses to discover!';
+    document.getElementById('ov-sub').textContent=next.label+' — more animal types to discover!';
     factEl.hidden=true;
   } else {
-    const correct=SENSES[currentQ.correct];
+    const cls=CLASSES[currentAnimal.cls];
     const msgs=['Amazing! 🌟','You got it! 👑','Brilliant! ✨','Yes! 💎','Wonderful! 🌸','Perfect! 🎀'];
-    document.getElementById('ov-emoji').textContent=correct.e;
+    document.getElementById('ov-emoji').textContent=currentAnimal.e;
     document.getElementById('ov-title').textContent=msgs[Math.floor(Math.random()*msgs.length)];
-    document.getElementById('ov-sub').textContent='You '+correct.n.toLowerCase()+' it '+correct.desc+'! 🌟';
-    const facts=FACTS[currentQ.correct];
-    factEl.textContent='Did you know? '+facts[Math.floor(Math.random()*facts.length)];
+    document.getElementById('ov-sub').textContent='The '+currentAnimal.n+' is a '+cls.n+'! '+cls.e;
+    factEl.textContent='Did you know? '+currentAnimal.fact;
     factEl.hidden=false;
   }
 
@@ -357,7 +331,7 @@ function showRoundOverlay(){
 }
 
 function endGame(){
-  document.getElementById('end-sub').textContent='You scored '+score+' ⭐ out of '+TOTAL+'! You know all five senses! ✨';
+  document.getElementById('end-sub').textContent='You scored '+score+' ⭐ out of '+TOTAL+'! Amazing animal expert! 🦁';
   document.getElementById('end-overlay').classList.add('show');
   playFinalWin(); confetti(60); setTimeout(()=>confetti(42),700);
 }
@@ -374,8 +348,8 @@ function updateHUD(){
 
 // ── Particles ─────────────────────────────────────────────────────────────────
 function burst(cx,cy){
-  const cols=['#ffd700','#f48fb1','#fff','#ce93d8','#e040fb','#80deea'];
-  const icons=['✨','💫','⭐','🌟','👀','👂','👃','👅','🤚'];
+  const cols=['#ffd700','#a5d6a7','#fff','#ce93d8','#80deea','#ffe082'];
+  const icons=['✨','💫','⭐','🌟','🦁','🐾','🌿','🦋'];
   for(let i=0;i<20;i++){
     const el=document.createElement('div'); el.className='sp';
     const a=Math.random()*Math.PI*2, dist=30+Math.random()*85, sz=7+Math.random()*10;
@@ -391,7 +365,7 @@ function burst(cx,cy){
 }
 
 function confetti(count){
-  const cols=['#e040fb','#ffd700','#fff','#f48fb1','#ce93d8','#b2ebf2','#a5d6a7','#ff8a65'];
+  const cols=['#a5d6a7','#ffd700','#fff','#f48fb1','#ce93d8','#80deea','#ffe082','#ff8a65'];
   for(let i=0;i<count;i++){
     const el=document.createElement('div'); el.className='cf';
     const sz=6+Math.random()*10;
@@ -403,7 +377,7 @@ function confetti(count){
 
 function makeBgGems(){
   document.querySelectorAll('.bg-gem').forEach(e=>e.remove());
-  const icons=['👀','👂','👃','👅','🤚','✨','💫','🌸','⭐','🌟','👁️','🎀'];
+  const icons=['🦁','🦅','🐟','🦎','🐝','✨','💫','🌿','⭐','🐾','🦋','🐠'];
   for(let i=0;i<12;i++){
     const el=document.createElement('div'); el.className='bg-gem';
     el.textContent=icons[i%icons.length];

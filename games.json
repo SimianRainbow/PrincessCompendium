@@ -655,7 +655,7 @@
     "ageMin": 2,
     "ageMax": 5,
     "skill": "the five senses — see, hear, smell, taste, touch",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "category": "other",
     "path": "games/055-princess-senses/index.html"
   },
@@ -803,5 +803,17 @@
     "version": "1.0.0",
     "category": "letters",
     "path": "games/067-alphabet-march/index.html"
+  },
+  {
+    "id": "068-royal-animal-kingdom",
+    "title": "Royal Animal Kingdom",
+    "description": "Is it a Mammal, Bird, Fish, Reptile or Insect? Sort animals into the right royal group! 18-animal pool, fun facts on every answer, score counter ⭐, 9 rounds across 3 tiers.",
+    "icon": "🦁",
+    "ageMin": 3,
+    "ageMax": 6,
+    "skill": "animal classification — mammal, bird, reptile, fish, insect",
+    "version": "1.0.0",
+    "category": "animals",
+    "path": "games/068-royal-animal-kingdom/index.html"
   }
 ]

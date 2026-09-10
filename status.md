@@ -1,9 +1,9 @@
 # Princess Compendium — Status
 
 ## Last update run
-Date: 2026-09-07
-- Improved: `052-princess-healthy` → v1.1.0 (score counter ⭐ in header; final score in win overlay; 5 prompt variants; health fun facts in celebrate overlay; sparkle burst 8→16 emoji + 18→20 dots; bg icons 12→14)
-- Added: `067-alphabet-march` — "Princess Alphabet March 🔤" teaching alphabet sequence (before/after/missing letters); Easy: what comes AFTER? (3 choices); Medium: what comes BEFORE? (3 choices); Hard: fill in the gap A B ? D (4 choices); letter fun facts in celebrate overlay; score counter ⭐; 9 rounds across 3 tiers
+Date: 2026-09-10
+- Improved: `055-princess-senses` → v1.1.0 (score counter ⭐ in header; final score in win overlay; 5 prompt variants; sense fun facts per sense in celebrate overlay; sparkle burst 18→20 + 5→6 emoji icons; bg gems 10→12)
+- Added: `068-royal-animal-kingdom` — "Royal Animal Kingdom 🦁" teaching animal classification (mammal/bird/reptile/fish/insect); Easy: mammal vs bird (2 choices, 3 rounds); Medium: +fish (3 choices, 3 rounds); Hard: +reptile +insect (4 choices, 3 rounds); per-animal fun facts; score counter ⭐; tier-up overlay; 9 rounds across 3 tiers
 
 ## Improvement history
 
@@ -58,6 +58,7 @@ Date: 2026-09-07
 | 2026-09-01 | 053-princess-dressup | Score counter ⭐, final score in win overlay, 5 prompt variants, clothing fun facts in celebrate overlay, dot-particle sparkle burst, bg floaters 10→12 | 1.1.0 |
 | 2026-09-04 | 054-mirror-magic | Score counter ⭐, final score in win overlay, 5 prompt variants, 10 symmetry facts in celebrate overlay, sparkle 18→20, bg gems 10→12 | 1.1.0 |
 | 2026-09-07 | 052-princess-healthy | Score counter ⭐, final score in win overlay, 5 prompt variants, health fun facts in celebrate overlay, sparkle burst 8→16 emoji + 18→20 dots, bg icons 12→14 | 1.1.0 |
+| 2026-09-10 | 055-princess-senses | Score counter ⭐, final score in win overlay, 5 prompt variants, sense fun facts in celebrate overlay, sparkle burst 18→20 + 5→6 emoji icons, bg gems 10→12 | 1.1.0 |
 
 ## Games due for improvement (all at v1.0.0)
 
@@ -114,6 +115,7 @@ See `CLAUDE.md` for the full prioritised list. Top 3 to build next:
 29. **Life cycles & growing stages** — ✅ covered by `065-princess-butterfly`
 
 30. **Alphabet sequence (before/after/missing letters)** — ✅ covered by `067-alphabet-march`
+31. **Animal classification (mammal/bird/reptile/fish/insect)** — ✅ covered by `068-royal-animal-kingdom`
 
 ## Next game ID
-`068-<slug>`
+`069-<slug>`
