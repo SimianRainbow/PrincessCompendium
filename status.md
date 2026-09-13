@@ -1,9 +1,9 @@
 # Princess Compendium — Status
 
 ## Last update run
-Date: 2026-09-10
-- Improved: `055-princess-senses` → v1.1.0 (score counter ⭐ in header; final score in win overlay; 5 prompt variants; sense fun facts per sense in celebrate overlay; sparkle burst 18→20 + 5→6 emoji icons; bg gems 10→12)
-- Added: `068-royal-animal-kingdom` — "Royal Animal Kingdom 🦁" teaching animal classification (mammal/bird/reptile/fish/insect); Easy: mammal vs bird (2 choices, 3 rounds); Medium: +fish (3 choices, 3 rounds); Hard: +reptile +insect (4 choices, 3 rounds); per-animal fun facts; score counter ⭐; tier-up overlay; 9 rounds across 3 tiers
+Date: 2026-09-13
+- Improved: `064-royal-textures` → v1.1.0 (5 rotating prompt variants per texture pair; tier overlay now plays TierWin sound + confetti on show instead of on tap; emoji sparkle icons 8→10 with texture-themed set)
+- Added: `069-princess-dots` — "Princess Dot Magic ✨" teaching subitizing (instant quantity recognition 1–6); Easy: 1-3 dots 2 choices classic die patterns; Medium: 2-5 dots 3 choices; Hard: 3-6 dots 4 choices scatter patterns; per-number fun facts; score counter ⭐; tier-up overlay with confetti; 9 rounds across 3 tiers
 
 ## Improvement history
 
@@ -59,6 +59,7 @@ Date: 2026-09-10
 | 2026-09-04 | 054-mirror-magic | Score counter ⭐, final score in win overlay, 5 prompt variants, 10 symmetry facts in celebrate overlay, sparkle 18→20, bg gems 10→12 | 1.1.0 |
 | 2026-09-07 | 052-princess-healthy | Score counter ⭐, final score in win overlay, 5 prompt variants, health fun facts in celebrate overlay, sparkle burst 8→16 emoji + 18→20 dots, bg icons 12→14 | 1.1.0 |
 | 2026-09-10 | 055-princess-senses | Score counter ⭐, final score in win overlay, 5 prompt variants, sense fun facts in celebrate overlay, sparkle burst 18→20 + 5→6 emoji icons, bg gems 10→12 | 1.1.0 |
+| 2026-09-13 | 064-royal-textures | 5 rotating prompt variants per texture pair, tier overlay plays sound+confetti on show, emoji sparkle icons 8→10 (texture-themed) | 1.1.0 |
 
 ## Games due for improvement (all at v1.0.0)
 
@@ -116,6 +117,7 @@ See `CLAUDE.md` for the full prioritised list. Top 3 to build next:
 
 30. **Alphabet sequence (before/after/missing letters)** — ✅ covered by `067-alphabet-march`
 31. **Animal classification (mammal/bird/reptile/fish/insect)** — ✅ covered by `068-royal-animal-kingdom`
+32. **Subitizing (instant quantity recognition 1–6)** — ✅ covered by `069-princess-dots`
 
 ## Next game ID
-`069-<slug>`
+`070-<slug>`

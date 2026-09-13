@@ -264,6 +264,25 @@
       toastEmoji:'💧', toastTitle:'One More Feeling!', toastSub:'Now we learn WET and DRY! 💧🏜️' },
     { t:2, label:'⭐ Hard',   cls:'tier-hard',   opts:3, toastEmoji:'⭐', toastTitle:'', toastSub:'' },
   ];
+
+  const PROMPT_POOLS = [
+    ['Is this ROUGH or SMOOTH? 🤚',
+     'How does this feel? Touch it! 🤔',
+     'Bumpy ROUGH or silky SMOOTH? 🌟',
+     'What texture is this? ROUGH or SMOOTH? ✨',
+     'Run your fingers over it — ROUGH or SMOOTH? 💖'],
+    ['Is this HARD or SOFT? 🤚',
+     'Press it! HARD like a rock or SOFT like a pillow? 🌟',
+     'How does it feel? HARD or SOFT? 🤔',
+     'Solid HARD or squishy SOFT? ✨',
+     'Touch it — HARD or SOFT? 💖'],
+    ['Is this WET or DRY? 🤚',
+     'Would this make your hands wet? WET or DRY? 🌟',
+     'Dripping WET or warm DRY? 🤔',
+     'Splashy WET or dusty DRY? ✨',
+     'How does it feel? WET or DRY? 💖'],
+  ];
+  let promptCycle = [0,0,0];
   const TOTAL = 9;
 
   let ctx = null;
@@ -292,6 +311,7 @@
   function startGame(){
     ['win-overlay','tier-overlay','cel-overlay'].forEach(id=>document.getElementById(id).classList.remove('show'));
     round=0; score=0; locked=false;
+    promptCycle=[0,0,0];
     document.getElementById('score-lbl').textContent='⭐ 0';
     const easy   = shuffle(SCENARIOS.filter(s=>s.t===0)).slice(0,3);
     const medium = shuffle(SCENARIOS.filter(s=>s.t===1)).slice(0,3);
@@ -322,10 +342,10 @@
     const btn = document.getElementById('t-btn');
     btn.onclick = ()=>{
       document.getElementById('tier-overlay').classList.remove('show');
-      playTierWin(); confetti();
       cb();
     };
     document.getElementById('tier-overlay').classList.add('show');
+    playTierWin(); confetti();
   }
 
   function renderQuestion(){
@@ -336,7 +356,9 @@
     objEl.style.animation='none'; void objEl.offsetWidth; objEl.style.animation='';
     objEl.textContent = sc.emoji;
     document.getElementById('obj-name').textContent = sc.name;
-    document.getElementById('prompt').textContent = sc.question;
+    const tIdx = getTier(round).t;
+    document.getElementById('prompt').textContent = PROMPT_POOLS[tIdx][promptCycle[tIdx]];
+    promptCycle[tIdx] = (promptCycle[tIdx] + 1) % PROMPT_POOLS[tIdx].length;
 
     const badge = document.getElementById('tier-badge');
     badge.textContent = tier.label;
@@ -402,8 +424,8 @@
       el.style.cssText=`left:${cx+Math.cos(a)*dist-sz/2}px;top:${cy+Math.sin(a)*dist-sz/2}px;width:${sz}px;height:${sz}px;background:${cols[i%cols.length]}`;
       document.body.appendChild(el); setTimeout(()=>el.remove(),800);
     }
-    const icons=['✨','💫','⭐','🌟','💖','🤚'];
-    for(let i=0;i<8;i++){
+    const icons=['✨','💫','⭐','🌟','💖','🤚','🪨','💧','🌸','🧸'];
+    for(let i=0;i<10;i++){
       const el=document.createElement('div'); el.className='sparkle-em';
       el.textContent=icons[i%icons.length];
       el.style.left=(cx+(Math.random()-.5)*120)+'px';
