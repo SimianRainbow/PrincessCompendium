@@ -662,12 +662,12 @@
   {
     "id": "057-royal-podium",
     "title": "Royal Podium",
-    "description": "Who came FIRST? Tap the right racer! Learn 1st, 2nd, 3rd and 4th — 9 rounds from 3 to 4 racers across 3 tiers.",
+    "description": "Who came FIRST? Tap the right racer! 5 prompt variants, ordinal fun facts in celebrate overlay, pulsing podium highlight, 12-emoji sparkle burst. 9 rounds from 3 to 4 racers across 3 tiers.",
     "icon": "🥇",
     "ageMin": 2,
     "ageMax": 5,
     "skill": "ordinal numbers — 1st, 2nd, 3rd, 4th",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "category": "numbers",
     "path": "games/057-royal-podium/index.html"
   },
@@ -827,5 +827,17 @@
     "version": "1.0.0",
     "category": "numbers",
     "path": "games/069-princess-dots/index.html"
+  },
+  {
+    "id": "070-royal-garden",
+    "title": "Royal Garden",
+    "description": "Tap the right plant part! Seed, Root, Stem, Leaf, Flower and Fruit — with a garden SVG diagram, 5 prompt variants, fun facts on every answer, and 12-emoji sparkle bursts. 9 rounds across 3 tiers.",
+    "icon": "🌷",
+    "ageMin": 2,
+    "ageMax": 5,
+    "skill": "plant parts recognition — seed, root, stem, leaf, flower, fruit",
+    "version": "1.0.0",
+    "category": "other",
+    "path": "games/070-royal-garden/index.html"
   }
 ]
