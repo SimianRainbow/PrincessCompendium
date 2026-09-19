@@ -41,7 +41,7 @@
     .tier-medium{background:linear-gradient(135deg,#ffca28,#f57f17);color:#3e2000;}
     .tier-hard  {background:linear-gradient(135deg,#ce93d8,#6a1b9a);}
     #round-label{font-size:clamp(13px,3.2vw,17px);color:rgba(0,100,180,.9);}
-    #score-row  {font-size:clamp(18px,4.5vw,26px);letter-spacing:1px;}
+    #score-row  {font-size:clamp(15px,3.8vw,22px);color:#0277bd;font-weight:bold;text-shadow:0 0 8px rgba(2,119,189,.4);}
 
     /* ── Progress bar ── */
     #progress-track{
@@ -269,6 +269,13 @@
     { label:'🔬 Hard',   cls:'tier-hard',   icon:'👑', title:'Royal Scientist! 🎉', sub:'All done — genius! ⭐' },
   ];
 
+  var PROMPTS = [
+    'Does it FLOAT or SINK? 🌊',
+    'Will it float on the water? 💧',
+    'Into the royal pond — up or down? 🌊',
+    'Throw it in! FLOAT or SINK? 🪶',
+    'What happens when it touches the water? ⬆️⬇️',
+  ];
   var FLOAT_MSGS = ['It FLOATS! 🌊','Floating! ⬆️','It stays up! 🌊','Floats right up! ⬆️'];
   var SINK_MSGS  = ['It SINKS! ⬇️','Down it goes! 🪨','Sinking! ⬇️','Straight to the bottom! ⬇️'];
   var PRAISE     = ['Amazing! 🌟','Brilliant! 💫','You got it! 👑','Wonderful! 🌈','Super smart! 💖'];
@@ -309,7 +316,7 @@
   }
 
   function updateHUD(){
-    document.getElementById('score-row').textContent='⭐'.repeat(score);
+    document.getElementById('score-row').textContent=score+' ⭐';
     document.getElementById('round-label').textContent=(cur+1)+' / 9';
     document.getElementById('progress-fill').style.width=((cur/9)*100)+'%';
   }
@@ -328,6 +335,7 @@
     card.style.animation='none'; void card.offsetWidth; card.style.animation='';
     document.getElementById('obj-emoji').textContent=r.emoji;
     document.getElementById('obj-name').textContent=r.name;
+    document.getElementById('obj-hint').textContent=PROMPTS[0|Math.random()*PROMPTS.length];
   }
 
   function handleTap(chosen){
@@ -402,7 +410,7 @@
 
   function sparkleBurst(x,y){
     var ems=['✨','💫','⭐','🌊','💧','⬆️','⬇️','🌟','💎','🎉'];
-    for(var i=0;i<18;i++){
+    for(var i=0;i<20;i++){
       var el=document.createElement('span'); el.className='sparkle';
       el.textContent=ems[i%ems.length];
       var angle=(i/18)*Math.PI*2, dist=55+Math.random()*95;
@@ -430,7 +438,7 @@
 
   function makeBg(){
     var gems=['🌊','💧','🪨','🪶','⬆️','⬇️','✨','💎','⭐','🔬'];
-    for(var i=0;i<10;i++){
+    for(var i=0;i<12;i++){
       var el=document.createElement('div'); el.className='bg-gem';
       el.textContent=gems[i%gems.length];
       el.style.left=(5+Math.random()*90)+'vw';

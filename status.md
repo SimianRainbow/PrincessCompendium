@@ -1,9 +1,9 @@
 # Princess Compendium — Status
 
 ## Last update run
-Date: 2026-09-16
-- Improved: `057-royal-podium` → v1.1.0 (5 prompt variants per position, ordinal fun facts in celebrate overlay, pulsing `asked` podium highlight animation, 12-emoji sparkle burst (was 8), 2 extra characters in pool, CEL_MSGS now displayed)
-- Added: `070-royal-garden` — "Royal Garden 🌷" teaching plant parts (seed, root, stem, leaf, flower, fruit); Easy: seed/leaf/flower 3-choice; Medium: root/stem/fruit 3-choice; Hard: all 6 parts 4-choice; SVG plant diagram; 5 prompt variants per part; fun facts in celebrate overlay; 12-emoji sparkle burst; 9 rounds across 3 tiers
+Date: 2026-09-19
+- Improved: `061-sink-or-float` → v1.1.0 (score display fixed to "X ⭐" format, 5 rotating prompt variants, sparkle burst 18→20 emoji, bg gems 10→12)
+- Added: `071-number-words` — "Princess Number Words 🔢" teaching number word-to-numeral matching (ONE→1, FIVE→5, TEN→10); Easy: 1–3 (3-choice); Medium: 4–7 (3-choice); Hard: 8–10 (4-choice); fun number facts in celebrate overlay; 20-sparkle burst + dot particles; 9 rounds across 3 tiers
 
 ## Improvement history
 
@@ -61,6 +61,7 @@ Date: 2026-09-16
 | 2026-09-10 | 055-princess-senses | Score counter ⭐, final score in win overlay, 5 prompt variants, sense fun facts in celebrate overlay, sparkle burst 18→20 + 5→6 emoji icons, bg gems 10→12 | 1.1.0 |
 | 2026-09-13 | 064-royal-textures | 5 rotating prompt variants per texture pair, tier overlay plays sound+confetti on show, emoji sparkle icons 8→10 (texture-themed) | 1.1.0 |
 | 2026-09-16 | 057-royal-podium | 5 prompt variants per position, ordinal fun facts in celebrate, pulsing podium highlight, 12-emoji sparkle burst, extra chars | 1.1.0 |
+| 2026-09-19 | 061-sink-or-float | Score display fixed to "X ⭐", 5 rotating prompt variants, sparkle burst 18→20, bg gems 10→12 | 1.1.0 |
 
 ## Games due for improvement (all at v1.0.0)
 
@@ -120,6 +121,7 @@ See `CLAUDE.md` for the full prioritised list. Top 3 to build next:
 31. **Animal classification (mammal/bird/reptile/fish/insect)** — ✅ covered by `068-royal-animal-kingdom`
 32. **Subitizing (instant quantity recognition 1–6)** — ✅ covered by `069-princess-dots`
 33. **Plant parts (seed, root, stem, leaf, flower, fruit)** — ✅ covered by `070-royal-garden`
+34. **Number word recognition (ONE, TWO … TEN)** — ✅ covered by `071-number-words`
 
 ## Next game ID
-`071-<slug>`
+`072-<slug>`

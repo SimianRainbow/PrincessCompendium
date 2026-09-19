@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Princess Number Words 🔢</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+    body{
+      min-height:100vh;
+      background:linear-gradient(160deg,#1a0a2e 0%,#3a0d6b 50%,#6a1b9a 100%);
+      font-family:'Fredoka One',Georgia,serif;
+      display:flex;flex-direction:column;align-items:center;
+      overflow:hidden;user-select:none;touch-action:manipulation;
+      padding-bottom:10px;
+    }
+
+    .bg-gem{
+      position:fixed;pointer-events:none;opacity:.10;
+      font-size:clamp(18px,4.5vw,30px);
+      animation:bgFloat linear infinite;z-index:0;
+    }
+    @keyframes bgFloat{
+      0%{transform:translateY(110vh) rotate(0)}
+      100%{transform:translateY(-15vh) rotate(360deg)}
+    }
+
+    /* ── Header ── */
+    #header{
+      width:100%;display:flex;justify-content:space-between;align-items:center;
+      padding:clamp(10px,2.5vw,16px) clamp(14px,4vw,22px) 0;
+      flex-shrink:0;position:relative;z-index:1;
+    }
+    #tier-badge{
+      font-size:clamp(13px,3.2vw,17px);padding:5px 14px;border-radius:20px;
+      color:#fff;font-weight:bold;border:2px solid rgba(255,255,255,.38);
+      transition:background .4s;
+    }
+    .tier-easy  {background:linear-gradient(135deg,#66bb6a,#2e7d32);}
+    .tier-medium{background:linear-gradient(135deg,#ffca28,#f57f17);color:#3e2000;}
+    .tier-hard  {background:linear-gradient(135deg,#ce93d8,#6a1b9a);}
+    #score-display{font-size:clamp(15px,3.8vw,22px);color:#ffd700;font-weight:bold;text-shadow:0 0 8px rgba(255,215,0,.5);}
+    #round-label{font-size:clamp(13px,3.2vw,17px);color:rgba(255,200,255,.9);position:relative;z-index:1;}
+
+    /* ── Progress bar ── */
+    #progress-track{
+      width:calc(100% - clamp(28px,7vw,44px));height:7px;
+      background:rgba(255,255,255,.15);border-radius:99px;
+      margin:clamp(6px,1.5vw,10px) auto 0;overflow:hidden;
+      position:relative;z-index:1;
+    }
+    #progress-fill{
+      height:100%;background:linear-gradient(90deg,#ffd700,#e040fb);
+      border-radius:99px;transition:width .4s ease;width:0%;
+    }
+
+    /* ── Question card ── */
+    #question-card{
+      background:rgba(255,255,255,.95);border-radius:28px;
+      padding:clamp(10px,2.5vw,18px) clamp(20px,5vw,36px);
+      display:flex;flex-direction:column;align-items:center;gap:6px;
+      box-shadow:0 8px 32px rgba(0,0,0,.35),0 0 0 3px rgba(255,215,0,.3);
+      margin:clamp(8px,2vw,14px) clamp(14px,4vw,22px) 0;
+      position:relative;z-index:1;flex-shrink:0;
+      animation:cardIn .4s cubic-bezier(.34,1.56,.64,1);
+    }
+    @keyframes cardIn{from{transform:scale(.65);opacity:0}to{transform:scale(1);opacity:1}}
+    #q-prompt{
+      font-size:clamp(14px,3.5vw,20px);
+      color:#6a1b9a;text-align:center;
+    }
+    #q-word{
+      font-size:clamp(42px,11vw,72px);
+      font-weight:bold;letter-spacing:4px;
+      background:linear-gradient(135deg,#7b1fa2,#e040fb,#ffd700);
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+      background-clip:text;
+      text-align:center;line-height:1.1;
+      text-shadow:none;
+    }
+    #q-crown{font-size:clamp(24px,6vw,36px);line-height:1;}
+    #q-sub{font-size:clamp(13px,3.3vw,18px);color:#9c4dcc;text-align:center;}
+
+    /* ── Choice grid ── */
+    #choice-grid{
+      display:grid;
+      gap:clamp(10px,2.5vw,16px);
+      padding:clamp(8px,2vw,14px) clamp(14px,3.5vw,22px);
+      width:100%;max-width:420px;
+      position:relative;z-index:1;flex-shrink:0;
+    }
+    .grid-3{grid-template-columns:repeat(3,1fr);}
+    .grid-4{grid-template-columns:repeat(2,1fr);}
+
+    .choice-btn{
+      min-height:clamp(90px,24vw,120px);
+      border-radius:22px;border:3px solid rgba(255,255,255,.3);
+      cursor:pointer;
+      display:flex;flex-direction:column;align-items:center;justify-content:center;
+      gap:4px;padding:8px 6px;
+      touch-action:manipulation;
+      transition:transform .1s;
+      box-shadow:0 5px 20px rgba(0,0,0,.38),inset 0 2px 0 rgba(255,255,255,.28);
+    }
+    .choice-btn:active{transform:scale(.88);}
+    .choice-btn .num{
+      font-size:clamp(32px,9vw,56px);
+      color:#fff;font-weight:bold;
+      text-shadow:0 2px 8px rgba(0,0,0,.5);
+      line-height:1;
+    }
+    .choice-btn .gems{
+      font-size:clamp(9px,2.5vw,14px);
+      line-height:1.2;text-align:center;
+      min-height:18px;
+    }
+    .choice-btn.correct-flash{animation:correctPop .5s ease-out;border-color:#ffd700;background:rgba(255,215,0,.35)!important;}
+    @keyframes correctPop{
+      0%{transform:scale(1)}
+      40%{transform:scale(1.16);box-shadow:0 0 40px rgba(255,215,0,.8);}
+      100%{transform:scale(1)}
+    }
+    .choice-btn.wrong-shake{animation:wrongShake .42s ease-out;}
+    @keyframes wrongShake{
+      0%,100%{transform:translateX(0)}
+      20%{transform:translateX(-10px)}
+      60%{transform:translateX(10px)}
+    }
+
+    /* ── Sparkles ── */
+    .sparkle{
+      position:fixed;pointer-events:none;z-index:90;
+      font-size:clamp(14px,3.5vw,22px);
+      animation:sparkOut ease-out forwards;
+    }
+    @keyframes sparkOut{
+      0%{transform:translate(-50%,-50%) scale(0);opacity:1}
+      50%{transform:translate(-50%,-50%) scale(1.4);opacity:1}
+      100%{transform:translate(-50%,-50%) scale(.1);opacity:0}
+    }
+    .spark-dot{
+      position:fixed;pointer-events:none;z-index:90;border-radius:50%;
+      animation:dotFly ease-out forwards;
+    }
+    @keyframes dotFly{
+      0%{transform:translate(0,0) scale(1);opacity:1}
+      100%{transform:translate(var(--tx),var(--ty)) scale(.05);opacity:0}
+    }
+    .confetti-p{
+      position:fixed;pointer-events:none;z-index:90;border-radius:3px;
+      animation:cfFall linear forwards;
+    }
+    @keyframes cfFall{0%{top:-20px;opacity:1}100%{top:110vh;opacity:.1}}
+
+    /* ── Celebrate overlay ── */
+    #celebrate{
+      position:fixed;inset:0;z-index:80;
+      display:none;flex-direction:column;
+      align-items:center;justify-content:center;gap:clamp(8px,2vw,14px);
+      background:rgba(30,0,60,.90);
+    }
+    #celebrate.show{display:flex;}
+    #cel-word{
+      font-size:clamp(40px,11vw,70px);
+      font-weight:bold;letter-spacing:4px;
+      background:linear-gradient(135deg,#ffd700,#ff9800,#e040fb);
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+      background-clip:text;
+      text-align:center;
+    }
+    #cel-num{font-size:clamp(56px,15vw,96px);color:#ffd700;text-shadow:0 0 24px rgba(255,215,0,.6);line-height:1;}
+    #cel-gems{font-size:clamp(18px,5vw,28px);line-height:1.4;text-align:center;min-height:36px;}
+    #cel-fact{font-size:clamp(14px,3.6vw,20px);color:rgba(255,255,255,.88);text-align:center;padding:0 22px;max-width:340px;}
+    #cel-btn{
+      padding:clamp(14px,4vw,20px) clamp(36px,9vw,60px);
+      font-size:clamp(18px,5vw,28px);border-radius:50px;border:none;
+      background:linear-gradient(135deg,#ffd700,#ff9800);color:#5d2e00;
+      font-family:inherit;cursor:pointer;touch-action:manipulation;
+      box-shadow:0 6px 22px rgba(255,180,0,.45);min-height:60px;
+    }
+
+    /* ── Tier overlay ── */
+    #tier-overlay{
+      position:fixed;inset:0;z-index:85;
+      display:none;flex-direction:column;
+      align-items:center;justify-content:center;gap:16px;
+      background:rgba(0,0,0,.72);
+    }
+    #tier-overlay.show{display:flex;}
+    #to-icon {font-size:clamp(60px,16vw,96px);}
+    #to-title{font-size:clamp(26px,7vw,48px);color:#ffd700;text-shadow:0 0 20px #ff9800;text-align:center;padding:0 20px;}
+    #to-sub  {font-size:clamp(15px,4.2vw,22px);color:#fff;text-align:center;padding:0 24px;}
+    #to-btn  {
+      padding:clamp(14px,4vw,20px) clamp(32px,8vw,56px);
+      font-size:clamp(18px,5vw,26px);border-radius:50px;border:none;
+      background:linear-gradient(135deg,#ffd700,#ff9800);
+      color:#5d2e00;font-family:inherit;cursor:pointer;
+      box-shadow:0 4px 16px rgba(255,180,0,.5);touch-action:manipulation;min-height:60px;
+    }
+
+    /* ── Win overlay ── */
+    #win-overlay{
+      position:fixed;inset:0;z-index:90;
+      display:none;flex-direction:column;
+      align-items:center;justify-content:center;gap:clamp(12px,3vw,20px);
+      background:linear-gradient(160deg,#4a0080 0%,#1a0033 100%);
+    }
+    #win-overlay.show{display:flex;}
+    #win-emoji{font-size:clamp(72px,18vw,110px);animation:wBob 2.4s ease-in-out infinite;}
+    @keyframes wBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
+    #win-title{font-size:clamp(28px,7.5vw,56px);color:#ffd700;text-shadow:0 0 24px rgba(255,215,0,.7);text-align:center;padding:0 20px;}
+    #win-sub  {font-size:clamp(16px,4.2vw,24px);color:rgba(255,255,255,.85);text-align:center;padding:0 20px;}
+    #win-btn  {
+      padding:clamp(14px,4vw,20px) clamp(36px,9vw,64px);
+      font-size:clamp(18px,5vw,28px);border-radius:50px;border:none;
+      background:linear-gradient(135deg,#ffd700,#ff9800);color:#5d2e00;
+      font-family:inherit;cursor:pointer;
+      box-shadow:0 6px 24px rgba(255,180,0,.5);touch-action:manipulation;min-height:60px;
+    }
+  </style>
+</head>
+<body>
+
+<div id="header">
+  <div id="tier-badge" class="tier-easy">🌱 Easy</div>
+  <div id="score-display">0 ⭐</div>
+  <div id="round-label">1 / 9</div>
+</div>
+<div id="progress-track"><div id="progress-fill"></div></div>
+
+<div id="question-card">
+  <div id="q-prompt">Find the number! 🔢</div>
+  <div id="q-crown">👑</div>
+  <div id="q-word">ONE</div>
+  <div id="q-sub">Tap the right number!</div>
+</div>
+
+<div id="choice-grid" class="grid-3"></div>
+
+<!-- Celebrate overlay -->
+<div id="celebrate">
+  <div id="cel-word">ONE</div>
+  <div id="cel-num">1</div>
+  <div id="cel-gems">💎</div>
+  <div id="cel-fact">ONE is the very first number!</div>
+  <button id="cel-btn" onclick="doNext()">Next ➡️</button>
+</div>
+
+<!-- Tier overlay -->
+<div id="tier-overlay">
+  <div id="to-icon">⭐</div>
+  <div id="to-title">New Numbers!</div>
+  <div id="to-sub">Bigger numbers coming up! 🔢</div>
+  <button id="to-btn" onclick="resumeTier()">Let's go! ➡️</button>
+</div>
+
+<!-- Win overlay -->
+<div id="win-overlay">
+  <div id="win-emoji">🔢</div>
+  <div id="win-title">Number Wizard! 👑</div>
+  <div id="win-sub">You know all the number words!</div>
+  <button id="win-btn" onclick="restartGame()">Play Again 🌸</button>
+</div>
+
+<script>
+  // ── Audio ─────────────────────────────────────────────────────────────────────
+  var audioCtx=null;
+  function au(){ if(!audioCtx) audioCtx=new(window.AudioContext||window.webkitAudioContext)(); return audioCtx; }
+  function tone(f,type,d,v){
+    v=v||0.15;
+    try{
+      var c=au(),o=c.createOscillator(),g=c.createGain();
+      o.connect(g); g.connect(c.destination);
+      o.type=type||'sine'; o.frequency.value=f;
+      g.gain.setValueAtTime(v,c.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001,c.currentTime+d);
+      o.start(); o.stop(c.currentTime+d);
+    }catch(e){}
+  }
+  function playCorrect()  { [523,659,784,1047].forEach(function(f,i){ setTimeout(function(){ tone(f,'sine',.2,.18); },i*70); }); }
+  function playWrong()    { tone(220,'sawtooth',.2,.12); }
+  function playTierUp()   { [392,494,587,784,988,1175].forEach(function(f,i){ setTimeout(function(){ tone(f,'triangle',.28,.17); },i*85); }); }
+  function playCelebrate(){ [523,587,659,784,880,1047,1319].forEach(function(f,i){ setTimeout(function(){ tone(f,'sine',.25,.16); },i*65); }); }
+
+  // ── Data ──────────────────────────────────────────────────────────────────────
+  var POOL = [
+    { word:'ONE',   num:1,  tier:0,
+      fact:'ONE ✨ is the very FIRST number of all! Every journey begins with one step! 👣' },
+    { word:'TWO',   num:2,  tier:0,
+      fact:'TWO 👀 makes a pair — two eyes, two ears, two hands — you have them all! 👐' },
+    { word:'THREE', num:3,  tier:0,
+      fact:'THREE ⭐ magic wishes! What three things would you wish for? 🌟' },
+    { word:'FOUR',  num:4,  tier:1,
+      fact:'FOUR 🌸 seasons in every year — Spring, Summer, Autumn and Winter! 🌸☀️🍂❄️' },
+    { word:'FIVE',  num:5,  tier:1,
+      fact:'FIVE ✋ fingers on one hand — count them one by one!' },
+    { word:'SIX',   num:6,  tier:1,
+      fact:'SIX 🐝 legs on every insect! A bee has six legs to land on flowers! 🌺' },
+    { word:'SEVEN', num:7,  tier:1,
+      fact:'SEVEN 📅 days in a week — Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday!' },
+    { word:'EIGHT', num:8,  tier:2,
+      fact:'EIGHT 🕷️ legs on a spider! That\'s a lot of tiny shoes! 👟👟👟👟' },
+    { word:'NINE',  num:9,  tier:2,
+      fact:'NINE 🐱 lives for a lucky cat — they must be very good at staying safe!' },
+    { word:'TEN',   num:10, tier:2,
+      fact:'TEN 👐 — you have TEN fingers and TEN toes! Count them all! 🦶' },
+  ];
+
+  var TIER_INFO = [
+    { label:'🌱 Easy',   cls:'tier-easy',   numbers:[1,2,3],       cols:3,
+      icon:'⭐', title:'Level Up!',         sub:'Numbers 4, 5, 6 and 7 coming up! 🔢' },
+    { label:'💫 Medium', cls:'tier-medium', numbers:[4,5,6,7],     cols:3,
+      icon:'👑', title:'Almost There!',     sub:'Big numbers 8, 9 and 10! 🌟' },
+    { label:'👑 Hard',   cls:'tier-hard',   numbers:[8,9,10],      cols:2,
+      icon:'🎉', title:'Number Wizard!',    sub:'' },
+  ];
+
+  var PROMPTS = [
+    'Find the number! 🔢',
+    'Tap the matching number! ✨',
+    'Which number is this word? 👑',
+    'Show me the right number! 💎',
+    'Can you find it? Tap the number! 🌟',
+  ];
+
+  var PRAISE = ['Amazing! 🌟','Brilliant! 💫','You got it! 👑','Wonderful! 🌈','Perfect! ✨','Great job! 💎','So smart! 🌸'];
+
+  // ── Shuffle ───────────────────────────────────────────────────────────────────
+  function shuffle(a){
+    var b=a.slice();
+    for(var i=b.length-1;i>0;i--){
+      var j=0|Math.random()*(i+1), t=b[i]; b[i]=b[j]; b[j]=t;
+    }
+    return b;
+  }
+
+  // ── Build round list ──────────────────────────────────────────────────────────
+  function buildRounds(){
+    var out=[];
+    // Easy: ONE, TWO, THREE (exactly 3)
+    var easy = POOL.filter(function(p){ return p.tier===0; });
+    shuffle(easy).forEach(function(p){ out.push(p); });
+    // Medium: pick 3 from FOUR/FIVE/SIX/SEVEN
+    var med = shuffle(POOL.filter(function(p){ return p.tier===1; })).slice(0,3);
+    med.forEach(function(p){ out.push(p); });
+    // Hard: EIGHT, NINE, TEN (exactly 3)
+    var hard = POOL.filter(function(p){ return p.tier===2; });
+    shuffle(hard).forEach(function(p){ out.push(p); });
+    return out;
+  }
+
+  // ── Generate choices ──────────────────────────────────────────────────────────
+  function getChoices(num, tIdx){
+    var ti=TIER_INFO[tIdx];
+    var pool=ti.numbers.slice();
+    if(pool.indexOf(num)<0) pool.push(num);
+    var wrong=shuffle(pool.filter(function(n){ return n!==num; }));
+    var need=(tIdx===2)?3:2; // Hard gets 4 total, others get 3
+    wrong=wrong.slice(0,need);
+    // For hard tier, pad with adjacent numbers if needed
+    if(wrong.length<need){
+      var extras=[6,7,11].filter(function(n){ return n!==num && wrong.indexOf(n)<0; });
+      while(wrong.length<need && extras.length) wrong.push(extras.shift());
+    }
+    return shuffle([num].concat(wrong));
+  }
+
+  // ── Gem string helper ─────────────────────────────────────────────────────────
+  function gemStr(n){
+    var s='';
+    for(var i=0;i<n&&i<10;i++){
+      if(i===5) s+='<br>';
+      s+='💎';
+    }
+    return s;
+  }
+
+  // ── State ─────────────────────────────────────────────────────────────────────
+  var rounds=[], cur=0, score=0, locked=false;
+
+  // ── HUD ───────────────────────────────────────────────────────────────────────
+  function updateHUD(){
+    var r=rounds[cur]||rounds[rounds.length-1];
+    var ti=TIER_INFO[r.tier];
+    var badge=document.getElementById('tier-badge');
+    badge.textContent=ti.label; badge.className=ti.cls;
+    document.getElementById('score-display').textContent=score+' ⭐';
+    document.getElementById('round-label').textContent=(cur+1)+' / 9';
+    document.getElementById('progress-fill').style.width=((cur/9)*100)+'%';
+  }
+
+  // ── Button color palettes ─────────────────────────────────────────────────────
+  var BTN_COLORS=[
+    'linear-gradient(135deg,#e040fb,#7b1fa2)',
+    'linear-gradient(135deg,#42a5f5,#1565c0)',
+    'linear-gradient(135deg,#ff7043,#bf360c)',
+    'linear-gradient(135deg,#26a69a,#00695c)',
+    'linear-gradient(135deg,#ffa726,#e65100)',
+    'linear-gradient(135deg,#ec407a,#880e4f)',
+    'linear-gradient(135deg,#66bb6a,#1b5e20)',
+    'linear-gradient(135deg,#ab47bc,#4a148c)',
+    'linear-gradient(135deg,#29b6f6,#01579b)',
+    'linear-gradient(135deg,#ff5722,#bf360c)',
+  ];
+
+  // ── Show round ────────────────────────────────────────────────────────────────
+  function showRound(idx){
+    locked=false; cur=idx;
+    updateHUD();
+
+    var r=rounds[idx];
+    var card=document.getElementById('question-card');
+    card.style.animation='none'; void card.offsetWidth; card.style.animation='';
+
+    document.getElementById('q-prompt').textContent=PROMPTS[0|Math.random()*PROMPTS.length];
+    document.getElementById('q-word').textContent=r.word;
+    document.getElementById('q-crown').textContent=r.tier===0?'👑':r.tier===1?'✨':'⭐';
+    document.getElementById('q-sub').textContent='Tap the matching number!';
+
+    var ti=TIER_INFO[r.tier];
+    var choices=getChoices(r.num, r.tier);
+    var grid=document.getElementById('choice-grid');
+    grid.className=(ti.cols===2)?'grid-4':'grid-3';
+    grid.innerHTML='';
+
+    var colorOrder=shuffle(BTN_COLORS.slice(0,choices.length+4));
+    choices.forEach(function(n, i){
+      var btn=document.createElement('button');
+      btn.className='choice-btn';
+      btn.style.background=colorOrder[i%colorOrder.length];
+
+      var numEl=document.createElement('div');
+      numEl.className='num';
+      numEl.textContent=n;
+
+      var gemsEl=document.createElement('div');
+      gemsEl.className='gems';
+      gemsEl.innerHTML=n<=7?gemStr(n):'💎×'+n;
+
+      btn.appendChild(numEl);
+      btn.appendChild(gemsEl);
+      (function(num){ btn.addEventListener('pointerdown',function(){ handleTap(btn,num); }); })(n);
+      grid.appendChild(btn);
+    });
+  }
+
+  // ── Handle tap ────────────────────────────────────────────────────────────────
+  function handleTap(btn, chosen){
+    if(locked) return;
+    var r=rounds[cur];
+    if(chosen===r.num){
+      locked=true;
+      btn.classList.add('correct-flash');
+      playCorrect(); score++;
+      var rect=btn.getBoundingClientRect();
+      sparkleBurst(rect.left+rect.width/2, rect.top+rect.height/2);
+      setTimeout(function(){
+        btn.classList.remove('correct-flash');
+        showCelebrate(r);
+      },450);
+    } else {
+      btn.classList.add('wrong-shake'); playWrong();
+      setTimeout(function(){ btn.classList.remove('wrong-shake'); },430);
+    }
+  }
+
+  // ── Celebrate overlay ─────────────────────────────────────────────────────────
+  function showCelebrate(r){
+    document.getElementById('cel-word').textContent=r.word;
+    document.getElementById('cel-num').textContent=r.num;
+    document.getElementById('cel-gems').innerHTML=gemStr(r.num);
+    document.getElementById('cel-fact').textContent=r.fact+'  '+PRAISE[0|Math.random()*PRAISE.length];
+    document.getElementById('celebrate').classList.add('show');
+    playCelebrate();
+    confettiBurst(28);
+  }
+
+  function doNext(){
+    document.getElementById('celebrate').classList.remove('show');
+    var next=cur+1;
+    if(next>=9){ showWin(); return; }
+    if(rounds[next].tier!==rounds[cur].tier){
+      showTierOverlay(rounds[cur].tier);
+    } else {
+      showRound(next);
+    }
+  }
+
+  // ── Tier overlay ──────────────────────────────────────────────────────────────
+  function showTierOverlay(completedTier){
+    var next=TIER_INFO[completedTier+1];
+    document.getElementById('to-icon').textContent=next.icon;
+    document.getElementById('to-title').textContent=next.title;
+    document.getElementById('to-sub').textContent=next.sub;
+    document.getElementById('tier-overlay').classList.add('show');
+    playTierUp(); confettiBurst(42);
+  }
+
+  function resumeTier(){
+    document.getElementById('tier-overlay').classList.remove('show');
+    showRound(cur+1);
+  }
+
+  // ── Win ───────────────────────────────────────────────────────────────────────
+  function showWin(){
+    document.getElementById('progress-fill').style.width='100%';
+    document.getElementById('win-sub').textContent=score+' / 9 ⭐ — You know all the number words! 🔢';
+    document.getElementById('win-overlay').classList.add('show');
+    playCelebrate(); confettiBurst(60);
+    setTimeout(function(){ confettiBurst(42); },700);
+  }
+
+  // ── Particles ─────────────────────────────────────────────────────────────────
+  function sparkleBurst(x,y){
+    var ems=['✨','💫','⭐','💎','🌟','👑','🔢','🌸'];
+    var cols=['#ffd700','#f48fb1','#ce93d8','#80deea','#a5d6a7','#ffab91','#fff'];
+    for(var i=0;i<20;i++){
+      var el=document.createElement('span'); el.className='sparkle';
+      el.textContent=ems[i%ems.length];
+      var angle=(i/20)*Math.PI*2, dist=50+Math.random()*90;
+      el.style.left=(x+Math.cos(angle)*dist)+'px';
+      el.style.top=(y+Math.sin(angle)*dist)+'px';
+      el.style.animationDelay=(Math.random()*.14)+'s';
+      el.style.animationDuration=(.7+Math.random()*.35)+'s';
+      document.body.appendChild(el);
+      setTimeout((function(e){ return function(){ e.remove(); }; })(el),1200);
+    }
+    for(var j=0;j<10;j++){
+      var dot=document.createElement('div'); dot.className='spark-dot';
+      var a2=Math.random()*Math.PI*2, d2=20+Math.random()*60, sz=5+Math.random()*9;
+      dot.style.cssText='width:'+sz+'px;height:'+sz+'px;left:'+(x-sz/2)+'px;top:'+(y-sz/2)+'px;'
+        +'background:'+cols[j%cols.length]+';'
+        +'--tx:'+(Math.cos(a2)*d2)+'px;--ty:'+(Math.sin(a2)*d2)+'px;'
+        +'animation-duration:'+(0.6+Math.random()*.3)+'s;';
+      document.body.appendChild(dot);
+      setTimeout((function(e){ return function(){ e.remove(); }; })(dot),1000);
+    }
+  }
+
+  function confettiBurst(n){
+    var cols=['#ffd700','#f48fb1','#ce93d8','#80deea','#a5d6a7','#ffab91','#e040fb','#fff'];
+    for(var i=0;i<n;i++){
+      var el=document.createElement('div'); el.className='confetti-p';
+      var dur=1.3+Math.random()*1.8, sz=6+Math.random()*9;
+      el.style.cssText='left:'+Math.random()*100+'vw;width:'+sz+'px;height:'+sz*(0.4+Math.random()*0.7)+'px;'
+        +'background:'+cols[i%cols.length]+';animation-duration:'+dur+'s;animation-delay:'+Math.random()*.45+'s;';
+      document.body.appendChild(el);
+      setTimeout((function(e){ return function(){ e.remove(); }; })(el),(dur+0.6)*1000+200);
+    }
+  }
+
+  // ── Background ────────────────────────────────────────────────────────────────
+  function makeBg(){
+    var items=['💎','✨','⭐','🔢','💫','👑','🌟','1','2','3','4','5'];
+    for(var i=0;i<12;i++){
+      var el=document.createElement('div'); el.className='bg-gem';
+      el.textContent=items[i%items.length];
+      el.style.left=(5+Math.random()*90)+'vw';
+      el.style.animationDuration=(9+Math.random()*14)+'s';
+      el.style.animationDelay=-(Math.random()*18)+'s';
+      document.body.appendChild(el);
+    }
+  }
+
+  // ── Restart ───────────────────────────────────────────────────────────────────
+  function restartGame(){
+    document.getElementById('win-overlay').classList.remove('show');
+    document.getElementById('tier-overlay').classList.remove('show');
+    document.getElementById('celebrate').classList.remove('show');
+    score=0; cur=0;
+    rounds=buildRounds();
+    document.getElementById('progress-fill').style.width='0%';
+    showRound(0);
+  }
+
+  // ── Init ─────────────────────────────────────────────────────────────────────
+  makeBg();
+  rounds=buildRounds();
+  showRound(0);
+</script>
+</body>
+</html>
