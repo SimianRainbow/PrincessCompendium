@@ -679,7 +679,7 @@
     "ageMin": 3,
     "ageMax": 5,
     "skill": "3D shape recognition (sphere, cube, cone, cylinder, pyramid)",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "category": "colours-shapes",
     "path": "games/056-royal-3d-shapes/index.html"
   },
@@ -851,5 +851,17 @@
     "version": "1.0.0",
     "category": "numbers",
     "path": "games/071-number-words/index.html"
+  },
+  {
+    "id": "072-royal-coins",
+    "title": "Princess Coin Kingdom",
+    "description": "Spot the penny, nickel, dime or quarter! Watch for colour and size — the penny is brown, the dime is tiny, the quarter is biggest! Score counter ⭐, coin fun facts, 9 rounds across 3 tiers.",
+    "icon": "🪙",
+    "ageMin": 3,
+    "ageMax": 6,
+    "skill": "coin recognition — penny, nickel, dime, quarter",
+    "version": "1.0.0",
+    "category": "numbers",
+    "path": "games/072-royal-coins/index.html"
   }
 ]

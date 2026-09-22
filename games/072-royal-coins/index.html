@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Princess 3D Shapes 💎</title>
+  <title>Princess Coin Kingdom 🪙</title>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
   <style>
     *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
@@ -16,7 +16,7 @@
       padding-bottom:8px;
     }
 
-    .bg-gem{
+    .bg-coin{
       position:fixed;pointer-events:none;opacity:.10;
       font-size:clamp(18px,4.5vw,30px);
       animation:bgFloat linear infinite;z-index:0;
@@ -66,45 +66,49 @@
       animation:cardIn .4s cubic-bezier(.34,1.56,.64,1);
     }
     @keyframes cardIn{from{transform:scale(.65);opacity:0}to{transform:scale(1);opacity:1}}
-    #q-prompt{font-size:clamp(14px,3.5vw,20px);color:#6a1b9a;text-align:center;}
-    #q-emoji{font-size:clamp(64px,17vw,100px);line-height:1.05;}
-    #q-name{font-size:clamp(18px,4.8vw,28px);color:#4a148c;font-weight:bold;}
+    #q-prompt{font-size:clamp(13px,3.3vw,19px);color:#6a1b9a;text-align:center;}
+    #q-coin-name{font-size:clamp(26px,7vw,46px);color:#4a148c;font-weight:bold;letter-spacing:2px;}
+    #q-hint{font-size:clamp(13px,3.2vw,17px);color:#7b1fa2;text-align:center;opacity:.85;}
 
-    /* ── Shape buttons grid ── */
-    #shape-grid{
+    /* ── Coin grid ── */
+    #coin-grid{
       display:grid;
       gap:clamp(8px,2vw,14px);
       padding:clamp(8px,2vw,14px) clamp(12px,3vw,20px);
       width:100%;max-width:480px;
       position:relative;z-index:1;flex-shrink:0;
     }
+    .grid-2{grid-template-columns:repeat(2,1fr);}
     .grid-3{grid-template-columns:repeat(3,1fr);}
     .grid-4{grid-template-columns:repeat(2,1fr);}
-    .grid-5{grid-template-columns:repeat(3,1fr);}
 
-    .shape-btn{
-      min-height:clamp(88px,22vw,118px);
+    .coin-btn{
+      min-height:clamp(100px,26vw,140px);
       border-radius:22px;border:3px solid rgba(255,255,255,.25);
       cursor:pointer;
       display:flex;flex-direction:column;align-items:center;justify-content:center;
-      gap:5px;padding:8px 4px;
+      gap:6px;padding:10px 6px;
       box-shadow:0 4px 18px rgba(0,0,0,.38),inset 0 2px 0 rgba(255,255,255,.28);
       transition:transform .1s;touch-action:manipulation;
-      background:rgba(255,255,255,.12);backdrop-filter:blur(4px);
+      background:rgba(255,255,255,.13);backdrop-filter:blur(4px);
     }
-    .shape-btn:active{transform:scale(.9);}
-    .shape-btn .btn-label{
-      font-size:clamp(12px,3vw,17px);color:#fff;
+    .coin-btn:active{transform:scale(.9);}
+    .coin-btn .btn-label{
+      font-size:clamp(13px,3.2vw,18px);color:#fff;
       font-weight:bold;text-shadow:0 2px 6px rgba(0,0,0,.55);
       text-align:center;line-height:1.1;
     }
-    .shape-btn.correct-flash{animation:correctPop .5s ease-out;border-color:#ffd700;background:rgba(255,215,0,.28);}
+    .coin-btn .btn-value{
+      font-size:clamp(11px,2.6vw,14px);color:rgba(255,240,200,.85);
+      text-align:center;
+    }
+    .coin-btn.correct-flash{animation:correctPop .5s ease-out;border-color:#ffd700;background:rgba(255,215,0,.28);}
     @keyframes correctPop{
       0%{transform:scale(1)}
       40%{transform:scale(1.15);box-shadow:0 0 40px rgba(255,215,0,.8);}
       100%{transform:scale(1)}
     }
-    .shape-btn.wrong-shake{animation:wrongShake .42s ease-out;}
+    .coin-btn.wrong-shake{animation:wrongShake .42s ease-out;}
     @keyframes wrongShake{
       0%,100%{transform:translateX(0)}
       20%{transform:translateX(-10px)}
@@ -144,10 +148,10 @@
       background:rgba(30,0,60,.88);
     }
     #celebrate.show{display:flex;}
-    #cel-shape{width:clamp(90px,22vw,140px);height:clamp(90px,22vw,140px);}
+    #cel-coin{width:clamp(100px,26vw,150px);height:clamp(100px,26vw,150px);}
     #cel-name{font-size:clamp(28px,7.5vw,54px);color:#ffd700;text-align:center;text-shadow:0 0 18px rgba(255,215,0,.5);}
-    #cel-msg {font-size:clamp(15px,4vw,24px);color:rgba(255,255,255,.85);text-align:center;padding:0 20px;}
-    #cel-btn {
+    #cel-fact{font-size:clamp(14px,3.8vw,22px);color:rgba(255,255,255,.88);text-align:center;padding:0 20px;max-width:360px;}
+    #cel-btn{
       padding:clamp(14px,4vw,20px) clamp(36px,9vw,60px);
       font-size:clamp(18px,5vw,28px);border-radius:50px;border:none;
       background:linear-gradient(135deg,#ffd700,#ff9800);color:#5d2e00;
@@ -205,34 +209,34 @@
 <div id="progress-track"><div id="progress-fill"></div></div>
 
 <div id="question-card">
-  <div id="q-prompt">What shape is this? 💎</div>
-  <div id="q-emoji">🔮</div>
-  <div id="q-name">Crystal Ball</div>
+  <div id="q-prompt">Find the coin! 🪙</div>
+  <div id="q-coin-name">PENNY</div>
+  <div id="q-hint">the brown coin · 1¢</div>
 </div>
 
-<div id="shape-grid" class="grid-3"></div>
+<div id="coin-grid" class="grid-2"></div>
 
 <!-- Celebrate overlay -->
 <div id="celebrate">
-  <svg id="cel-shape" viewBox="0 0 100 100"></svg>
-  <div id="cel-name">Sphere!</div>
-  <div id="cel-msg">Amazing! 🌟</div>
+  <svg id="cel-coin" viewBox="0 0 100 100"></svg>
+  <div id="cel-name">Penny!</div>
+  <div id="cel-fact">A penny is worth 1 cent!</div>
   <button id="cel-btn" onclick="doNext()">Next ➡️</button>
 </div>
 
 <!-- Tier overlay -->
 <div id="tier-overlay">
-  <div id="to-icon">💎</div>
-  <div id="to-title">New Shape Unlocked!</div>
-  <div id="to-sub">A new 3D shape to discover! 🔮</div>
+  <div id="to-icon">🪙</div>
+  <div id="to-title">New Coin Unlocked!</div>
+  <div id="to-sub">More royal coins to discover! ✨</div>
   <button id="to-btn" onclick="resumeTier()">Let's go! ➡️</button>
 </div>
 
 <!-- Win overlay -->
 <div id="win-overlay">
-  <div id="win-emoji">💎</div>
-  <div id="win-title">Shape Wizard! 👑</div>
-  <div id="win-sub">You know all the royal shapes! ✨</div>
+  <div id="win-emoji">🪙</div>
+  <div id="win-title">Coin Royal! 👑</div>
+  <div id="win-sub">You know all the royal coins! ✨</div>
   <button id="win-btn" onclick="restartGame()">Play Again 🌸</button>
 </div>
 
@@ -256,106 +260,87 @@
   function playTierUp()   { [392,494,587,784,988,1175].forEach(function(f,i){ setTimeout(function(){ tone(f,'triangle',.28,.17); }, i*85); }); }
   function playCelebrate(){ [523,587,659,784,880,1047,1319].forEach(function(f,i){ setTimeout(function(){ tone(f,'sine',.25,.16); }, i*65); }); }
 
-  // ── Prompts ───────────────────────────────────────────────────────────────────
+  // ── Coin SVG ──────────────────────────────────────────────────────────────────
+  function coinSVG(type) {
+    var r, fill1, fill2, edgeCol, textCol, valueText, edgeDetails;
+    if (type === 'penny') {
+      r=42; fill1='#e8a060'; fill2='#7a3800'; edgeCol='#5c2800'; textCol='rgba(80,30,0,.85)';
+      valueText='1¢'; edgeDetails='';
+    } else if (type === 'nickel') {
+      r=40; fill1='#e8e8e8'; fill2='#888'; edgeCol='#555'; textCol='rgba(40,40,40,.8)';
+      valueText='5¢'; edgeDetails='';
+    } else if (type === 'dime') {
+      r=34; fill1='#efefef'; fill2='#999'; edgeCol='#666'; textCol='rgba(40,40,40,.8)';
+      valueText='10¢'; edgeDetails='';
+    } else {
+      r=46; fill1='#e0e0e0'; fill2='#777'; edgeCol='#444'; textCol='rgba(40,40,40,.8)';
+      valueText='25¢'; edgeDetails='';
+    }
+    var id = type.substring(0,2) + 'g';
+    return '<defs>'
+      + '<radialGradient id="' + id + '" cx="35%" cy="30%" r="70%">'
+      + '<stop offset="0%" stop-color="' + fill1 + '"/>'
+      + '<stop offset="100%" stop-color="' + fill2 + '"/>'
+      + '</radialGradient></defs>'
+      + '<circle cx="50" cy="50" r="' + (r+2) + '" fill="' + edgeCol + '"/>'
+      + '<circle cx="50" cy="50" r="' + r + '" fill="url(#' + id + ')"/>'
+      + '<circle cx="50" cy="50" r="' + (r-5) + '" fill="none" stroke="rgba(255,255,255,.2)" stroke-width="1.5"/>'
+      + '<circle cx="50" cy="50" r="' + (r-9) + '" fill="none" stroke="rgba(0,0,0,.12)" stroke-width="1"/>'
+      + '<text x="50" y="47" text-anchor="middle" font-family="Fredoka One,sans-serif" font-size="' + (r>40?17:15) + '" font-weight="bold" fill="' + textCol + '">' + valueText + '</text>'
+      + '<ellipse cx="42" cy="36" rx="' + Math.round(r*.18) + '" ry="' + Math.round(r*.1) + '" fill="rgba(255,255,255,.28)" transform="rotate(-25 42 36)"/>';
+  }
+
+  // ── Coin data ─────────────────────────────────────────────────────────────────
+  var COINS = {
+    penny:   { name:'PENNY',   value:'1¢',  hint:'the brown coin',      color:'#7a3800', light:'#b87333' },
+    nickel:  { name:'NICKEL',  value:'5¢',  hint:'medium silver coin',  color:'#555',    light:'#aaa' },
+    dime:    { name:'DIME',    value:'10¢', hint:'the tiny silver coin', color:'#555',    light:'#ccc' },
+    quarter: { name:'QUARTER', value:'25¢', hint:'the big silver coin',  color:'#444',    light:'#aaa' },
+  };
+
+  var FACTS = {
+    penny:   ['A penny is worth 1 cent — the only brown coin! 🟫',
+              '100 pennies make one dollar! 💰',
+              'The penny is named after an old British coin! 🏰'],
+    nickel:  ['A nickel is worth 5 cents — that\'s 5 pennies! 🔄',
+              'The nickel is the thickest of all the coins! 💪',
+              '20 nickels make one dollar! 🪙'],
+    dime:    ['A dime is the SMALLEST coin but worth 10 cents! 😲',
+              'The dime is worth MORE than a nickel even though it\'s tinier! 🤯',
+              '10 dimes make one dollar! 💰'],
+    quarter: ['A quarter is worth 25 cents — the biggest value coin! 👑',
+              '4 quarters make one whole dollar! 🎉',
+              'The quarter is the biggest and heaviest coin! ⚖️'],
+  };
+
   var PROMPTS = [
-    'What shape is this? 💎',
-    'Which 3D shape matches? 🔮',
-    'Tap the right royal shape! ✨',
-    'Find the matching shape! 👑',
-    'Which shape looks like this? 🌟',
+    'Find the coin! 🪙',
+    'Tap the right coin! ✨',
+    'Which coin is it? 👑',
+    'Point to the coin! 💎',
+    'Spot the royal coin! 🌟',
   ];
   var promptIdx = 0;
 
-  // ── Shape fun facts ───────────────────────────────────────────────────────────
-  var FACTS = {
-    sphere:   ['A sphere has NO edges and NO flat faces! 🌍',
-               'A ball, a globe and a planet are all spheres! 🔮',
-               'A sphere looks the same from every angle! ✨'],
-    cube:     ['A cube has 6 faces, 8 corners and 12 edges! 🎲',
-               'All 6 sides of a cube are exactly the same size! 🧊',
-               'Dice and ice cubes are both cube shapes! 📦'],
-    cone:     ['A cone has 1 flat circle face and 1 pointy tip! 🍦',
-               'Ice cream cones and wizard hats are cones! 🎩',
-               'A cone rolls in a circle on the ground! 🌀'],
-    cylinder: ['A cylinder has 2 flat circle faces and 1 curved side! 🥁',
-               'Tin cans, drums and candles are all cylinders! 🕯️',
-               'A cylinder can roll in a perfectly straight line! 🥤'],
-    pyramid:  ['A pyramid has a flat base and triangular sides that meet at a point! 🏛️',
-               'The famous pyramids in Egypt are pyramid shapes! ✨',
-               'A pyramid has 5 faces, 8 edges and 5 corners! 💎'],
-  };
-
-  // ── SVG shape drawings ────────────────────────────────────────────────────────
-  // Each returns SVG inner content for a 100×100 viewBox
-  var SHAPE_SVG = {
-    sphere: function() {
-      return '<defs><radialGradient id="sg" cx="35%" cy="28%" r="65%">'
-        + '<stop offset="0%" stop-color="#fff"/>'
-        + '<stop offset="35%" stop-color="#e1bee7"/>'
-        + '<stop offset="75%" stop-color="#9c4dcc"/>'
-        + '<stop offset="100%" stop-color="#4a148c"/>'
-        + '</radialGradient></defs>'
-        + '<circle cx="50" cy="50" r="42" fill="url(#sg)"/>'
-        + '<ellipse cx="38" cy="33" rx="10" ry="6" fill="rgba(255,255,255,.35)" transform="rotate(-30 38 33)"/>';
-    },
-    cube: function() {
-      return '<defs><linearGradient id="ct" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#e1bee7"/><stop offset="100%" stop-color="#ce93d8"/></linearGradient>'
-        + '<linearGradient id="cl" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#7b1fa2"/><stop offset="100%" stop-color="#9c4dcc"/></linearGradient>'
-        + '<linearGradient id="cr" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#6a1b9a"/><stop offset="100%" stop-color="#4a148c"/></linearGradient>'
-        + '</defs>'
-        + '<polygon points="50,10 82,27 82,27 50,44 18,27" fill="url(#ct)"/>'
-        + '<polygon points="18,27 50,44 50,78 18,61" fill="url(#cl)"/>'
-        + '<polygon points="82,27 50,44 50,78 82,61" fill="url(#cr)"/>'
-        + '<polygon points="50,10 82,27 82,61 50,78 18,61 18,27" fill="none" stroke="rgba(255,255,255,.25)" stroke-width="1.5"/>';
-    },
-    cone: function() {
-      return '<defs><linearGradient id="cng" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#ce93d8"/><stop offset="100%" stop-color="#9c4dcc"/></linearGradient></defs>'
-        + '<ellipse cx="50" cy="75" rx="32" ry="11" fill="#6a1b9a"/>'
-        + '<polygon points="50,10 18,75 82,75" fill="url(#cng)"/>'
-        + '<line x1="50" y1="10" x2="18" y2="75" stroke="rgba(255,255,255,.18)" stroke-width="1"/>';
-    },
-    cylinder: function() {
-      return '<defs><linearGradient id="cylg" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#7b1fa2"/><stop offset="50%" stop-color="#ce93d8"/><stop offset="100%" stop-color="#6a1b9a"/></linearGradient></defs>'
-        + '<rect x="18" y="26" width="64" height="50" fill="url(#cylg)"/>'
-        + '<ellipse cx="50" cy="76" rx="32" ry="11" fill="#4a148c"/>'
-        + '<ellipse cx="50" cy="26" rx="32" ry="11" fill="#e1bee7"/>'
-        + '<ellipse cx="44" cy="24" rx="10" ry="4" fill="rgba(255,255,255,.3)" transform="rotate(-15 44 24)"/>';
-    },
-    pyramid: function() {
-      return '<defs><linearGradient id="pyg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#f48fb1"/><stop offset="100%" stop-color="#ce93d8"/></linearGradient>'
-        + '<linearGradient id="pyr" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#9c4dcc"/><stop offset="100%" stop-color="#7b1fa2"/></linearGradient>'
-        + '</defs>'
-        + '<ellipse cx="52" cy="76" rx="34" ry="10" fill="#4a148c"/>'
-        + '<polygon points="52,10 18,76 52,68" fill="url(#pyg)"/>'
-        + '<polygon points="52,10 86,76 52,68" fill="url(#pyr)"/>'
-        + '<polygon points="18,76 86,76 52,68" fill="#6a1b9a"/>';
-    }
-  };
-
-  // ── Shape data ────────────────────────────────────────────────────────────────
-  var SHAPES = {
-    sphere:   { name:'Sphere',   color:'#7b1fa2' },
-    cube:     { name:'Cube',     color:'#1565c0' },
-    cone:     { name:'Cone',     color:'#e65100' },
-    cylinder: { name:'Cylinder', color:'#2e7d32' },
-    pyramid:  { name:'Pyramid',  color:'#b71c1c' },
-  };
-
-  var POOLS = {
-    sphere:   [{e:'🔮',n:'Crystal Ball'},{e:'🌍',n:'Earth'},{e:'⚽',n:'Football'},{e:'🍊',n:'Orange'},{e:'🎱',n:'Pool Ball'},{e:'🌕',n:'Full Moon'}],
-    cube:     [{e:'🎁',n:'Gift Box'},{e:'🎲',n:'Dice'},{e:'🧊',n:'Ice Cube'},{e:'📦',n:'Box'},{e:'🧱',n:'Brick'},{e:'📫',n:'Post Box'}],
-    cone:     [{e:'🍦',n:'Ice Cream Cone'},{e:'🎩',n:'Wizard Hat'},{e:'🌲',n:'Pine Tree'},{e:'🎪',n:'Big Top'},{e:'🔦',n:'Torch Tip'},{e:'⛰️',n:'Mountain Peak'}],
-    cylinder: [{e:'🥫',n:'Tin Can'},{e:'🥤',n:'Drink Cup'},{e:'🪣',n:'Bucket'},{e:'🔭',n:'Telescope'},{e:'🥁',n:'Drum'},{e:'🕯️',n:'Candle'}],
-    pyramid:  [{e:'🏛️',n:'Pyramid'},{e:'⛺',n:'Royal Tent'},{e:'🔺',n:'Magic Pyramid'},{e:'💎',n:'Diamond'},{e:'🌋',n:'Volcano'},{e:'🏔️',n:'Snowy Peak'}],
-  };
-
   var TIER_INFO = [
-    { label:'🌸 Easy',   cls:'tier-easy',   shapes:['sphere','cube','cone'],                       icon:'💎', title:'New Shape Unlocked!',    sub:'Cylinder joins the game! 🥫' },
-    { label:'💎 Medium', cls:'tier-medium', shapes:['sphere','cube','cone','cylinder'],             icon:'⭐', title:'Final Shape Unlocked!',  sub:'The Royal Pyramid appears! 🏛️' },
-    { label:'⭐ Hard',   cls:'tier-hard',   shapes:['sphere','cube','cone','cylinder','pyramid'],   icon:'👑', title:'Shape Wizard!',          sub:'' },
+    { label:'🌸 Easy',   cls:'tier-easy',   coins:['penny','quarter'],             icon:'🪙', title:'More Coins!', sub:'Now look for nickel and dime! 🪙' },
+    { label:'💎 Medium', cls:'tier-medium', coins:['penny','nickel','dime'],        icon:'💎', title:'Final Challenge!', sub:'All four royal coins appear! 👑' },
+    { label:'⭐ Hard',   cls:'tier-hard',   coins:['penny','nickel','dime','quarter'], icon:'👑', title:'Coin Royal!', sub:'' },
   ];
 
-  var TOTAL = 9, ROUNDS_PER_TIER = 3;
+  var ROUND_LIST = [
+    { coin:'penny',   tier:0 },
+    { coin:'quarter', tier:0 },
+    { coin:'penny',   tier:0 },
+    { coin:'nickel',  tier:1 },
+    { coin:'penny',   tier:1 },
+    { coin:'dime',    tier:1 },
+    { coin:'quarter', tier:2 },
+    { coin:'dime',    tier:2 },
+    { coin:'nickel',  tier:2 },
+  ];
+
+  var TOTAL = 9;
   var rounds = [], cur = 0, score = 0, locked = false;
 
   // ── Shuffle ───────────────────────────────────────────────────────────────────
@@ -367,31 +352,13 @@
     return b;
   }
 
-  function pickFromPool(shapeKey, used) {
-    var pool = POOLS[shapeKey];
-    var fresh = pool.filter(function(it){ return used.indexOf(it.n) < 0; });
-    var src = fresh.length ? fresh : pool;
-    return src[0|Math.random()*src.length];
-  }
-
-  // ── Build round list ──────────────────────────────────────────────────────────
   function buildRounds() {
-    var out = [], used = {};
-    Object.keys(POOLS).forEach(function(k){ used[k]=[]; });
-    TIER_INFO.forEach(function(tier, tIdx) {
-      // Pick one item per shape in this tier (shuffled order)
-      var shapesCopy = shuffle(tier.shapes.slice());
-      // For 3 rounds from 3-5 shapes, ensure each round has a different shape
-      var picks = [];
-      shapesCopy.slice(0, ROUNDS_PER_TIER).forEach(function(shapeKey) {
-        var item = pickFromPool(shapeKey, used[shapeKey]);
-        used[shapeKey].push(item.n);
-        picks.push({ shape: shapeKey, item: item, tier: tIdx });
-      });
-      // Shuffle the picks so round order within tier varies
-      shuffle(picks).forEach(function(p){ out.push(p); });
-    });
-    return out;
+    var out = [];
+    // Shuffle within each tier
+    var easy   = shuffle(ROUND_LIST.filter(function(r){ return r.tier===0; }));
+    var medium = shuffle(ROUND_LIST.filter(function(r){ return r.tier===1; }));
+    var hard   = shuffle(ROUND_LIST.filter(function(r){ return r.tier===2; }));
+    return easy.concat(medium).concat(hard);
   }
 
   // ── Render HUD ────────────────────────────────────────────────────────────────
@@ -413,54 +380,63 @@
     updateHUD();
 
     var r = rounds[idx];
+    var c = COINS[r.coin];
+    var tier = TIER_INFO[r.tier];
+
     var card = document.getElementById('question-card');
     card.style.animation = 'none';
     void card.offsetWidth;
     card.style.animation = '';
+
     document.getElementById('q-prompt').textContent = PROMPTS[promptIdx % PROMPTS.length];
     promptIdx++;
-    document.getElementById('q-emoji').textContent = r.item.e;
-    document.getElementById('q-name').textContent  = r.item.n;
+    document.getElementById('q-coin-name').textContent = c.name;
+    document.getElementById('q-hint').textContent = c.hint + ' · ' + c.value;
 
-    var tier = TIER_INFO[r.tier];
-    var grid = document.getElementById('shape-grid');
-    grid.className = 'grid-' + tier.shapes.length;
+    var grid = document.getElementById('coin-grid');
+    var n = tier.coins.length;
+    grid.className = n === 2 ? 'grid-2' : n === 3 ? 'grid-3' : 'grid-4';
     grid.innerHTML = '';
 
-    var shapeOrder = shuffle(tier.shapes.slice());
-    shapeOrder.forEach(function(shapeKey) {
-      var s = SHAPES[shapeKey];
+    var choiceOrder = shuffle(tier.coins.slice());
+    choiceOrder.forEach(function(coinKey) {
+      var cd = COINS[coinKey];
       var btn = document.createElement('button');
-      btn.className = 'shape-btn';
-      btn.style.background = 'rgba(255,255,255,.12)';
+      btn.className = 'coin-btn';
+
       var svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
       svg.setAttribute('viewBox','0 0 100 100');
-      svg.setAttribute('width','clamp(44px,11vw,66px)');
-      svg.setAttribute('height','clamp(44px,11vw,66px)');
-      svg.style.cssText = 'width:clamp(44px,11vw,66px);height:clamp(44px,11vw,66px);flex-shrink:0;';
-      svg.innerHTML = SHAPE_SVG[shapeKey]();
-      var label = document.createElement('span');
-      label.className = 'btn-label';
-      label.textContent = s.name;
+      svg.style.cssText = 'width:clamp(54px,14vw,78px);height:clamp(54px,14vw,78px);flex-shrink:0;';
+      svg.innerHTML = coinSVG(coinKey);
+
+      var lbl = document.createElement('span');
+      lbl.className = 'btn-label';
+      lbl.textContent = cd.name;
+
+      var val = document.createElement('span');
+      val.className = 'btn-value';
+      val.textContent = cd.value;
+
       btn.appendChild(svg);
-      btn.appendChild(label);
-      (function(sk){ btn.addEventListener('pointerdown', function(){ handleTap(btn, sk); }); })(shapeKey);
+      btn.appendChild(lbl);
+      btn.appendChild(val);
+      (function(ck){ btn.addEventListener('pointerdown', function(){ handleTap(btn, ck); }); })(coinKey);
       grid.appendChild(btn);
     });
   }
 
   // ── Handle tap ────────────────────────────────────────────────────────────────
-  function handleTap(btn, shapeKey) {
+  function handleTap(btn, coinKey) {
     if (locked) return;
     var r = rounds[cur];
-    if (shapeKey === r.shape) {
+    if (coinKey === r.coin) {
       locked = true;
       btn.classList.add('correct-flash');
       playCorrect();
       score++;
       var rect = btn.getBoundingClientRect();
       sparkleBurst(rect.left + rect.width/2, rect.top + rect.height/2);
-      setTimeout(function(){ showCelebrate(r.shape); }, 450);
+      setTimeout(function(){ showCelebrate(r.coin); }, 450);
     } else {
       btn.classList.add('wrong-shake');
       playWrong();
@@ -469,13 +445,12 @@
   }
 
   // ── Celebrate overlay ─────────────────────────────────────────────────────────
-  var MSGS = ['Amazing! 🌟','Brilliant! 💫','You got it! 👑','Wonderful! 🌈','Perfect! ✨','Great job! 💎'];
-  function showCelebrate(shapeKey) {
-    var s = SHAPES[shapeKey];
-    document.getElementById('cel-shape').innerHTML = SHAPE_SVG[shapeKey]();
-    document.getElementById('cel-name').textContent = s.name + '!';
-    var facts = FACTS[shapeKey];
-    document.getElementById('cel-msg').textContent  = facts[0|Math.random()*facts.length];
+  function showCelebrate(coinKey) {
+    var c = COINS[coinKey];
+    document.getElementById('cel-coin').innerHTML = coinSVG(coinKey);
+    document.getElementById('cel-name').textContent = c.name + '!';
+    var facts = FACTS[coinKey];
+    document.getElementById('cel-fact').textContent = facts[0|Math.random()*facts.length];
     document.getElementById('celebrate').classList.add('show');
     playCelebrate();
     confettiBurst(28);
@@ -514,7 +489,7 @@
   function showWin() {
     document.getElementById('progress-fill').style.width = '100%';
     document.getElementById('score-display').textContent = score + ' ⭐';
-    document.getElementById('win-sub').textContent = score + ' / 9 ⭐ — You know all the royal 3D shapes!';
+    document.getElementById('win-sub').textContent = score + ' / 9 ⭐ — You know all the royal coins!';
     document.getElementById('win-overlay').classList.add('show');
     playCelebrate();
     confettiBurst(60);
@@ -523,7 +498,7 @@
 
   // ── Particles ──────────────────────────────────────────────────────────────────
   function sparkleBurst(x, y) {
-    var ems  = ['✨','💫','⭐','💎','🌟','👑','🔮'];
+    var ems  = ['✨','💫','⭐','🪙','🌟','👑','💎'];
     var cols = ['#ffd700','#f48fb1','#ce93d8','#80deea','#a5d6a7','#ffab91','#fff'];
     for (var i = 0; i < 20; i++) {
       var el = document.createElement('span');
@@ -567,13 +542,13 @@
     }
   }
 
-  // ── Background gems ───────────────────────────────────────────────────────────
+  // ── Background floaters ───────────────────────────────────────────────────────
   function makeBg() {
-    var gems = ['💎','✨','⭐','🔮','💫','👑','🌟','🔷','🟣','🔵'];
+    var items = ['🪙','✨','💰','⭐','💫','👑','💎','🌟','🟡','🟠'];
     for (var i = 0; i < 12; i++) {
       var el = document.createElement('div');
-      el.className = 'bg-gem';
-      el.textContent = gems[i % gems.length];
+      el.className = 'bg-coin';
+      el.textContent = items[i % items.length];
       el.style.left = (5 + Math.random() * 90) + 'vw';
       el.style.animationDuration = (9 + Math.random() * 14) + 's';
       el.style.animationDelay    = -(Math.random() * 18) + 's';
@@ -586,7 +561,7 @@
     document.getElementById('win-overlay').classList.remove('show');
     document.getElementById('tier-overlay').classList.remove('show');
     document.getElementById('celebrate').classList.remove('show');
-    score = 0; cur = 0;
+    score = 0; cur = 0; promptIdx = 0;
     rounds = buildRounds();
     document.getElementById('progress-fill').style.width = '0%';
     showRound(0);
