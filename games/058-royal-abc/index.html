@@ -121,6 +121,7 @@
     .cel-big   { font-size:clamp(72px,20vw,130px); color:#ffd700; text-shadow:0 0 30px rgba(255,215,0,.7); line-height:1; }
     .cel-arrow { font-size:clamp(30px,8vw,50px); color:#f8bbd0; opacity:.8; }
     .cel-small { font-size:clamp(72px,20vw,130px); color:#ff4081; text-shadow:0 0 30px rgba(255,64,129,.6); line-height:1; }
+    .cel-word  { font-size:clamp(20px,5vw,30px); color:#ffd700; letter-spacing:1px; }
     .cel-msg   { font-size:clamp(24px,6vw,38px); color:#f8bbd0; text-align:center; }
 
     /* ── Tier / Win overlays ── */
@@ -174,6 +175,7 @@
       <span class="cel-arrow">→</span>
       <span class="cel-small" id="cel-lower">a</span>
     </div>
+    <div class="cel-word" id="cel-word">🍎 Apple</div>
     <div class="cel-msg" id="cel-msg">Great match! ✨</div>
   </div>
 
@@ -226,13 +228,30 @@
   ];
   const CEL_MSGS = ['Great match! ✨','You got it! 🌟','Brilliant! 💫','Perfect! 🎀','Amazing! 👑','Super! ⭐'];
 
+  const LETTER_WORDS = {
+    A:['🍎','Apple'], B:['🦋','Butterfly'], C:['🐱','Cat'], D:['🐶','Dog'],
+    E:['🐘','Elephant'], F:['🌸','Flower'], G:['💎','Gem'], H:['🏠','House'],
+    I:['🍦','Ice Cream'], J:['👑','Jewel'], K:['🌟','Kingdom'], L:['🦁','Lion'],
+    M:['🌙','Moon'], N:['🌃','Night'], O:['🦉','Owl'], P:['🎀','Princess'],
+    Q:['👸','Queen'], R:['🌈','Rainbow'], S:['⭐','Star'], T:['🌷','Tulip'],
+    U:['🦄','Unicorn'], V:['🌸','Violet'], W:['✨','Wand'], X:['🎵','Xylophone'],
+    Y:['🌻','Sunflower'], Z:['🦓','Zebra'],
+  };
+  const PROMPTS = [
+    'Tap the little letter! 👇',
+    'Find the small twin! 🔍',
+    'Which lowercase matches? 💫',
+    'Tap the tiny letter! 🌟',
+    'Match the royal letter! 👑',
+  ];
+
   let tierIdx = 0, roundIdx = 0, score = 0, locked = false;
   let tierOrder = [];
 
   // ── Background ─────────────────────────────────────────────────────────
   function makeScene() {
     const alpha = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    for (let i = 0; i < 14; i++) {
+    for (let i = 0; i < 16; i++) {
       const el = document.createElement('div');
       el.className = 'bg-letter';
       el.textContent = alpha[Math.floor(Math.random() * 26)];
@@ -264,6 +283,7 @@
     updateHUD();
     const letter = tierOrder[roundIdx];
     document.getElementById('display-letter').textContent = letter;
+    document.getElementById('prompt-text').textContent = PROMPTS[Math.floor(Math.random()*PROMPTS.length)];
 
     const pool     = TIERS[tierIdx].pool;
     const numChoices = TIERS[tierIdx].choices;
@@ -297,6 +317,7 @@
       document.getElementById('cel-upper').textContent = letter;
       document.getElementById('cel-lower').textContent = letter.toLowerCase();
       document.getElementById('cel-msg').textContent   = CEL_MSGS[Math.floor(Math.random() * CEL_MSGS.length)];
+      const w = LETTER_WORDS[letter]; document.getElementById('cel-word').textContent = w ? (w[0] + ' ' + w[1]) : '';
       const cel = document.getElementById('celebrate-overlay');
       cel.classList.add('show');
       setTimeout(() => {
@@ -358,13 +379,13 @@
     const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
     const cols   = ['#ffd700','#ff4081','#f48fb1','#fff','#ce93d8','#80deea','#e040fb'];
     const emojis = ['✨','💫','⭐','🌟','🎀','👑'];
-    for (let i = 0; i < 18; i++) {
+    for (let i = 0; i < 20; i++) {
       const s = document.createElement('div'); s.className = 'sparkle';
       const a = Math.random()*Math.PI*2, dist = 30+Math.random()*80, sz = 6+Math.random()*10;
       s.style.cssText = `left:${cx+Math.cos(a)*dist-sz/2}px;top:${cy+Math.sin(a)*dist-sz/2}px;width:${sz}px;height:${sz}px;background:${cols[i%cols.length]}`;
       document.body.appendChild(s); setTimeout(()=>s.remove(), 750);
     }
-    for (let i = 0; i < 6; i++) {
+    for (let i = 0; i < 8; i++) {
       const s = document.createElement('div'); s.className = 'sparkle-emoji';
       const a = Math.random()*Math.PI*2, dist = 44+Math.random()*70;
       s.style.cssText = `left:${cx+Math.cos(a)*dist}px;top:${cy+Math.sin(a)*dist}px;font-size:${20+Math.random()*12}px`;

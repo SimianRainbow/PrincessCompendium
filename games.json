@@ -691,7 +691,7 @@
     "ageMin": 3,
     "ageMax": 5,
     "skill": "uppercase-lowercase letter matching",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "category": "letters",
     "path": "games/058-royal-abc/index.html"
   },
@@ -863,5 +863,17 @@
     "version": "1.0.0",
     "category": "numbers",
     "path": "games/072-royal-coins/index.html"
+  },
+  {
+    "id": "073-royal-doubles",
+    "title": "Princess Double Magic",
+    "description": "Each royal bag has the same gems — add them together! Learn doubles: 1+1=2 up to 10+10=20, with fun nature facts on every answer. 18 rounds across 3 tiers.",
+    "icon": "✨",
+    "ageMin": 4,
+    "ageMax": 6,
+    "skill": "doubles addition facts (1+1 to 10+10)",
+    "version": "1.0.0",
+    "category": "numbers",
+    "path": "games/073-royal-doubles/index.html"
   }
 ]

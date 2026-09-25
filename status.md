@@ -1,9 +1,9 @@
 # Princess Compendium — Status
 
 ## Last update run
-Date: 2026-09-22
-- Improved: `056-royal-3d-shapes` → v1.1.0 (5 rotating prompt variants, shape fun facts in celebrate overlay, bg gems 10→12)
-- Added: `072-royal-coins` — "Princess Coin Kingdom 🪙" teaching coin recognition (penny/nickel/dime/quarter); Easy: penny vs quarter (2-choice); Medium: penny/nickel/dime (3-choice); Hard: all 4 coins (4-choice); coin fun facts in celebrate overlay; 20-sparkle burst + dot particles; 9 rounds across 3 tiers
+Date: 2026-09-25
+- Improved: `058-royal-abc` → v1.1.0 (letter-word examples in celebrate overlay for all A–Z, 5 rotating prompt variants, sparkle burst 18→20 dots + 6→8 emojis, bg letters 14→16)
+- Added: `073-royal-doubles` — "Princess Double Magic ✨" teaching doubles addition facts (1+1=2 through 10+10=20); Easy: 1+1, 2+2, 3+3 (3 choices); Medium: 4+4, 5+5, 6+6 (3 choices); Hard: 7+7, 8+8, 9+9, 10+10 (4 choices); fun nature facts per double in celebrate overlay; 20-sparkle burst; 18 rounds across 3 tiers
 
 ## Improvement history
 
@@ -63,6 +63,7 @@ Date: 2026-09-22
 | 2026-09-16 | 057-royal-podium | 5 prompt variants per position, ordinal fun facts in celebrate, pulsing podium highlight, 12-emoji sparkle burst, extra chars | 1.1.0 |
 | 2026-09-19 | 061-sink-or-float | Score display fixed to "X ⭐", 5 rotating prompt variants, sparkle burst 18→20, bg gems 10→12 | 1.1.0 |
 | 2026-09-22 | 056-royal-3d-shapes | 5 rotating prompt variants, shape fun facts in celebrate overlay, bg gems 10→12 | 1.1.0 |
+| 2026-09-25 | 058-royal-abc | letter-word examples (A🍎Apple…Z🦓Zebra) in celebrate overlay, 5 prompt variants, sparkle 18→20 + 6→8 emojis, bg letters 14→16 | 1.1.0 |
 
 ## Games due for improvement (all at v1.0.0)
 
@@ -124,6 +125,7 @@ See `CLAUDE.md` for the full prioritised list. Top 3 to build next:
 33. **Plant parts (seed, root, stem, leaf, flower, fruit)** — ✅ covered by `070-royal-garden`
 34. **Number word recognition (ONE, TWO … TEN)** — ✅ covered by `071-number-words`
 35. **Coin recognition (penny, nickel, dime, quarter)** — ✅ covered by `072-royal-coins`
+36. **Doubles addition facts (1+1 to 10+10)** — ✅ covered by `073-royal-doubles`
 
 ## Next game ID
-`073-<slug>`
+`074-<slug>`
