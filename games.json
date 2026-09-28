@@ -740,7 +740,7 @@
     "ageMin": 3,
     "ageMax": 6,
     "skill": "number bonds to 5 and 10",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "category": "numbers",
     "path": "games/062-royal-bonds/index.html"
   },
@@ -875,5 +875,17 @@
     "version": "1.0.0",
     "category": "numbers",
     "path": "games/073-royal-doubles/index.html"
+  },
+  {
+    "id": "074-princess-hops",
+    "title": "Princess Hops!",
+    "description": "Count by 2s, 5s and 10s — tap the missing stepping stone! 5 stones appear with one hiding, 3 tiers of skip counting, fun facts on every hop. 18 rounds across 3 tiers.",
+    "icon": "🐸",
+    "ageMin": 4,
+    "ageMax": 6,
+    "skill": "skip counting — by 2s, 5s and 10s",
+    "version": "1.0.0",
+    "category": "numbers",
+    "path": "games/074-princess-hops/index.html"
   }
 ]

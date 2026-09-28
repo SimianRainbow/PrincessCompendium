@@ -1,9 +1,9 @@
 # Princess Compendium — Status
 
 ## Last update run
-Date: 2026-09-25
-- Improved: `058-royal-abc` → v1.1.0 (letter-word examples in celebrate overlay for all A–Z, 5 rotating prompt variants, sparkle burst 18→20 dots + 6→8 emojis, bg letters 14→16)
-- Added: `073-royal-doubles` — "Princess Double Magic ✨" teaching doubles addition facts (1+1=2 through 10+10=20); Easy: 1+1, 2+2, 3+3 (3 choices); Medium: 4+4, 5+5, 6+6 (3 choices); Hard: 7+7, 8+8, 9+9, 10+10 (4 choices); fun nature facts per double in celebrate overlay; 20-sparkle burst; 18 rounds across 3 tiers
+Date: 2026-09-28
+- Improved: `062-royal-bonds` → v1.1.0 (score counter "X ⭐", 5 rotating prompt variants for empty/has-gems cases, number bond fun facts in celebrate overlay, bg gems 10→12, sparkle 20→22 items)
+- Added: `074-princess-hops` — "Princess Hops! 🐸" teaching skip counting by 2s, 5s and 10s; Easy: count by 2s (6 rounds); Medium: count by 5s (6 rounds); Hard: count by 10s (6 rounds); 5 stones shown with 1 missing "?", 3 choice buttons; complete sequence revealed in celebrate overlay; skip counting fun facts; 18 rounds across 3 tiers
 
 ## Improvement history
 
@@ -64,6 +64,7 @@ Date: 2026-09-25
 | 2026-09-19 | 061-sink-or-float | Score display fixed to "X ⭐", 5 rotating prompt variants, sparkle burst 18→20, bg gems 10→12 | 1.1.0 |
 | 2026-09-22 | 056-royal-3d-shapes | 5 rotating prompt variants, shape fun facts in celebrate overlay, bg gems 10→12 | 1.1.0 |
 | 2026-09-25 | 058-royal-abc | letter-word examples (A🍎Apple…Z🦓Zebra) in celebrate overlay, 5 prompt variants, sparkle 18→20 + 6→8 emojis, bg letters 14→16 | 1.1.0 |
+| 2026-09-28 | 062-royal-bonds | score counter "X ⭐", 5 rotating prompt variants (empty/has-gems), bond fun facts in celebrate overlay, bg gems 10→12, sparkle 20→22 | 1.1.0 |
 
 ## Games due for improvement (all at v1.0.0)
 
@@ -126,6 +127,7 @@ See `CLAUDE.md` for the full prioritised list. Top 3 to build next:
 34. **Number word recognition (ONE, TWO … TEN)** — ✅ covered by `071-number-words`
 35. **Coin recognition (penny, nickel, dime, quarter)** — ✅ covered by `072-royal-coins`
 36. **Doubles addition facts (1+1 to 10+10)** — ✅ covered by `073-royal-doubles`
+37. **Skip counting (by 2s, 5s and 10s)** — ✅ covered by `074-princess-hops`
 
 ## Next game ID
-`074-<slug>`
+`075-<slug>`

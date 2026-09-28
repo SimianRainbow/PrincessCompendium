@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Royal Gem Bonds 💎</title>
+  <title>Princess Hops! 🐸</title>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
   <style>
     *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
     body{
       min-height:100vh;
-      background:linear-gradient(160deg,#f3e5f5 0%,#e8eaf6 50%,#fce4ec 100%);
+      background:linear-gradient(160deg,#e8f5e9 0%,#f3e5f5 50%,#e3f2fd 100%);
       font-family:'Fredoka One',Georgia,serif;
       display:flex;flex-direction:column;align-items:center;
       overflow:hidden;user-select:none;touch-action:manipulation;
@@ -40,82 +40,78 @@
     .tier-easy  {background:linear-gradient(135deg,#66bb6a,#2e7d32);}
     .tier-medium{background:linear-gradient(135deg,#ffca28,#f57f17);color:#3e2000 !important;}
     .tier-hard  {background:linear-gradient(135deg,#ce93d8,#6a1b9a);}
-    #round-label{font-size:clamp(13px,3.2vw,17px);color:rgba(100,30,180,.8);position:relative;z-index:1;}
+    #round-label{font-size:clamp(13px,3.2vw,17px);color:rgba(50,120,50,.8);position:relative;z-index:1;}
     #score-row  {font-size:clamp(16px,4vw,22px);letter-spacing:1px;position:relative;z-index:1;}
 
     /* ── Progress bar ── */
     #progress-track{
       width:calc(100% - clamp(28px,7vw,44px));height:7px;
-      background:rgba(150,50,200,.15);border-radius:99px;
+      background:rgba(50,150,80,.15);border-radius:99px;
       margin:clamp(7px,1.8vw,11px) auto 0;overflow:hidden;
       position:relative;z-index:1;
     }
     #progress-fill{
-      height:100%;background:linear-gradient(90deg,#ffd700,#ab47bc);
+      height:100%;background:linear-gradient(90deg,#66bb6a,#ab47bc);
       border-radius:99px;transition:width .4s ease;width:0%;
     }
 
-    /* ── Chest ── */
-    #chest-area{
-      position:relative;z-index:1;
-      display:flex;flex-direction:column;align-items:center;
-      margin:clamp(8px,2vw,14px) 0 0;
-    }
-    #chest-emoji{
-      font-size:clamp(52px,14vw,84px);line-height:1;
-      animation:chestBob 2.8s ease-in-out infinite;
-    }
-    @keyframes chestBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
-    #target-label{
-      font-size:clamp(14px,3.5vw,20px);color:#4a148c;
-      text-align:center;margin-top:4px;
+    /* ── Prompt ── */
+    #prompt{
+      font-size:clamp(16px,4.2vw,24px);color:#1b5e20;
+      text-align:center;padding:0 16px;
+      margin:clamp(10px,2.5vw,16px) 0 clamp(6px,1.5vw,10px);
+      position:relative;z-index:1;line-height:1.35;
     }
 
-    /* ── Gem grid ── */
-    #gem-grid{
-      display:flex;flex-wrap:wrap;gap:clamp(5px,1.3vw,9px);
-      justify-content:center;
-      padding:clamp(8px,2vw,14px);
-      position:relative;z-index:1;
-    }
-    .gem-slot{
-      width:clamp(36px,9.5vw,56px);height:clamp(36px,9.5vw,56px);
-      border-radius:50%;
-      transition:all .25s ease;
-    }
-    .gem-filled{
-      background:linear-gradient(135deg,#f48fb1,#c2185b);
-      box-shadow:0 3px 12px rgba(194,24,91,.4),inset 0 2px 0 rgba(255,255,255,.4);
-      border:2px solid rgba(255,255,255,.5);
-    }
-    .gem-filled::after{
-      content:'💎';
+    /* ── Stone path ── */
+    #stone-path{
       display:flex;align-items:center;justify-content:center;
-      height:100%;font-size:clamp(16px,4vw,24px);
+      gap:0;
+      padding:clamp(8px,2vw,14px) clamp(12px,3vw,20px);
+      position:relative;z-index:1;
+      width:100%;
     }
-    .gem-empty{
-      background:rgba(180,130,220,.12);
-      border:3px dashed rgba(150,100,200,.35);
+    .stone{
+      width:clamp(54px,13.5vw,72px);
+      height:clamp(54px,13.5vw,72px);
+      border-radius:50%;
+      display:flex;align-items:center;justify-content:center;
+      font-size:clamp(14px,3.5vw,22px);
+      color:#fff;
+      text-shadow:0 2px 4px rgba(0,0,0,.35);
+      box-shadow:0 4px 14px rgba(0,0,0,.2),inset 0 2px 0 rgba(255,255,255,.35);
+      flex-shrink:0;
+      transition:transform .2s;
     }
-    .gem-filling{
+    .stone.missing{
       background:linear-gradient(135deg,#ffd700,#ff9800) !important;
-      border-color:rgba(255,215,0,.6) !important;
-      box-shadow:0 3px 18px rgba(255,215,0,.6) !important;
-      animation:gemFill .5s ease-out;
+      animation:stonePulse 1.2s ease-in-out infinite;
+      border:3px solid rgba(255,255,255,.55);
+      color:#5d2e00;
+      text-shadow:0 1px 3px rgba(0,0,0,.2);
     }
-    @keyframes gemFill{
-      0%{transform:scale(0.6);opacity:.5}
+    @keyframes stonePulse{
+      0%,100%{transform:scale(1);box-shadow:0 4px 14px rgba(255,180,0,.4);}
+      50%{transform:scale(1.1);box-shadow:0 0 32px rgba(255,215,0,.85);}
+    }
+    .stone.filled-in{
+      background:linear-gradient(135deg,#ffd700,#ff9800) !important;
+      animation:fillPop .5s ease-out forwards;
+      color:#5d2e00;
+      text-shadow:0 1px 3px rgba(0,0,0,.2);
+    }
+    @keyframes fillPop{
+      0%{transform:scale(.5);opacity:.5}
       60%{transform:scale(1.2)}
       100%{transform:scale(1);opacity:1}
     }
-    #gem-row-break{width:100%;height:0;}
-
-    /* ── Prompt ── */
-    #prompt{
-      font-size:clamp(17px,4.5vw,26px);color:#4a148c;
-      text-align:center;padding:0 16px;
-      margin:clamp(6px,1.5vw,10px) 0;
-      position:relative;z-index:1;line-height:1.3;
+    .conn{
+      width:clamp(8px,2vw,14px);
+      height:3px;
+      background:linear-gradient(90deg,rgba(100,180,100,.4),rgba(100,180,100,.7));
+      border-radius:2px;
+      flex-shrink:0;
+      align-self:center;
     }
 
     /* ── Choice buttons ── */
@@ -125,6 +121,7 @@
       width:100%;justify-content:center;
       position:relative;z-index:1;
       flex-wrap:wrap;
+      margin-top:clamp(6px,1.5vw,12px);
     }
     .choice-btn{
       min-width:clamp(90px,22vw,130px);min-height:clamp(90px,22vw,120px);
@@ -137,10 +134,10 @@
     }
     .choice-btn:active{transform:scale(.9);}
     .choice-btn .num{
-      font-size:clamp(34px,9vw,56px);color:#fff;
+      font-size:clamp(30px,8vw,52px);color:#fff;
       text-shadow:0 2px 8px rgba(0,0,0,.4);line-height:1;
     }
-    .choice-btn .gem-icon{font-size:clamp(14px,3.5vw,20px);}
+    .choice-btn .hop-icon{font-size:clamp(14px,3.5vw,20px);}
     .choice-btn.correct-flash{animation:correctPop .5s ease-out;}
     @keyframes correctPop{
       0%{transform:scale(1)}
@@ -176,18 +173,18 @@
       position:fixed;inset:0;z-index:80;
       display:none;flex-direction:column;
       align-items:center;justify-content:center;gap:clamp(8px,2vw,14px);
-      background:rgba(250,240,255,.93);
+      background:rgba(240,255,245,.94);
     }
     #celebrate.show{display:flex;}
     #cel-big{font-size:clamp(60px,16vw,96px);animation:bigPop .4s ease-out;}
     @keyframes bigPop{0%{transform:scale(.3)}60%{transform:scale(1.22)}100%{transform:scale(1)}}
-    #cel-eq{
-      font-size:clamp(24px,6.5vw,44px);color:#4a148c;
-      text-align:center;
-      text-shadow:0 0 14px rgba(150,50,200,.25);
+    #cel-seq{
+      font-size:clamp(18px,4.8vw,32px);color:#1b5e20;
+      text-align:center;padding:0 16px;line-height:1.5;
+      text-shadow:0 0 12px rgba(50,150,50,.2);
     }
     #cel-fact{
-      font-size:clamp(13px,3.2vw,18px);color:#6a1b9a;
+      font-size:clamp(13px,3.2vw,18px);color:#4a148c;
       text-align:center;padding:0 20px;
       font-style:italic;margin:0;line-height:1.4;
     }
@@ -224,7 +221,7 @@
       position:fixed;inset:0;z-index:90;
       display:none;flex-direction:column;
       align-items:center;justify-content:center;gap:clamp(12px,3vw,20px);
-      background:linear-gradient(160deg,#4a148c 0%,#880e4f 100%);
+      background:linear-gradient(160deg,#1b5e20 0%,#4a148c 100%);
     }
     #win-overlay.show{display:flex;}
     #win-emoji{font-size:clamp(72px,18vw,110px);animation:startBob 2.4s ease-in-out infinite;}
@@ -243,110 +240,135 @@
 <body>
 
 <div id="header">
-  <div id="tier-badge" class="tier-easy">🌱 Easy</div>
-  <div id="round-label">1 / 9</div>
+  <div id="tier-badge" class="tier-easy">🌱 By 2s</div>
+  <div id="round-label">1 / 18</div>
   <div id="score-row">0 ⭐</div>
 </div>
 <div id="progress-track"><div id="progress-fill"></div></div>
 
-<div id="chest-area">
-  <div id="chest-emoji">💎</div>
-  <div id="target-label">Make 5 gems! ✨</div>
-</div>
-
-<div id="gem-grid"></div>
-<div id="prompt">How many more gems does Princess need?</div>
+<div id="prompt">Count by 2s — which stone is hiding? 🐸</div>
+<div id="stone-path"></div>
 <div id="choices"></div>
 
 <div id="celebrate">
-  <div id="cel-big">🎉</div>
-  <div id="cel-eq">2 + 3 = 5 💎</div>
-  <div id="cel-fact">Did you know? ⭐</div>
+  <div id="cel-big">🐸</div>
+  <div id="cel-seq">2 → 4 → 6 → 8 → 10</div>
+  <div id="cel-fact">Skip counting is counting the fast way! ✨</div>
   <div id="cel-msg">Amazing! 🌟</div>
   <button id="next-btn" onclick="doNext()">Next ➡️</button>
 </div>
 
 <div id="tier-overlay">
-  <div id="to-icon">💎</div>
-  <div id="to-title">Moving to Medium!</div>
-  <div id="to-sub">Now fill a chest with 10 gems! 💎</div>
-  <button id="to-btn" onclick="resumeFromTier()">Keep going! ➡️</button>
+  <div id="to-icon">🐸</div>
+  <div id="to-title">Skip by 5s now!</div>
+  <div id="to-sub">Time to hop by 5s — you're amazing! 💎</div>
+  <button id="to-btn" onclick="resumeFromTier()">Keep hopping! ➡️</button>
 </div>
 
 <div id="win-overlay">
-  <div id="win-emoji">👑</div>
-  <div id="win-title">Royal Bond Master! 💎</div>
-  <div id="win-sub">You filled all the chests! 🌟</div>
+  <div id="win-emoji">🏆</div>
+  <div id="win-title">Skip Count Champion! 🐸</div>
+  <div id="win-sub">You found every missing stone! 🌟</div>
   <button id="play-again-btn" onclick="restartGame()">Play Again 🔄</button>
 </div>
 
 <script>
-  var EASY_POOL = [
-    {has:0, total:5},
-    {has:1, total:5},
-    {has:2, total:5},
-    {has:3, total:5},
-    {has:4, total:5},
+  // Each question: start number, step size, which of 5 stones is missing (0-4)
+  var EASY_POOL = [   // by 2s
+    {start:2,  step:2, missing:2},  // 2,4,?,8,10 → 6
+    {start:4,  step:2, missing:3},  // 4,6,8,?,12 → 10
+    {start:2,  step:2, missing:1},  // 2,?,6,8,10 → 4
+    {start:6,  step:2, missing:2},  // 6,8,?,12,14 → 10
+    {start:10, step:2, missing:3},  // 10,12,14,?,18 → 16
+    {start:4,  step:2, missing:4},  // 4,6,8,10,? → 12
+    {start:8,  step:2, missing:2},  // 8,10,?,14,16 → 12
+    {start:12, step:2, missing:1},  // 12,?,16,18,20 → 14
+    {start:2,  step:2, missing:3},  // 2,4,6,?,10 → 8
   ];
-  var MED_POOL = [
-    {has:1,  total:10},
-    {has:2,  total:10},
-    {has:4,  total:10},
-    {has:6,  total:10},
-    {has:8,  total:10},
-    {has:9,  total:10},
+  var MED_POOL = [    // by 5s
+    {start:5,  step:5, missing:2},  // 5,10,?,20,25 → 15
+    {start:10, step:5, missing:3},  // 10,15,20,?,30 → 25
+    {start:5,  step:5, missing:1},  // 5,?,15,20,25 → 10
+    {start:20, step:5, missing:2},  // 20,25,?,35,40 → 30
+    {start:25, step:5, missing:3},  // 25,30,35,?,45 → 40
+    {start:15, step:5, missing:4},  // 15,20,25,30,? → 35
+    {start:10, step:5, missing:1},  // 10,?,20,25,30 → 15
+    {start:30, step:5, missing:2},  // 30,35,?,45,50 → 40
+    {start:5,  step:5, missing:4},  // 5,10,15,20,? → 25
   ];
-  var HARD_POOL = [
-    {has:3,  total:10},
-    {has:4,  total:10},
-    {has:5,  total:10},
-    {has:6,  total:10},
-    {has:7,  total:10},
+  var HARD_POOL = [   // by 10s
+    {start:10, step:10, missing:2}, // 10,20,?,40,50 → 30
+    {start:20, step:10, missing:3}, // 20,30,40,?,60 → 50
+    {start:10, step:10, missing:1}, // 10,?,30,40,50 → 20
+    {start:30, step:10, missing:2}, // 30,40,?,60,70 → 50
+    {start:40, step:10, missing:3}, // 40,50,60,?,80 → 70
+    {start:20, step:10, missing:4}, // 20,30,40,50,? → 60
+    {start:50, step:10, missing:2}, // 50,60,?,80,90 → 70
+    {start:30, step:10, missing:1}, // 30,?,50,60,70 → 40
+    {start:60, step:10, missing:2}, // 60,70,?,90,100 → 80
+  ];
+
+  var STONE_COLORS = [
+    'linear-gradient(135deg,#f48fb1,#c2185b)',
+    'linear-gradient(135deg,#ce93d8,#7b1fa2)',
+    'linear-gradient(135deg,#80cbc4,#00695c)',
+    'linear-gradient(135deg,#ffb74d,#e65100)',
+    'linear-gradient(135deg,#a5d6a7,#2e7d32)',
   ];
 
   var BTN_COLORS = [
     'linear-gradient(135deg,#f48fb1,#c2185b)',
-    'linear-gradient(135deg,#ce93d8,#7b1fa2)',
-    'linear-gradient(135deg,#80cbc4,#00695c)',
+    'linear-gradient(135deg,#81d4fa,#01579b)',
+    'linear-gradient(135deg,#a5d6a7,#1b5e20)',
   ];
 
   var TIER_INFO = [
-    {label:'🌱 Easy',   cls:'tier-easy',   target:5,  icon:'💎', title:'Moving to Medium!',  sub:'Now fill a chest with 10 gems! 💎'},
-    {label:'⭐ Medium', cls:'tier-medium', target:10, icon:'✨', title:'Almost There!',       sub:'Trickier bonds to 10 — think hard! 👑'},
-    {label:'👑 Hard',   cls:'tier-hard',   target:10, icon:'👑', title:'Royal Bond Master!', sub:'All done! Amazing counting! 🎉'},
+    {label:'🌱 By 2s',  cls:'tier-easy',   icon:'🐸', title:'Skip by 5s now!', sub:'Time to hop by 5s — you\'re amazing! 💎'},
+    {label:'⭐ By 5s',  cls:'tier-medium', icon:'✨', title:'Count by 10s!',   sub:'Biggest hops yet — count by 10s! 👑'},
+    {label:'👑 By 10s', cls:'tier-hard',   icon:'👑', title:'Skip Count Star!', sub:'All done! You\'re a champion! 🎉'},
   ];
 
-  var PROMPTS_EMPTY = [
-    'The chest is empty!\nPrincess needs {total} gems. How many to add?',
-    'Oops — nothing inside yet!\nFill it to {total} gems. How many?',
-    'Start from zero! She wants {total} sparkling gems.\nHow many should go in?',
-    'Empty chest! Can you fill it with {total} gems?\nHow many are needed?',
-    'The chest is waiting!\nDrop in {total} gems — how many does she need?',
-  ];
-  var PROMPTS_HAS = [
-    'Princess has {has} gem{s}.\nShe needs {total} total. How many MORE?',
-    '{has} gem{s} are sparkling inside!\nShe wants {total} in all. How many to add?',
-    'The chest holds {has} gem{s} so far.\nFill to {total} — how many more?',
-    'Look — {has} gem{s} are already there!\n{total} is the magic number. How many still needed?',
-    '{has} → {total} gems.\nHow many should Princess drop in?',
+  var PROMPTS = [
+    ['Count by 2s — which stone is hiding? 🐸',
+     'Princess hops by 2! Tap the missing number! 💎',
+     'Skip hop! 2, 4, 6... what\'s the gap? ✨',
+     'Each jump is +2! Which stone is missing? 👑',
+     'By 2s... find the hidden stepping stone! 🌸'],
+    ['Count by 5s — which stone is hiding? 🌷',
+     'Princess hops by 5! Tap the missing number! 💎',
+     'Skip hop! 5, 10, 15... what\'s the gap? ✨',
+     'Each jump is +5! Which stone is missing? 👑',
+     'By 5s... find the hidden stepping stone! 🌸'],
+    ['Count by 10s — which stone is hiding? 🌟',
+     'Princess hops by 10! Tap the missing number! 💎',
+     'Skip hop! 10, 20, 30... what\'s the gap? ✨',
+     'Each jump is +10! Which stone is missing? 👑',
+     'By 10s... find the hidden stepping stone! 🌸'],
   ];
 
-  var FACTS_5 = [
-    'A hand has 5 fingers! 🖐',
-    'A starfish has 5 arms! ⭐',
-    'A pentagon has 5 sides! 💎',
-    'There are 5 vowels: A E I O U! ✨',
-    'A pansy flower has 5 petals! 🌸',
+  var FACTS_BY2 = [
+    'Counting by 2s is called skip counting! ✨',
+    'Even numbers all end in 0, 2, 4, 6 or 8! 🌟',
+    'Counting by 2s is how we count pairs of shoes! 👟',
+    'We skip count by 2s to count animals\' legs! 🦋',
+    'Skip counting helps us count super fast! 🚀',
   ];
-  var FACTS_10 = [
-    'We have 10 fingers on both hands! 👐',
-    'We have 10 toes on our feet! 🦶',
-    'A decade is 10 years! 📅',
+  var FACTS_BY5 = [
+    'We skip count by 5s when counting nickels! 🪙',
+    'A hand has 5 fingers — count by 5s! 🖐',
+    'A pentagon has 5 sides! ⭐',
+    'Clock hands move by 5s around the face! 🕐',
+    'Counting by 5s is like magic speedwork! ⚡',
+  ];
+  var FACTS_BY10 = [
+    'We have 10 fingers and 10 toes! 👐',
+    'Counting by 10s is the fastest skip count! 🚀',
+    'A decade is 10 years long! 📅',
     'Our whole number system is built on 10! 🔢',
-    'Bowling knocks down 10 pins! 🎳',
+    '10, 20, 30 — skip counting by 10s is easy! ✨',
   ];
 
-  var MSGS = ['Amazing! 🌟','Brilliant! 💫','You did it! 👑','Wonderful! 🌈','Superstar! 💖','Perfect! ✨'];
+  var MSGS=['Amazing! 🌟','Brilliant! 💫','You did it! 👑','Wonderful! 🌈','Superstar! 💖','Perfect! ✨'];
 
   var rounds=[], cur=0, score=0, locked=false, promptVariant=0;
 
@@ -376,70 +398,75 @@
     return b;
   }
 
+  // ── Get stone numbers ─────────────────────────────────────────────────
+  function getStones(q){
+    var s=[];
+    for(var i=0;i<5;i++) s.push(q.start+i*q.step);
+    return s;
+  }
+
   // ── Distractors ──────────────────────────────────────────────────────
-  function getDistractors(need, total){
+  function getDistractors(answer, step){
     var pool=[];
-    for(var d=-3;d<=3;d++){
-      var c=need+d;
-      if(d!==0 && c>=0 && c<=total) pool.push(c);
+    for(var d=-2;d<=2;d++){
+      if(d!==0){
+        var v=answer+d*step;
+        if(v>0) pool.push(v);
+      }
     }
     pool=shuffle(pool);
     return pool.slice(0,2);
   }
 
-  // ── Gem grid ─────────────────────────────────────────────────────────
-  function buildGemGrid(has, total){
-    var grid=document.getElementById('gem-grid');
-    grid.innerHTML='';
-    for(var i=0;i<total;i++){
-      if(total===10 && i===5){
-        var br=document.createElement('div');
-        br.id='gem-row-break'; br.style.width='100%'; br.style.height='0';
-        grid.appendChild(br);
+  // ── Build stone path ──────────────────────────────────────────────────
+  function buildStonePath(q){
+    var stones=getStones(q);
+    var path=document.getElementById('stone-path');
+    path.innerHTML='';
+    for(var i=0;i<5;i++){
+      if(i>0){
+        var conn=document.createElement('div');
+        conn.className='conn';
+        path.appendChild(conn);
       }
-      var slot=document.createElement('div');
-      slot.className= i<has ? 'gem-slot gem-filled' : 'gem-slot gem-empty';
-      slot.id='gem-'+i;
-      grid.appendChild(slot);
+      var s=document.createElement('div');
+      s.className='stone';
+      s.id='stone-'+i;
+      if(i===q.missing){
+        s.classList.add('missing');
+        s.textContent='?';
+      } else {
+        s.style.background=STONE_COLORS[i];
+        s.textContent=stones[i];
+      }
+      path.appendChild(s);
     }
   }
 
-  function fillEmptyGems(has, total){
-    for(var i=has;i<total;i++){
-      (function(idx){
-        setTimeout(function(){
-          var el=document.getElementById('gem-'+idx);
-          if(el){el.className='gem-slot gem-filling';}
-        }, (idx-has)*60);
-      })(i);
+  function fillMissingStone(q){
+    var stones=getStones(q);
+    var el=document.getElementById('stone-'+q.missing);
+    if(el){
+      el.classList.remove('missing');
+      el.classList.add('filled-in');
+      el.style.animationPlayState='running';
+      el.textContent=stones[q.missing];
     }
   }
 
   // ── HUD ───────────────────────────────────────────────────────────────
   function updateHUD(){
     document.getElementById('score-row').textContent=score+' ⭐';
-    document.getElementById('progress-fill').style.width=((cur/9)*100)+'%';
-    document.getElementById('round-label').textContent=(cur+1)+' / 9';
+    document.getElementById('progress-fill').style.width=((cur/18)*100)+'%';
+    document.getElementById('round-label').textContent=(cur+1)+' / 18';
   }
 
   // ── Pick rounds ───────────────────────────────────────────────────────
   function pickRounds(){
-    var e=shuffle(EASY_POOL).slice(0,3);
-    var m=shuffle(MED_POOL).slice(0,3);
-    var h=shuffle(HARD_POOL).slice(0,3);
+    var e=shuffle(EASY_POOL).slice(0,6);
+    var m=shuffle(MED_POOL).slice(0,6);
+    var h=shuffle(HARD_POOL).slice(0,6);
     return e.concat(m).concat(h);
-  }
-
-  // ── Build prompt text ─────────────────────────────────────────────────
-  function buildPrompt(r){
-    var pv=promptVariant%5;
-    if(r.has===0){
-      return PROMPTS_EMPTY[pv].replace('{total}',r.total);
-    }
-    var s=r.has>1?'s':'';
-    return PROMPTS_HAS[pv]
-      .replace('{has}',r.has).replace('{s}',s).replace('{s}',s)
-      .replace('{total}',r.total);
   }
 
   // ── Show round ────────────────────────────────────────────────────────
@@ -448,22 +475,19 @@
     cur=idx;
     updateHUD();
 
-    var r=rounds[idx];
-    var need=r.total-r.has;
-    var tIdx=Math.floor(idx/3);
+    var q=rounds[idx];
+    var tIdx=Math.floor(idx/6);
     var ti=TIER_INFO[tIdx];
+    var answer=q.start+q.missing*q.step;
 
     var badge=document.getElementById('tier-badge');
     badge.textContent=ti.label; badge.className='tier-badge '+ti.cls;
 
-    document.getElementById('target-label').textContent='Make '+r.total+' gems! 💎';
-    document.getElementById('chest-emoji').textContent= r.total===5 ? '📦' : '🏆';
+    document.getElementById('prompt').textContent=PROMPTS[tIdx][promptVariant%5];
+    buildStonePath(q);
 
-    buildGemGrid(r.has, r.total);
-    document.getElementById('prompt').textContent=buildPrompt(r);
-
-    var distractors=getDistractors(need, r.total);
-    var opts=shuffle([need].concat(distractors));
+    var distractors=getDistractors(answer, q.step);
+    var opts=shuffle([answer].concat(distractors));
 
     var choicesDiv=document.getElementById('choices');
     choicesDiv.innerHTML='';
@@ -471,26 +495,26 @@
       var btn=document.createElement('button');
       btn.className='choice-btn';
       btn.style.background=BTN_COLORS[colorIdx%BTN_COLORS.length];
-      btn.innerHTML='<span class="num">'+n+'</span><span class="gem-icon">💎</span>';
+      btn.innerHTML='<span class="num">'+n+'</span><span class="hop-icon">🐸</span>';
       (function(chosen){
-        btn.addEventListener('pointerdown', function(){ handleTap(btn, chosen, need, r); });
+        btn.addEventListener('pointerdown', function(){ handleTap(btn, chosen, answer, q); });
       })(n);
       choicesDiv.appendChild(btn);
     });
   }
 
   // ── Handle tap ────────────────────────────────────────────────────────
-  function handleTap(btn, chosen, need, r){
+  function handleTap(btn, chosen, answer, q){
     if(locked) return;
-    if(chosen===need){
+    if(chosen===answer){
       locked=true;
       btn.classList.add('correct-flash');
       playCorrect();
       score++;
+      fillMissingStone(q);
       var rect=btn.getBoundingClientRect();
       sparkleBurst(rect.left+rect.width/2, rect.top+rect.height/2);
-      fillEmptyGems(r.has, r.total);
-      setTimeout(function(){ showCelebrate(r.has, need, r.total); }, 500);
+      setTimeout(function(){ showCelebrate(q); }, 520);
     } else {
       btn.classList.add('wrong-shake');
       playWrong();
@@ -500,7 +524,7 @@
 
   // ── Sparkles ──────────────────────────────────────────────────────────
   function sparkleBurst(x,y){
-    var ems=['✨','💎','⭐','💜','🌸','👑','💫','🌟','🔮','💕'];
+    var ems=['✨','🐸','⭐','💚','🌸','👑','💫','🌟','🍀','💎'];
     for(var i=0;i<22;i++){
       var el=document.createElement('span');
       el.className='sparkle';
@@ -517,7 +541,7 @@
   }
 
   function confettiBurst(n){
-    var cols=['#ffd700','#ff69b4','#b39ddb','#80cbc4','#ff6347','#da70d6','#fff','#f48fb1'];
+    var cols=['#ffd700','#ff69b4','#b39ddb','#80cbc4','#66bb6a','#da70d6','#fff','#f48fb1'];
     for(var i=0;i<n;i++){
       var el=document.createElement('div'); el.className='confetti-p';
       var sz=8+Math.random()*8;
@@ -530,11 +554,17 @@
   }
 
   // ── Celebrate overlay ─────────────────────────────────────────────────
-  function showCelebrate(has, need, total){
-    var facts = total===5 ? FACTS_5 : FACTS_10;
-    document.getElementById('cel-big').textContent= total===5 ? '📦' : '🏆';
-    document.getElementById('cel-eq').textContent=has+' + '+need+' = '+total+' 💎';
-    document.getElementById('cel-fact').textContent='Did you know? '+facts[promptVariant%facts.length];
+  function showCelebrate(q){
+    var stones=getStones(q);
+    var tIdx=Math.floor(cur/6);
+    var seqStr=stones.join(' → ');
+    var factsList=tIdx===0 ? FACTS_BY2 : tIdx===1 ? FACTS_BY5 : FACTS_BY10;
+    var fact=factsList[promptVariant%factsList.length];
+    var icons=['🐸','✨','👑'];
+
+    document.getElementById('cel-big').textContent=icons[tIdx];
+    document.getElementById('cel-seq').textContent=seqStr;
+    document.getElementById('cel-fact').textContent=fact;
     document.getElementById('cel-msg').textContent=MSGS[Math.floor(Math.random()*MSGS.length)];
     promptVariant++;
     document.getElementById('celebrate').classList.add('show');
@@ -552,8 +582,8 @@
     var was=cur;
     var next=was+1;
     if(next>=rounds.length){ showWin(); return; }
-    var prevTier=Math.floor(was/3);
-    var newTier =Math.floor(next/3);
+    var prevTier=Math.floor(was/6);
+    var newTier =Math.floor(next/6);
     if(newTier!==prevTier){
       playTierUp(); confettiBurst(42);
       var ti=TIER_INFO[prevTier];
@@ -575,16 +605,16 @@
   // ── Win ───────────────────────────────────────────────────────────────
   function showWin(){
     document.getElementById('progress-fill').style.width='100%';
-    document.getElementById('win-sub').textContent=score+' / 9 ⭐ — You filled all the chests!';
+    document.getElementById('win-sub').textContent=score+' / 18 ⭐ — You found every missing stone!';
     document.getElementById('win-overlay').classList.add('show');
     playCelebrate();
     confettiBurst(60);
-    setTimeout(function(){ confettiBurst(40); },600);
+    setTimeout(function(){ confettiBurst(42); },600);
   }
 
   // ── Background gems ───────────────────────────────────────────────────
   function makeBg(){
-    var items=['💎','✨','👑','🌸','💜','⭐','💫','🏆','🌟','🔮','💕','🌈'];
+    var items=['🐸','✨','👑','🌸','💚','⭐','💫','🌿','🌟','🔮','🍀','💎'];
     for(var i=0;i<12;i++){
       var el=document.createElement('div'); el.className='bg-gem';
       el.textContent=items[i%items.length];
