@@ -1,9 +1,9 @@
 # Princess Compendium — Status
 
 ## Last update run
-Date: 2026-09-28
-- Improved: `062-royal-bonds` → v1.1.0 (score counter "X ⭐", 5 rotating prompt variants for empty/has-gems cases, number bond fun facts in celebrate overlay, bg gems 10→12, sparkle 20→22 items)
-- Added: `074-princess-hops` — "Princess Hops! 🐸" teaching skip counting by 2s, 5s and 10s; Easy: count by 2s (6 rounds); Medium: count by 5s (6 rounds); Hard: count by 10s (6 rounds); 5 stones shown with 1 missing "?", 3 choice buttons; complete sequence revealed in celebrate overlay; skip counting fun facts; 18 rounds across 3 tiers
+Date: 2026-10-01
+- Improved: `059-royal-helper-call` → v1.1.0 (5 rotating prompt variants, 3 new helpers: Librarian/Dentist/Nurse, pool expanded 6→8 per tier, sparkle burst 18→20, bg floaters 8→10, 5 celebrate text variants)
+- Added: `075-odd-even-castle` — "Odd & Even Castle 🏰" teaching odd and even number recognition; Easy: 1-8 with gem-pair dot grid (💎💎 pairs, lone 👑 for odd); Medium: 9-16 with smaller dots; Hard: 17-24 no dots (memory); 5 prompt variants, ODD/EVEN facts in celebrate, 18 rounds across 3 tiers
 
 ## Improvement history
 
@@ -65,6 +65,7 @@ Date: 2026-09-28
 | 2026-09-22 | 056-royal-3d-shapes | 5 rotating prompt variants, shape fun facts in celebrate overlay, bg gems 10→12 | 1.1.0 |
 | 2026-09-25 | 058-royal-abc | letter-word examples (A🍎Apple…Z🦓Zebra) in celebrate overlay, 5 prompt variants, sparkle 18→20 + 6→8 emojis, bg letters 14→16 | 1.1.0 |
 | 2026-09-28 | 062-royal-bonds | score counter "X ⭐", 5 rotating prompt variants (empty/has-gems), bond fun facts in celebrate overlay, bg gems 10→12, sparkle 20→22 | 1.1.0 |
+| 2026-10-01 | 059-royal-helper-call | 5 rotating prompt variants, 3 new helpers (Librarian/Dentist/Nurse), pool 6→8 per tier, sparkle 18→20, bg floaters 8→10, 5 celebrate variants | 1.1.0 |
 
 ## Games due for improvement (all at v1.0.0)
 
@@ -128,6 +129,7 @@ See `CLAUDE.md` for the full prioritised list. Top 3 to build next:
 35. **Coin recognition (penny, nickel, dime, quarter)** — ✅ covered by `072-royal-coins`
 36. **Doubles addition facts (1+1 to 10+10)** — ✅ covered by `073-royal-doubles`
 37. **Skip counting (by 2s, 5s and 10s)** — ✅ covered by `074-princess-hops`
+38. **Odd and even number recognition** — ✅ covered by `075-odd-even-castle`
 
 ## Next game ID
-`075-<slug>`
+`076-<slug>`

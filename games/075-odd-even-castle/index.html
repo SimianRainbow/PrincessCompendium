@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Odd &amp; Even Castle 🏰</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+    body {
+      background: linear-gradient(155deg, #1a0533 0%, #0d2b6b 60%, #0a3d2b 100%);
+      min-height: 100vh;
+      display: flex; flex-direction: column; align-items: center;
+      font-family: 'Fredoka One', cursive;
+      overflow: hidden; user-select: none;
+      padding-bottom: 12px;
+    }
+
+    /* ── header ── */
+    #header {
+      width: 100%; max-width: 440px;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 14px 18px 0;
+      flex-shrink: 0;
+    }
+    #tier-badge {
+      font-size: clamp(13px,3.5vw,18px); color:#fff;
+      padding: 5px 14px; border-radius: 20px;
+      transition: background 0.4s;
+    }
+    #tier-badge.easy   { background: rgba(56,142,60,0.85); }
+    #tier-badge.medium { background: rgba(230,81,0,0.85); }
+    #tier-badge.hard   { background: rgba(81,45,168,0.85); }
+    #score-lbl { font-size: clamp(13px,3.2vw,17px); color: rgba(255,255,255,0.92); }
+    #round-lbl { font-size: clamp(13px,3.2vw,17px); color: rgba(255,255,255,0.85); }
+
+    /* ── progress ── */
+    #progress-wrap { width:100%; max-width:440px; padding:7px 18px 0; flex-shrink:0; }
+    #progress-bg { background:rgba(255,255,255,0.2); border-radius:8px; height:8px; overflow:hidden; }
+    #progress-fill { height:100%; border-radius:8px; background:linear-gradient(90deg,#ffd700,#ffb300); width:0%; transition:width 0.4s ease; }
+
+    /* ── number card ── */
+    #num-card {
+      width: 100%; max-width: 440px;
+      padding: 10px 16px 0;
+      flex-shrink: 0;
+    }
+    #num-inner {
+      border-radius: 26px;
+      background: linear-gradient(145deg, rgba(255,255,255,0.13), rgba(255,255,255,0.06));
+      border: 2px solid rgba(255,255,255,0.2);
+      box-shadow: 0 6px 28px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.15);
+      padding: 14px 10px 12px;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 8px; position: relative; overflow: hidden;
+      min-height: clamp(160px,40vw,220px);
+    }
+
+    /* castle bg gems */
+    #bg-gems { position:absolute; inset:0; pointer-events:none; overflow:hidden; }
+    .gem-float {
+      position:absolute; font-size:clamp(14px,3.5vw,22px);
+      opacity:0.15; animation: gem-drift linear infinite;
+    }
+    @keyframes gem-drift {
+      0%  { transform:translateY(110%) rotate(0deg); opacity:0.1; }
+      50% { opacity:0.2; }
+      100%{ transform:translateY(-120%) rotate(360deg); opacity:0; }
+    }
+
+    #the-number {
+      font-size: clamp(72px, 22vw, 120px);
+      color: #fff;
+      text-shadow: 0 0 30px rgba(255,215,0,0.6), 0 4px 12px rgba(0,0,0,0.5);
+      line-height: 1;
+      z-index: 2;
+      transition: transform 0.2s;
+    }
+    #the-number.pop { animation: numPop 0.3s ease-out; }
+    @keyframes numPop { 0%{transform:scale(0.6)} 70%{transform:scale(1.1)} 100%{transform:scale(1)} }
+
+    #dot-grid {
+      display: flex; flex-direction: column;
+      align-items: center; gap: 3px;
+      z-index: 2; min-height: 10px;
+      max-height: clamp(80px,22vw,140px);
+      overflow: hidden;
+    }
+    .dot-row { display:flex; gap:3px; align-items:center; }
+
+    /* ── prompt ── */
+    #prompt {
+      font-size: clamp(18px,4.8vw,25px); color:#fff;
+      text-align: center; padding: 10px 16px 0;
+      text-shadow: 0 2px 6px rgba(0,0,0,0.35);
+      flex-shrink: 0;
+    }
+
+    /* ── answer buttons ── */
+    #btn-row {
+      width:100%; max-width:440px;
+      padding: 10px 16px 0;
+      display: grid; grid-template-columns:1fr 1fr; gap: 12px;
+      flex-shrink: 0;
+    }
+    .ans-btn {
+      min-height: clamp(96px,26vw,130px);
+      border-radius: 22px;
+      border: 3px solid rgba(255,255,255,0.3);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 6px;
+      cursor: pointer;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.35);
+      transition: transform 0.12s;
+    }
+    .ans-btn:active { transform: scale(0.9); }
+    #btn-odd  { background: linear-gradient(145deg, rgba(103,58,183,0.65), rgba(81,45,168,0.55));
+                border-color: rgba(186,104,200,0.7); }
+    #btn-even { background: linear-gradient(145deg, rgba(0,121,107,0.65), rgba(0,77,64,0.55));
+                border-color: rgba(77,208,169,0.7); }
+    .ans-icon  { font-size: clamp(30px,8vw,46px); pointer-events:none; }
+    .ans-label { font-size: clamp(18px,5vw,28px); color:#fff;
+                 text-shadow: 0 1px 4px rgba(0,0,0,0.45); pointer-events:none; }
+    .ans-btn.wobble { animation: wobble 0.42s ease-out; }
+    @keyframes wobble {
+      0%,100%{transform:translateX(0)}
+      20%{transform:translateX(-10px)}
+      60%{transform:translateX(10px)}
+      80%{transform:translateX(-5px)}
+    }
+    .ans-btn.locked { opacity:0.35; pointer-events:none; }
+
+    /* ── sparkles ── */
+    .sparkle {
+      position:fixed; pointer-events:none; z-index:50;
+      font-size: clamp(12px,3.5vw,20px);
+      animation: sFly ease-out forwards;
+    }
+    @keyframes sFly {
+      0%  { transform:translate(0,0) scale(1.2); opacity:1; }
+      100%{ transform:translate(var(--tx),var(--ty)) scale(0.1); opacity:0; }
+    }
+
+    /* ── celebrate overlay ── */
+    #celebrate-overlay {
+      position:fixed; inset:0; background:rgba(0,0,0,0.6);
+      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px;
+      z-index:99; opacity:0; pointer-events:none; transition:opacity 0.35s;
+    }
+    #celebrate-overlay.show { opacity:1; pointer-events:all; }
+    #cel-emoji { font-size:clamp(56px,15vw,96px); }
+    #cel-text  { font-size:clamp(22px,6vw,40px); color:#fff; text-shadow:0 0 20px #ffd700; text-align:center; padding:0 16px; line-height:1.3; }
+    #cel-fact  { font-size:clamp(15px,3.8vw,21px); color:#ffe082; text-align:center; padding:0 20px; line-height:1.4; }
+    #next-btn {
+      padding:clamp(14px,4vw,20px) clamp(32px,8vw,52px);
+      font-size:clamp(18px,5vw,26px); border-radius:50px; border:none;
+      background:linear-gradient(135deg,#ffd700,#ff9800);
+      color:#5d2e00; font-weight:bold; cursor:pointer; font-family:inherit;
+      box-shadow:0 4px 16px rgba(255,180,0,0.5);
+    }
+
+    /* ── win overlay ── */
+    #win-overlay {
+      position:fixed; inset:0;
+      background:linear-gradient(160deg,#1a0533 0%,#0d2b6b 60%,#0a3d2b 100%);
+      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:20px;
+      z-index:110; opacity:0; pointer-events:none; transition:opacity 0.4s;
+    }
+    #win-overlay.show { opacity:1; pointer-events:all; }
+    #win-icon  { font-size:clamp(64px,18vw,110px); }
+    #win-title { font-size:clamp(26px,7vw,44px); color:#ffd700; text-shadow:0 0 24px #ff9800; text-align:center; padding:0 16px; }
+    #win-score { font-size:clamp(20px,5.5vw,34px); color:#fff; }
+    #win-play-again {
+      padding:clamp(14px,4vw,20px) clamp(32px,8vw,52px);
+      font-size:clamp(18px,5vw,26px); border-radius:50px; border:none;
+      background:linear-gradient(135deg,#ffd700,#ff9800);
+      color:#5d2e00; font-weight:bold; cursor:pointer; font-family:inherit;
+      box-shadow:0 4px 16px rgba(255,180,0,0.5);
+    }
+
+    /* ── tier overlay ── */
+    #tier-overlay {
+      position:fixed; inset:0;
+      display:flex; align-items:center; justify-content:center;
+      z-index:95; pointer-events:none; opacity:0; transition:opacity 0.3s;
+    }
+    #tier-overlay.show { opacity:1; }
+    #tier-inner {
+      background:rgba(0,0,0,0.82); border-radius:24px; padding:22px 44px;
+      font-size:clamp(22px,6.5vw,38px); color:#fff; text-align:center;
+      text-shadow:0 0 20px gold; box-shadow:0 0 0 4px rgba(255,215,0,0.4);
+    }
+
+    /* ── confetti ── */
+    .confetti-piece {
+      position:fixed; border-radius:50%;
+      animation:cFall linear forwards; pointer-events:none; z-index:100;
+    }
+    @keyframes cFall { 0%{top:-20px;opacity:1} 100%{top:110vh;opacity:.2} }
+  </style>
+</head>
+<body>
+
+<div id="header">
+  <div id="tier-badge" class="easy">🌸 Easy</div>
+  <div id="score-lbl">0 ⭐</div>
+  <div id="round-lbl">1 / 18</div>
+</div>
+
+<div id="progress-wrap">
+  <div id="progress-bg"><div id="progress-fill"></div></div>
+</div>
+
+<div id="num-card">
+  <div id="num-inner">
+    <div id="bg-gems"></div>
+    <div id="the-number">5</div>
+    <div id="dot-grid"></div>
+  </div>
+</div>
+
+<div id="prompt">Is this number ODD or EVEN? 🏰</div>
+
+<div id="btn-row">
+  <div class="ans-btn" id="btn-odd"  onclick="handleAnswer('odd')">
+    <span class="ans-icon">🔮</span>
+    <span class="ans-label">ODD</span>
+  </div>
+  <div class="ans-btn" id="btn-even" onclick="handleAnswer('even')">
+    <span class="ans-icon">✨</span>
+    <span class="ans-label">EVEN</span>
+  </div>
+</div>
+
+<div id="celebrate-overlay">
+  <div id="cel-emoji">🌟</div>
+  <div id="cel-text">That's right!</div>
+  <div id="cel-fact">ODD numbers always have one gem left over!</div>
+  <button id="next-btn" onclick="nextRound()">Next ➡️</button>
+</div>
+
+<div id="win-overlay">
+  <div id="win-icon">🏰</div>
+  <div id="win-title">You're an Odd &amp; Even Champion! 👑</div>
+  <div id="win-score">You got 0 ⭐</div>
+  <button id="win-play-again" onclick="restartGame()">Play Again 🔄</button>
+</div>
+
+<div id="tier-overlay">
+  <div id="tier-inner">✨ Medium! ✨</div>
+</div>
+
+<script>
+  /* ── audio ── */
+  let audioCtx = null;
+  function getAudio() { if (!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)(); return audioCtx; }
+  function tone(f,t,d,v) {
+    try {
+      const ctx=getAudio(), o=ctx.createOscillator(), g=ctx.createGain();
+      o.connect(g); g.connect(ctx.destination);
+      o.type=t||'sine'; o.frequency.value=f;
+      g.gain.setValueAtTime(v||0.15,ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+d);
+      o.start(); o.stop(ctx.currentTime+d);
+    } catch(e) {}
+  }
+  function playCorrect()   { [523,659,784,1047].forEach((f,i)=>setTimeout(()=>tone(f,'sine',0.18,0.16),i*85)); }
+  function playWrong()     { tone(200,'sawtooth',0.2,0.1); }
+  function playCelebrate() { [523,659,784,880,1047,1175,1319].forEach((f,i)=>setTimeout(()=>tone(f,'sine',0.22,0.17),i*65)); }
+  function playTierUp()    { [660,880,1047,1320].forEach((f,i)=>setTimeout(()=>tone(f,'triangle',0.25,0.18),i*100)); }
+  function playWin()       { [523,659,784,1047,1319,1568].forEach((f,i)=>setTimeout(()=>tone(f,'sine',0.3,0.18),i*70)); }
+
+  /* ── data ── */
+  const TIERS = [
+    { key:'easy',   label:'🌸 Easy',   cls:'easy',   showDots:true  },
+    { key:'medium', label:'🌟 Medium', cls:'medium', showDots:true  },
+    { key:'hard',   label:'👑 Hard',   cls:'hard',   showDots:false },
+  ];
+
+  const POOLS = {
+    easy:   [1,2,3,4,5,6,7,8],
+    medium: [9,10,11,12,13,14,15,16],
+    hard:   [17,18,19,20,21,22,23,24],
+  };
+
+  const ODD_FACTS = [
+    'ODD numbers always have one gem left over when you pair them! 🔮',
+    'ODD numbers end in 1, 3, 5, 7 or 9! ✨',
+    '1, 3, 5 — ODD numbers can\'t be shared equally between two friends! 🌸',
+    'With an ODD number, one gem is always left without a partner! 💎',
+    'Odd numbers: 1, 3, 5, 7, 9, 11 … every other number! 👑',
+  ];
+  const EVEN_FACTS = [
+    'EVEN numbers pair up perfectly — no gem left over! 💎',
+    'EVEN numbers end in 0, 2, 4, 6 or 8! ✨',
+    '2, 4, 6 — EVEN numbers can always be shared equally! 🌸',
+    'EVEN numbers make perfect pairs — all gems have a friend! 🎀',
+    'Even numbers: 2, 4, 6, 8, 10, 12 … every other number! 👑',
+  ];
+
+  const PROMPTS = [
+    'Is this number ODD or EVEN? 🏰',
+    'Tap the right royal tower! 👑',
+    'ODD or EVEN — which one? 🔮',
+    'Can these gems pair up perfectly? ✨',
+    'Which castle does this number live in? 🌟',
+  ];
+
+  const TOTAL_ROUNDS = 18;
+  let round = 0, score = 0, locked = false;
+  let roundsSeq = [];
+
+  /* ── helpers ── */
+  function shuffle(arr) {
+    const a = [...arr];
+    for (let i=a.length-1;i>0;i--) { const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
+    return a;
+  }
+
+  function isEven(n) { return n % 2 === 0; }
+
+  function buildSequence() {
+    roundsSeq = [];
+    TIERS.forEach(tier => {
+      const pool = shuffle(POOLS[tier.key]);
+      roundsSeq.push(...pool.slice(0, 6).map(n => ({ n, tier: tier.key })));
+    });
+  }
+
+  function getTierIndex(r) {
+    if (r <= 6) return 0;
+    if (r <= 12) return 1;
+    return 2;
+  }
+
+  /* ── dot grid ── */
+  function renderDots(n, showDots) {
+    const container = document.getElementById('dot-grid');
+    container.innerHTML = '';
+    if (!showDots || n <= 0) return;
+
+    const dotSize = n <= 8 ? 'clamp(22px,6vw,30px)' : 'clamp(16px,4.5vw,22px)';
+    const gap     = n <= 8 ? '4px' : '3px';
+    container.style.gap = gap;
+
+    const pairs = Math.floor(n / 2);
+    const odd   = n % 2;
+
+    for (let i = 0; i < pairs; i++) {
+      const row = document.createElement('div');
+      row.className = 'dot-row';
+      row.style.gap = gap;
+      row.innerHTML = `<span style="font-size:${dotSize};line-height:1">💎</span><span style="font-size:${dotSize};line-height:1">💎</span>`;
+      container.appendChild(row);
+    }
+    if (odd) {
+      const solo = document.createElement('div');
+      solo.className = 'dot-row';
+      solo.innerHTML = `<span style="font-size:${dotSize};line-height:1">👑</span>`;
+      container.appendChild(solo);
+    }
+  }
+
+  /* ── bg gems ── */
+  function setupBgGems() {
+    const wrap = document.getElementById('bg-gems');
+    wrap.innerHTML = '';
+    const icons = ['💎','✨','⭐','🌟','🔮','👑'];
+    for (let i = 0; i < 12; i++) {
+      const el = document.createElement('div');
+      el.className = 'gem-float';
+      el.textContent = icons[i % icons.length];
+      el.style.left = (5 + Math.random() * 90) + '%';
+      el.style.bottom = '-20px';
+      el.style.animationDuration = (5 + Math.random() * 6) + 's';
+      el.style.animationDelay    = (Math.random() * 6) + 's';
+      wrap.appendChild(el);
+    }
+  }
+
+  /* ── render round ── */
+  function renderRound() {
+    locked = false;
+    const { n, tier } = roundsSeq[round - 1];
+    const tierIdx = getTierIndex(round);
+    const showDots = TIERS[tierIdx].showDots;
+
+    const numEl = document.getElementById('the-number');
+    numEl.textContent = n;
+    numEl.classList.remove('pop');
+    void numEl.offsetWidth;
+    numEl.classList.add('pop');
+
+    renderDots(n, showDots);
+
+    document.getElementById('prompt').textContent = PROMPTS[Math.floor(Math.random() * PROMPTS.length)];
+
+    document.getElementById('btn-odd').classList.remove('locked');
+    document.getElementById('btn-even').classList.remove('locked');
+    document.getElementById('btn-odd').classList.remove('wobble');
+    document.getElementById('btn-even').classList.remove('wobble');
+  }
+
+  /* ── answer ── */
+  function handleAnswer(chosen) {
+    if (locked) return;
+    const { n } = roundsSeq[round - 1];
+    const correct = isEven(n) ? 'even' : 'odd';
+
+    if (chosen === correct) {
+      locked = true;
+      score++;
+      document.getElementById('score-lbl').textContent = score + ' ⭐';
+      playCorrect();
+      const btn = document.getElementById(chosen === 'odd' ? 'btn-odd' : 'btn-even');
+      const rect = btn.getBoundingClientRect();
+      sparkleBurst(rect.left + rect.width/2, rect.top + rect.height/2);
+      document.getElementById(chosen === 'odd' ? 'btn-even' : 'btn-odd').classList.add('locked');
+      setTimeout(() => showCelebration(n, correct), 560);
+    } else {
+      const btn = document.getElementById(chosen === 'odd' ? 'btn-odd' : 'btn-even');
+      btn.classList.add('wobble');
+      playWrong();
+      setTimeout(() => btn.classList.remove('wobble'), 500);
+    }
+  }
+
+  /* ── celebration ── */
+  function showCelebration(n, type) {
+    if (round >= TOTAL_ROUNDS) { showWinScreen(); return; }
+
+    const facts = type === 'odd' ? ODD_FACTS : EVEN_FACTS;
+    const fact  = facts[Math.floor(Math.random() * facts.length)];
+    const texts = type === 'odd'
+      ? [`${n} is ODD! 🔮 Well done!`, `Yes! ${n} is an ODD number! ✨`, `Brilliant! ${n} is ODD! 👑`, `Amazing! ${n} is ODD! 🌸`, `You got it — ${n} is ODD! 💎`]
+      : [`${n} is EVEN! ✨ Well done!`, `Yes! ${n} is an EVEN number! 💎`, `Brilliant! ${n} is EVEN! 👑`, `Amazing! ${n} is EVEN! 🌸`, `You got it — ${n} is EVEN! 🌟`];
+    const emojis = ['👑','💎','🌟','⭐','✨','🔮'];
+
+    document.getElementById('cel-emoji').textContent = emojis[Math.floor(Math.random() * emojis.length)];
+    document.getElementById('cel-text').textContent  = texts[Math.floor(Math.random() * texts.length)];
+    document.getElementById('cel-fact').textContent  = fact;
+    document.getElementById('celebrate-overlay').classList.add('show');
+    playCelebrate();
+    confettiBurst();
+  }
+
+  function showWinScreen() {
+    document.getElementById('celebrate-overlay').classList.remove('show');
+    document.getElementById('win-score').textContent = `You got ${score} ⭐`;
+    document.getElementById('win-overlay').classList.add('show');
+    document.getElementById('progress-fill').style.width = '100%';
+    playWin();
+    confettiBurst();
+    setTimeout(confettiBurst, 500);
+  }
+
+  /* ── round flow ── */
+  function nextRound() {
+    document.getElementById('celebrate-overlay').classList.remove('show');
+    const oldTier = getTierIndex(round);
+    round++;
+    const newTier = getTierIndex(round);
+
+    const tier = TIERS[newTier];
+    const badge = document.getElementById('tier-badge');
+    badge.textContent = tier.label;
+    badge.className   = tier.cls;
+
+    document.getElementById('round-lbl').textContent      = `${round} / ${TOTAL_ROUNDS}`;
+    document.getElementById('progress-fill').style.width  = ((round - 1) / TOTAL_ROUNDS * 100) + '%';
+
+    if (newTier > oldTier) {
+      showTierOverlay(tier.label, renderRound);
+    } else {
+      renderRound();
+    }
+  }
+
+  function showTierOverlay(label, callback) {
+    const overlay = document.getElementById('tier-overlay');
+    document.getElementById('tier-inner').textContent = `✨ ${label}! ✨`;
+    overlay.classList.add('show');
+    playTierUp();
+    confettiBurst();
+    setTimeout(() => { overlay.classList.remove('show'); setTimeout(callback, 320); }, 1800);
+  }
+
+  function restartGame() {
+    round = 0; score = 0;
+    document.getElementById('score-lbl').textContent   = '0 ⭐';
+    document.getElementById('win-overlay').classList.remove('show');
+    buildSequence();
+    setupBgGems();
+    nextRound();
+  }
+
+  /* ── effects ── */
+  function sparkleBurst(cx, cy) {
+    const icons = ['✨','🌸','⭐','💫','💖','🌟','🎀','💎','🔮','👑'];
+    for (let i = 0; i < 20; i++) {
+      const el = document.createElement('div');
+      el.className = 'sparkle';
+      el.textContent = icons[Math.floor(Math.random() * icons.length)];
+      const angle = (i / 20) * Math.PI * 2;
+      const dist  = 55 + Math.random() * 90;
+      el.style.setProperty('--tx', Math.cos(angle) * dist + 'px');
+      el.style.setProperty('--ty', Math.sin(angle) * dist - 20 + 'px');
+      el.style.left = (cx - 10) + 'px';
+      el.style.top  = (cy - 10) + 'px';
+      el.style.animationDuration = (0.45 + Math.random() * 0.45) + 's';
+      el.style.animationDelay    = (Math.random() * 0.08) + 's';
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 1000);
+    }
+  }
+
+  function confettiBurst() {
+    const cols = ['#ffd700','#ff69b4','#ff99cc','#c0a0ff','#7fff00','#00cfff','#fff','#ffb347','#a0f0a0'];
+    for (let i = 0; i < 42; i++) {
+      const el = document.createElement('div');
+      el.className = 'confetti-piece';
+      const sz = 8 + Math.random() * 8;
+      el.style.width  = sz + 'px'; el.style.height = sz + 'px';
+      el.style.left   = Math.random() * 100 + 'vw';
+      el.style.background = cols[Math.floor(Math.random() * cols.length)];
+      el.style.animationDuration = (1.2 + Math.random() * 1.6) + 's';
+      el.style.animationDelay    = (Math.random() * 0.4) + 's';
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 2900);
+    }
+  }
+
+  /* ── init ── */
+  buildSequence();
+  setupBgGems();
+  nextRound();
+</script>
+</body>
+</html>

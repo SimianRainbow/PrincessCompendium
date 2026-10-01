@@ -46,7 +46,7 @@
     #scene-inner {
       border-radius: 26px;
       overflow: hidden;
-      height: clamp(160px, 42vw, 220px);
+      height: clamp(150px, 40vw, 210px);
       display: flex; flex-direction: column;
       align-items: center; justify-content: center;
       gap: 8px;
@@ -263,13 +263,25 @@
 
   /* ── helpers ─────────────────────── */
   const HELPERS = {
-    doctor:      { label:'Doctor',      emoji:'👨‍⚕️', bg:'rgba(56,142,60,0.45)',   border:'rgba(100,200,100,0.6)', fact:'The Doctor helps when you feel sick!' },
-    firefighter: { label:'Firefighter', emoji:'👩‍🚒', bg:'rgba(211,47,47,0.45)',  border:'rgba(255,100,60,0.6)',  fact:'Firefighters are brave helpers who stop fires!' },
-    teacher:     { label:'Teacher',     emoji:'👩‍🏫', bg:'rgba(21,101,192,0.45)', border:'rgba(80,160,255,0.6)',  fact:'Teachers help us learn and grow!' },
-    police:      { label:'Police',      emoji:'👮',   bg:'rgba(48,63,159,0.45)',   border:'rgba(100,120,255,0.6)', fact:'Police Officers keep everyone safe!' },
-    chef:        { label:'Chef',        emoji:'👨‍🍳', bg:'rgba(230,119,0,0.45)',  border:'rgba(255,160,40,0.6)',  fact:'Chefs cook delicious food for us!' },
-    vet:         { label:'Vet',         emoji:'🐾',   bg:'rgba(91,64,32,0.55)',    border:'rgba(160,110,60,0.6)',  fact:'Vets are doctors for animals!' },
+    doctor:      { label:'Doctor',      emoji:'👨‍⚕️', bg:'rgba(56,142,60,0.45)',   border:'rgba(100,200,100,0.6)', fact:'Doctors help when you feel sick or hurt!' },
+    firefighter: { label:'Firefighter', emoji:'👩‍🚒', bg:'rgba(211,47,47,0.45)',  border:'rgba(255,100,60,0.6)',  fact:'Firefighters are brave heroes who stop fires!' },
+    teacher:     { label:'Teacher',     emoji:'👩‍🏫', bg:'rgba(21,101,192,0.45)', border:'rgba(80,160,255,0.6)',  fact:'Teachers help us learn and grow every day!' },
+    police:      { label:'Police',      emoji:'👮',   bg:'rgba(48,63,159,0.45)',   border:'rgba(100,120,255,0.6)', fact:'Police Officers keep everyone safe and help if you\'re lost!' },
+    chef:        { label:'Chef',        emoji:'👨‍🍳', bg:'rgba(230,119,0,0.45)',  border:'rgba(255,160,40,0.6)',  fact:'Chefs cook delicious food for everyone to enjoy!' },
+    vet:         { label:'Vet',         emoji:'🐾',   bg:'rgba(91,64,32,0.55)',    border:'rgba(160,110,60,0.6)',  fact:'Vets are special doctors who care for animals!' },
+    librarian:   { label:'Librarian',   emoji:'📚',   bg:'rgba(74,20,140,0.45)',   border:'rgba(160,90,220,0.6)', fact:'Librarians help us find books and love reading!' },
+    dentist:     { label:'Dentist',     emoji:'🦷',   bg:'rgba(0,131,143,0.45)',   border:'rgba(0,188,212,0.6)',  fact:'Dentists keep our teeth sparkly clean and healthy!' },
+    nurse:       { label:'Nurse',       emoji:'💉',   bg:'rgba(136,14,79,0.45)',   border:'rgba(240,98,146,0.6)', fact:'Nurses are caring helpers who look after us at the hospital!' },
   };
+
+  /* ── prompt variants ─────────────── */
+  const PROMPTS = [
+    'Who should Princess call? 📞',
+    'Who can help Princess? 🌟',
+    'Which helper does Princess need? 👑',
+    'Who comes to the rescue? 🚒',
+    'Who is the right helper here? 💎',
+  ];
 
   /* ── scenario pools ─────────────── */
   const POOL = {
@@ -280,6 +292,8 @@
       { situationEmoji:'🐕', sceneText:'Princess\'s puppy feels poorly!',      answer:'vet',         skyBg:'linear-gradient(160deg,#fff8e1,#ffecb3)', extraBg:'🐾❤️🐾' },
       { situationEmoji:'🎂', sceneText:'The royal feast needs cooking!',       answer:'chef',        skyBg:'linear-gradient(160deg,#fff3e0,#ffe0b2)', extraBg:'🍰🍴🍰' },
       { situationEmoji:'😨', sceneText:'Princess is lost and scared!',         answer:'police',      skyBg:'linear-gradient(160deg,#e8eaf6,#c5cae9)', extraBg:'🗺️🚔🗺️' },
+      { situationEmoji:'📖', sceneText:'Princess wants a magical storybook!',  answer:'librarian',   skyBg:'linear-gradient(160deg,#f3e5f5,#e1bee7)', extraBg:'📚✨📚' },
+      { situationEmoji:'🦷', sceneText:'Princess has a wobbly tooth!',         answer:'dentist',     skyBg:'linear-gradient(160deg,#e0f7fa,#b2ebf2)', extraBg:'🦷⭐🦷' },
     ],
     medium: [
       { situationEmoji:'🤧', sceneText:'Princess has a sneezy cold!',         answer:'doctor',      skyBg:'linear-gradient(160deg,#e8f5e9,#c8e6c9)', extraBg:'🌡️🤒🌡️' },
@@ -288,6 +302,8 @@
       { situationEmoji:'🐈', sceneText:'Princess\'s kitten has a sore paw!',  answer:'vet',         skyBg:'linear-gradient(160deg,#fff8e1,#ffecb3)', extraBg:'🐾🩺🐾' },
       { situationEmoji:'🍰', sceneText:'It\'s the royal birthday — who bakes?',answer:'chef',        skyBg:'linear-gradient(160deg,#fff3e0,#ffe0b2)', extraBg:'🎂🎉🎂' },
       { situationEmoji:'🗺️', sceneText:'Princess can\'t find her way home!',  answer:'police',      skyBg:'linear-gradient(160deg,#e8eaf6,#c5cae9)', extraBg:'🏠🚔🏠' },
+      { situationEmoji:'🔍', sceneText:'Princess can\'t find the right book!', answer:'librarian',   skyBg:'linear-gradient(160deg,#f3e5f5,#e1bee7)', extraBg:'📚🔍📚' },
+      { situationEmoji:'😬', sceneText:'Princess\'s teeth need a check-up!',   answer:'dentist',     skyBg:'linear-gradient(160deg,#e0f7fa,#b2ebf2)', extraBg:'🦷🩺🦷' },
     ],
     hard: [
       { situationEmoji:'🦷', sceneText:'Ouch! Princess has a toothache!',        answer:'doctor',      skyBg:'linear-gradient(160deg,#e8f5e9,#c8e6c9)', extraBg:'💊🩺💊' },
@@ -296,6 +312,8 @@
       { situationEmoji:'🐇', sceneText:'The royal bunny won\'t hop or eat!',     answer:'vet',         skyBg:'linear-gradient(160deg,#fff8e1,#ffecb3)', extraBg:'🐰❤️🐰' },
       { situationEmoji:'🥗', sceneText:'The princess banquet has no food!',      answer:'chef',        skyBg:'linear-gradient(160deg,#fff3e0,#ffe0b2)', extraBg:'🍽️🍴🍽️' },
       { situationEmoji:'🏰', sceneText:'Someone took Princess\'s royal crown!',  answer:'police',      skyBg:'linear-gradient(160deg,#e8eaf6,#c5cae9)', extraBg:'👑🚔👑' },
+      { situationEmoji:'📜', sceneText:'Princess needs the rarest royal scroll!', answer:'librarian',  skyBg:'linear-gradient(160deg,#f3e5f5,#e1bee7)', extraBg:'📚⭐📚' },
+      { situationEmoji:'💎', sceneText:'Princess\'s smile needs a sparkle fix!', answer:'dentist',     skyBg:'linear-gradient(160deg,#e0f7fa,#b2ebf2)', extraBg:'🦷💎🦷' },
     ],
   };
 
@@ -332,7 +350,7 @@
     wrap.innerHTML = '';
     const icons = extraBg.split('');
     const filtered = [...new Set(icons.filter(c => c.trim()))];
-    const count = 8;
+    const count = 10;
     for (let i = 0; i < count; i++) {
       const el = document.createElement('div');
       el.className = 'floater';
@@ -405,10 +423,11 @@
     }
     const h = HELPERS[scenario.answer];
     const celebs = [
-      { text:`Yes! Call the ${h.label}! 🌟`,   emoji: h.emoji },
-      { text:`That's right! The ${h.label}! ✨`, emoji:'👑' },
-      { text:`You got it! 🌸`,                  emoji:'💎' },
-      { text:`Brilliant! ${h.emoji}`,            emoji:'⭐' },
+      { text:`Yes! Call the ${h.label}! 🌟`,         emoji: h.emoji },
+      { text:`That's right! The ${h.label}! ✨`,      emoji:'👑' },
+      { text:`Amazing! 🌸 ${h.label} to the rescue!`, emoji:'💎' },
+      { text:`Brilliant! ${h.emoji} Well done!`,       emoji:'⭐' },
+      { text:`Perfect! The ${h.label} can help! 🎀`,  emoji:'🌸' },
     ];
     const c = celebs[Math.floor(Math.random() * celebs.length)];
     document.getElementById('cel-emoji').textContent   = c.emoji;
@@ -443,6 +462,8 @@
     badge.className = tier.cls;
     document.getElementById('round-lbl').textContent = `${round} / ${TOTAL_ROUNDS}`;
     document.getElementById('progress-fill').style.width = ((round - 1) / TOTAL_ROUNDS * 100) + '%';
+
+    document.getElementById('prompt').textContent = PROMPTS[Math.floor(Math.random() * PROMPTS.length)];
 
     if (newTier > oldTier) {
       showTierOverlay(tier.label, startRound);
@@ -480,12 +501,12 @@
 
   /* ── effects ──────────────────────── */
   function sparkleBurst(cx, cy) {
-    const icons = ['✨','🌸','⭐','💫','💖','🌟','🎀','💎'];
-    for (let i = 0; i < 18; i++) {
+    const icons = ['✨','🌸','⭐','💫','💖','🌟','🎀','💎','🚒','📚'];
+    for (let i = 0; i < 20; i++) {
       const el = document.createElement('div');
       el.className = 'sparkle';
       el.textContent = icons[Math.floor(Math.random() * icons.length)];
-      const angle = (i / 18) * Math.PI * 2;
+      const angle = (i / 20) * Math.PI * 2;
       const dist  = 55 + Math.random() * 85;
       el.style.setProperty('--tx', Math.cos(angle) * dist + 'px');
       el.style.setProperty('--ty', Math.sin(angle) * dist - 20 + 'px');
