@@ -1,9 +1,9 @@
 # Princess Compendium — Status
 
 ## Last update run
-Date: 2026-10-01
-- Improved: `059-royal-helper-call` → v1.1.0 (5 rotating prompt variants, 3 new helpers: Librarian/Dentist/Nurse, pool expanded 6→8 per tier, sparkle burst 18→20, bg floaters 8→10, 5 celebrate text variants)
-- Added: `075-odd-even-castle` — "Odd & Even Castle 🏰" teaching odd and even number recognition; Easy: 1-8 with gem-pair dot grid (💎💎 pairs, lone 👑 for odd); Medium: 9-16 with smaller dots; Hard: 17-24 no dots (memory); 5 prompt variants, ODD/EVEN facts in celebrate, 18 rounds across 3 tiers
+Date: 2026-10-04
+- Improved: `063-royal-months` → v1.1.0 (expanded 9→18 rounds (6 per tier), added 12 month fun facts in celebrate overlay, 5 prompt variants per type (was 3), sparkle burst 20→22, round label updated to X/18)
+- Added: `076-word-wands` — "Princess Word Wands 🪄" teaching word family / CVC phonics recognition; 6 families: -AT, -OG (Easy), -AN, -UN (Medium), -IG, -OT (Hard); 18 rounds; family wand banner, 4-option grid, celebration shows full family members
 
 ## Improvement history
 
@@ -66,6 +66,7 @@ Date: 2026-10-01
 | 2026-09-25 | 058-royal-abc | letter-word examples (A🍎Apple…Z🦓Zebra) in celebrate overlay, 5 prompt variants, sparkle 18→20 + 6→8 emojis, bg letters 14→16 | 1.1.0 |
 | 2026-09-28 | 062-royal-bonds | score counter "X ⭐", 5 rotating prompt variants (empty/has-gems), bond fun facts in celebrate overlay, bg gems 10→12, sparkle 20→22 | 1.1.0 |
 | 2026-10-01 | 059-royal-helper-call | 5 rotating prompt variants, 3 new helpers (Librarian/Dentist/Nurse), pool 6→8 per tier, sparkle 18→20, bg floaters 8→10, 5 celebrate variants | 1.1.0 |
+| 2026-10-04 | 063-royal-months | 18 rounds (was 9), 12 month fun facts in celebrate overlay, 5 prompt variants per type (was 3), sparkle 20→22 | 1.1.0 |
 
 ## Games due for improvement (all at v1.0.0)
 
@@ -130,6 +131,7 @@ See `CLAUDE.md` for the full prioritised list. Top 3 to build next:
 36. **Doubles addition facts (1+1 to 10+10)** — ✅ covered by `073-royal-doubles`
 37. **Skip counting (by 2s, 5s and 10s)** — ✅ covered by `074-princess-hops`
 38. **Odd and even number recognition** — ✅ covered by `075-odd-even-castle`
+39. **Word family recognition (CVC phonics patterns)** — ✅ covered by `076-word-wands`
 
 ## Next game ID
-`076-<slug>`
+`077-<slug>`

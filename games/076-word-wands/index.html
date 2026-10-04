@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Princess Word Wands 🪄</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+
+    body {
+      background: linear-gradient(155deg, #2a004e 0%, #6a1080 50%, #1a2080 100%);
+      min-height:100vh; font-family:'Fredoka One',cursive;
+      display:flex; flex-direction:column; align-items:center;
+      overflow:hidden; user-select:none; padding-bottom:10px;
+    }
+
+    /* bg floaters */
+    .bg-float { position:fixed; pointer-events:none; animation:bgRise linear infinite; opacity:.12;
+                font-size:clamp(14px,3.5vw,22px); }
+    @keyframes bgRise { 0%{transform:translateY(110vh) rotate(0)} 100%{transform:translateY(-10vh) rotate(360deg)} }
+
+    /* ── header ── */
+    #header {
+      width:100%; max-width:440px;
+      display:flex; justify-content:space-between; align-items:center;
+      padding:14px 18px 0; flex-shrink:0;
+    }
+    #tier-badge {
+      font-size:clamp(13px,3.4vw,17px); padding:5px 14px; border-radius:20px;
+      font-weight:bold; transition:background .4s;
+    }
+    .easy-badge   { background:linear-gradient(135deg,#a5d6a7,#66bb6a); color:#1b5e20; }
+    .medium-badge { background:linear-gradient(135deg,#ffe082,#ffd54f); color:#5a3000; }
+    .hard-badge   { background:linear-gradient(135deg,#ce93d8,#ab47bc); color:#fff; }
+    #hdr-right { display:flex; gap:10px; align-items:center; }
+    #score-lbl { font-size:clamp(13px,3.2vw,17px); color:#ffd700;
+                 text-shadow:0 1px 4px rgba(0,0,0,.5); }
+    #round-lbl { font-size:clamp(13px,3.2vw,17px); color:rgba(255,255,255,.9); }
+
+    /* ── progress ── */
+    #progress-wrap { width:100%; max-width:440px; padding:7px 18px 0; flex-shrink:0; }
+    #progress-bg { background:rgba(255,255,255,.18); border-radius:8px; height:9px; overflow:hidden; }
+    #progress-fill { height:100%; border-radius:8px;
+                     background:linear-gradient(90deg,#ffd700,#ffb300); width:0%;
+                     transition:width .35s ease; }
+
+    /* ── family wand banner ── */
+    #wand-wrap { width:100%; max-width:440px; padding:12px 16px 0; flex-shrink:0; }
+    #wand-banner {
+      border-radius:24px; padding:16px 12px 10px;
+      background:linear-gradient(145deg,rgba(255,215,0,.18),rgba(255,100,200,.12));
+      border:2px solid rgba(255,215,0,.5);
+      box-shadow:0 0 30px rgba(255,215,0,.25), 0 6px 20px rgba(0,0,0,.4);
+      display:flex; flex-direction:column; align-items:center; gap:4px;
+      position:relative; overflow:hidden;
+    }
+    #wand-label { font-size:clamp(13px,3.2vw,16px); color:rgba(255,255,255,.7); }
+    #wand-family {
+      font-size:clamp(52px,16vw,90px); color:#ffd700;
+      text-shadow:0 0 40px rgba(255,215,0,.8), 0 4px 12px rgba(0,0,0,.5);
+      line-height:1.05; animation:familyPop .4s ease-out;
+    }
+    @keyframes familyPop { 0%{transform:scale(.6);opacity:0} 70%{transform:scale(1.08)} 100%{transform:scale(1);opacity:1} }
+    #wand-hint { font-size:clamp(11px,2.8vw,15px); color:rgba(255,215,0,.65); }
+    #wand-glow { position:absolute; inset:0; border-radius:24px;
+                 background:radial-gradient(ellipse at 50% 50%,rgba(255,215,0,.08),transparent 70%);
+                 pointer-events:none; }
+
+    /* ── prompt ── */
+    #prompt {
+      font-size:clamp(17px,4.5vw,24px); color:#fff;
+      text-align:center; padding:10px 18px 0;
+      text-shadow:0 2px 6px rgba(0,0,0,.4); flex-shrink:0;
+    }
+
+    /* ── choices grid ── */
+    #choices {
+      width:100%; max-width:440px;
+      padding:10px 14px 0;
+      display:grid; grid-template-columns:1fr 1fr; gap:10px;
+      flex-shrink:0;
+    }
+    .word-btn {
+      min-height:clamp(90px,22vw,120px); border-radius:20px;
+      border:3px solid rgba(255,255,255,.25);
+      background:rgba(255,255,255,.1);
+      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px;
+      cursor:pointer; transition:transform .1s;
+      box-shadow:0 4px 16px rgba(0,0,0,.35);
+    }
+    .word-btn:active { transform:scale(.9); }
+    .word-btn .wb-emoji { font-size:clamp(30px,8vw,44px); pointer-events:none; }
+    .word-btn .wb-word  { font-size:clamp(18px,5vw,28px); color:#fff;
+                          text-shadow:0 1px 4px rgba(0,0,0,.5); pointer-events:none; }
+    .word-btn.correct-flash {
+      animation:correctFlash .5s ease-out;
+      background:rgba(255,215,0,.35); border-color:#ffd700;
+    }
+    @keyframes correctFlash {
+      0%{transform:scale(1)} 40%{transform:scale(1.1);box-shadow:0 0 30px rgba(255,215,0,.8)}
+      100%{transform:scale(1)}
+    }
+    .word-btn.wobble { animation:wobble .42s ease-out; }
+    @keyframes wobble {
+      0%,100%{transform:translateX(0)} 25%{transform:translateX(-10px)}
+      65%{transform:translateX(10px)} 85%{transform:translateX(-5px)}
+    }
+    .word-btn.locked { opacity:.35; pointer-events:none; }
+
+    /* ── sparkles ── */
+    .sparkle { position:fixed; pointer-events:none; z-index:50;
+               font-size:clamp(14px,3.5vw,22px); animation:sFly ease-out forwards; }
+    @keyframes sFly {
+      0%{transform:translate(0,0) scale(1.2);opacity:1}
+      100%{transform:translate(var(--tx),var(--ty)) scale(0.1);opacity:0}
+    }
+
+    /* ── celebrate overlay ── */
+    #celebrate-overlay {
+      position:fixed; inset:0; background:rgba(0,0,0,.65);
+      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px;
+      z-index:99; opacity:0; pointer-events:none; transition:opacity .35s;
+    }
+    #celebrate-overlay.show { opacity:1; pointer-events:all; }
+    #cel-emoji { font-size:clamp(56px,15vw,88px); }
+    #cel-text  { font-size:clamp(20px,5.5vw,36px); color:#fff;
+                 text-shadow:0 0 20px #ffd700; text-align:center; padding:0 18px; line-height:1.3; }
+    #cel-family-box {
+      background:rgba(255,215,0,.15); border:2px solid rgba(255,215,0,.4);
+      border-radius:16px; padding:10px 18px; text-align:center;
+    }
+    #cel-family-title { font-size:clamp(13px,3.3vw,18px); color:#ffe082; margin-bottom:6px; }
+    #cel-family-words { font-size:clamp(17px,4.5vw,24px); color:#fff; line-height:1.5; }
+    #cel-next {
+      padding:clamp(14px,4vw,20px) clamp(32px,8vw,52px);
+      font-size:clamp(18px,5vw,26px); border-radius:50px; border:none;
+      background:linear-gradient(135deg,#ffd700,#ff9800);
+      color:#5d2e00; font-weight:bold; cursor:pointer; font-family:inherit;
+      box-shadow:0 4px 16px rgba(255,180,0,.5); min-height:58px; min-width:160px;
+    }
+
+    /* ── tier overlay ── */
+    #tier-overlay {
+      position:fixed; inset:0; background:rgba(0,0,0,.82);
+      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px;
+      z-index:98; opacity:0; pointer-events:none; transition:opacity .35s;
+    }
+    #tier-overlay.show { opacity:1; pointer-events:all; }
+    #tier-ov-emoji { font-size:clamp(60px,16vw,90px); }
+    #tier-ov-title { font-size:clamp(26px,7vw,44px); color:#ffd700;
+                     text-shadow:0 0 20px rgba(255,215,0,.6); text-align:center; padding:0 20px; }
+    #tier-ov-sub   { font-size:clamp(15px,4vw,22px); color:rgba(255,255,255,.85); text-align:center; padding:0 20px; }
+    #tier-ov-btn {
+      padding:clamp(14px,4vw,20px) clamp(32px,8vw,52px); font-size:clamp(18px,5vw,26px);
+      border-radius:50px; border:none; background:linear-gradient(135deg,#ffd700,#ffb300);
+      color:#5d2e00; font-weight:bold; cursor:pointer; font-family:inherit;
+      box-shadow:0 4px 16px rgba(255,180,0,.5); min-height:58px; min-width:160px;
+    }
+
+    /* ── win overlay ── */
+    #win-overlay {
+      position:fixed; inset:0;
+      background:linear-gradient(160deg,#2a004e 0%,#6a1080 50%,#1a2080 100%);
+      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:18px;
+      z-index:110; opacity:0; pointer-events:none; transition:opacity .4s;
+    }
+    #win-overlay.show { opacity:1; pointer-events:all; }
+    #win-icon  { font-size:clamp(64px,18vw,100px); }
+    #win-title { font-size:clamp(24px,7vw,42px); color:#ffd700;
+                 text-shadow:0 0 24px #ff9800; text-align:center; padding:0 16px; }
+    #win-score { font-size:clamp(18px,5vw,30px); color:#fff; }
+    #win-again {
+      padding:clamp(14px,4vw,20px) clamp(32px,8vw,52px); font-size:clamp(18px,5vw,26px);
+      border-radius:50px; border:none; background:linear-gradient(135deg,#ffd700,#ff9800);
+      color:#5d2e00; font-weight:bold; cursor:pointer; font-family:inherit;
+      box-shadow:0 4px 16px rgba(255,180,0,.5);
+    }
+
+    /* confetti */
+    .confetti-piece {
+      position:fixed; border-radius:50%; pointer-events:none; z-index:100;
+      animation:cFall linear forwards;
+    }
+    @keyframes cFall { 0%{top:-20px;opacity:1} 100%{top:110vh;opacity:.15} }
+  </style>
+</head>
+<body>
+
+<div id="header">
+  <div id="tier-badge" class="easy-badge">🌱 Easy</div>
+  <div id="hdr-right">
+    <div id="score-lbl">0 ⭐</div>
+    <div id="round-lbl">1 / 18</div>
+  </div>
+</div>
+
+<div id="progress-wrap">
+  <div id="progress-bg"><div id="progress-fill"></div></div>
+</div>
+
+<div id="wand-wrap">
+  <div id="wand-banner">
+    <div id="wand-glow"></div>
+    <div id="wand-label">✨ Word Family ✨</div>
+    <div id="wand-family">-AT</div>
+    <div id="wand-hint">words that end in -AT</div>
+  </div>
+</div>
+
+<div id="prompt">Find the -AT word! 🪄</div>
+
+<div id="choices"></div>
+
+<!-- celebrate overlay -->
+<div id="celebrate-overlay">
+  <div id="cel-emoji">🌟</div>
+  <div id="cel-text">Yes! That's an -AT word!</div>
+  <div id="cel-family-box">
+    <div id="cel-family-title">The -AT family:</div>
+    <div id="cel-family-words">cat 🐱  bat 🦇  hat 🎩</div>
+  </div>
+  <button id="cel-next" onclick="nextRound()">Next ➡️</button>
+</div>
+
+<!-- tier overlay -->
+<div id="tier-overlay">
+  <div id="tier-ov-emoji">🌸</div>
+  <div id="tier-ov-title">Medium!</div>
+  <div id="tier-ov-sub">New word families!</div>
+  <button id="tier-ov-btn" onclick="hideTierOverlay()">Let's go! ➡️</button>
+</div>
+
+<!-- win overlay -->
+<div id="win-overlay">
+  <div id="win-icon">🪄</div>
+  <div id="win-title">Word Wand Champion! 👑</div>
+  <div id="win-score">You got 0 ⭐</div>
+  <button id="win-again" onclick="restartGame()">Play Again 🔄</button>
+</div>
+
+<script>
+  /* ── audio ── */
+  let audioCtx = null;
+  function getAudio() { if (!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)(); return audioCtx; }
+  function tone(f,t,d,v) {
+    try {
+      const ctx=getAudio(), o=ctx.createOscillator(), g=ctx.createGain();
+      o.connect(g); g.connect(ctx.destination);
+      o.type=t||'sine'; o.frequency.value=f;
+      g.gain.setValueAtTime(v||0.15,ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+d);
+      o.start(); o.stop(ctx.currentTime+d);
+    } catch(e) {}
+  }
+  function playCorrect()  { [523,659,784,1047].forEach((f,i) => setTimeout(()=>tone(f,'sine',0.18,0.18),i*80)); }
+  function playWrong()    { tone(200,'sawtooth',0.18,0.12); }
+  function playCelebrate(){ [523,659,784,880,1047,1175].forEach((f,i) => setTimeout(()=>tone(f,'sine',0.22,0.17),i*70)); }
+  function playTierUp()   { [660,880,1047,1320].forEach((f,i) => setTimeout(()=>tone(f,'triangle',0.25,0.18),i*95)); }
+  function playWin()      { [523,659,784,1047,1319,1568].forEach((f,i) => setTimeout(()=>tone(f,'sine',0.28,0.18),i*70)); }
+
+  /* ── word families ── */
+  const FAMILIES = {
+    '-AT': {
+      words: [
+        {w:'cat',e:'🐱'}, {w:'bat',e:'🦇'}, {w:'hat',e:'🎩'},
+        {w:'mat',e:'🧘'}, {w:'rat',e:'🐀'}, {w:'sat',e:'🪑'},
+      ],
+      colour: '#ff6b9d',
+    },
+    '-OG': {
+      words: [
+        {w:'dog',e:'🐕'}, {w:'frog',e:'🐸'}, {w:'log',e:'🪵'},
+        {w:'fog',e:'🌫️'}, {w:'hog',e:'🐗'}, {w:'jog',e:'🏃'},
+      ],
+      colour: '#6bcfff',
+    },
+    '-AN': {
+      words: [
+        {w:'fan',e:'💨'}, {w:'van',e:'🚐'}, {w:'can',e:'🥫'},
+        {w:'pan',e:'🍳'}, {w:'man',e:'👨'}, {w:'ran',e:'🌬️'},
+      ],
+      colour: '#a0ff80',
+    },
+    '-UN': {
+      words: [
+        {w:'sun',e:'☀️'}, {w:'bun',e:'🍞'}, {w:'fun',e:'🎉'},
+        {w:'run',e:'🏃'}, {w:'pup',e:'🐶'}, // intentional -UP intruder handled via pool
+      ],
+      colour: '#ffe066',
+    },
+    '-IG': {
+      words: [
+        {w:'pig',e:'🐷'}, {w:'dig',e:'⛏️'}, {w:'big',e:'📦'},
+        {w:'wig',e:'💇'}, {w:'fig',e:'🌿'}, {w:'rig',e:'🔧'},
+      ],
+      colour: '#cc88ff',
+    },
+    '-OT': {
+      words: [
+        {w:'dot',e:'🔵'}, {w:'pot',e:'🫙'}, {w:'hot',e:'🌡️'},
+        {w:'cot',e:'🛏️'}, {w:'got',e:'🎁'}, {w:'lot',e:'🌟'},
+      ],
+      colour: '#ff9966',
+    },
+  };
+
+  // Correct pool for -UN is only 4 words (no pup)
+  FAMILIES['-UN'].words = [{w:'sun',e:'☀️'},{w:'bun',e:'🍞'},{w:'fun',e:'🎉'},{w:'run',e:'🏃'}];
+
+  const TIER_CONFIG = [
+    { label:'🌱 Easy',   cls:'easy-badge',   families:['-AT','-OG'], emoji:'🌱', name:'Easy',   sub:'Tap the -AT or -OG words!' },
+    { label:'🌸 Medium', cls:'medium-badge',  families:['-AN','-UN'], emoji:'🌸', name:'Medium', sub:'Tap the -AN or -UN words!' },
+    { label:'⭐ Hard',   cls:'hard-badge',    families:['-IG','-OT'], emoji:'⭐', name:'Hard',   sub:'Tap the -IG or -OT words!' },
+  ];
+
+  const PROMPTS = [
+    f => `Find the ${f} word! 🪄`,
+    f => `Tap the word that ends in ${f}! ✨`,
+    f => `Which word belongs to the ${f} family? 👑`,
+    f => `Spot the ${f} word — tap it! 🌟`,
+    f => `A word ending in ${f} — can you find it? 💎`,
+  ];
+
+  const CEL_TEXTS = [
+    (w,f) => `Yes! "${w}" ends in ${f}! 🌟`,
+    (w,f) => `"${w}" is an ${f} word! ✨`,
+    (w,f) => `Brilliant! "${w}" belongs to the ${f} family! 👑`,
+    (w,f) => `Amazing! "${w}" ends in ${f}! 💎`,
+    (w,f) => `You got it! "${w}" is ${f}! 🎀`,
+  ];
+
+  const TOTAL_ROUNDS = 18;
+  let round = 0, score = 0, locked = false;
+  let rounds = [];
+  let tierOverlayCallback = null;
+
+  /* ── helpers ── */
+  function shuffle(a) {
+    const b = [...a];
+    for (let i=b.length-1;i>0;i--) { const j=Math.floor(Math.random()*(i+1)); [b[i],b[j]]=[b[j],b[i]]; }
+    return b;
+  }
+
+  /* ── build sequence ── */
+  function buildRounds() {
+    const seq = [];
+    TIER_CONFIG.forEach((tier, tIdx) => {
+      tier.families.forEach(fam => {
+        const pool = shuffle(FAMILIES[fam].words);
+        pool.slice(0, 3).forEach(correct => {
+          seq.push({ tierIdx: tIdx, family: fam, correct });
+        });
+      });
+    });
+    // shuffle within each tier block
+    const easy   = shuffle(seq.slice(0, 6));
+    const medium = shuffle(seq.slice(6, 12));
+    const hard   = shuffle(seq.slice(12));
+    return [...easy, ...medium, ...hard];
+  }
+
+  /* ── get 3 wrong distractors ── */
+  function getDistractors(family, correct) {
+    const allFamilies = Object.keys(FAMILIES).filter(f => f !== family);
+    const pool = [];
+    allFamilies.forEach(f => FAMILIES[f].words.forEach(w => pool.push(w)));
+    // pick 3 unique words different from correct
+    const distractors = [];
+    const used = new Set([correct.w]);
+    for (const candidate of shuffle(pool)) {
+      if (!used.has(candidate.w)) {
+        distractors.push(candidate);
+        used.add(candidate.w);
+        if (distractors.length === 3) break;
+      }
+    }
+    return distractors;
+  }
+
+  /* ── bg floaters ── */
+  function setupBg() {
+    const icons = ['🪄','✨','⭐','🌟','💫','👑','💎','🎀','🌸','🔤'];
+    for (let i = 0; i < 12; i++) {
+      const el = document.createElement('div');
+      el.className = 'bg-float';
+      el.textContent = icons[i % icons.length];
+      el.style.left = (4 + Math.random() * 92) + 'vw';
+      el.style.animationDuration = (10 + Math.random() * 15) + 's';
+      el.style.animationDelay    = -(Math.random() * 15) + 's';
+      document.body.appendChild(el);
+    }
+  }
+
+  /* ── render round ── */
+  function renderRound() {
+    locked = false;
+    const r   = rounds[round - 1];
+    const fam = r.family;
+    const tier = TIER_CONFIG[r.tierIdx];
+
+    // header
+    const badge = document.getElementById('tier-badge');
+    badge.textContent = tier.label;
+    badge.className   = 'tier-badge ' + tier.cls;  // note: id handles styling, class for colour
+    // actually just set class so the colour rules apply
+    badge.setAttribute('class', tier.cls);
+
+    document.getElementById('score-lbl').textContent = score + ' ⭐';
+    document.getElementById('round-lbl').textContent = round + ' / ' + TOTAL_ROUNDS;
+    document.getElementById('progress-fill').style.width = ((round - 1) / TOTAL_ROUNDS * 100) + '%';
+
+    // family wand
+    const famData = FAMILIES[fam];
+    document.getElementById('wand-family').textContent = fam;
+    document.getElementById('wand-family').style.color = '#ffd700';
+    document.getElementById('wand-hint').textContent = `words that end in ${fam}`;
+
+    // prompt
+    const pFn = PROMPTS[Math.floor(Math.random() * PROMPTS.length)];
+    document.getElementById('prompt').textContent = pFn(fam);
+
+    // choices (1 correct + 3 wrong, shuffled)
+    const distractors = getDistractors(fam, r.correct);
+    const options = shuffle([{ word: r.correct, isCorrect: true }, ...distractors.map(d => ({ word: d, isCorrect: false }))]);
+
+    const choicesEl = document.getElementById('choices');
+    choicesEl.innerHTML = '';
+    options.forEach(opt => {
+      const btn = document.createElement('div');
+      btn.className = 'word-btn';
+      btn.innerHTML = `<span class="wb-emoji">${opt.word.e}</span><span class="wb-word">${opt.word.w}</span>`;
+      btn.addEventListener('pointerdown', () => handleTap(btn, opt));
+      choicesEl.appendChild(btn);
+    });
+  }
+
+  /* ── tap handler ── */
+  function handleTap(btn, opt) {
+    if (locked) return;
+    if (opt.isCorrect) {
+      locked = true;
+      score++;
+      document.getElementById('score-lbl').textContent = score + ' ⭐';
+      btn.classList.add('correct-flash');
+      playCorrect();
+      const rect = btn.getBoundingClientRect();
+      sparkleBurst(rect.left + rect.width/2, rect.top + rect.height/2);
+      // lock other buttons
+      document.querySelectorAll('.word-btn').forEach(b => { if (b !== btn) b.classList.add('locked'); });
+      setTimeout(() => {
+        btn.classList.remove('correct-flash');
+        showCelebration(opt.word, rounds[round - 1].family);
+      }, 560);
+    } else {
+      btn.classList.add('wobble');
+      playWrong();
+      setTimeout(() => btn.classList.remove('wobble'), 450);
+    }
+  }
+
+  /* ── celebration ── */
+  function showCelebration(word, fam) {
+    const famData = FAMILIES[fam];
+    const celFn   = CEL_TEXTS[Math.floor(Math.random() * CEL_TEXTS.length)];
+    const emojis  = ['🌟','✨','👑','💎','🎀','🪄','💫'];
+
+    document.getElementById('cel-emoji').textContent = emojis[Math.floor(Math.random() * emojis.length)];
+    document.getElementById('cel-text').textContent  = celFn(word.w, fam);
+    document.getElementById('cel-family-title').textContent = `The ${fam} family:`;
+    // show up to 4 members of the family
+    const members = famData.words.slice(0, 4);
+    document.getElementById('cel-family-words').textContent = members.map(m => `${m.w} ${m.e}`).join('  ');
+
+    document.getElementById('celebrate-overlay').classList.add('show');
+    playCelebrate();
+    confettiBurst();
+  }
+
+  /* ── next round flow ── */
+  function nextRound() {
+    document.getElementById('celebrate-overlay').classList.remove('show');
+
+    if (round >= TOTAL_ROUNDS) {
+      showWin();
+      return;
+    }
+
+    const oldTier = rounds[round - 1].tierIdx;
+    round++;
+    const newTier = rounds[round - 1].tierIdx;
+
+    if (newTier > oldTier) {
+      const tier = TIER_CONFIG[newTier];
+      showTierOverlay(tier, renderRound);
+    } else {
+      renderRound();
+    }
+  }
+
+  /* ── tier overlay ── */
+  function showTierOverlay(tier, callback) {
+    tierOverlayCallback = callback;
+    document.getElementById('tier-ov-emoji').textContent = tier.emoji;
+    document.getElementById('tier-ov-title').textContent = `✨ ${tier.name}! ✨`;
+    document.getElementById('tier-ov-sub').textContent   = tier.sub;
+    document.getElementById('tier-overlay').classList.add('show');
+    playTierUp();
+    confettiBurst();
+  }
+
+  function hideTierOverlay() {
+    document.getElementById('tier-overlay').classList.remove('show');
+    if (tierOverlayCallback) { setTimeout(tierOverlayCallback, 250); tierOverlayCallback = null; }
+  }
+
+  /* ── win ── */
+  function showWin() {
+    document.getElementById('progress-fill').style.width = '100%';
+    document.getElementById('win-score').textContent = `You got ${score} ⭐`;
+    document.getElementById('win-overlay').classList.add('show');
+    playWin();
+    confettiBurst();
+    setTimeout(confettiBurst, 600);
+  }
+
+  function restartGame() {
+    round = 0; score = 0;
+    document.getElementById('win-overlay').classList.remove('show');
+    rounds = buildRounds();
+    round = 1;
+    renderRound();
+  }
+
+  /* ── sparkle burst ── */
+  function sparkleBurst(cx, cy) {
+    const icons = ['✨','🌸','⭐','💫','💖','🌟','🎀','💎','🪄','👑'];
+    for (let i = 0; i < 22; i++) {
+      const el  = document.createElement('div');
+      el.className = 'sparkle';
+      el.textContent = icons[Math.floor(Math.random() * icons.length)];
+      const angle = (i / 22) * Math.PI * 2;
+      const dist  = 50 + Math.random() * 90;
+      el.style.setProperty('--tx', Math.cos(angle) * dist + 'px');
+      el.style.setProperty('--ty', Math.sin(angle) * dist - 20 + 'px');
+      el.style.left = (cx - 10) + 'px';
+      el.style.top  = (cy - 10) + 'px';
+      el.style.animationDuration = (0.45 + Math.random() * 0.45) + 's';
+      el.style.animationDelay    = (Math.random() * 0.08) + 's';
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 1000);
+    }
+  }
+
+  function confettiBurst() {
+    const cols = ['#ffd700','#ff69b4','#ff99cc','#c0a0ff','#7fff00','#00cfff','#fff','#ffb347'];
+    for (let i = 0; i < 42; i++) {
+      const el = document.createElement('div');
+      el.className = 'confetti-piece';
+      const sz = 7 + Math.random() * 9;
+      el.style.width  = sz + 'px'; el.style.height = sz + 'px';
+      el.style.left   = Math.random() * 100 + 'vw';
+      el.style.background = cols[Math.floor(Math.random() * cols.length)];
+      el.style.animationDuration = (1.2 + Math.random() * 1.8) + 's';
+      el.style.animationDelay    = (Math.random() * 0.5) + 's';
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 3100);
+    }
+  }
+
+  /* ── init ── */
+  setupBg();
+  rounds = buildRounds();
+  round  = 1;
+  renderRound();
+</script>
+</body>
+</html>
