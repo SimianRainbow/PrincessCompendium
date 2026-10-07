@@ -1,9 +1,9 @@
 # Princess Compendium — Status
 
 ## Last update run
-Date: 2026-10-04
-- Improved: `063-royal-months` → v1.1.0 (expanded 9→18 rounds (6 per tier), added 12 month fun facts in celebrate overlay, 5 prompt variants per type (was 3), sparkle burst 20→22, round label updated to X/18)
-- Added: `076-word-wands` — "Princess Word Wands 🪄" teaching word family / CVC phonics recognition; 6 families: -AT, -OG (Easy), -AN, -UN (Medium), -IG, -OT (Hard); 18 rounds; family wand banner, 4-option grid, celebration shows full family members
+Date: 2026-10-07
+- Improved: `075-odd-even-castle` → v1.1.0 (gradient tier badges with border, tap-to-continue tier overlay with per-tier message, global bg floaters outside number card (10 items), ⭐ X score format)
+- Added: `077-princess-tally` — "Princess Tally Magic 🖊️" teaching tally marks; Easy: count 1-5 tallies; Medium: count 6-10 tallies; Hard: match number to tally picture; SVG-drawn tally marks; 5 prompt variants each mode; 8 fun facts; 9 rounds
 
 ## Improvement history
 
@@ -67,6 +67,7 @@ Date: 2026-10-04
 | 2026-09-28 | 062-royal-bonds | score counter "X ⭐", 5 rotating prompt variants (empty/has-gems), bond fun facts in celebrate overlay, bg gems 10→12, sparkle 20→22 | 1.1.0 |
 | 2026-10-01 | 059-royal-helper-call | 5 rotating prompt variants, 3 new helpers (Librarian/Dentist/Nurse), pool 6→8 per tier, sparkle 18→20, bg floaters 8→10, 5 celebrate variants | 1.1.0 |
 | 2026-10-04 | 063-royal-months | 18 rounds (was 9), 12 month fun facts in celebrate overlay, 5 prompt variants per type (was 3), sparkle 20→22 | 1.1.0 |
+| 2026-10-07 | 075-odd-even-castle | Gradient tier badges, tap-to-continue tier overlay with per-tier message, global bg floaters (10), ⭐ X score format | 1.1.0 |
 
 ## Games due for improvement (all at v1.0.0)
 
@@ -132,6 +133,7 @@ See `CLAUDE.md` for the full prioritised list. Top 3 to build next:
 37. **Skip counting (by 2s, 5s and 10s)** — ✅ covered by `074-princess-hops`
 38. **Odd and even number recognition** — ✅ covered by `075-odd-even-castle`
 39. **Word family recognition (CVC phonics patterns)** — ✅ covered by `076-word-wands`
+40. **Tally marks (counting & reading groups of 5)** — ✅ covered by `077-princess-tally`
 
 ## Next game ID
-`077-<slug>`
+`078-<slug>`

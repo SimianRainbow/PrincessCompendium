@@ -25,14 +25,15 @@
       flex-shrink: 0;
     }
     #tier-badge {
-      font-size: clamp(13px,3.5vw,18px); color:#fff;
-      padding: 5px 14px; border-radius: 20px;
+      font-size: clamp(13px,3.5vw,18px);
+      padding: 5px 14px; border-radius: 20px; font-weight:bold;
+      border: 2px solid rgba(255,255,255,.35);
       transition: background 0.4s;
     }
-    #tier-badge.easy   { background: rgba(56,142,60,0.85); }
-    #tier-badge.medium { background: rgba(230,81,0,0.85); }
-    #tier-badge.hard   { background: rgba(81,45,168,0.85); }
-    #score-lbl { font-size: clamp(13px,3.2vw,17px); color: rgba(255,255,255,0.92); }
+    #tier-badge.easy   { background: linear-gradient(135deg,#66bb6a,#2e7d32); color:#fff; }
+    #tier-badge.medium { background: linear-gradient(135deg,#ffca28,#f57f17); color:#3e2000; }
+    #tier-badge.hard   { background: linear-gradient(135deg,#ce93d8,#6a1b9a); color:#fff; }
+    #score-lbl { font-size: clamp(14px,3.5vw,19px); color:#ffd700; font-weight:bold; text-shadow:0 0 8px rgba(255,215,0,.5); }
     #round-lbl { font-size: clamp(13px,3.2vw,17px); color: rgba(255,255,255,0.85); }
 
     /* ── progress ── */
@@ -180,17 +181,33 @@
       box-shadow:0 4px 16px rgba(255,180,0,0.5);
     }
 
+    /* ── bg floaters ── */
+    .bg-float-global { position:fixed; pointer-events:none; opacity:.09; font-size:clamp(16px,4vw,26px); animation:bgFloatG linear infinite; z-index:0; }
+    @keyframes bgFloatG { 0%{transform:translateY(110vh) rotate(0)} 100%{transform:translateY(-15vh) rotate(360deg)} }
+
     /* ── tier overlay ── */
     #tier-overlay {
-      position:fixed; inset:0;
+      position:fixed; inset:0; background:rgba(10,0,40,.88);
       display:flex; align-items:center; justify-content:center;
-      z-index:95; pointer-events:none; opacity:0; transition:opacity 0.3s;
+      z-index:95; pointer-events:none; opacity:0; transition:opacity 0.35s;
     }
-    #tier-overlay.show { opacity:1; }
+    #tier-overlay.show { opacity:1; pointer-events:all; }
     #tier-inner {
-      background:rgba(0,0,0,0.82); border-radius:24px; padding:22px 44px;
-      font-size:clamp(22px,6.5vw,38px); color:#fff; text-align:center;
-      text-shadow:0 0 20px gold; box-shadow:0 0 0 4px rgba(255,215,0,0.4);
+      background:rgba(255,255,255,.07); border-radius:28px; padding:28px 36px;
+      text-align:center; box-shadow:0 0 0 3px rgba(255,215,0,0.4);
+      display:flex; flex-direction:column; align-items:center; gap:10px;
+      max-width:320px;
+    }
+    #tier-ov-emoji { font-size:clamp(48px,13vw,80px); }
+    #tier-ov-title { font-size:clamp(22px,6vw,38px); color:#ffd700; text-shadow:0 0 20px gold; line-height:1.2; }
+    #tier-ov-sub   { font-size:clamp(15px,3.8vw,21px); color:#f8bbd0; line-height:1.3; }
+    #tier-ov-btn {
+      padding:clamp(13px,3.5vw,18px) clamp(30px,8vw,50px);
+      font-size:clamp(17px,4.5vw,24px); border-radius:50px; border:none;
+      background:linear-gradient(135deg,#ffd700,#ff9800);
+      color:#5d2e00; font-weight:bold; cursor:pointer; font-family:inherit;
+      min-height:60px; min-width:160px; margin-top:6px;
+      box-shadow:0 4px 16px rgba(255,180,0,0.5);
     }
 
     /* ── confetti ── */
@@ -205,7 +222,7 @@
 
 <div id="header">
   <div id="tier-badge" class="easy">🌸 Easy</div>
-  <div id="score-lbl">0 ⭐</div>
+  <div id="score-lbl">⭐ 0</div>
   <div id="round-lbl">1 / 18</div>
 </div>
 
@@ -249,7 +266,12 @@
 </div>
 
 <div id="tier-overlay">
-  <div id="tier-inner">✨ Medium! ✨</div>
+  <div id="tier-inner">
+    <div id="tier-ov-emoji">⭐</div>
+    <div id="tier-ov-title">✨ Medium! ✨</div>
+    <div id="tier-ov-sub">Now try numbers 9–16!</div>
+    <button id="tier-ov-btn" onclick="closeTierOverlay()">Let's go! ✨</button>
+  </div>
 </div>
 
 <script>
@@ -412,7 +434,7 @@
     if (chosen === correct) {
       locked = true;
       score++;
-      document.getElementById('score-lbl').textContent = score + ' ⭐';
+      document.getElementById('score-lbl').textContent = '⭐ ' + score;
       playCorrect();
       const btn = document.getElementById(chosen === 'odd' ? 'btn-odd' : 'btn-even');
       const rect = btn.getBoundingClientRect();
@@ -472,27 +494,41 @@
     document.getElementById('progress-fill').style.width  = ((round - 1) / TOTAL_ROUNDS * 100) + '%';
 
     if (newTier > oldTier) {
-      showTierOverlay(tier.label, renderRound);
+      showTierOverlay(tier.key, renderRound);
     } else {
       renderRound();
     }
   }
 
-  function showTierOverlay(label, callback) {
-    const overlay = document.getElementById('tier-overlay');
-    document.getElementById('tier-inner').textContent = `✨ ${label}! ✨`;
-    overlay.classList.add('show');
+  const TIER_DATA = {
+    medium: { emoji:'🌟', title:'🌟 Medium!', sub:'Now try numbers 9–16! Look for the pattern!' },
+    hard:   { emoji:'👑', title:'👑 Hard!',   sub:'Numbers 17–24 — remember your ODD & EVEN rules!' },
+  };
+  let _tierCb = null;
+
+  function showTierOverlay(tierKey, callback) {
+    const d = TIER_DATA[tierKey] || { emoji:'⭐', title:'⭐ ' + tierKey + '!', sub:'Get ready! 🌟' };
+    document.getElementById('tier-ov-emoji').textContent = d.emoji;
+    document.getElementById('tier-ov-title').textContent = d.title;
+    document.getElementById('tier-ov-sub').textContent   = d.sub;
+    _tierCb = callback;
+    document.getElementById('tier-overlay').classList.add('show');
     playTierUp();
     confettiBurst();
-    setTimeout(() => { overlay.classList.remove('show'); setTimeout(callback, 320); }, 1800);
+  }
+
+  function closeTierOverlay() {
+    document.getElementById('tier-overlay').classList.remove('show');
+    if (_tierCb) { const cb = _tierCb; _tierCb = null; setTimeout(cb, 320); }
   }
 
   function restartGame() {
     round = 0; score = 0;
-    document.getElementById('score-lbl').textContent   = '0 ⭐';
+    document.getElementById('score-lbl').textContent   = '⭐ 0';
     document.getElementById('win-overlay').classList.remove('show');
     buildSequence();
     setupBgGems();
+    setupBgFloats();
     nextRound();
   }
 
@@ -532,9 +568,25 @@
     }
   }
 
+  /* ── global bg floaters ── */
+  function setupBgFloats() {
+    document.querySelectorAll('.bg-float-global').forEach(e=>e.remove());
+    const icons = ['💎','✨','⭐','🌟','🔮','👑','🏰','🌸','💖','🎀'];
+    for (let i = 0; i < 10; i++) {
+      const el = document.createElement('div');
+      el.className = 'bg-float-global';
+      el.textContent = icons[i % icons.length];
+      el.style.left = (4 + Math.random() * 92) + 'vw';
+      el.style.animationDuration = (11 + Math.random() * 12) + 's';
+      el.style.animationDelay    = -(Math.random() * 16) + 's';
+      document.body.appendChild(el);
+    }
+  }
+
   /* ── init ── */
   buildSequence();
   setupBgGems();
+  setupBgFloats();
   nextRound();
 </script>
 </body>

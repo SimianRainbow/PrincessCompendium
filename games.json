@@ -896,7 +896,7 @@
     "ageMin": 4,
     "ageMax": 6,
     "skill": "odd and even number recognition",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "category": "numbers",
     "path": "games/075-odd-even-castle/index.html"
   },
@@ -911,5 +911,17 @@
     "version": "1.0.0",
     "category": "letters",
     "path": "games/076-word-wands/index.html"
+  },
+  {
+    "id": "077-princess-tally",
+    "title": "Princess Tally Magic",
+    "description": "Count the tally marks and tap the right number — then match numbers to the right tally picture! Learn to read & write tallies in groups of 5. 9 rounds across 3 tiers.",
+    "icon": "🖊️",
+    "ageMin": 4,
+    "ageMax": 6,
+    "skill": "tally marks — counting & reading groups of 5",
+    "version": "1.0.0",
+    "category": "numbers",
+    "path": "games/077-princess-tally/index.html"
   }
 ]
