@@ -771,12 +771,12 @@
   {
     "id": "065-princess-butterfly",
     "title": "Princess Butterfly",
-    "description": "Tap what comes NEXT! Watch butterflies, frogs, chicks and flowers grow and change — 9 rounds across 3 tiers with fun nature facts on every answer.",
+    "description": "Tap what comes NEXT! Watch butterflies, frogs, chicks, ducks and trees grow and change — expanded 8-item pools, 14 bg floaters, 22-emoji sparkle burst, 9 rounds across 3 tiers.",
     "icon": "🦋",
     "ageMin": 2,
     "ageMax": 5,
     "skill": "life cycles & growing stages",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "category": "animals",
     "path": "games/065-princess-butterfly/index.html"
   },
@@ -923,5 +923,17 @@
     "version": "1.0.0",
     "category": "numbers",
     "path": "games/077-princess-tally/index.html"
+  },
+  {
+    "id": "078-place-value-palace",
+    "title": "Place Value Palace",
+    "description": "Count the golden ten-bars and gem ones to find the number! Easy: 11-18, Medium: 20-38, Hard: 42-64. Celebrate overlay shows the sum, tier-transition overlay, 9 rounds across 3 tiers.",
+    "icon": "🏰",
+    "ageMin": 4,
+    "ageMax": 6,
+    "skill": "place value — tens and ones",
+    "version": "1.0.0",
+    "category": "numbers",
+    "path": "games/078-place-value-palace/index.html"
   }
 ]

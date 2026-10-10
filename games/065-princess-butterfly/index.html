@@ -250,30 +250,36 @@ function playWin()       { [523,659,784,1047,784,1047,1319].forEach(function(f,i
 // Each entry: { from, fromName, to, toName, fact, wrong: [{e, n}, …] }
 
 var EASY = [
-  { from:'🥚', fromName:'Butterfly Egg',  to:'🐛', toName:'Caterpillar', fact:'A tiny caterpillar hatches from the egg! 🐛',         wrong:[{e:'🦋',n:'Butterfly'}] },
-  { from:'🐛', fromName:'Caterpillar',     to:'🫘', toName:'Chrysalis',   fact:'The caterpillar wraps itself in a cosy case! 🫘',     wrong:[{e:'🥚',n:'Egg'}] },
-  { from:'🌰', fromName:'Seed',            to:'🌱', toName:'Sprout',      fact:'A tiny green shoot pushes up from the seed! 🌱',      wrong:[{e:'🌸',n:'Flower'}] },
-  { from:'🌱', fromName:'Sprout',          to:'🌸', toName:'Flower',      fact:'The sprout grows tall and blooms into a flower! 🌸',  wrong:[{e:'🌰',n:'Seed'}] },
-  { from:'🥚', fromName:'Frog Egg',        to:'🐟', toName:'Tadpole',     fact:'A little tadpole swims out of the frog egg! 🐟',      wrong:[{e:'🐸',n:'Frog'}] },
-  { from:'🐣', fromName:'Hatching Egg',    to:'🐥', toName:'Baby Chick',  fact:'Crack! A fluffy yellow chick pops out! 🐥',           wrong:[{e:'🥚',n:'Egg'}] },
+  { from:'🥚', fromName:'Butterfly Egg',  to:'🐛', toName:'Caterpillar', fact:'A tiny caterpillar hatches from the egg! 🐛',              wrong:[{e:'🦋',n:'Butterfly'}] },
+  { from:'🐛', fromName:'Caterpillar',     to:'🫘', toName:'Chrysalis',   fact:'The caterpillar wraps itself in a cosy case! 🫘',          wrong:[{e:'🥚',n:'Egg'}] },
+  { from:'🌰', fromName:'Seed',            to:'🌱', toName:'Sprout',      fact:'A tiny green shoot pushes up from the seed! 🌱',           wrong:[{e:'🌸',n:'Flower'}] },
+  { from:'🌱', fromName:'Sprout',          to:'🌸', toName:'Flower',      fact:'The sprout grows tall and blooms into a flower! 🌸',       wrong:[{e:'🌰',n:'Seed'}] },
+  { from:'🥚', fromName:'Frog Egg',        to:'🐟', toName:'Tadpole',     fact:'A little tadpole swims out of the frog egg! 🐟',           wrong:[{e:'🐸',n:'Frog'}] },
+  { from:'🐣', fromName:'Hatching Egg',    to:'🐥', toName:'Baby Chick',  fact:'Crack! A fluffy yellow chick pops out! 🐥',                wrong:[{e:'🥚',n:'Egg'}] },
+  { from:'🥚', fromName:'Duck Egg',        to:'🦆', toName:'Duckling',    fact:'Ducklings can walk and swim on the very first day! 🦆',     wrong:[{e:'🐥',n:'Chick'}] },
+  { from:'🌸', fromName:'Blossom',         to:'🍊', toName:'Orange',      fact:'Every orange grows from a tiny white blossom! 🍊',          wrong:[{e:'🌱',n:'Sprout'}] },
 ];
 
 var MEDIUM = [
-  { from:'🫘', fromName:'Chrysalis',       to:'🦋', toName:'Butterfly',   fact:'After resting, a beautiful butterfly emerges! 🦋',    wrong:[{e:'🥚',n:'Egg'},{e:'🐛',n:'Caterpillar'}] },
-  { from:'🐟', fromName:'Tadpole',         to:'🐸', toName:'Frog',        fact:'The tadpole grows legs and becomes a frog! 🐸',       wrong:[{e:'🥚',n:'Egg'},{e:'🦋',n:'Butterfly'}] },
-  { from:'🥚', fromName:'Chick Egg',       to:'🐣', toName:'Hatching',    fact:'The shell cracks open as the chick pushes out! 🐣',   wrong:[{e:'🐔',n:'Hen'},{e:'🐥',n:'Baby Chick'}] },
-  { from:'🐥', fromName:'Baby Chick',      to:'🐔', toName:'Hen',         fact:'The fluffy chick grows up to be a hen! 🐔',           wrong:[{e:'🥚',n:'Egg'},{e:'🐣',n:'Hatching'}] },
-  { from:'🌸', fromName:'Flower',          to:'🌰', toName:'Seed',        fact:'When petals fall, seeds form so new plants can grow! 🌱',wrong:[{e:'🌱',n:'Sprout'},{e:'🍃',n:'Leaf'}] },
-  { from:'🥚', fromName:'Butterfly Egg',   to:'🐛', toName:'Caterpillar', fact:'A hungry caterpillar hatches and starts eating! 🐛',  wrong:[{e:'🦋',n:'Butterfly'},{e:'🫘',n:'Chrysalis'}] },
+  { from:'🫘', fromName:'Chrysalis',       to:'🦋', toName:'Butterfly',   fact:'After resting, a beautiful butterfly emerges! 🦋',        wrong:[{e:'🥚',n:'Egg'},{e:'🐛',n:'Caterpillar'}] },
+  { from:'🐟', fromName:'Tadpole',         to:'🐸', toName:'Frog',        fact:'The tadpole grows legs and becomes a frog! 🐸',           wrong:[{e:'🥚',n:'Egg'},{e:'🦋',n:'Butterfly'}] },
+  { from:'🥚', fromName:'Chick Egg',       to:'🐣', toName:'Hatching',    fact:'The shell cracks open as the chick pushes out! 🐣',       wrong:[{e:'🐔',n:'Hen'},{e:'🐥',n:'Baby Chick'}] },
+  { from:'🐥', fromName:'Baby Chick',      to:'🐔', toName:'Hen',         fact:'The fluffy chick grows up to be a hen! 🐔',               wrong:[{e:'🥚',n:'Egg'},{e:'🐣',n:'Hatching'}] },
+  { from:'🌸', fromName:'Flower',          to:'🌰', toName:'Seed',        fact:'When petals fall, seeds form so new plants can grow! 🌱',  wrong:[{e:'🌱',n:'Sprout'},{e:'🍃',n:'Leaf'}] },
+  { from:'🥚', fromName:'Butterfly Egg',   to:'🐛', toName:'Caterpillar', fact:'A hungry caterpillar hatches and starts eating! 🐛',      wrong:[{e:'🦋',n:'Butterfly'},{e:'🫘',n:'Chrysalis'}] },
+  { from:'🦆', fromName:'Duckling',        to:'🦢', toName:'Duck',        fact:'Adult ducks have waterproof feathers — rain bounces right off! 🦢', wrong:[{e:'🥚',n:'Egg'},{e:'🐔',n:'Hen'}] },
+  { from:'🌱', fromName:'Sapling',         to:'🌳', toName:'Tree',        fact:'A tiny seedling can grow into a tree taller than a house! 🌳',       wrong:[{e:'🌰',n:'Acorn'},{e:'🌸',n:'Flower'}] },
 ];
 
 var HARD = [
-  { from:'🐛', fromName:'Caterpillar',     to:'🫘', toName:'Chrysalis',   fact:'Inside the chrysalis, the caterpillar transforms! 🦋', wrong:[{e:'🥚',n:'Egg'},{e:'🦋',n:'Butterfly'},{e:'🐸',n:'Frog'}] },
-  { from:'🥚', fromName:'Frog Egg',        to:'🐟', toName:'Tadpole',     fact:'Tadpoles breathe underwater using gills! 🐟',          wrong:[{e:'🐸',n:'Frog'},{e:'🦋',n:'Butterfly'},{e:'🐔',n:'Hen'}] },
-  { from:'🌰', fromName:'Seed',            to:'🌱', toName:'Sprout',      fact:'Seeds need water, soil and sunlight to sprout! 🌞',    wrong:[{e:'🌸',n:'Flower'},{e:'🍃',n:'Leaf'},{e:'🌿',n:'Plant'}] },
-  { from:'🫘', fromName:'Chrysalis',       to:'🦋', toName:'Butterfly',   fact:'Butterflies taste things with their feet! 👣',         wrong:[{e:'🐛',n:'Caterpillar'},{e:'🥚',n:'Egg'},{e:'🌸',n:'Flower'}] },
-  { from:'🐣', fromName:'Hatching Egg',    to:'🐥', toName:'Baby Chick',  fact:'A chick uses a special egg tooth to break its shell! 🥚',wrong:[{e:'🐔',n:'Hen'},{e:'🥚',n:'Egg'},{e:'🐸',n:'Frog'}] },
-  { from:'🌱', fromName:'Sprout',          to:'🌸', toName:'Flower',      fact:'Bees visit flowers to collect sweet nectar! 🐝',       wrong:[{e:'🌰',n:'Seed'},{e:'🍂',n:'Leaf'},{e:'🌵',n:'Cactus'}] },
+  { from:'🐛', fromName:'Caterpillar',     to:'🫘', toName:'Chrysalis',   fact:'Inside the chrysalis, the caterpillar transforms! 🦋',     wrong:[{e:'🥚',n:'Egg'},{e:'🦋',n:'Butterfly'},{e:'🐸',n:'Frog'}] },
+  { from:'🥚', fromName:'Frog Egg',        to:'🐟', toName:'Tadpole',     fact:'Tadpoles breathe underwater using gills like a fish! 🐟',   wrong:[{e:'🐸',n:'Frog'},{e:'🦋',n:'Butterfly'},{e:'🐔',n:'Hen'}] },
+  { from:'🌰', fromName:'Seed',            to:'🌱', toName:'Sprout',      fact:'Seeds need water, soil and sunlight to sprout! 🌞',         wrong:[{e:'🌸',n:'Flower'},{e:'🍃',n:'Leaf'},{e:'🌿',n:'Plant'}] },
+  { from:'🫘', fromName:'Chrysalis',       to:'🦋', toName:'Butterfly',   fact:'Butterflies taste things with their feet! 👣',              wrong:[{e:'🐛',n:'Caterpillar'},{e:'🥚',n:'Egg'},{e:'🌸',n:'Flower'}] },
+  { from:'🐣', fromName:'Hatching Egg',    to:'🐥', toName:'Baby Chick',  fact:'A chick uses a special egg tooth to break its shell! 🥚',   wrong:[{e:'🐔',n:'Hen'},{e:'🥚',n:'Egg'},{e:'🐸',n:'Frog'}] },
+  { from:'🌱', fromName:'Sprout',          to:'🌸', toName:'Flower',      fact:'Bees visit flowers to collect sweet nectar! 🐝',            wrong:[{e:'🌰',n:'Seed'},{e:'🍂',n:'Leaf'},{e:'🌵',n:'Cactus'}] },
+  { from:'🌸', fromName:'Apple Blossom',   to:'🍎', toName:'Apple',       fact:'Apple blossoms bloom in spring and become red apples by autumn! 🍎', wrong:[{e:'🌱',n:'Sprout'},{e:'🌳',n:'Tree'},{e:'🌰',n:'Seed'}] },
+  { from:'🐱', fromName:'Kitten',          to:'🐈', toName:'Cat',         fact:'Kittens first open their eyes about 10 days after being born! 🐈',   wrong:[{e:'🐕',n:'Dog'},{e:'🐇',n:'Rabbit'},{e:'🦊',n:'Fox'}] },
 ];
 
 var TIER_INFO = [
@@ -316,8 +322,8 @@ function getTierIdx(r) { return r <= 3 ? 0 : r <= 6 ? 1 : 2; }
 
 // ── Background ────────────────────────────────────────────────────────────────
 (function initBg() {
-  var icons = ['🦋','🌸','🐛','🌱','🥚','🐸','🌰','✨','🌿','💫','🐣','🐥'];
-  for (var i = 0; i < 12; i++) {
+  var icons = ['🦋','🌸','🐛','🌱','🥚','🐸','🌰','✨','🌿','💫','🐣','🐥','🦆','🌳'];
+  for (var i = 0; i < 14; i++) {
     var el = document.createElement('div');
     el.className = 'bg-float';
     el.textContent = icons[i % icons.length];
@@ -458,9 +464,9 @@ function sparkleBurst(btn) {
   var r  = btn.getBoundingClientRect();
   var cx = r.left + r.width / 2;
   var cy = r.top  + r.height / 2;
-  var ems  = ['✨','💫','🌱','⭐','🦋','🌸','🌿','🐛'];
+  var ems  = ['✨','💫','🌱','⭐','🦋','🌸','🌿','🐛','🦆','🌳'];
   var cols = ['#a5d6a7','#ffd700','#f48fb1','#ce93d8','#80deea','#ffab91','#fff'];
-  for (var i = 0; i < 20; i++) {
+  for (var i = 0; i < 22; i++) {
     var el = document.createElement('div');
     el.className = 'sp';
     el.textContent = ems[i % ems.length];
@@ -468,7 +474,7 @@ function sparkleBurst(btn) {
     document.body.appendChild(el);
     setTimeout(function(e) { return function() { e.remove(); }; }(el), 900);
   }
-  for (var j = 0; j < 18; j++) {
+  for (var j = 0; j < 20; j++) {
     var dot  = document.createElement('div');
     dot.className = 'sp-dot';
     var a   = Math.random() * Math.PI * 2;
