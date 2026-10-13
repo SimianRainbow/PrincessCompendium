@@ -1,9 +1,9 @@
 # Princess Compendium — Status
 
 ## Last update run
-Date: 2026-10-10
-- Improved: `065-princess-butterfly` → v1.1.0 (expanded EASY/MEDIUM/HARD pools 6→8 items each; added duck egg→duckling, blossom→orange, duckling→duck, sapling→tree, apple blossom→apple, kitten→cat cycles; bg floaters 12→14; sparkle burst 20+18→22+20)
-- Added: `078-place-value-palace` — "Place Value Palace 🏰" teaching tens and ones place value; Easy: 11-18 (1 ten), Medium: 20-38 (2-3 tens), Hard: 42-64 (4-6 tens); CSS-drawn ten-blocks and one-gems; celebrate overlay shows the equation; tier overlay; 5 prompt variants; 9 rounds
+Date: 2026-10-13
+- Improved: `069-princess-dots` → v1.1.0 (expanded Hard tier pool from [3-6] to [5-8] dots; added DOT_PATTERNS for 7 and 8; added number facts for 7 and 8; Medium pool updated to [3-6]; sparkle burst 20+10→22+12; bg gems 12→14 with 5️⃣6️⃣ icons; 5→7 prompts)
+- Added: `079-royal-map` — "Royal Treasure Map 🗺️" teaching directional concepts (LEFT/RIGHT/UP/DOWN); sparkle trail path on map; princess slides to treasure on correct tap; decorative terrain per round; tier-transition overlay; celebrate with direction fun facts; 9 rounds across 3 tiers
 
 ## Improvement history
 
@@ -69,6 +69,7 @@ Date: 2026-10-10
 | 2026-10-04 | 063-royal-months | 18 rounds (was 9), 12 month fun facts in celebrate overlay, 5 prompt variants per type (was 3), sparkle 20→22 | 1.1.0 |
 | 2026-10-07 | 075-odd-even-castle | Gradient tier badges, tap-to-continue tier overlay with per-tier message, global bg floaters (10), ⭐ X score format | 1.1.0 |
 | 2026-10-10 | 065-princess-butterfly | Pools 6→8 per tier (duck/tree/apple/kitten cycles), bg floaters 12→14, sparkle burst 20+18→22+20 | 1.1.0 |
+| 2026-10-13 | 069-princess-dots | Hard pool [3-6]→[5-8], dot patterns + facts for 7 and 8, Medium pool adds 6, sparkle 20+10→22+12, 14 bg gems, 7 prompts | 1.1.0 |
 
 ## Games due for improvement (all at v1.0.0)
 
@@ -136,6 +137,7 @@ See `CLAUDE.md` for the full prioritised list. Top 3 to build next:
 39. **Word family recognition (CVC phonics patterns)** — ✅ covered by `076-word-wands`
 40. **Tally marks (counting & reading groups of 5)** — ✅ covered by `077-princess-tally`
 41. **Place value (tens and ones)** — ✅ covered by `078-place-value-palace`
+42. **Directional concepts (left/right/up/down)** — ✅ covered by `079-royal-map`
 
 ## Next game ID
-`079-<slug>`
+`080-<slug>`

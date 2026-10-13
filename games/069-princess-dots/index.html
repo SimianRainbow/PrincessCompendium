@@ -211,6 +211,8 @@ const PROMPTS = [
   'How many royal stars? ⭐',
   'Quick! How many? 🌟',
   'Count the princess dots! 👑',
+  'How many glowing treasures? 🌸',
+  'Spot them fast — how many? 💫',
 ];
 
 const FACTS = {
@@ -220,6 +222,8 @@ const FACTS = {
   4:'FOUR makes a square — four seasons, four corners on a princess castle! 🏰',
   5:'FIVE fingers on one royal hand — count them: 1-2-3-4-5! 🖐️',
   6:'SIX points on every snowflake — each one in the kingdom is unique! ❄️',
+  7:'SEVEN days in every week — Sunday, Monday, Tuesday, Wednesday, Thursday, Friday, Saturday! 📅',
+  8:'EIGHT is amazing — an octopus has 8 wonderful arms to wave hello! 🐙',
 };
 
 // Classic die-face patterns — positions as % within the circle stage
@@ -230,16 +234,18 @@ const DOT_PATTERNS = {
   4:[[28,28],[72,28],[28,72],[72,72]],
   5:[[28,25],[72,25],[50,50],[28,75],[72,75]],
   6:[[28,22],[72,22],[28,50],[72,50],[28,78],[72,78]],
+  7:[[28,22],[72,22],[28,50],[50,50],[72,50],[28,78],[72,78]],
+  8:[[22,20],[50,20],[78,20],[22,50],[78,50],[22,80],[50,80],[78,80]],
 };
 
 const DOT_EMOJIS = ['✨','💫','⭐','🌟','💎','👑','🌸','💖'];
 
 const TIERS = [
   {label:'🌱 Easy',   cls:'tier-easy',   choices:2, numPool:[1,2,3],     scatter:false,
-   toastEmoji:'🌸', toastTitle:'Great counting! 🌟', toastSub:'Now let\'s try up to FIVE sparkles! ✨'},
-  {label:'🌸 Medium', cls:'tier-medium', choices:3, numPool:[2,3,4,5],   scatter:false,
-   toastEmoji:'⭐',  toastTitle:'Amazing! ✨',         toastSub:'Now try SIX sparkles in surprise patterns! 🌟'},
-  {label:'⭐ Hard',   cls:'tier-hard',   choices:4, numPool:[3,4,5,6],   scatter:true},
+   toastEmoji:'🌸', toastTitle:'Great counting! 🌟', toastSub:'Now let\'s try up to SIX sparkles! ✨'},
+  {label:'🌸 Medium', cls:'tier-medium', choices:3, numPool:[3,4,5,6],   scatter:false,
+   toastEmoji:'⭐',  toastTitle:'Brilliant! ✨',       toastSub:'Now try SEVEN and EIGHT — spot them fast! 🌟'},
+  {label:'⭐ Hard',   cls:'tier-hard',   choices:4, numPool:[5,6,7,8],   scatter:true},
 ];
 
 const TOTAL = 9;
@@ -396,16 +402,16 @@ function endGame(){
 function burst(cx,cy){
   const cols=['#ffd700','#e040fb','#fff','#f48fb1','#80deea','#a5d6a7','#ce93d8','#ffe082'];
   const ems=['✨','💫','⭐','🌟','💎','👑','🌸','💖','🤩','🎉'];
-  for(let i=0;i<20;i++){
+  for(let i=0;i<22;i++){
     const el=document.createElement('div');el.className='sp';
-    const a=Math.random()*Math.PI*2,dist=35+Math.random()*80,sz=7+Math.random()*10;
+    const a=Math.random()*Math.PI*2,dist=35+Math.random()*85,sz=7+Math.random()*10;
     el.style.cssText=`left:${cx+Math.cos(a)*dist-sz/2}px;top:${cy+Math.sin(a)*dist-sz/2}px;width:${sz}px;height:${sz}px;background:${cols[i%cols.length]};`;
     document.body.appendChild(el);setTimeout(()=>el.remove(),800);
   }
-  for(let i=0;i<10;i++){
+  for(let i=0;i<12;i++){
     const el=document.createElement('div');el.className='sp-em';
     el.textContent=ems[i%ems.length];
-    el.style.cssText=`left:${cx+(Math.random()-.5)*120}px;top:${cy+(Math.random()-.5)*100}px;font-size:${16+Math.random()*12}px;`;
+    el.style.cssText=`left:${cx+(Math.random()-.5)*130}px;top:${cy+(Math.random()-.5)*110}px;font-size:${16+Math.random()*12}px;`;
     el.style.animationDelay=(Math.random()*.2)+'s';
     document.body.appendChild(el);setTimeout(()=>el.remove(),1100);
   }
@@ -424,8 +430,8 @@ function confetti(count){
 
 function makeBgGems(){
   document.querySelectorAll('.bg-gem').forEach(e=>e.remove());
-  const icons=['✨','💫','⭐','🌟','💎','👑','🌸','💖','1️⃣','2️⃣','3️⃣','4️⃣'];
-  for(let i=0;i<12;i++){
+  const icons=['✨','💫','⭐','🌟','💎','👑','🌸','💖','1️⃣','2️⃣','3️⃣','4️⃣','5️⃣','6️⃣'];
+  for(let i=0;i<14;i++){
     const el=document.createElement('div');el.className='bg-gem';
     el.textContent=icons[i%icons.length];
     el.style.left=(4+Math.random()*92)+'vw';

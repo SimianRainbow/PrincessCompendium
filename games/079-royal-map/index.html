@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Royal Treasure Map 🗺️</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+    body{
+      min-height:100vh;
+      background:linear-gradient(160deg,#1b0038 0%,#4a148c 45%,#006064 100%);
+      font-family:'Fredoka One',Georgia,serif;
+      display:flex;flex-direction:column;align-items:center;
+      overflow:hidden;user-select:none;touch-action:manipulation;
+      padding-bottom:12px;
+    }
+
+    .bg-gem{position:fixed;pointer-events:none;animation:bgFloat linear infinite;opacity:.09;font-size:clamp(14px,3.5vw,22px);z-index:0;}
+    @keyframes bgFloat{0%{transform:translateY(110vh) rotate(0deg)}100%{transform:translateY(-15vh) rotate(360deg)}}
+
+    #header{
+      width:100%;display:flex;justify-content:space-between;align-items:center;
+      padding:clamp(10px,2.5vw,16px) clamp(14px,4vw,22px) 0;
+      flex-shrink:0;position:relative;z-index:1;
+    }
+    #tier-badge{font-size:clamp(13px,3.2vw,17px);padding:5px 14px;border-radius:20px;font-weight:bold;border:2px solid rgba(255,255,255,.38);}
+    .tier-easy  {background:linear-gradient(135deg,#66bb6a,#2e7d32);color:#fff;}
+    .tier-medium{background:linear-gradient(135deg,#ffca28,#f57f17);color:#3e2000;}
+    .tier-hard  {background:linear-gradient(135deg,#ce93d8,#6a1b9a);color:#fff;}
+    #score-label{font-size:clamp(16px,4vw,22px);color:#ffd700;text-shadow:0 0 10px rgba(255,215,0,.6);}
+    #round-label{font-size:clamp(13px,3.2vw,17px);color:rgba(255,255,255,.85);}
+
+    #progress-track{
+      width:calc(100% - clamp(28px,7vw,44px));height:7px;
+      background:rgba(255,255,255,.15);border-radius:99px;
+      margin:clamp(5px,1.5vw,9px) auto 0;overflow:hidden;
+      position:relative;z-index:1;
+    }
+    #progress-fill{
+      height:100%;background:linear-gradient(90deg,#ffd700,#e040fb);
+      border-radius:99px;transition:width .4s ease;width:0%;
+      box-shadow:0 0 8px rgba(255,215,0,.45);
+    }
+
+    #prompt{
+      font-size:clamp(18px,5vw,30px);color:#fff;
+      text-shadow:0 2px 8px rgba(0,0,0,.55);
+      text-align:center;padding:clamp(8px,2vw,14px) 16px clamp(4px,1vw,8px);
+      flex-shrink:0;position:relative;z-index:1;line-height:1.2;
+    }
+
+    /* Map stage */
+    #map-stage{
+      width:clamp(280px,76vw,360px);
+      height:clamp(180px,48vw,240px);
+      border-radius:24px;
+      position:relative;overflow:hidden;
+      border:3px solid rgba(255,215,0,.55);
+      box-shadow:0 0 0 6px rgba(255,215,0,.1),0 8px 32px rgba(0,0,0,.5);
+      flex-shrink:0;
+      margin:0 auto;
+      z-index:1;
+    }
+    /* Sky + grass gradient background */
+    #map-bg{
+      position:absolute;inset:0;
+      background:linear-gradient(180deg,#b3e5fc 0%,#81d4fa 38%,#a5d6a7 40%,#66bb6a 100%);
+    }
+    /* Decorative terrain overlay */
+    #map-deco{position:absolute;inset:0;pointer-events:none;}
+    .deco-item{position:absolute;font-size:clamp(20px,5.5vw,30px);line-height:1;opacity:.75;}
+
+    /* Path dots (sparkle trail) */
+    .path-dot{
+      position:absolute;font-size:clamp(14px,3.5vw,20px);
+      transform:translate(-50%,-50%);
+      animation:pathPulse 1.4s ease-in-out infinite;
+      z-index:1;
+    }
+    @keyframes pathPulse{0%,100%{opacity:.5;transform:translate(-50%,-50%) scale(.8)}50%{opacity:1;transform:translate(-50%,-50%) scale(1.1)}}
+
+    /* Princess and treasure characters */
+    .map-char{
+      position:absolute;
+      font-size:clamp(38px,10vw,54px);
+      line-height:1;
+      transform:translate(-50%,-50%);
+      z-index:3;
+      transition:left .55s cubic-bezier(.34,1.56,.64,1), top .55s cubic-bezier(.34,1.56,.64,1);
+    }
+    #princess-char{z-index:4;}
+    #target-char{z-index:3;animation:targetPulse 2s ease-in-out infinite;}
+    @keyframes targetPulse{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-50%) scale(1.12)}}
+
+    /* Direction buttons — cross layout */
+    #dir-wrap{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      grid-template-rows:repeat(3,1fr);
+      gap:clamp(6px,1.8vw,10px);
+      width:clamp(260px,70vw,320px);
+      margin:clamp(10px,2.5vw,18px) auto 0;
+      flex-shrink:0;
+      position:relative;z-index:1;
+    }
+    .dir-btn{
+      width:100%;aspect-ratio:1;
+      border-radius:20px;
+      border:3px solid rgba(255,255,255,.38);
+      background:rgba(255,255,255,.16);
+      font-size:clamp(30px,8vw,48px);
+      cursor:pointer;touch-action:manipulation;
+      display:flex;align-items:center;justify-content:center;
+      box-shadow:0 4px 18px rgba(0,0,0,.3),inset 0 2px 0 rgba(255,255,255,.18);
+      transition:transform .12s;
+    }
+    .dir-btn:active{transform:scale(.91);}
+    .dir-btn.correct{border-color:#ffd700;background:rgba(255,215,0,.28);animation:correctPop .5s ease-out;}
+    .dir-btn.wrong  {animation:wobble .45s ease-out;border-color:rgba(255,80,80,.7);}
+    .dir-btn.ghost  {opacity:0;pointer-events:none;}/* invisible spacer */
+    @keyframes correctPop{0%{transform:scale(1)}40%{transform:scale(1.14);box-shadow:0 0 40px rgba(255,215,0,.8)}100%{transform:scale(1)}}
+    @keyframes wobble{0%,100%{transform:translateX(0)}20%{transform:translateX(-12px)}60%{transform:translateX(12px)}80%{transform:translateX(-6px)}}
+
+    /* Particles */
+    .sp{position:fixed;pointer-events:none;z-index:50;border-radius:50%;animation:sparkOut .75s ease-out forwards;}
+    @keyframes sparkOut{0%{transform:scale(0);opacity:1}100%{transform:scale(1.6);opacity:0}}
+    .sp-em{position:fixed;pointer-events:none;z-index:51;animation:spFloat .9s ease-out forwards;}
+    @keyframes spFloat{0%{transform:translateY(0) scale(1);opacity:1}100%{transform:translateY(-90px) scale(0);opacity:0}}
+
+    /* Overlays */
+    .overlay{
+      position:fixed;inset:0;
+      display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;
+      z-index:99;opacity:0;pointer-events:none;transition:opacity .35s;
+      padding:24px 20px;background:rgba(10,0,40,.93);
+    }
+    .overlay.show{opacity:1;pointer-events:all;}
+    .ov-emoji{font-size:clamp(52px,14vw,90px);}
+    .ov-title{font-size:clamp(22px,6vw,42px);color:#ffd700;text-align:center;line-height:1.2;}
+    .ov-sub  {font-size:clamp(15px,3.8vw,22px);color:#f8bbd0;text-align:center;max-width:320px;line-height:1.3;}
+    .ov-fact {font-size:clamp(13px,3.4vw,18px);color:#b39ddb;text-align:center;max-width:340px;line-height:1.4;}
+    .btn-next{
+      padding:clamp(14px,4vw,20px) clamp(32px,8vw,54px);font-size:clamp(18px,5vw,26px);
+      border-radius:50px;border:none;background:linear-gradient(135deg,#ffd700,#ff8c00);
+      color:#5d2e00;font-family:inherit;cursor:pointer;
+      min-height:64px;min-width:180px;
+      box-shadow:0 4px 18px rgba(255,180,0,.5);
+      touch-action:manipulation;
+    }
+    .cf{position:fixed;pointer-events:none;z-index:100;border-radius:3px;animation:cfFall linear forwards;}
+    @keyframes cfFall{0%{top:-20px;opacity:1;transform:rotate(0)}100%{top:110vh;opacity:.2;transform:rotate(720deg)}}
+  </style>
+</head>
+<body>
+
+<div id="header">
+  <div id="tier-badge" class="tier-easy">🌱 Easy</div>
+  <div id="score-label">⭐ 0</div>
+  <div id="round-label">1 / 9</div>
+</div>
+<div id="progress-track"><div id="progress-fill"></div></div>
+
+<div id="prompt">Which way to the treasure? 💎</div>
+
+<div id="map-stage">
+  <div id="map-bg"></div>
+  <div id="map-deco"></div>
+  <div class="map-char" id="princess-char">👸</div>
+  <div class="map-char" id="target-char">💎</div>
+</div>
+
+<!-- Direction buttons — 3×3 grid, only 4 positions filled -->
+<div id="dir-wrap">
+  <div class="dir-btn ghost"></div>
+  <button class="dir-btn" id="btn-up"    data-dir="up">⬆️</button>
+  <div class="dir-btn ghost"></div>
+  <button class="dir-btn" id="btn-left"  data-dir="left">⬅️</button>
+  <div class="dir-btn ghost"></div>
+  <button class="dir-btn" id="btn-right" data-dir="right">➡️</button>
+  <div class="dir-btn ghost"></div>
+  <button class="dir-btn" id="btn-down"  data-dir="down">⬇️</button>
+  <div class="dir-btn ghost"></div>
+</div>
+
+<!-- Celebrate overlay -->
+<div class="overlay" id="cel-overlay">
+  <div class="ov-emoji" id="cel-emoji">🏆</div>
+  <div class="ov-title" id="cel-title">That way! ➡️</div>
+  <div class="ov-sub"   id="cel-sub">Brilliant! 👑</div>
+  <div class="ov-fact"  id="cel-fact"></div>
+  <button class="btn-next" id="cel-btn">Next ➡️</button>
+</div>
+
+<!-- Tier overlay -->
+<div class="overlay" id="tier-overlay">
+  <div class="ov-emoji" id="t-emoji">🌸</div>
+  <div class="ov-title" id="t-title">Level up! 🌟</div>
+  <div class="ov-sub"   id="t-sub">Ready for more? ✨</div>
+  <button class="btn-next" id="t-btn">Let's go! ✨</button>
+</div>
+
+<!-- Win overlay -->
+<div class="overlay" id="win-overlay">
+  <div class="ov-emoji">🗺️</div>
+  <div class="ov-title">Royal Explorer! 👑</div>
+  <div class="ov-sub" id="win-sub">You found all the treasure! 🌟</div>
+  <div class="ov-fact">You know LEFT, RIGHT, UP and DOWN — just like a real royal navigator! 🧭</div>
+  <button class="btn-next" onclick="startGame()">Play Again 🌸</button>
+</div>
+
+<script>
+// ── Audio ──────────────────────────────────────────────────────────────────────
+let audioCtx=null;
+function getAudio(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();return audioCtx;}
+function tone(f,type,d,v,del){
+  v=v||.18;del=del||0;
+  try{
+    const c=getAudio();
+    setTimeout(()=>{
+      try{
+        const o=c.createOscillator(),g=c.createGain();
+        o.connect(g);g.connect(c.destination);
+        o.type=type;o.frequency.value=f;
+        g.gain.setValueAtTime(v,c.currentTime);
+        g.gain.exponentialRampToValueAtTime(.001,c.currentTime+d);
+        o.start();o.stop(c.currentTime+d);
+      }catch(e){}
+    },del);
+  }catch(e){}
+}
+function playCorrect(){[523,659,784,1047].forEach((f,i)=>tone(f,'sine',.18,.2,i*70));}
+function playWrong()  {tone(260,'sawtooth',.18,.13);tone(210,'sawtooth',.14,.1,160);}
+function playTierUp() {[523,659,784,880,1047,1319].forEach((f,i)=>tone(f,'triangle',.28,.2,i*90));}
+function playWin()    {[523,659,784,1047,784,1047,1319,1047,1319,1568].forEach((f,i)=>tone(f,'sine',.3,.22,i*90));}
+
+// ── Direction data ─────────────────────────────────────────────────────────────
+const DIRS = {
+  right:{emoji:'➡️', label:'RIGHT', fact:'RIGHT is the direction your writing hand points — most people write with their RIGHT hand! ✏️'},
+  left: {emoji:'⬅️', label:'LEFT',  fact:'LEFT is the direction of your heart — you can feel it beating on the LEFT side! 💖'},
+  up:   {emoji:'⬆️', label:'UP',    fact:'UP is toward the sky and the stars! Birds fly UP when they want to soar! 🕊️'},
+  down: {emoji:'⬇️', label:'DOWN',  fact:'DOWN is toward the ground and the roots of trees that hold them safe! 🌱'},
+};
+
+// Princess and treasure positions per direction (percentage within map-stage)
+// princess: where it starts | target: where treasure sits
+const DIR_POSITIONS = {
+  right:{prinX:22,prinY:55,tgtX:78,tgtY:55},
+  left: {prinX:78,prinY:55,tgtX:22,tgtY:55},
+  up:   {prinX:50,prinY:78,tgtX:50,tgtY:22},
+  down: {prinX:50,prinY:22,tgtX:50,tgtY:78},
+};
+
+// Decorative terrain items per direction variant (makes each round feel different)
+const DECO_SETS = [
+  [{e:'🌸',x:15,y:65},{e:'🌲',x:85,y:58},{e:'☁️',x:60,y:12},{e:'🌼',x:75,y:70}],
+  [{e:'🌲',x:10,y:60},{e:'🌺',x:88,y:72},{e:'☁️',x:30,y:10},{e:'🍀',x:60,y:68}],
+  [{e:'🌻',x:80,y:65},{e:'🌲',x:12,y:55},{e:'⭐',x:50,y:8}, {e:'🌸',x:20,y:72}],
+  [{e:'🍀',x:18,y:68},{e:'🌷',x:82,y:60},{e:'☁️',x:70,y:9}, {e:'🌲',x:45,y:58}],
+  [{e:'🌼',x:70,y:62},{e:'🌲',x:20,y:55},{e:'☁️',x:40,y:10},{e:'🍀',x:82,y:72}],
+  [{e:'🌺',x:15,y:72},{e:'🌲',x:78,y:56},{e:'⭐',x:25,y:8}, {e:'🌸',x:60,y:70}],
+  [{e:'🌲',x:50,y:55},{e:'🌻',x:12,y:68},{e:'☁️',x:72,y:10},{e:'🍀',x:85,y:65}],
+  [{e:'🌸',x:80,y:68},{e:'🌲',x:15,y:58},{e:'⭐',x:55,y:9}, {e:'🌼',x:40,y:72}],
+  [{e:'🍀',x:22,y:65},{e:'🌺',x:75,y:68},{e:'☁️',x:50,y:11},{e:'🌲',x:85,y:56}],
+];
+
+const TIERS = [
+  {label:'🌱 Easy',   cls:'tier-easy',   pool:['right','left','right'],
+   toastEmoji:'🌸', toastTitle:'Great direction! 🌟', toastSub:'Now let\'s try UP and DOWN too! ⬆️⬇️'},
+  {label:'🌸 Medium', cls:'tier-medium', pool:['right','left','up'],
+   toastEmoji:'⭐',  toastTitle:'Amazing! ✨',          toastSub:'All four directions now — you\'re a royal navigator! 🧭'},
+  {label:'⭐ Hard',   cls:'tier-hard',   pool:['down','left','right'],},
+];
+
+const PROMPTS = [
+  'Which way to the treasure? 💎',
+  'Guide Princess to the treasure! 👸',
+  'Tap the direction! 🗺️',
+  'Which way should Princess go? 🌟',
+  'Help Princess find the gold! 🏆',
+  'Which direction? 👑',
+  'Tap the right arrow! ✨',
+];
+
+const TOTAL = 9;
+let round=0,score=0,locked=false,gameRounds=[],promptIdx=0,decoIdx=0;
+
+// ── Build rounds ──────────────────────────────────────────────────────────────
+function buildRounds(){
+  const rounds=[];
+  TIERS.forEach((tier,ti)=>{
+    tier.pool.forEach(dir=>{
+      rounds.push({dir,tierIdx:ti});
+    });
+  });
+  return rounds;
+}
+
+// ── Game flow ─────────────────────────────────────────────────────────────────
+function startGame(){
+  ['win-overlay','tier-overlay','cel-overlay'].forEach(id=>document.getElementById(id).classList.remove('show'));
+  round=0;score=0;locked=false;decoIdx=0;
+  promptIdx=Math.floor(Math.random()*PROMPTS.length);
+  gameRounds=buildRounds();
+  makeBgGems();
+  nextRound();
+}
+
+function nextRound(){
+  document.getElementById('cel-overlay').classList.remove('show');
+  if(round>=TOTAL){endGame();return;}
+  const prevTierIdx=round===0?-1:gameRounds[round-1].tierIdx;
+  round++;
+  const rd=gameRounds[round-1];
+  if(rd.tierIdx>prevTierIdx&&prevTierIdx>=0){
+    showTierOverlay(TIERS[rd.tierIdx],()=>renderRound(rd));
+  } else {
+    renderRound(rd);
+  }
+}
+
+function renderRound(rd){
+  locked=false;
+  promptIdx=(promptIdx+1)%PROMPTS.length;
+  document.getElementById('prompt').textContent=PROMPTS[promptIdx];
+
+  const tier=TIERS[rd.tierIdx];
+  const badge=document.getElementById('tier-badge');
+  badge.textContent=tier.label;badge.className='tier-badge '+tier.cls;
+  document.getElementById('score-label').textContent='⭐ '+score;
+  document.getElementById('round-label').textContent=round+' / '+TOTAL;
+  document.getElementById('progress-fill').style.width=((round-1)/TOTAL*100)+'%';
+
+  const pos=DIR_POSITIONS[rd.dir];
+  const prinEl=document.getElementById('princess-char');
+  const tgtEl=document.getElementById('target-char');
+
+  // Place princess and treasure
+  prinEl.style.transition='none';
+  prinEl.style.left=pos.prinX+'%';
+  prinEl.style.top=pos.prinY+'%';
+  tgtEl.style.left=pos.tgtX+'%';
+  tgtEl.style.top=pos.tgtY+'%';
+
+  // Render decorative terrain
+  renderDeco(decoIdx);
+  decoIdx=(decoIdx+1)%DECO_SETS.length;
+
+  // Render sparkle path between princess and treasure
+  renderPath(pos);
+
+  // Resume audio context
+  setTimeout(()=>{try{getAudio().resume();}catch(e){}tone(880,'sine',.1,.07);},150);
+}
+
+function renderDeco(idx){
+  const decoEl=document.getElementById('map-deco');
+  decoEl.innerHTML='';
+  DECO_SETS[idx].forEach(d=>{
+    const el=document.createElement('div');el.className='deco-item';
+    el.textContent=d.e;
+    el.style.left=d.x+'%';el.style.top=d.y+'%';
+    decoEl.appendChild(el);
+  });
+}
+
+function renderPath(pos){
+  // Remove old path dots
+  document.querySelectorAll('.path-dot').forEach(e=>e.remove());
+  const stage=document.getElementById('map-stage');
+  const steps=3;
+  for(let i=1;i<=steps;i++){
+    const t=i/(steps+1);
+    const x=pos.prinX+(pos.tgtX-pos.prinX)*t;
+    const y=pos.prinY+(pos.tgtY-pos.prinY)*t;
+    const el=document.createElement('div');el.className='path-dot';
+    el.textContent='✨';
+    el.style.left=x+'%';el.style.top=y+'%';
+    el.style.animationDelay=(i*0.22)+'s';
+    stage.appendChild(el);
+  }
+}
+
+function handleDir(dir,btn){
+  if(locked)return;
+  try{getAudio().resume();}catch(e){}
+  const rd=gameRounds[round-1];
+  if(dir===rd.dir){
+    locked=true;score++;
+    btn.classList.add('correct');
+    playCorrect();
+    // Animate princess to treasure
+    const pos=DIR_POSITIONS[rd.dir];
+    const prinEl=document.getElementById('princess-char');
+    prinEl.style.transition='left .55s cubic-bezier(.34,1.56,.64,1),top .55s cubic-bezier(.34,1.56,.64,1)';
+    prinEl.style.left=pos.tgtX+'%';
+    prinEl.style.top=pos.tgtY+'%';
+    setTimeout(()=>{
+      const stage=document.getElementById('map-stage');
+      const rect=stage.getBoundingClientRect();
+      const cx=rect.left+rect.width*(pos.tgtX/100);
+      const cy=rect.top+rect.height*(pos.tgtY/100);
+      burst(cx,cy);
+    },480);
+    document.getElementById('score-label').textContent='⭐ '+score;
+    setTimeout(showCelebrate,900);
+  } else {
+    btn.classList.add('wrong');
+    playWrong();
+    setTimeout(()=>btn.classList.remove('wrong'),460);
+  }
+}
+
+const CEL_MSGS=['Brilliant! 🌟','You got it! 👑','Amazing! ✨','Superstar! ⭐','Perfect! 💎','Wonderful! 🌸','Exactly right! 🎉'];
+
+function showCelebrate(){
+  const rd=gameRounds[round-1];
+  const d=DIRS[rd.dir];
+  document.getElementById('cel-emoji').textContent=d.emoji;
+  document.getElementById('cel-title').textContent=d.label+'! '+d.emoji;
+  document.getElementById('cel-sub').textContent=CEL_MSGS[Math.floor(Math.random()*CEL_MSGS.length)];
+  document.getElementById('cel-fact').textContent=d.fact;
+  document.getElementById('cel-btn').onclick=nextRound;
+  document.getElementById('cel-overlay').classList.add('show');
+}
+
+function showTierOverlay(tier,cb){
+  document.getElementById('t-emoji').textContent=tier.toastEmoji;
+  document.getElementById('t-title').textContent=tier.toastTitle;
+  document.getElementById('t-sub').textContent=tier.toastSub||'Get ready! 🌟';
+  document.getElementById('t-btn').onclick=()=>{
+    document.getElementById('tier-overlay').classList.remove('show');
+    cb();
+  };
+  document.getElementById('tier-overlay').classList.add('show');
+  playTierUp();confetti(42);
+}
+
+function endGame(){
+  playWin();confetti(60);setTimeout(()=>confetti(40),700);
+  document.getElementById('win-sub').textContent='You scored ⭐ '+score+' out of '+TOTAL+'! ✨';
+  document.getElementById('win-overlay').classList.add('show');
+  document.getElementById('progress-fill').style.width='100%';
+  document.getElementById('score-label').textContent='⭐ '+score;
+}
+
+// ── Event wiring for direction buttons ────────────────────────────────────────
+['up','down','left','right'].forEach(dir=>{
+  const btn=document.getElementById('btn-'+dir);
+  btn.addEventListener('pointerdown',()=>handleDir(dir,btn));
+});
+
+// ── Particles ─────────────────────────────────────────────────────────────────
+function burst(cx,cy){
+  const cols=['#ffd700','#e040fb','#fff','#f48fb1','#80deea','#a5d6a7','#ce93d8','#ffe082'];
+  const ems=['✨','💫','⭐','🌟','💎','👑','🌸','💖','⬆️','⬇️','⬅️','➡️'];
+  for(let i=0;i<22;i++){
+    const el=document.createElement('div');el.className='sp';
+    const a=Math.random()*Math.PI*2,dist=35+Math.random()*85,sz=7+Math.random()*10;
+    el.style.cssText=`left:${cx+Math.cos(a)*dist-sz/2}px;top:${cy+Math.sin(a)*dist-sz/2}px;width:${sz}px;height:${sz}px;background:${cols[i%cols.length]};`;
+    document.body.appendChild(el);setTimeout(()=>el.remove(),800);
+  }
+  for(let i=0;i<12;i++){
+    const el=document.createElement('div');el.className='sp-em';
+    el.textContent=ems[i%ems.length];
+    el.style.cssText=`left:${cx+(Math.random()-.5)*130}px;top:${cy+(Math.random()-.5)*110}px;font-size:${16+Math.random()*12}px;`;
+    el.style.animationDelay=(Math.random()*.2)+'s';
+    document.body.appendChild(el);setTimeout(()=>el.remove(),1100);
+  }
+}
+
+function confetti(count){
+  const cols=['#e040fb','#ffd700','#fff','#f48fb1','#ce93d8','#b2ebf2','#a5d6a7','#ff8a65'];
+  for(let i=0;i<count;i++){
+    const el=document.createElement('div');el.className='cf';
+    const sz=6+Math.random()*10;
+    el.style.cssText=`left:${Math.random()*100}vw;top:-20px;width:${sz}px;height:${sz}px;background:${cols[i%cols.length]};animation-duration:${1.4+Math.random()*2}s;animation-delay:${Math.random()*.5}s`;
+    document.body.appendChild(el);setTimeout(()=>el.remove(),3500);
+  }
+}
+
+function makeBgGems(){
+  document.querySelectorAll('.bg-gem').forEach(e=>e.remove());
+  const icons=['🗺️','💎','⭐','🌟','👑','🌸','✨','💫','⬆️','⬇️','⬅️','➡️','🧭','🏆'];
+  for(let i=0;i<14;i++){
+    const el=document.createElement('div');el.className='bg-gem';
+    el.textContent=icons[i%icons.length];
+    el.style.left=(4+Math.random()*92)+'vw';
+    el.style.animationDuration=(10+Math.random()*14)+'s';
+    el.style.animationDelay=-(Math.random()*16)+'s';
+    document.body.appendChild(el);
+  }
+}
+
+startGame();
+</script>
+</body>
+</html>

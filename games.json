@@ -819,12 +819,12 @@
   {
     "id": "069-princess-dots",
     "title": "Princess Dot Magic",
-    "description": "How many sparkles? Tap the right number instantly — no counting needed! Learn subitizing (1–6) with royal dot patterns and fun number facts. 9 rounds across 3 tiers.",
+    "description": "How many sparkles? Tap the right number instantly — no counting needed! Learn subitizing (1–8) with royal dot patterns, expanded Hard tier (5–8 dots), and fun number facts. 9 rounds across 3 tiers.",
     "icon": "✨",
     "ageMin": 2,
-    "ageMax": 5,
-    "skill": "subitizing — instant quantity recognition (1–6)",
-    "version": "1.0.0",
+    "ageMax": 6,
+    "skill": "subitizing — instant quantity recognition (1–8)",
+    "version": "1.1.0",
     "category": "numbers",
     "path": "games/069-princess-dots/index.html"
   },
@@ -935,5 +935,17 @@
     "version": "1.0.0",
     "category": "numbers",
     "path": "games/078-place-value-palace/index.html"
+  },
+  {
+    "id": "079-royal-map",
+    "title": "Royal Treasure Map",
+    "description": "Guide Princess to the treasure! Tap the right arrow — LEFT, RIGHT, UP or DOWN. A sparkle trail shows the path, Princess slides to the treasure on each correct tap. 9 rounds across 3 tiers.",
+    "icon": "🗺️",
+    "ageMin": 2,
+    "ageMax": 5,
+    "skill": "directional concepts — left, right, up, down",
+    "version": "1.0.0",
+    "category": "other",
+    "path": "games/079-royal-map/index.html"
   }
 ]
