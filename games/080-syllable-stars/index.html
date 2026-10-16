@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Princess Clap Stars 👏</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+    body{
+      min-height:100vh;
+      background:linear-gradient(160deg,#4a0072 0%,#880e4f 50%,#c62828 100%);
+      font-family:'Fredoka One',Georgia,serif;
+      display:flex;flex-direction:column;align-items:center;
+      overflow:hidden;user-select:none;padding-bottom:10px;
+    }
+    .bg-star{position:fixed;pointer-events:none;animation:floatStar linear infinite;opacity:.08;font-size:clamp(16px,4vw,26px);z-index:0;}
+    @keyframes floatStar{0%{transform:translateY(110vh) rotate(0deg)}100%{transform:translateY(-15vh) rotate(360deg)}}
+
+    #header{
+      width:100%;display:flex;justify-content:space-between;align-items:center;
+      padding:clamp(10px,2.5vw,16px) clamp(14px,4vw,22px) 0;
+      flex-shrink:0;position:relative;z-index:1;
+    }
+    #tier-badge{font-size:clamp(13px,3.2vw,18px);padding:5px 15px;border-radius:20px;font-weight:bold;}
+    .tier-easy  {background:linear-gradient(135deg,#f8bbd0,#f48fb1);color:#880e4f;}
+    .tier-medium{background:linear-gradient(135deg,#ffe082,#ffd54f);color:#5a3000;}
+    .tier-hard  {background:linear-gradient(135deg,#ce93d8,#ab47bc);color:#fff;}
+    #score-display{font-size:clamp(14px,3.5vw,19px);color:#ffd700;letter-spacing:1px;}
+    #round-label{font-size:clamp(13px,3.2vw,17px);color:rgba(255,255,255,.9);}
+
+    #progress-wrap{width:100%;padding:6px clamp(14px,4vw,22px) 0;flex-shrink:0;position:relative;z-index:1;}
+    #progress-track{background:rgba(255,255,255,.18);border-radius:20px;height:clamp(8px,2vw,12px);overflow:hidden;}
+    #progress-fill{height:100%;border-radius:20px;background:linear-gradient(90deg,#ffd700,#f48fb1);transition:width .35s ease;width:0%;box-shadow:0 0 8px rgba(255,215,0,.45);}
+
+    #prompt{
+      font-size:clamp(18px,4.8vw,28px);color:#fff;
+      text-shadow:0 2px 8px rgba(0,0,0,.5);
+      text-align:center;padding:clamp(8px,2vw,12px) 20px 0;
+      flex-shrink:0;position:relative;z-index:1;line-height:1.2;
+    }
+
+    #word-stage{
+      flex-shrink:0;
+      display:flex;flex-direction:column;align-items:center;justify-content:center;
+      padding:clamp(4px,1vw,10px) 20px 0;
+      position:relative;z-index:1;
+    }
+    #word-bubble{
+      min-width:clamp(140px,38vw,190px);
+      border-radius:clamp(18px,5vw,28px);
+      padding:clamp(10px,3vw,18px) clamp(14px,4vw,24px);
+      background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.25),rgba(255,255,255,.06));
+      border:3px solid rgba(255,215,0,.55);
+      box-shadow:0 0 0 8px rgba(255,192,203,.14),0 8px 32px rgba(0,0,0,.4);
+      display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(4px,1.2vw,8px);
+      animation:wordPulse 2.5s ease-in-out infinite;
+    }
+    @keyframes wordPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.04);box-shadow:0 0 0 12px rgba(255,192,203,.2),0 8px 32px rgba(0,0,0,.4)}}
+    #word-emoji{font-size:clamp(60px,18vw,96px);line-height:1;}
+    #word-text{
+      font-size:clamp(20px,5.5vw,32px);color:#fff;text-align:center;
+      letter-spacing:2px;text-shadow:0 2px 6px rgba(0,0,0,.5);
+    }
+
+    #clap-hint{
+      font-size:clamp(14px,3.8vw,20px);color:rgba(255,255,255,.8);
+      text-align:center;padding:clamp(4px,1vw,8px) 20px 0;
+      flex-shrink:0;position:relative;z-index:1;
+    }
+    .clap-pulse{display:inline-block;animation:clapAnim .9s ease-in-out infinite;}
+    @keyframes clapAnim{0%,100%{transform:scale(1)}50%{transform:scale(1.25)}}
+
+    #choices-wrap{
+      flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+      gap:clamp(6px,1.5vw,12px);
+      padding:clamp(6px,1.5vw,12px) clamp(12px,3vw,20px);
+      width:100%;position:relative;z-index:1;
+    }
+    #sub-prompt{font-size:clamp(15px,3.8vw,20px);color:#f8bbd0;text-align:center;}
+    #choices{
+      display:flex;gap:clamp(10px,2.5vw,16px);
+      justify-content:center;align-items:center;
+      width:100%;max-width:420px;flex-wrap:wrap;
+    }
+    .choice-btn{
+      width:clamp(82px,22vw,112px);height:clamp(82px,22vw,112px);
+      border-radius:50%;border:3px solid rgba(255,255,255,.4);
+      background:rgba(255,255,255,.12);
+      cursor:pointer;
+      display:flex;flex-direction:column;align-items:center;justify-content:center;
+      gap:2px;
+      box-shadow:0 4px 18px rgba(0,0,0,.3),inset 0 2px 0 rgba(255,255,255,.2);
+      touch-action:manipulation;transition:transform .12s,border-color .12s;
+      flex-shrink:0;
+    }
+    .choice-btn:active{transform:scale(.87);}
+    .choice-number{font-size:clamp(30px,9vw,50px);color:#ffd700;line-height:1;}
+    .choice-hands{font-size:clamp(11px,2.8vw,15px);line-height:1.1;color:rgba(255,255,255,.8);}
+    .choice-btn.correct{border-color:#ffd700;background:rgba(255,215,0,.25);animation:correctPop .5s ease-out;}
+    .choice-btn.wrong  {animation:wobble .45s ease-out;border-color:rgba(255,80,80,.7);}
+    @keyframes correctPop{0%{transform:scale(1)}40%{transform:scale(1.18);box-shadow:0 0 40px rgba(255,215,0,.8)}100%{transform:scale(1)}}
+    @keyframes wobble{0%,100%{transform:translateX(0)}20%{transform:translateX(-12px)}60%{transform:translateX(12px)}80%{transform:translateX(-6px)}}
+
+    .sp{position:fixed;pointer-events:none;z-index:50;animation:sparkOut .75s ease-out forwards;}
+    @keyframes sparkOut{0%{transform:scale(0);opacity:1}100%{transform:scale(1.6);opacity:0}}
+
+    .overlay{
+      position:fixed;inset:0;background:rgba(50,0,50,.91);
+      display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;
+      z-index:99;opacity:0;pointer-events:none;transition:opacity .35s;
+      padding:20px;text-align:center;
+    }
+    .overlay.show{opacity:1;pointer-events:all;}
+    .ov-emoji{font-size:clamp(56px,15vw,90px);}
+    .ov-title{font-size:clamp(24px,7vw,44px);color:#ffd700;}
+    .ov-syllables{font-size:clamp(20px,5.5vw,32px);color:#fff;letter-spacing:8px;font-weight:bold;padding:4px 0;}
+    .ov-claps{font-size:clamp(18px,5vw,30px);letter-spacing:2px;padding:2px 0;}
+    .ov-sub{font-size:clamp(15px,4vw,22px);color:#f8bbd0;max-width:320px;line-height:1.3;}
+    .ov-fact{font-size:clamp(13px,3.3vw,18px);color:#ce93d8;max-width:340px;line-height:1.4;}
+    .btn-next{
+      padding:clamp(14px,4vw,20px) clamp(32px,8vw,54px);font-size:clamp(18px,5vw,26px);
+      border-radius:50px;border:none;background:linear-gradient(135deg,#ffd700,#ff8c00);
+      color:#5d2e00;font-weight:bold;cursor:pointer;font-family:inherit;
+      min-height:64px;min-width:180px;box-shadow:0 4px 18px rgba(255,180,0,.5);
+      touch-action:manipulation;
+    }
+    .cf{position:fixed;pointer-events:none;z-index:100;border-radius:3px;animation:cfFall linear forwards;}
+    @keyframes cfFall{0%{top:-20px;opacity:1;transform:rotate(0)}100%{top:110vh;opacity:.2;transform:rotate(720deg)}}
+  </style>
+</head>
+<body>
+
+<div id="header">
+  <div id="tier-badge" class="tier-easy">🌱 Easy</div>
+  <div id="score-display">⭐ 0</div>
+  <div id="round-label">1 / 9</div>
+</div>
+<div id="progress-wrap">
+  <div id="progress-track"><div id="progress-fill"></div></div>
+</div>
+<div id="prompt">How many claps? 👏</div>
+
+<div id="word-stage">
+  <div id="word-bubble">
+    <div id="word-emoji">🐱</div>
+    <div id="word-text">CAT</div>
+  </div>
+</div>
+<div id="clap-hint"><span class="clap-pulse">👏</span> Clap it out! <span class="clap-pulse">👏</span></div>
+
+<div id="choices-wrap">
+  <div id="sub-prompt">Tap the right number! ⭐</div>
+  <div id="choices"></div>
+</div>
+
+<div class="overlay" id="round-overlay">
+  <div class="ov-emoji" id="ov-emoji">👏</div>
+  <div class="ov-title" id="ov-title">Bravo!</div>
+  <div class="ov-syllables" id="ov-syllables"></div>
+  <div class="ov-claps"     id="ov-claps"></div>
+  <div class="ov-sub"       id="ov-sub"></div>
+  <div class="ov-fact"      id="ov-fact"></div>
+  <button class="btn-next"  id="round-btn">Next ➡️</button>
+</div>
+
+<div class="overlay" id="end-overlay">
+  <div class="ov-emoji">👑</div>
+  <div class="ov-title">Clap Champion! 👏</div>
+  <div class="ov-sub" id="end-score">Amazing clapping! ✨</div>
+  <button class="btn-next" onclick="startGame()">Play Again 🌸</button>
+</div>
+
+<script>
+// ── Audio ──────────────────────────────────────────────────────────────────────
+let audioCtx=null;
+function getAudio(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();return audioCtx;}
+function tone(f,type,d,v=.18,del=0){
+  try{
+    const c=getAudio();
+    setTimeout(()=>{
+      try{
+        const o=c.createOscillator(),g=c.createGain();
+        o.connect(g);g.connect(c.destination);
+        o.type=type;o.frequency.value=f;
+        g.gain.setValueAtTime(v,c.currentTime);
+        g.gain.exponentialRampToValueAtTime(.001,c.currentTime+d);
+        o.start();o.stop(c.currentTime+d);
+      }catch(e){}
+    },del);
+  }catch(e){}
+}
+function playCorrect(){[523,659,784,1047].forEach((f,i)=>tone(f,'sine',.18,.2,i*70));}
+function playWrong()  {tone(260,'sawtooth',.18,.13);tone(210,'sawtooth',.14,.1,160);}
+function playTierUp() {[523,659,784,880,1047,1319].forEach((f,i)=>tone(f,'triangle',.28,.2,i*90));}
+function playWin()    {[523,659,784,1047,784,1047,1319,1047,1319,1568].forEach((f,i)=>tone(f,'sine',.3,.22,i*90));}
+function playClaps(n) {
+  for(let i=0;i<n;i++){
+    tone(1000+Math.random()*600,'square',.06,.14,i*220);
+    tone(700,'sine',.09,.1,i*220+25);
+  }
+}
+
+// ── Word data ─────────────────────────────────────────────────────────────────
+const WORDS=[
+  // tier 0 — Easy: 1–2 syllables, choices [1,2,3]
+  {emoji:'🐱',word:'CAT',    syllables:1,parts:'CAT',              tier:0,fact:'CAT has just 1 clap — short words are quick like a snap!'},
+  {emoji:'🌙',word:'MOON',   syllables:1,parts:'MOON',             tier:0,fact:'MOON has 1 clap — it shines all night in one big glow!'},
+  {emoji:'👑',word:'CROWN',  syllables:1,parts:'CROWN',            tier:0,fact:'CROWN has 1 clap — every princess wears a royal crown!'},
+  {emoji:'🐰',word:'BUNNY',  syllables:2,parts:'BUN · NY',         tier:0,fact:'BUN·NY has 2 claps — your lips bounce twice as you say it!'},
+  {emoji:'👸',word:'PRINCESS',syllables:2,parts:'PRIN · CESS',     tier:0,fact:'PRIN·CESS has 2 claps — that is the magic number for Princess!'},
+  {emoji:'🐉',word:'DRAGON', syllables:2,parts:'DRA · GON',        tier:0,fact:'DRA·GON has 2 claps — dragons breathe fire in 2 big puffs!'},
+  // tier 1 — Medium: 2–3 syllables, choices [1,2,3]
+  {emoji:'🌈',word:'RAINBOW',syllables:2,parts:'RAIN · BOW',       tier:1,fact:'RAIN·BOW has 2 claps — one for RAIN and one for BOW!'},
+  {emoji:'🏰',word:'CASTLE', syllables:2,parts:'CAS · TLE',        tier:1,fact:'CAS·TLE has 2 claps — every princess lives in her castle!'},
+  {emoji:'🦋',word:'BUTTERFLY',syllables:3,parts:'BUT · TER · FLY',tier:1,fact:'BUT·TER·FLY has 3 claps — flap your arms with each part!'},
+  {emoji:'🦄',word:'UNICORN',syllables:3,parts:'U · NI · CORN',    tier:1,fact:'U·NI·CORN has 3 claps — one for each magical part!'},
+  {emoji:'🐘',word:'ELEPHANT',syllables:3,parts:'EL · E · PHANT',  tier:1,fact:'EL·E·PHANT has 3 claps — and elephants never forget!'},
+  {emoji:'🍌',word:'BANANA', syllables:3,parts:'BA · NA · NA',     tier:1,fact:'BA·NA·NA has 3 claps — notice NA repeats twice!'},
+  // tier 2 — Hard: 3–4 syllables, choices [1,2,3,4]
+  {emoji:'🐞',word:'LADYBUG',syllables:3,parts:'LA · DY · BUG',    tier:2,fact:'LA·DY·BUG has 3 claps — lucky spots and lucky claps!'},
+  {emoji:'🍓',word:'STRAWBERRY',syllables:3,parts:'STRAW · BER · RY',tier:2,fact:'STRAW·BER·RY has 3 claps — a delicious 3-clap treat!'},
+  {emoji:'🦕',word:'DINOSAUR',syllables:3,parts:'DI · NO · SAUR',  tier:2,fact:'DI·NO·SAUR has 3 claps — big creatures can still have 3!'},
+  {emoji:'🐛',word:'CATERPILLAR',syllables:4,parts:'CAT · ER · PIL · LAR',tier:2,fact:'CAT·ER·PIL·LAR has 4 claps — that is a lot for a tiny worm!'},
+  {emoji:'🍉',word:'WATERMELON',syllables:4,parts:'WA · TER · MEL · ON',tier:2,fact:'WA·TER·MEL·ON has 4 claps — a big fruit deserves lots of claps!'},
+  {emoji:'🐊',word:'ALLIGATOR',syllables:4,parts:'AL · LI · GA · TOR',tier:2,fact:'AL·LI·GA·TOR has 4 claps — watch out for those sharp snaps!'},
+];
+
+const TIERS=[
+  {label:'🌱 Easy',  cls:'tier-easy',  wordCount:3,choices:[1,2,3]},
+  {label:'🌸 Medium',cls:'tier-medium',wordCount:3,choices:[1,2,3]},
+  {label:'🌺 Hard',  cls:'tier-hard',  wordCount:3,choices:[1,2,3,4]},
+];
+const TOTAL=9;
+
+const PROMPTS=[
+  'How many claps? 👏',
+  'Count the syllables! 🌟',
+  'Clap the word with Princess! 👸',
+  'How many parts in this word? ✨',
+  'Tap the right number of claps! 🎵',
+];
+
+let round=0,score=0,locked=false,gameRounds=[],promptIdx=0;
+
+function shuffle(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];}return b;}
+function getTierIdx(r){return r<=3?0:r<=6?1:2;}
+
+function buildRounds(){
+  const rounds=[];
+  TIERS.forEach((tier,ti)=>{
+    const pool=WORDS.filter(w=>w.tier===ti);
+    const picks=shuffle(pool).slice(0,tier.wordCount);
+    picks.forEach(word=>{
+      rounds.push({tierIdx:ti,word,choices:tier.choices});
+    });
+  });
+  return rounds;
+}
+
+function startGame(){
+  document.getElementById('end-overlay').classList.remove('show');
+  document.getElementById('round-overlay').classList.remove('show');
+  round=0;score=0;locked=false;
+  promptIdx=Math.floor(Math.random()*PROMPTS.length);
+  gameRounds=buildRounds();
+  makeBgStars();
+  nextRound();
+}
+
+function nextRound(){
+  document.getElementById('round-overlay').classList.remove('show');
+  if(round>=TOTAL){endGame();return;}
+  round++;locked=false;
+  updateHUD();
+  if(round%2===0) promptIdx=(promptIdx+1)%PROMPTS.length;
+  document.getElementById('prompt').textContent=PROMPTS[promptIdx];
+
+  const rd=gameRounds[round-1];
+  document.getElementById('word-emoji').textContent=rd.word.emoji;
+  document.getElementById('word-text').textContent=rd.word.word;
+
+  renderChoices(rd);
+}
+
+function renderChoices(rd){
+  const container=document.getElementById('choices');
+  container.innerHTML='';
+  container.style.flexWrap=rd.choices.length>3?'wrap':'nowrap';
+
+  rd.choices.forEach(num=>{
+    const isCorrect=(num===rd.word.syllables);
+    const btn=document.createElement('button');
+    btn.className='choice-btn';
+
+    const numEl=document.createElement('div');numEl.className='choice-number';numEl.textContent=num;
+    const hands=document.createElement('div');hands.className='choice-hands';
+    hands.textContent='👏'.repeat(Math.min(num,4));
+    btn.appendChild(numEl);btn.appendChild(hands);
+
+    btn.addEventListener('pointerdown',()=>handleTap(btn,isCorrect,num,rd.word.syllables));
+    container.appendChild(btn);
+  });
+}
+
+function handleTap(btn,ok,tapped,correct){
+  if(locked)return;
+  try{getAudio().resume();}catch(e){}
+  if(ok){
+    locked=true;
+    score++;
+    btn.classList.add('correct');
+    playCorrect();
+    const r=btn.getBoundingClientRect();
+    burst(r.left+r.width/2,r.top+r.height/2);
+    confetti(22);
+    updateHUD();
+    setTimeout(showRoundOverlay,700);
+  } else {
+    btn.classList.add('wrong');
+    playWrong();
+    setTimeout(()=>btn.classList.remove('wrong'),460);
+  }
+}
+
+function showRoundOverlay(){
+  const rd=gameRounds[round-1];
+  const word=rd.word;
+  const tierIdx=getTierIdx(round);
+  const nextTierIdx=getTierIdx(round+1);
+  const isTierEnd=(round<TOTAL && nextTierIdx>tierIdx);
+
+  if(isTierEnd){
+    playTierUp();confetti(42);
+    document.getElementById('ov-emoji').textContent='🎉';
+    document.getElementById('ov-title').textContent='Tier Complete! ✨';
+    document.getElementById('ov-syllables').textContent=TIERS[nextTierIdx].label+' starts now!';
+    document.getElementById('ov-claps').textContent='';
+    document.getElementById('ov-sub').textContent='';
+    document.getElementById('ov-fact').textContent='';
+  } else {
+    const msgs=['Amazing! 🌟','Bravo! ✨','You got it! 👑','Superstar! ⭐','Wonderful! 👏','Perfect! 💎','Clap genius! 🎵'];
+    document.getElementById('ov-emoji').textContent=word.emoji;
+    document.getElementById('ov-title').textContent=msgs[Math.floor(Math.random()*msgs.length)];
+    document.getElementById('ov-syllables').textContent=word.parts;
+    document.getElementById('ov-claps').textContent='👏'.repeat(word.syllables)+' = '+word.syllables+'!';
+    document.getElementById('ov-sub').textContent=word.word+' has '+word.syllables+' clap'+(word.syllables!==1?'s':'')+'! 🌟';
+    document.getElementById('ov-fact').textContent=word.fact;
+    // play celebratory clap sounds to reinforce the syllable count
+    setTimeout(()=>playClaps(word.syllables),300);
+  }
+  document.getElementById('round-btn').onclick=nextRound;
+  document.getElementById('round-overlay').classList.add('show');
+}
+
+function endGame(){
+  playWin();confetti(60);setTimeout(()=>confetti(40),700);
+  document.getElementById('end-score').textContent=`You scored ${score} out of ${TOTAL}! ✨`;
+  document.getElementById('end-overlay').classList.add('show');
+}
+
+function updateHUD(){
+  const tierIdx=getTierIdx(round);
+  const tier=TIERS[tierIdx];
+  const badge=document.getElementById('tier-badge');
+  badge.textContent=tier.label;badge.className='tier-badge '+tier.cls;
+  document.getElementById('score-display').textContent='⭐ '+score;
+  document.getElementById('round-label').textContent=round+' / '+TOTAL;
+  document.getElementById('progress-fill').style.width=((round-1)/TOTAL*100)+'%';
+}
+
+// ── Particles ──────────────────────────────────────────────────────────────────
+function burst(cx,cy){
+  const cols=['#ffd700','#f48fb1','#fff','#ce93d8','#e040fb','#90caf9','#ff8a65'];
+  const icons=['✨','💫','⭐','👏','🌟','🎵','💎','🌸'];
+  for(let i=0;i<22;i++){
+    const el=document.createElement('div');el.className='sp';
+    const a=Math.random()*Math.PI*2,dist=35+Math.random()*90,sz=7+Math.random()*10;
+    if(i<8){
+      el.style.cssText=`left:${cx+Math.cos(a)*dist}px;top:${cy+Math.sin(a)*dist}px;font-size:${16+Math.random()*12}px;background:none;border-radius:0;`;
+      el.textContent=icons[i%icons.length];
+    } else {
+      el.style.cssText=`left:${cx+Math.cos(a)*dist-sz/2}px;top:${cy+Math.sin(a)*dist-sz/2}px;width:${sz}px;height:${sz}px;background:${cols[i%cols.length]};border-radius:50%;`;
+    }
+    document.body.appendChild(el);setTimeout(()=>el.remove(),800);
+  }
+}
+
+function confetti(count){
+  const cols=['#e040fb','#ffd700','#fff','#f48fb1','#ce93d8','#b2ebf2','#a5d6a7','#ff8a65'];
+  for(let i=0;i<count;i++){
+    const el=document.createElement('div');el.className='cf';
+    const sz=6+Math.random()*10;
+    el.style.cssText=`left:${Math.random()*100}vw;top:-20px;width:${sz}px;height:${sz}px;background:${cols[i%cols.length]};animation-duration:${1.4+Math.random()*2}s;animation-delay:${Math.random()*.5}s`;
+    document.body.appendChild(el);setTimeout(()=>el.remove(),3500);
+  }
+}
+
+function makeBgStars(){
+  document.querySelectorAll('.bg-star').forEach(e=>e.remove());
+  const icons=['⭐','✨','💫','🌟','👏','💎','🌸','🎵','👑','🦋','🌈','🐱','🌙','🎀','🌺','🪄'];
+  for(let i=0;i<16;i++){
+    const el=document.createElement('div');el.className='bg-star';
+    el.textContent=icons[i%icons.length];
+    el.style.left=(3+Math.random()*94)+'vw';
+    el.style.animationDuration=(9+Math.random()*14)+'s';
+    el.style.animationDelay=-(Math.random()*14)+'s';
+    document.body.appendChild(el);
+  }
+}
+
+startGame();
+</script>
+</body>
+</html>

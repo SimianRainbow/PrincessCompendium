@@ -783,12 +783,12 @@
   {
     "id": "066-royal-music-makers",
     "title": "Royal Music Makers",
-    "description": "What instrument is Princess playing? Tap the right one — Drum, Piano, Guitar, Violin, Trumpet and more! Score counter ⭐, instrument fun facts, 9 rounds across 3 tiers.",
+    "description": "What instrument is Princess playing? Tap the right one — 11 instruments including Maracas and Long Drum! Tap the instrument to replay its sound. Score counter ⭐, instrument fun facts, 9 rounds across 3 tiers.",
     "icon": "🎹",
     "ageMin": 2,
     "ageMax": 5,
     "skill": "musical instrument recognition",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "category": "music",
     "path": "games/066-royal-music-makers/index.html"
   },
@@ -947,5 +947,17 @@
     "version": "1.0.0",
     "category": "other",
     "path": "games/079-royal-map/index.html"
+  },
+  {
+    "id": "080-syllable-stars",
+    "title": "Princess Clap Stars",
+    "description": "How many claps? Count the syllables — CAT is 1, BUNNY is 2, BUTTERFLY is 3! Clap along with Princess and tap the right number. 18-word pool, celebrate overlay shows syllable breakdown, 9 rounds across 3 tiers.",
+    "icon": "👏",
+    "ageMin": 2,
+    "ageMax": 5,
+    "skill": "syllable counting — phonological awareness",
+    "version": "1.0.0",
+    "category": "letters",
+    "path": "games/080-syllable-stars/index.html"
   }
 ]
