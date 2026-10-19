@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Princess Rainbow 🌈</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+    body {
+      min-height:100vh;
+      background: linear-gradient(160deg, #4a0072 0%, #6a1b9a 35%, #1a237e 65%, #0d47a1 100%);
+      font-family:'Fredoka One', Georgia, serif;
+      display:flex; flex-direction:column; align-items:center;
+      overflow:hidden; user-select:none; touch-action:manipulation;
+    }
+
+    /* ── Floating bg icons ─────────────────────────────────────────────── */
+    .bg-icon {
+      position:fixed; pointer-events:none; opacity:.08;
+      font-size:clamp(18px,4.5vw,28px);
+      animation:bgFloat linear infinite; z-index:0;
+    }
+    @keyframes bgFloat {
+      0%   { transform:translateY(110vh) rotate(0deg); }
+      100% { transform:translateY(-15vh) rotate(360deg); }
+    }
+
+    /* ── Header ─────────────────────────────────────────────────────────── */
+    #header {
+      width:100%; display:flex; justify-content:space-between; align-items:center;
+      padding:clamp(10px,2.5vw,16px) clamp(14px,4vw,22px) 0;
+      flex-shrink:0; position:relative; z-index:1;
+    }
+    #tier-badge { font-size:clamp(13px,3.2vw,18px); padding:5px 14px; border-radius:20px; font-weight:bold; }
+    .tier-easy   { background:linear-gradient(135deg,#b3e5fc,#039be5); color:#01579b; }
+    .tier-medium { background:linear-gradient(135deg,#ffe082,#ffd54f); color:#5a3000; }
+    .tier-hard   { background:linear-gradient(135deg,#f48fb1,#e91e63); color:#fff; }
+    #score-label { font-size:clamp(13px,3.2vw,17px); color:#ffd700; font-weight:bold; }
+    #round-label { font-size:clamp(13px,3.2vw,17px); color:rgba(255,255,255,.9); }
+
+    /* ── Progress bar ────────────────────────────────────────────────────── */
+    #progress-wrap { width:100%; padding:6px clamp(14px,4vw,22px) 0; flex-shrink:0; z-index:1; position:relative; }
+    #progress-track { background:rgba(255,255,255,.18); border-radius:20px; height:clamp(8px,2vw,12px); overflow:hidden; }
+    #progress-fill  { height:100%; border-radius:20px; background:linear-gradient(90deg,#ef5350,#ff9800,#fdd835,#4caf50,#1e88e5,#5e35b1,#e040fb); transition:width .35s ease; width:0%; }
+
+    /* ── Prompt ──────────────────────────────────────────────────────────── */
+    #prompt {
+      font-size:clamp(17px,4.5vw,24px); color:#e1bee7;
+      text-shadow:0 2px 8px rgba(0,0,0,.5);
+      text-align:center; padding:clamp(8px,2vw,12px) 16px 0;
+      flex-shrink:0; position:relative; z-index:1; line-height:1.2;
+    }
+
+    /* ── Rainbow card ────────────────────────────────────────────────────── */
+    #rainbow-card {
+      background:rgba(255,255,255,.1); border-radius:28px;
+      padding:clamp(14px,3.5vw,24px) clamp(12px,3vw,22px);
+      display:flex; flex-direction:column; align-items:center; gap:6px;
+      box-shadow:0 8px 32px rgba(0,0,0,.3), 0 0 0 3px rgba(255,255,255,.15);
+      margin:clamp(8px,2vw,14px) clamp(12px,3vw,20px) 0;
+      flex-shrink:0; position:relative; z-index:1;
+    }
+    #rainbow-card.pop-in { animation:cardPop .4s cubic-bezier(.34,1.56,.64,1); }
+    @keyframes cardPop { from{transform:scale(.6);opacity:0} to{transform:scale(1);opacity:1} }
+
+    #orb-row { display:flex; align-items:center; justify-content:center; gap:clamp(4px,1.2vw,8px); }
+
+    .orb {
+      border-radius:50%;
+      display:flex; align-items:center; justify-content:center;
+      box-shadow:0 4px 14px rgba(0,0,0,.3), inset 0 2px 0 rgba(255,255,255,.4);
+      flex-shrink:0; transition:transform .15s;
+    }
+    .orb-easy   { width:clamp(66px,17vw,88px); height:clamp(66px,17vw,88px); font-size:clamp(28px,7.5vw,42px); }
+    .orb-medium { width:clamp(52px,13vw,68px); height:clamp(52px,13vw,68px); font-size:clamp(22px,5.5vw,32px); }
+    .orb-hard   { width:clamp(38px,9vw,50px);  height:clamp(38px,9vw,50px);  font-size:clamp(16px,4vw,22px); }
+
+    .orb-gap {
+      background:linear-gradient(145deg,#e0e0e0,#9e9e9e) !important;
+      animation:gapPulse 1.4s ease-in-out infinite;
+      box-shadow:0 4px 16px rgba(0,0,0,.25), 0 0 0 3px rgba(255,215,0,.55), inset 0 2px 0 rgba(255,255,255,.5);
+      color:#616161; font-weight:bold;
+    }
+    @keyframes gapPulse {
+      0%,100% { transform:scale(1);   box-shadow:0 4px 16px rgba(0,0,0,.25),0 0 0 3px rgba(255,215,0,.55),inset 0 2px 0 rgba(255,255,255,.5); }
+      50%     { transform:scale(1.1); box-shadow:0 4px 24px rgba(0,0,0,.3), 0 0 0 5px rgba(255,215,0,.85),inset 0 2px 0 rgba(255,255,255,.5); }
+    }
+
+    .orb-dot { width:clamp(6px,1.5vw,9px); height:clamp(6px,1.5vw,9px); border-radius:50%; background:rgba(255,255,255,.3); flex-shrink:0; }
+
+    /* ── Choices ─────────────────────────────────────────────────────────── */
+    #choices {
+      display:grid; gap:clamp(10px,2.5vw,14px);
+      padding:clamp(10px,2.5vw,16px) clamp(12px,3vw,20px);
+      width:100%; max-width:460px; flex-shrink:0; position:relative; z-index:1;
+    }
+    #choices.cols-3   { grid-template-columns:1fr 1fr 1fr; }
+    #choices.cols-2x2 { grid-template-columns:1fr 1fr; }
+
+    .choice-btn {
+      min-height:clamp(90px,22vw,110px);
+      border-radius:22px; border:none; cursor:pointer;
+      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px;
+      box-shadow:0 4px 18px rgba(0,0,0,.3), inset 0 2px 0 rgba(255,255,255,.3);
+      transition:transform .1s; touch-action:manipulation;
+    }
+    .choice-btn:active { transform:scale(.91); }
+    .choice-icon { font-size:clamp(32px,9vw,46px); line-height:1; }
+    .choice-name { font-family:'Fredoka One',Georgia,serif; font-size:clamp(11px,2.8vw,15px); line-height:1; }
+
+    .choice-btn.correct-flash { animation:correctPop .5s ease-out; }
+    .choice-btn.wrong-flash   { animation:wrongShake .42s ease-out; }
+    @keyframes correctPop { 0%{transform:scale(1)} 40%{transform:scale(1.15);box-shadow:0 0 40px rgba(255,215,0,.8)} 100%{transform:scale(1)} }
+    @keyframes wrongShake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-12px)} 60%{transform:translateX(12px)} 80%{transform:translateX(-6px)} }
+
+    /* ── Sparkles ────────────────────────────────────────────────────────── */
+    .sp     { position:fixed; pointer-events:none; z-index:50; animation:spOut .75s ease-out forwards; }
+    @keyframes spOut { 0%{transform:scale(0);opacity:1} 100%{transform:scale(1.5);opacity:0} }
+    .sp-dot { position:fixed; pointer-events:none; z-index:50; border-radius:50%; animation:dotFly .8s ease-out forwards; }
+    @keyframes dotFly { 0%{transform:translate(0,0) scale(1);opacity:1} 100%{transform:translate(var(--tx),var(--ty)) scale(.1);opacity:0} }
+
+    /* ── Overlays ────────────────────────────────────────────────────────── */
+    .overlay {
+      position:fixed; inset:0; z-index:99;
+      display:flex; flex-direction:column;
+      align-items:center; justify-content:center; gap:clamp(10px,2.5vw,16px);
+      opacity:0; pointer-events:none; transition:opacity .35s;
+    }
+    .overlay.show { opacity:1; pointer-events:all; }
+
+    #tier-overlay { background:rgba(0,0,0,.72); }
+    #to-icon  { font-size:clamp(60px,16vw,96px); }
+    #to-title { font-size:clamp(24px,6.5vw,44px); color:#ffd700; text-shadow:0 0 20px #ff9800; text-align:center; }
+    #to-sub   { font-size:clamp(15px,4vw,22px); color:#fff; text-align:center; padding:0 24px; }
+    .ov-btn {
+      margin-top:6px; padding:clamp(14px,4vw,20px) clamp(32px,8vw,56px);
+      font-size:clamp(18px,4.8vw,26px); border-radius:50px; border:none;
+      background:linear-gradient(135deg,#ffd700,#ff9800);
+      color:#5d2e00; font-weight:bold; cursor:pointer;
+      font-family:inherit; box-shadow:0 4px 16px rgba(255,180,0,.5);
+      touch-action:manipulation;
+    }
+
+    #cel-overlay { background:rgba(0,0,0,.72); }
+    #cel-orb {
+      width:clamp(90px,22vw,130px); height:clamp(90px,22vw,130px);
+      border-radius:50%;
+      box-shadow:0 6px 28px rgba(0,0,0,.3), 0 0 0 5px rgba(255,215,0,.65);
+      display:flex; align-items:center; justify-content:center;
+      font-size:clamp(40px,11vw,64px); line-height:1;
+      animation:celBounce .5s ease-out;
+    }
+    @keyframes celBounce { 0%{transform:scale(.3)} 65%{transform:scale(1.18)} 100%{transform:scale(1)} }
+    #cel-label { font-size:clamp(22px,6vw,38px); color:#ffd700; text-align:center; padding:0 20px; }
+    #cel-fact  { font-size:clamp(13px,3.5vw,19px); color:#e1bee7; text-align:center; padding:0 28px; line-height:1.35; }
+    #cel-rainbow {
+      display:flex; gap:clamp(5px,1.3vw,9px); align-items:center; justify-content:center;
+    }
+    .cel-mini { width:clamp(28px,7vw,40px); height:clamp(28px,7vw,40px); border-radius:50%; box-shadow:0 2px 8px rgba(0,0,0,.3); transition:transform .2s; }
+    .cel-mini.highlight { box-shadow:0 0 0 3px #ffd700, 0 2px 8px rgba(0,0,0,.3); transform:scale(1.25); }
+
+    #win-overlay { background:linear-gradient(160deg,#4a0072 0%,#1a237e 100%); }
+    #win-icon  { font-size:clamp(72px,18vw,110px); animation:crowBounce 1.1s ease-in-out infinite; }
+    @keyframes crowBounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-16px)} }
+    #win-title { font-size:clamp(26px,7vw,46px); color:#ffd700; text-shadow:0 0 24px #ff9800; text-align:center; }
+    #win-rainbow { display:flex; gap:clamp(6px,1.5vw,10px); align-items:center; justify-content:center; }
+    .win-orb { width:clamp(32px,8vw,46px); height:clamp(32px,8vw,46px); border-radius:50%; box-shadow:0 2px 10px rgba(0,0,0,.3); }
+    #win-sub   { font-size:clamp(15px,4vw,22px); color:#e1bee7; text-align:center; padding:0 24px; }
+    #win-score { font-size:clamp(20px,5vw,32px); color:#80d8ff; font-weight:bold; }
+
+    .confetti { position:fixed; pointer-events:none; z-index:101; border-radius:3px; animation:cfFall linear forwards; }
+    @keyframes cfFall { 0%{top:-20px;opacity:1;transform:rotate(0deg)} 100%{top:110vh;opacity:.2;transform:rotate(var(--cr,360deg))} }
+  </style>
+</head>
+<body>
+
+  <div id="header">
+    <div id="tier-badge" class="tier-easy">🌱 Easy</div>
+    <div id="score-label">⭐ 0</div>
+    <div id="round-label">1 / 9</div>
+  </div>
+  <div id="progress-wrap">
+    <div id="progress-track"><div id="progress-fill"></div></div>
+  </div>
+
+  <div id="prompt">Which colour is MISSING? 🌈</div>
+
+  <div id="rainbow-card">
+    <div id="orb-row"></div>
+  </div>
+
+  <div id="choices" class="cols-3"></div>
+
+  <!-- Tier overlay -->
+  <div class="overlay" id="tier-overlay">
+    <div id="to-icon">🌟</div>
+    <div id="to-title">Amazing!</div>
+    <div id="to-sub">More rainbow colours to find!</div>
+    <button class="ov-btn" onclick="resumeFromTier()">Keep going! ➡️</button>
+  </div>
+
+  <!-- Per-round celebrate overlay -->
+  <div class="overlay" id="cel-overlay">
+    <div id="cel-orb">🔴</div>
+    <div id="cel-label">That's Red! 🎉</div>
+    <div id="cel-fact">🍅 Tomatoes and roses are Red!</div>
+    <div id="cel-rainbow"></div>
+    <button class="ov-btn" onclick="nextRound()">Next ➡️</button>
+  </div>
+
+  <!-- Win overlay -->
+  <div class="overlay" id="win-overlay">
+    <div id="win-icon">🌈</div>
+    <div id="win-title">Rainbow Princess! 🌈</div>
+    <div id="win-rainbow"></div>
+    <div id="win-sub">You know all the rainbow colours! ✨</div>
+    <div id="win-score"></div>
+    <button class="ov-btn" onclick="startGame()">Play Again 🌸</button>
+  </div>
+
+<script>
+'use strict';
+
+// ── Audio ──────────────────────────────────────────────────────────────────────
+var audioCtx = null;
+function getAudio() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return audioCtx;
+}
+function tone(f, type, dur, vol, delay) {
+  delay = delay || 0; vol = vol || 0.15;
+  try {
+    var c = getAudio(), o = c.createOscillator(), g = c.createGain();
+    o.connect(g); g.connect(c.destination);
+    o.type = type || 'sine'; o.frequency.value = f;
+    var t0 = c.currentTime + delay;
+    g.gain.setValueAtTime(vol, t0);
+    g.gain.exponentialRampToValueAtTime(0.001, t0 + dur);
+    o.start(t0); o.stop(t0 + dur);
+  } catch(e) {}
+}
+function playCorrect()   { [523,659,784,1047].forEach(function(f,i){ tone(f,'sine',0.18,0.18,i*0.07); }); }
+function playWrong()     { tone(260,'sawtooth',0.18,0.12); setTimeout(function(){ tone(210,'sawtooth',0.14,0.09); },160); }
+function playCelebrate() { [523,587,659,698,784,880,1047].forEach(function(f,i){ tone(f,'sine',0.22,0.17,i*0.065); }); }
+function playTierUp()    { [392,494,587,784,1047].forEach(function(f,i){ tone(f,'triangle',0.25,0.18,i*0.09); }); }
+function playRainbowScale() {
+  // C D E F G A B — one note per rainbow colour
+  [262,294,330,349,392,440,494].forEach(function(f,i){ tone(f,'sine',0.3,0.17,i*0.1); });
+}
+function playWin() { [523,659,784,1047,784,1047,1319].forEach(function(f,i){ tone(f,'sine',0.28,0.2,i*0.1); }); }
+
+// ── Rainbow data ───────────────────────────────────────────────────────────────
+var RAINBOW = [
+  { name:'Red',    icon:'🔴', bg:'linear-gradient(145deg,#ef9a9a,#e53935)', hex:'#e53935',
+    fact:'🍅 Tomatoes, strawberries and roses are Red!' },
+  { name:'Orange', icon:'🟠', bg:'linear-gradient(145deg,#ffcc80,#ef6c00)', hex:'#ef6c00',
+    fact:'🍊 Oranges and carrots are Orange!' },
+  { name:'Yellow', icon:'🌟', bg:'linear-gradient(145deg,#fff9c4,#f9a825)', hex:'#f9a825',
+    fact:'🌻 Sunflowers and lemons are Yellow!' },
+  { name:'Green',  icon:'🟢', bg:'linear-gradient(145deg,#a5d6a7,#2e7d32)', hex:'#2e7d32',
+    fact:'🌿 Leaves, frogs and grass are Green!' },
+  { name:'Blue',   icon:'💙', bg:'linear-gradient(145deg,#90caf9,#1565c0)', hex:'#1565c0',
+    fact:'🌊 The ocean and sky are Blue!' },
+  { name:'Indigo', icon:'🔮', bg:'linear-gradient(145deg,#9fa8da,#3949ab)', hex:'#3949ab',
+    fact:'💜 Indigo is a deep blue-purple colour!' },
+  { name:'Violet', icon:'💜', bg:'linear-gradient(145deg,#e1bee7,#7b1fa2)', hex:'#7b1fa2',
+    fact:'🌸 Lavender and lilac flowers are Violet!' },
+];
+
+var TOTAL = 9;
+
+// Each scenario: n = how many rainbow colours to show (from index 0),
+// gapIdx = which position is the "?", wrongs = wrong colour names (must not include answer)
+var EASY = [
+  // 3-colour rainbow (Red, Orange, Yellow) — 3 choices
+  { n:3, gapIdx:1, wrongs:['Blue','Violet'] },
+  { n:3, gapIdx:0, wrongs:['Green','Indigo'] },
+  { n:3, gapIdx:2, wrongs:['Blue','Violet'] },
+  { n:3, gapIdx:1, wrongs:['Indigo','Green'] },
+  { n:3, gapIdx:0, wrongs:['Blue','Indigo'] },
+  { n:3, gapIdx:2, wrongs:['Indigo','Blue'] },
+];
+
+var MEDIUM = [
+  // 5-colour rainbow (Red–Blue) — 3 choices (wrongs from outside the 5-colour set)
+  { n:5, gapIdx:2, wrongs:['Indigo','Violet'] },
+  { n:5, gapIdx:1, wrongs:['Violet','Indigo'] },
+  { n:5, gapIdx:3, wrongs:['Indigo','Violet'] },
+  { n:5, gapIdx:0, wrongs:['Indigo','Violet'] },
+  { n:5, gapIdx:4, wrongs:['Indigo','Violet'] },
+  { n:5, gapIdx:2, wrongs:['Violet','Indigo'] },
+];
+
+var HARD = [
+  // 7-colour full rainbow — 4 choices (answer + 3 displaced wrongs)
+  { n:7, gapIdx:3, wrongs:['Red','Violet','Orange'] },    // Green
+  { n:7, gapIdx:1, wrongs:['Green','Violet','Blue'] },    // Orange
+  { n:7, gapIdx:5, wrongs:['Red','Yellow','Orange'] },    // Indigo
+  { n:7, gapIdx:6, wrongs:['Red','Orange','Green'] },     // Violet
+  { n:7, gapIdx:2, wrongs:['Blue','Violet','Indigo'] },   // Yellow
+  { n:7, gapIdx:4, wrongs:['Red','Violet','Orange'] },    // Blue
+  { n:7, gapIdx:0, wrongs:['Yellow','Green','Blue'] },    // Red
+  { n:7, gapIdx:3, wrongs:['Blue','Indigo','Red'] },      // Green (variant)
+];
+
+var TIER_INFO = [
+  { label:'🌱 Easy',   cls:'tier-easy',   icon:'✨', title:'Amazing!',   sub:'Now try 5 rainbow colours! 🌈' },
+  { label:'🌸 Medium', cls:'tier-medium', icon:'💫', title:'Wonderful!', sub:'Can you find the colour in the FULL rainbow? 🌈' },
+  { label:'⭐ Hard',   cls:'tier-hard' },
+];
+
+var PROMPTS = [
+  'Which colour is MISSING? 🌈',
+  'Find the missing rainbow colour! ✨',
+  'What colour belongs here? 🔮',
+  'Help Princess finish the rainbow! 👸',
+  'Tap the colour that fills the gap! 💫',
+];
+
+// ── Helpers ────────────────────────────────────────────────────────────────────
+function shuffle(arr) {
+  var a = arr.slice();
+  for (var i = a.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var t = a[i]; a[i] = a[j]; a[j] = t;
+  }
+  return a;
+}
+function rbByName(name) {
+  for (var i = 0; i < RAINBOW.length; i++) {
+    if (RAINBOW[i].name === name) return RAINBOW[i];
+  }
+  return RAINBOW[0];
+}
+
+// ── State ──────────────────────────────────────────────────────────────────────
+var round = 0, score = 0, locked = false, currentQ = null, roundPlan = [];
+
+function buildPlan() {
+  return shuffle(EASY).slice(0,3)
+    .concat(shuffle(MEDIUM).slice(0,3))
+    .concat(shuffle(HARD).slice(0,3));
+}
+function getTierIdx(r) { return r <= 3 ? 0 : r <= 6 ? 1 : 2; }
+
+// ── Background icons ───────────────────────────────────────────────────────────
+(function initBg() {
+  var icons = ['🌈','✨','⭐','💫','🌟','🔴','🟠','🌟','🟢','💙','💜','🔮','🌸','👑','💎','🎀','🌺','🦋'];
+  for (var i = 0; i < 18; i++) {
+    var el = document.createElement('div');
+    el.className = 'bg-icon';
+    el.textContent = icons[i % icons.length];
+    el.style.left = (3 + Math.random() * 94) + 'vw';
+    el.style.animationDuration = (12 + Math.random() * 14) + 's';
+    el.style.animationDelay    = -(Math.random() * 22) + 's';
+    document.body.appendChild(el);
+  }
+})();
+
+// ── Game flow ──────────────────────────────────────────────────────────────────
+function startGame() {
+  ['win-overlay','cel-overlay','tier-overlay'].forEach(function(id){
+    document.getElementById(id).classList.remove('show');
+  });
+  round = 0; score = 0;
+  document.getElementById('score-label').textContent = '⭐ 0';
+  document.getElementById('progress-fill').style.width = '0%';
+  roundPlan = buildPlan();
+  nextRound();
+}
+
+function nextRound() {
+  document.getElementById('cel-overlay').classList.remove('show');
+  if (round >= TOTAL) { endGame(); return; }
+
+  var prevTier = getTierIdx(round);
+  round++;
+  locked = false;
+  updateHUD();
+
+  var newTier = getTierIdx(round);
+  if (round > 1 && newTier !== prevTier) {
+    showTierOverlay(newTier);
+  } else {
+    showQuestion();
+  }
+}
+
+function showTierOverlay(tIdx) {
+  var ti = TIER_INFO[tIdx - 1];
+  document.getElementById('to-icon').textContent  = ti.icon;
+  document.getElementById('to-title').textContent = ti.title;
+  document.getElementById('to-sub').textContent   = ti.sub;
+  document.getElementById('tier-overlay').classList.add('show');
+  playTierUp();
+  confetti(42);
+}
+
+function resumeFromTier() {
+  document.getElementById('tier-overlay').classList.remove('show');
+  showQuestion();
+}
+
+function updateHUD() {
+  var tIdx  = getTierIdx(round);
+  var ti    = TIER_INFO[tIdx];
+  var badge = document.getElementById('tier-badge');
+  badge.textContent = ti.label;
+  badge.className   = ti.cls;
+  document.getElementById('round-label').textContent = round + ' / ' + TOTAL;
+  document.getElementById('progress-fill').style.width = ((round - 1) / TOTAL * 100) + '%';
+}
+
+function showQuestion() {
+  var q = roundPlan[round - 1];
+  currentQ = q;
+
+  document.getElementById('prompt').textContent = PROMPTS[Math.floor(Math.random() * PROMPTS.length)];
+
+  var card = document.getElementById('rainbow-card');
+  card.classList.remove('pop-in');
+  void card.offsetWidth;
+  card.classList.add('pop-in');
+
+  var szCls = q.n === 3 ? 'orb-easy' : q.n === 5 ? 'orb-medium' : 'orb-hard';
+  var row = document.getElementById('orb-row');
+  row.innerHTML = '';
+  var colors = RAINBOW.slice(0, q.n);
+
+  colors.forEach(function(rb, idx) {
+    if (idx > 0) {
+      var dot = document.createElement('div');
+      dot.className = 'orb-dot';
+      row.appendChild(dot);
+    }
+    var orb = document.createElement('div');
+    orb.className = 'orb ' + szCls;
+    if (idx === q.gapIdx) {
+      orb.classList.add('orb-gap');
+      orb.textContent = '?';
+    } else {
+      orb.style.background = rb.bg;
+      orb.textContent = rb.icon;
+    }
+    row.appendChild(orb);
+  });
+
+  var answer     = RAINBOW[q.gapIdx];
+  var wrongItems = q.wrongs.map(rbByName);
+  var allChoices = shuffle([answer].concat(wrongItems));
+  var isHard     = (q.n === 7);
+
+  var choicesEl = document.getElementById('choices');
+  choicesEl.className = isHard ? 'cols-2x2' : 'cols-3';
+  choicesEl.innerHTML = '';
+
+  allChoices.forEach(function(rb) {
+    var btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.style.background = rb.bg;
+
+    var icon = document.createElement('div');
+    icon.className = 'choice-icon';
+    icon.textContent = rb.icon;
+    btn.appendChild(icon);
+
+    var lbl = document.createElement('div');
+    lbl.className = 'choice-name';
+    lbl.style.color = rb.name === 'Yellow' ? '#5a3000' : '#fff';
+    lbl.textContent = rb.name;
+    btn.appendChild(lbl);
+
+    var isCorrect = (rb.name === answer.name);
+    btn.addEventListener('pointerdown', function() { handleTap(btn, isCorrect, answer); });
+    choicesEl.appendChild(btn);
+  });
+}
+
+// ── Tap handling ───────────────────────────────────────────────────────────────
+function handleTap(btn, isCorrect, answer) {
+  if (locked) return;
+  if (isCorrect) {
+    locked = true;
+    score++;
+    document.getElementById('score-label').textContent = '⭐ ' + score;
+    btn.classList.add('correct-flash');
+    playCorrect();
+    sparkleBurst(btn);
+    setTimeout(function() {
+      btn.classList.remove('correct-flash');
+      showCelebrate(answer);
+    }, 500);
+  } else {
+    btn.classList.add('wrong-flash');
+    playWrong();
+    setTimeout(function() { btn.classList.remove('wrong-flash'); }, 450);
+  }
+}
+
+function showCelebrate(rb) {
+  var celOrb = document.getElementById('cel-orb');
+  celOrb.style.background = rb.bg;
+  celOrb.textContent = rb.icon;
+
+  document.getElementById('cel-label').textContent = 'That\'s ' + rb.name + '! 🎉';
+  document.getElementById('cel-fact').textContent  = rb.fact;
+
+  var miniRow = document.getElementById('cel-rainbow');
+  miniRow.innerHTML = '';
+  RAINBOW.forEach(function(c) {
+    var dot = document.createElement('div');
+    dot.className = 'cel-mini' + (c.name === rb.name ? ' highlight' : '');
+    dot.style.background = c.bg;
+    miniRow.appendChild(dot);
+  });
+
+  document.getElementById('cel-overlay').classList.add('show');
+  playCelebrate();
+  confetti(32);
+  setTimeout(function() { confetti(20); }, 400);
+}
+
+function endGame() {
+  document.getElementById('progress-fill').style.width = '100%';
+  document.getElementById('win-score').textContent = 'Score: ' + score + ' / ' + TOTAL + ' ⭐';
+
+  var winRow = document.getElementById('win-rainbow');
+  winRow.innerHTML = '';
+  RAINBOW.forEach(function(c) {
+    var orb = document.createElement('div');
+    orb.className = 'win-orb';
+    orb.style.background = c.bg;
+    winRow.appendChild(orb);
+  });
+
+  document.getElementById('win-overlay').classList.add('show');
+  playWin();
+  setTimeout(function() { playRainbowScale(); }, 800);
+  confetti(60);
+  setTimeout(function() { confetti(42); }, 700);
+}
+
+// ── Particles ──────────────────────────────────────────────────────────────────
+function sparkleBurst(btn) {
+  var r  = btn.getBoundingClientRect();
+  var cx = r.left + r.width / 2;
+  var cy = r.top  + r.height / 2;
+  var ems  = ['✨','💫','⭐','🌈','🌟','🔴','🟠','🌟','🟢','💙','💜','🔮','👑','🌸','💎','🎉','🌺','💖','🎀','🦋','🌈','⭐'];
+  var cols = ['#ef5350','#ff9800','#fdd835','#4caf50','#1e88e5','#7c4dff','#e040fb','#fff','#ffd700'];
+  for (var i = 0; i < 22; i++) {
+    var el = document.createElement('div');
+    el.className = 'sp';
+    el.textContent = ems[i % ems.length];
+    el.style.cssText = 'font-size:' + (16 + Math.random() * 14) + 'px;left:' + (cx + (Math.random() - .5) * 120) + 'px;top:' + (cy + (Math.random() - .5) * 100) + 'px;animation-delay:' + (Math.random() * .15) + 's;';
+    document.body.appendChild(el);
+    setTimeout(function(e) { return function() { e.remove(); }; }(el), 900);
+  }
+  for (var j = 0; j < 22; j++) {
+    var dot = document.createElement('div');
+    dot.className = 'sp-dot';
+    var a    = Math.random() * Math.PI * 2;
+    var dist = 28 + Math.random() * 80;
+    var sz   = 5 + Math.random() * 10;
+    dot.style.cssText = 'width:' + sz + 'px;height:' + sz + 'px;left:' + (cx - sz/2) + 'px;top:' + (cy - sz/2) + 'px;background:' + cols[j % cols.length] + ';--tx:' + (Math.cos(a) * dist) + 'px;--ty:' + (Math.sin(a) * dist) + 'px;';
+    document.body.appendChild(dot);
+    setTimeout(function(e) { return function() { e.remove(); }; }(dot), 950);
+  }
+}
+
+function confetti(count) {
+  var cols = ['#ef5350','#ff9800','#fdd835','#4caf50','#1e88e5','#7c4dff','#e040fb','#fff','#ffd700','#f48fb1'];
+  for (var i = 0; i < count; i++) {
+    var el  = document.createElement('div');
+    el.className = 'confetti';
+    var dur = 1.4 + Math.random() * 1.8;
+    var sz  = 6 + Math.random() * 10;
+    el.style.cssText = 'left:' + Math.random() * 100 + 'vw;width:' + sz + 'px;height:' + sz * (0.4 + Math.random() * 0.7) + 'px;background:' + cols[i % cols.length] + ';animation-duration:' + dur + 's;animation-delay:' + Math.random() * .5 + 's;--cr:' + ((Math.random() - .5) * 720) + 'deg;';
+    document.body.appendChild(el);
+    setTimeout(function(e) { return function() { e.remove(); }; }(el), (dur + 0.6) * 1000 + 200);
+  }
+}
+
+// ── Init ───────────────────────────────────────────────────────────────────────
+startGame();
+</script>
+</body>
+</html>

@@ -1,9 +1,9 @@
 # Princess Compendium — Status
 
 ## Last update run
-Date: 2026-10-16
-- Improved: `066-royal-music-makers` → v1.1.0 (added 2 new instruments: Maracas 🪇 + Long Drum 🪘; Medium pool 5→7 instruments, Hard pool 9→11; instrument bubble now tappable to replay sound with "Tap to hear 🔊" hint; burst 20→22 particles, emoji icons 7→8; bg-notes 14→16; confetti(20) on each correct answer)
-- Added: `080-syllable-stars` — "Princess Clap Stars 👏" teaching syllable counting (phonological awareness); 18-word pool (6 per tier); Easy: 1–2 syllables, Medium: 2–3 syllables, Hard: 3–4 syllables; celebrate overlay shows syllable breakdown with dots; clap audio plays N times to reinforce; 9 rounds across 3 tiers
+Date: 2026-10-19
+- Improved: `067-alphabet-march` → v1.1.0 (pool expanded 6→8 per tier covering letters M–P in Easy/Medium and R–Y in Hard; 5th prompt variant per question type; confetti(32)+delayed burst on celebrate; sparkle emoji 18→22; bg letters 16→18)
+- Added: `081-rainbow-bridge` — "Princess Rainbow 🌈" teaching ROYGBIV rainbow colour order; Easy: 3-colour gap (Red/Orange/Yellow), Medium: 5-colour gap, Hard: full 7-colour rainbow with 4 choices; celebrate overlay shows full rainbow with found colour highlighted; rainbow-scale audio on win; 9 rounds across 3 tiers
 
 ## Improvement history
 
@@ -71,6 +71,7 @@ Date: 2026-10-16
 | 2026-10-10 | 065-princess-butterfly | Pools 6→8 per tier (duck/tree/apple/kitten cycles), bg floaters 12→14, sparkle burst 20+18→22+20 | 1.1.0 |
 | 2026-10-13 | 069-princess-dots | Hard pool [3-6]→[5-8], dot patterns + facts for 7 and 8, Medium pool adds 6, sparkle 20+10→22+12, 14 bg gems, 7 prompts | 1.1.0 |
 | 2026-10-16 | 066-royal-music-makers | Added Maracas + Long Drum (11 instruments total), Medium pool 5→7, Hard 9→11, tap-to-replay bubble + hint, burst 20→22, bg-notes 14→16, confetti(20) on correct | 1.1.0 |
+| 2026-10-19 | 067-alphabet-march | Pool 6→8 per tier (M→N/O→P Easy, P→O/R→Q Medium, R-S-T/W-X-Y Hard), 5th prompt variant, confetti burst on celebrate, sparkle 18→22, bg icons 16→18 | 1.1.0 |
 
 ## Games due for improvement (all at v1.0.0)
 
@@ -140,6 +141,7 @@ See `CLAUDE.md` for the full prioritised list. Top 3 to build next:
 41. **Place value (tens and ones)** — ✅ covered by `078-place-value-palace`
 42. **Directional concepts (left/right/up/down)** — ✅ covered by `079-royal-map`
 43. **Syllable counting (phonological awareness)** — ✅ covered by `080-syllable-stars`
+44. **Rainbow colour order (ROYGBIV sequence)** — ✅ covered by `081-rainbow-bridge`
 
 ## Next game ID
-`081-<slug>`
+`082-<slug>`

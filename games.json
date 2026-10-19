@@ -800,7 +800,7 @@
     "ageMin": 3,
     "ageMax": 5,
     "skill": "alphabet sequence — before, after & missing letters",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "category": "letters",
     "path": "games/067-alphabet-march/index.html"
   },
@@ -959,5 +959,17 @@
     "version": "1.0.0",
     "category": "letters",
     "path": "games/080-syllable-stars/index.html"
+  },
+  {
+    "id": "081-rainbow-bridge",
+    "title": "Princess Rainbow",
+    "description": "Fill in the missing rainbow colour! Easy: Red-Orange-Yellow, Medium: 5 colours, Hard: the full ROYGBIV rainbow. Celebrate overlay shows the full rainbow with the found colour highlighted. 9 rounds across 3 tiers.",
+    "icon": "🌈",
+    "ageMin": 3,
+    "ageMax": 6,
+    "skill": "rainbow colour order — ROYGBIV sequence",
+    "version": "1.0.0",
+    "category": "colours-shapes",
+    "path": "games/081-rainbow-bridge/index.html"
   }
 ]

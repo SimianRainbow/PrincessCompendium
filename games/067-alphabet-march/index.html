@@ -307,6 +307,8 @@ var EASY = [
   { type:'after',  q:'G', answer:'H', wrongs:['F','I'] },
   { type:'after',  q:'I', answer:'J', wrongs:['H','K'] },
   { type:'after',  q:'K', answer:'L', wrongs:['J','M'] },
+  { type:'after',  q:'M', answer:'N', wrongs:['L','O'] },
+  { type:'after',  q:'O', answer:'P', wrongs:['N','Q'] },
 ];
 
 var MEDIUM = [
@@ -316,6 +318,8 @@ var MEDIUM = [
   { type:'before', q:'J', answer:'I', wrongs:['K','H'] },
   { type:'before', q:'L', answer:'K', wrongs:['M','J'] },
   { type:'before', q:'N', answer:'M', wrongs:['O','L'] },
+  { type:'before', q:'P', answer:'O', wrongs:['Q','N'] },
+  { type:'before', q:'R', answer:'Q', wrongs:['S','P'] },
 ];
 
 var HARD = [
@@ -325,6 +329,8 @@ var HARD = [
   { type:'gap', seq:['L','M','?','O'], answer:'N', wrongs:['P','K','Q'] },
   { type:'gap', seq:['P','Q','?','S'], answer:'R', wrongs:['T','O','U'] },
   { type:'gap', seq:['T','U','?','W'], answer:'V', wrongs:['X','S','Y'] },
+  { type:'gap', seq:['R','S','?','U'], answer:'T', wrongs:['V','Q','W'] },
+  { type:'gap', seq:['W','X','?','Z'], answer:'Y', wrongs:['V','A','U'] },
 ];
 
 var TIER_INFO = [
@@ -360,7 +366,7 @@ function getTierIdx(r) { return r <= 3 ? 0 : r <= 6 ? 1 : 2; }
 (function initBg() {
   var letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
   var icons   = letters.concat(['👑','✨','⭐','🌸','🔤','🌟','💫','🔡']);
-  for (var i = 0; i < 16; i++) {
+  for (var i = 0; i < 18; i++) {
     var el = document.createElement('div');
     el.className = 'bg-icon';
     el.textContent = icons[i % icons.length];
@@ -456,11 +462,11 @@ function showQuestion() {
 
   var prompts;
   if (q.type === 'after') {
-    prompts = ['Which letter comes AFTER? 🔤','What comes NEXT? 🔤','Which letter marches after? 👑','Tap the letter that comes AFTER! ✨'];
+    prompts = ['Which letter comes AFTER? 🔤','What comes NEXT? 🔤','Which letter marches after? 👑','Tap the letter that comes AFTER! ✨','Find the letter that follows! 💫'];
   } else if (q.type === 'before') {
-    prompts = ['Which letter comes BEFORE? 🔤','What comes BEFORE? 👑','Which letter marches before? ✨','Tap the letter that comes BEFORE! 🔤'];
+    prompts = ['Which letter comes BEFORE? 🔤','What comes BEFORE? 👑','Which letter marches before? ✨','Tap the letter that comes BEFORE! 🔤','Which letter goes just before? 🌟'];
   } else {
-    prompts = ['Which letter is MISSING? 🔤','Fill in the gap! ✨','Find the missing letter! 👑','Which letter belongs in the gap? 🌟'];
+    prompts = ['Which letter is MISSING? 🔤','Fill in the gap! ✨','Find the missing letter! 👑','Which letter belongs in the gap? 🌟','What fills the gap? 💫'];
   }
   document.getElementById('prompt').textContent = prompts[Math.floor(Math.random() * prompts.length)];
 
@@ -537,7 +543,8 @@ function showCelebrate(ch) {
   document.getElementById('cel-fact').textContent   = LETTER_FACTS[ch] || (ch + ' is in the royal alphabet!');
   document.getElementById('cel-overlay').classList.add('show');
   playCelebrate();
-  confetti(30);
+  confetti(32);
+  setTimeout(function(){ confetti(20); }, 400);
 }
 
 function endGame() {
@@ -556,7 +563,7 @@ function sparkleBurst(btn) {
   var cy = r.top  + r.height / 2;
   var ems  = ['✨','💫','⭐','👑','🌟','🔤','🌸','💎','🎉','🌈','💖','🔡','🏆','🎀','🌺','💜'];
   var cols = ['#80d8ff','#ffd700','#f48fb1','#ce93d8','#a5d6a7','#ffab91','#fff','#b39ddb'];
-  for (var i = 0; i < 18; i++) {
+  for (var i = 0; i < 22; i++) {
     var el = document.createElement('div');
     el.className = 'sp';
     el.textContent = ems[i % ems.length];
