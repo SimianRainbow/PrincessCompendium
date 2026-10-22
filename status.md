@@ -1,9 +1,9 @@
 # Princess Compendium — Status
 
 ## Last update run
-Date: 2026-10-19
-- Improved: `067-alphabet-march` → v1.1.0 (pool expanded 6→8 per tier covering letters M–P in Easy/Medium and R–Y in Hard; 5th prompt variant per question type; confetti(32)+delayed burst on celebrate; sparkle emoji 18→22; bg letters 16→18)
-- Added: `081-rainbow-bridge` — "Princess Rainbow 🌈" teaching ROYGBIV rainbow colour order; Easy: 3-colour gap (Red/Orange/Yellow), Medium: 5-colour gap, Hard: full 7-colour rainbow with 4 choices; celebrate overlay shows full rainbow with found colour highlighted; rainbow-scale audio on win; 9 rounds across 3 tiers
+Date: 2026-10-22
+- Improved: `079-royal-map` → v1.1.0 (expanded 9→18 rounds with 6 per tier; fixed tier pools — Easy now uses only LEFT/RIGHT, Medium all 4, Hard all 4; added word labels on direction buttons visible in Easy/Medium, hidden in Hard for real difficulty progression; sparkle burst 22→26 dots + 12→14 emoji; bg icons 14→16; 9 prompts (was 7); 18 unique deco sets)
+- Added: `082-royal-endings` — "Princess Endings ✨" teaching phonics ending letter sounds; Easy: T/N/B/P endings (CAT/SUN/CUB/CUP/HAT/HEN), Medium: D/K/M/S/L/G (BED/DUCK/DRUM/BUS/BALL/BUG), Hard: X/D/G/P/M/F (FOX/BIRD/FROG/LAMP/SWIM/SHELF); word card highlights ending letter; hint shows blank + sound; 18 rounds across 3 tiers
 
 ## Improvement history
 
@@ -72,6 +72,7 @@ Date: 2026-10-19
 | 2026-10-13 | 069-princess-dots | Hard pool [3-6]→[5-8], dot patterns + facts for 7 and 8, Medium pool adds 6, sparkle 20+10→22+12, 14 bg gems, 7 prompts | 1.1.0 |
 | 2026-10-16 | 066-royal-music-makers | Added Maracas + Long Drum (11 instruments total), Medium pool 5→7, Hard 9→11, tap-to-replay bubble + hint, burst 20→22, bg-notes 14→16, confetti(20) on correct | 1.1.0 |
 | 2026-10-19 | 067-alphabet-march | Pool 6→8 per tier (M→N/O→P Easy, P→O/R→Q Medium, R-S-T/W-X-Y Hard), 5th prompt variant, confetti burst on celebrate, sparkle 18→22, bg icons 16→18 | 1.1.0 |
+| 2026-10-22 | 079-royal-map | 9→18 rounds (6/tier), fixed pools (Easy LEFT/RIGHT only, Medium/Hard all 4), word labels on buttons hidden in Hard, sparkle 22→26 dots + 12→14 emoji, bg icons 14→16, 18 deco sets | 1.1.0 |
 
 ## Games due for improvement (all at v1.0.0)
 
@@ -142,6 +143,7 @@ See `CLAUDE.md` for the full prioritised list. Top 3 to build next:
 42. **Directional concepts (left/right/up/down)** — ✅ covered by `079-royal-map`
 43. **Syllable counting (phonological awareness)** — ✅ covered by `080-syllable-stars`
 44. **Rainbow colour order (ROYGBIV sequence)** — ✅ covered by `081-rainbow-bridge`
+45. **Ending letter sounds (phonics — final phonemes)** — ✅ covered by `082-royal-endings`
 
 ## Next game ID
-`082-<slug>`
+`083-<slug>`

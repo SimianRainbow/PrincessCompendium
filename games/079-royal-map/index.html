@@ -46,14 +46,14 @@
     #prompt{
       font-size:clamp(18px,5vw,30px);color:#fff;
       text-shadow:0 2px 8px rgba(0,0,0,.55);
-      text-align:center;padding:clamp(8px,2vw,14px) 16px clamp(4px,1vw,8px);
+      text-align:center;padding:clamp(6px,1.6vw,10px) 16px clamp(4px,1vw,6px);
       flex-shrink:0;position:relative;z-index:1;line-height:1.2;
     }
 
     /* Map stage */
     #map-stage{
       width:clamp(280px,76vw,360px);
-      height:clamp(180px,48vw,240px);
+      height:clamp(170px,46vw,230px);
       border-radius:24px;
       position:relative;overflow:hidden;
       border:3px solid rgba(255,215,0,.55);
@@ -62,16 +62,13 @@
       margin:0 auto;
       z-index:1;
     }
-    /* Sky + grass gradient background */
     #map-bg{
       position:absolute;inset:0;
       background:linear-gradient(180deg,#b3e5fc 0%,#81d4fa 38%,#a5d6a7 40%,#66bb6a 100%);
     }
-    /* Decorative terrain overlay */
     #map-deco{position:absolute;inset:0;pointer-events:none;}
     .deco-item{position:absolute;font-size:clamp(20px,5.5vw,30px);line-height:1;opacity:.75;}
 
-    /* Path dots (sparkle trail) */
     .path-dot{
       position:absolute;font-size:clamp(14px,3.5vw,20px);
       transform:translate(-50%,-50%);
@@ -80,7 +77,6 @@
     }
     @keyframes pathPulse{0%,100%{opacity:.5;transform:translate(-50%,-50%) scale(.8)}50%{opacity:1;transform:translate(-50%,-50%) scale(1.1)}}
 
-    /* Princess and treasure characters */
     .map-char{
       position:absolute;
       font-size:clamp(38px,10vw,54px);
@@ -98,9 +94,9 @@
       display:grid;
       grid-template-columns:repeat(3,1fr);
       grid-template-rows:repeat(3,1fr);
-      gap:clamp(6px,1.8vw,10px);
-      width:clamp(260px,70vw,320px);
-      margin:clamp(10px,2.5vw,18px) auto 0;
+      gap:clamp(5px,1.5vw,9px);
+      width:clamp(240px,66vw,300px);
+      margin:clamp(8px,2vw,14px) auto 0;
       flex-shrink:0;
       position:relative;z-index:1;
     }
@@ -109,16 +105,23 @@
       border-radius:20px;
       border:3px solid rgba(255,255,255,.38);
       background:rgba(255,255,255,.16);
-      font-size:clamp(30px,8vw,48px);
       cursor:pointer;touch-action:manipulation;
-      display:flex;align-items:center;justify-content:center;
+      display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
       box-shadow:0 4px 18px rgba(0,0,0,.3),inset 0 2px 0 rgba(255,255,255,.18);
       transition:transform .12s;
+      padding:4px;
     }
+    .dir-btn .dir-arrow{font-size:clamp(26px,7vw,42px);line-height:1;}
+    .dir-btn .dir-label{
+      font-size:clamp(9px,2.4vw,13px);color:rgba(255,255,255,.9);
+      line-height:1;letter-spacing:.02em;
+      transition:opacity .3s;
+    }
+    .dir-btn .dir-label.hidden{opacity:0;}
     .dir-btn:active{transform:scale(.91);}
     .dir-btn.correct{border-color:#ffd700;background:rgba(255,215,0,.28);animation:correctPop .5s ease-out;}
     .dir-btn.wrong  {animation:wobble .45s ease-out;border-color:rgba(255,80,80,.7);}
-    .dir-btn.ghost  {opacity:0;pointer-events:none;}/* invisible spacer */
+    .dir-btn.ghost  {opacity:0;pointer-events:none;}
     @keyframes correctPop{0%{transform:scale(1)}40%{transform:scale(1.14);box-shadow:0 0 40px rgba(255,215,0,.8)}100%{transform:scale(1)}}
     @keyframes wobble{0%,100%{transform:translateX(0)}20%{transform:translateX(-12px)}60%{transform:translateX(12px)}80%{transform:translateX(-6px)}}
 
@@ -157,7 +160,7 @@
 <div id="header">
   <div id="tier-badge" class="tier-easy">🌱 Easy</div>
   <div id="score-label">⭐ 0</div>
-  <div id="round-label">1 / 9</div>
+  <div id="round-label">1 / 18</div>
 </div>
 <div id="progress-track"><div id="progress-fill"></div></div>
 
@@ -170,16 +173,28 @@
   <div class="map-char" id="target-char">💎</div>
 </div>
 
-<!-- Direction buttons — 3×3 grid, only 4 positions filled -->
+<!-- Direction buttons — 3×3 cross grid -->
 <div id="dir-wrap">
   <div class="dir-btn ghost"></div>
-  <button class="dir-btn" id="btn-up"    data-dir="up">⬆️</button>
+  <button class="dir-btn" id="btn-up"    data-dir="up">
+    <span class="dir-arrow">⬆️</span>
+    <span class="dir-label" id="lbl-up">UP</span>
+  </button>
   <div class="dir-btn ghost"></div>
-  <button class="dir-btn" id="btn-left"  data-dir="left">⬅️</button>
+  <button class="dir-btn" id="btn-left"  data-dir="left">
+    <span class="dir-arrow">⬅️</span>
+    <span class="dir-label" id="lbl-left">LEFT</span>
+  </button>
   <div class="dir-btn ghost"></div>
-  <button class="dir-btn" id="btn-right" data-dir="right">➡️</button>
+  <button class="dir-btn" id="btn-right" data-dir="right">
+    <span class="dir-arrow">➡️</span>
+    <span class="dir-label" id="lbl-right">RIGHT</span>
+  </button>
   <div class="dir-btn ghost"></div>
-  <button class="dir-btn" id="btn-down"  data-dir="down">⬇️</button>
+  <button class="dir-btn" id="btn-down"  data-dir="down">
+    <span class="dir-arrow">⬇️</span>
+    <span class="dir-label" id="lbl-down">DOWN</span>
+  </button>
   <div class="dir-btn ghost"></div>
 </div>
 
@@ -238,12 +253,11 @@ function playWin()    {[523,659,784,1047,784,1047,1319,1047,1319,1568].forEach((
 const DIRS = {
   right:{emoji:'➡️', label:'RIGHT', fact:'RIGHT is the direction your writing hand points — most people write with their RIGHT hand! ✏️'},
   left: {emoji:'⬅️', label:'LEFT',  fact:'LEFT is the direction of your heart — you can feel it beating on the LEFT side! 💖'},
-  up:   {emoji:'⬆️', label:'UP',    fact:'UP is toward the sky and the stars! Birds fly UP when they want to soar! 🕊️'},
+  up:   {emoji:'⬆️', label:'UP',    fact:'UP is toward the sky and the stars! Birds fly UP when they want to soar high! 🕊️'},
   down: {emoji:'⬇️', label:'DOWN',  fact:'DOWN is toward the ground and the roots of trees that hold them safe! 🌱'},
 };
 
 // Princess and treasure positions per direction (percentage within map-stage)
-// princess: where it starts | target: where treasure sits
 const DIR_POSITIONS = {
   right:{prinX:22,prinY:55,tgtX:78,tgtY:55},
   left: {prinX:78,prinY:55,tgtX:22,tgtY:55},
@@ -251,7 +265,7 @@ const DIR_POSITIONS = {
   down: {prinX:50,prinY:22,tgtX:50,tgtY:78},
 };
 
-// Decorative terrain items per direction variant (makes each round feel different)
+// Decorative terrain sets — 18 unique sets (one per round)
 const DECO_SETS = [
   [{e:'🌸',x:15,y:65},{e:'🌲',x:85,y:58},{e:'☁️',x:60,y:12},{e:'🌼',x:75,y:70}],
   [{e:'🌲',x:10,y:60},{e:'🌺',x:88,y:72},{e:'☁️',x:30,y:10},{e:'🍀',x:60,y:68}],
@@ -262,14 +276,38 @@ const DECO_SETS = [
   [{e:'🌲',x:50,y:55},{e:'🌻',x:12,y:68},{e:'☁️',x:72,y:10},{e:'🍀',x:85,y:65}],
   [{e:'🌸',x:80,y:68},{e:'🌲',x:15,y:58},{e:'⭐',x:55,y:9}, {e:'🌼',x:40,y:72}],
   [{e:'🍀',x:22,y:65},{e:'🌺',x:75,y:68},{e:'☁️',x:50,y:11},{e:'🌲',x:85,y:56}],
+  [{e:'🌷',x:30,y:63},{e:'🌸',x:70,y:72},{e:'⭐',x:45,y:8}, {e:'🌲',x:14,y:56}],
+  [{e:'🌻',x:65,y:66},{e:'🍀',x:18,y:72},{e:'☁️',x:82,y:9}, {e:'🌲',x:48,y:57}],
+  [{e:'🌲',x:22,y:60},{e:'🌼',x:76,y:65},{e:'⭐',x:38,y:9}, {e:'🌸',x:58,y:73}],
+  [{e:'🌺',x:52,y:63},{e:'🌲',x:85,y:58},{e:'☁️',x:18,y:11},{e:'🍀',x:35,y:71}],
+  [{e:'🌸',x:14,y:69},{e:'🌻',x:78,y:62},{e:'⭐',x:52,y:8}, {e:'🌲',x:40,y:56}],
+  [{e:'🌷',x:72,y:70},{e:'🌲',x:10,y:58},{e:'☁️',x:44,y:9}, {e:'🌼',x:82,y:68}],
+  [{e:'🍀',x:28,y:66},{e:'🌺',x:68,y:72},{e:'⭐',x:60,y:8}, {e:'🌲',x:16,y:60}],
+  [{e:'🌸',x:48,y:68},{e:'🌲',x:82,y:57},{e:'☁️',x:24,y:10},{e:'🌼',x:64,y:74}],
+  [{e:'🌻',x:34,y:62},{e:'🍀',x:74,y:70},{e:'⭐',x:20,y:9}, {e:'🌲',x:56,y:57}],
 ];
 
+// Tiers: 6 rounds each = 18 total
+// Easy: only LEFT/RIGHT to introduce simpler axis first
+// Medium: all 4 directions, labels still visible
+// Hard: all 4 directions, labels hidden (arrows only)
 const TIERS = [
-  {label:'🌱 Easy',   cls:'tier-easy',   pool:['right','left','right'],
-   toastEmoji:'🌸', toastTitle:'Great direction! 🌟', toastSub:'Now let\'s try UP and DOWN too! ⬆️⬇️'},
-  {label:'🌸 Medium', cls:'tier-medium', pool:['right','left','up'],
-   toastEmoji:'⭐',  toastTitle:'Amazing! ✨',          toastSub:'All four directions now — you\'re a royal navigator! 🧭'},
-  {label:'⭐ Hard',   cls:'tier-hard',   pool:['down','left','right'],},
+  {
+    label:'🌱 Easy', cls:'tier-easy', showLabels:true,
+    pool:['right','left','right','left','right','left'],
+    toastEmoji:'🌸', toastTitle:'Now try UP and DOWN! 🌟',
+    toastSub:'You know LEFT and RIGHT — amazing! Now let\'s add UP and DOWN! ⬆️⬇️'
+  },
+  {
+    label:'🌸 Medium', cls:'tier-medium', showLabels:true,
+    pool:['right','left','up','down','right','up'],
+    toastEmoji:'⭐', toastTitle:'Super navigator! ✨',
+    toastSub:'All four directions now — and no more word hints! Can you do it? 🧭'
+  },
+  {
+    label:'⭐ Hard', cls:'tier-hard', showLabels:false,
+    pool:['down','left','up','right','down','left'],
+  },
 ];
 
 const PROMPTS = [
@@ -280,9 +318,11 @@ const PROMPTS = [
   'Help Princess find the gold! 🏆',
   'Which direction? 👑',
   'Tap the right arrow! ✨',
+  'Which arrow leads to treasure? 🌸',
+  'Show the way! 🧭',
 ];
 
-const TOTAL = 9;
+const TOTAL = 18;
 let round=0,score=0,locked=false,gameRounds=[],promptIdx=0,decoIdx=0;
 
 // ── Build rounds ──────────────────────────────────────────────────────────────
@@ -331,25 +371,27 @@ function renderRound(rd){
   document.getElementById('round-label').textContent=round+' / '+TOTAL;
   document.getElementById('progress-fill').style.width=((round-1)/TOTAL*100)+'%';
 
+  // Show/hide directional labels based on tier
+  ['up','down','left','right'].forEach(d=>{
+    const lbl=document.getElementById('lbl-'+d);
+    if(tier.showLabels){lbl.classList.remove('hidden');}
+    else{lbl.classList.add('hidden');}
+  });
+
   const pos=DIR_POSITIONS[rd.dir];
   const prinEl=document.getElementById('princess-char');
   const tgtEl=document.getElementById('target-char');
 
-  // Place princess and treasure
   prinEl.style.transition='none';
   prinEl.style.left=pos.prinX+'%';
   prinEl.style.top=pos.prinY+'%';
   tgtEl.style.left=pos.tgtX+'%';
   tgtEl.style.top=pos.tgtY+'%';
 
-  // Render decorative terrain
   renderDeco(decoIdx);
   decoIdx=(decoIdx+1)%DECO_SETS.length;
-
-  // Render sparkle path between princess and treasure
   renderPath(pos);
 
-  // Resume audio context
   setTimeout(()=>{try{getAudio().resume();}catch(e){}tone(880,'sine',.1,.07);},150);
 }
 
@@ -365,7 +407,6 @@ function renderDeco(idx){
 }
 
 function renderPath(pos){
-  // Remove old path dots
   document.querySelectorAll('.path-dot').forEach(e=>e.remove());
   const stage=document.getElementById('map-stage');
   const steps=3;
@@ -389,7 +430,6 @@ function handleDir(dir,btn){
     locked=true;score++;
     btn.classList.add('correct');
     playCorrect();
-    // Animate princess to treasure
     const pos=DIR_POSITIONS[rd.dir];
     const prinEl=document.getElementById('princess-char');
     prinEl.style.transition='left .55s cubic-bezier(.34,1.56,.64,1),top .55s cubic-bezier(.34,1.56,.64,1)';
@@ -411,7 +451,7 @@ function handleDir(dir,btn){
   }
 }
 
-const CEL_MSGS=['Brilliant! 🌟','You got it! 👑','Amazing! ✨','Superstar! ⭐','Perfect! 💎','Wonderful! 🌸','Exactly right! 🎉'];
+const CEL_MSGS=['Brilliant! 🌟','You got it! 👑','Amazing! ✨','Superstar! ⭐','Perfect! 💎','Wonderful! 🌸','Exactly right! 🎉','Great exploring! 🧭','You found it! 🏆'];
 
 function showCelebrate(){
   const rd=gameRounds[round-1];
@@ -454,13 +494,13 @@ function endGame(){
 function burst(cx,cy){
   const cols=['#ffd700','#e040fb','#fff','#f48fb1','#80deea','#a5d6a7','#ce93d8','#ffe082'];
   const ems=['✨','💫','⭐','🌟','💎','👑','🌸','💖','⬆️','⬇️','⬅️','➡️'];
-  for(let i=0;i<22;i++){
+  for(let i=0;i<26;i++){
     const el=document.createElement('div');el.className='sp';
     const a=Math.random()*Math.PI*2,dist=35+Math.random()*85,sz=7+Math.random()*10;
     el.style.cssText=`left:${cx+Math.cos(a)*dist-sz/2}px;top:${cy+Math.sin(a)*dist-sz/2}px;width:${sz}px;height:${sz}px;background:${cols[i%cols.length]};`;
     document.body.appendChild(el);setTimeout(()=>el.remove(),800);
   }
-  for(let i=0;i<12;i++){
+  for(let i=0;i<14;i++){
     const el=document.createElement('div');el.className='sp-em';
     el.textContent=ems[i%ems.length];
     el.style.cssText=`left:${cx+(Math.random()-.5)*130}px;top:${cy+(Math.random()-.5)*110}px;font-size:${16+Math.random()*12}px;`;
@@ -481,8 +521,8 @@ function confetti(count){
 
 function makeBgGems(){
   document.querySelectorAll('.bg-gem').forEach(e=>e.remove());
-  const icons=['🗺️','💎','⭐','🌟','👑','🌸','✨','💫','⬆️','⬇️','⬅️','➡️','🧭','🏆'];
-  for(let i=0;i<14;i++){
+  const icons=['🗺️','💎','⭐','🌟','👑','🌸','✨','💫','⬆️','⬇️','⬅️','➡️','🧭','🏆','🌺','🌼'];
+  for(let i=0;i<16;i++){
     const el=document.createElement('div');el.className='bg-gem';
     el.textContent=icons[i%icons.length];
     el.style.left=(4+Math.random()*92)+'vw';

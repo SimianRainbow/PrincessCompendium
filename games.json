@@ -944,7 +944,7 @@
     "ageMin": 2,
     "ageMax": 5,
     "skill": "directional concepts — left, right, up, down",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "category": "other",
     "path": "games/079-royal-map/index.html"
   },
@@ -971,5 +971,17 @@
     "version": "1.0.0",
     "category": "colours-shapes",
     "path": "games/081-rainbow-bridge/index.html"
+  },
+  {
+    "id": "082-royal-endings",
+    "title": "Princess Endings",
+    "description": "What sound does the word end with? Tap the ending letter — CAT ends with T, SUN ends with N! 18-word pool, ending letter highlighted in word, fun phonics facts. 3 tiers: T/N/B/P → D/K/M/S/L/G → X/D/G/P/M/F.",
+    "icon": "✨",
+    "ageMin": 3,
+    "ageMax": 6,
+    "skill": "phonics — ending letter sounds",
+    "version": "1.0.0",
+    "category": "letters",
+    "path": "games/082-royal-endings/index.html"
   }
 ]
