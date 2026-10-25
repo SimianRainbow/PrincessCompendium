@@ -164,6 +164,13 @@
   <button class="btn-next"  id="round-btn">Next ➡️</button>
 </div>
 
+<div class="overlay" id="tier-overlay">
+  <div class="ov-emoji" id="to-emoji">🌸</div>
+  <div class="ov-title" id="to-title">Tier Complete! 🎉</div>
+  <div class="ov-sub"   id="to-sub">Great job!</div>
+  <button class="btn-next" id="tier-btn">Keep going! ➡️</button>
+</div>
+
 <div class="overlay" id="end-overlay">
   <div class="ov-emoji">👑</div>
   <div class="ov-title">Clap Champion! 👏</div>
@@ -224,6 +231,13 @@ const WORDS=[
   {emoji:'🐛',word:'CATERPILLAR',syllables:4,parts:'CAT · ER · PIL · LAR',tier:2,fact:'CAT·ER·PIL·LAR has 4 claps — that is a lot for a tiny worm!'},
   {emoji:'🍉',word:'WATERMELON',syllables:4,parts:'WA · TER · MEL · ON',tier:2,fact:'WA·TER·MEL·ON has 4 claps — a big fruit deserves lots of claps!'},
   {emoji:'🐊',word:'ALLIGATOR',syllables:4,parts:'AL · LI · GA · TOR',tier:2,fact:'AL·LI·GA·TOR has 4 claps — watch out for those sharp snaps!'},
+  // Extra pool words (8 per tier for replay variety)
+  {emoji:'⭐',word:'STAR',       syllables:1,parts:'STAR',                   tier:0,fact:'STAR has 1 clap — one bright point of light in the princess sky!'},
+  {emoji:'🧚',word:'FAIRY',      syllables:2,parts:'FAIR · Y',               tier:0,fact:'FAIR·Y has 2 claps — magical wings, one for each part!'},
+  {emoji:'🐯',word:'TIGER',      syllables:2,parts:'TI · GER',               tier:1,fact:'TI·GER has 2 claps — stripes and speed in 2 big leaps!'},
+  {emoji:'🦜',word:'PELICAN',    syllables:3,parts:'PEL · I · CAN',          tier:1,fact:'PEL·I·CAN has 3 claps — big bird with a very big bill!'},
+  {emoji:'🌋',word:'VOLCANO',    syllables:3,parts:'VOL · CA · NO',          tier:2,fact:'VOL·CA·NO has 3 claps — boom, boom, boom — it blows its top!'},
+  {emoji:'🚁',word:'HELICOPTER', syllables:4,parts:'HEL · I · COP · TER',   tier:2,fact:'HEL·I·COP·TER has 4 claps — spin those blades, one per clap!'},
 ];
 
 const TIERS=[
@@ -261,6 +275,7 @@ function buildRounds(){
 function startGame(){
   document.getElementById('end-overlay').classList.remove('show');
   document.getElementById('round-overlay').classList.remove('show');
+  document.getElementById('tier-overlay').classList.remove('show');
   round=0;score=0;locked=false;
   promptIdx=Math.floor(Math.random()*PROMPTS.length);
   gameRounds=buildRounds();
@@ -270,6 +285,7 @@ function startGame(){
 
 function nextRound(){
   document.getElementById('round-overlay').classList.remove('show');
+  document.getElementById('tier-overlay').classList.remove('show');
   if(round>=TOTAL){endGame();return;}
   round++;locked=false;
   updateHUD();
@@ -330,27 +346,37 @@ function showRoundOverlay(){
   const nextTierIdx=getTierIdx(round+1);
   const isTierEnd=(round<TOTAL && nextTierIdx>tierIdx);
 
+  const msgs=['Amazing! 🌟','Bravo! ✨','You got it! 👑','Superstar! ⭐','Wonderful! 👏','Perfect! 💎','Clap genius! 🎵'];
+  document.getElementById('ov-emoji').textContent=word.emoji;
+  document.getElementById('ov-title').textContent=msgs[Math.floor(Math.random()*msgs.length)];
+  document.getElementById('ov-syllables').textContent=word.parts;
+  document.getElementById('ov-claps').textContent='👏'.repeat(word.syllables)+' = '+word.syllables+'!';
+  document.getElementById('ov-sub').textContent=word.word+' has '+word.syllables+' clap'+(word.syllables!==1?'s':'')+'! 🌟';
+  document.getElementById('ov-fact').textContent=word.fact;
+  setTimeout(()=>playClaps(word.syllables),300);
+
   if(isTierEnd){
-    playTierUp();confetti(42);
-    document.getElementById('ov-emoji').textContent='🎉';
-    document.getElementById('ov-title').textContent='Tier Complete! ✨';
-    document.getElementById('ov-syllables').textContent=TIERS[nextTierIdx].label+' starts now!';
-    document.getElementById('ov-claps').textContent='';
-    document.getElementById('ov-sub').textContent='';
-    document.getElementById('ov-fact').textContent='';
+    document.getElementById('round-btn').onclick=showTierOverlay_fn;
   } else {
-    const msgs=['Amazing! 🌟','Bravo! ✨','You got it! 👑','Superstar! ⭐','Wonderful! 👏','Perfect! 💎','Clap genius! 🎵'];
-    document.getElementById('ov-emoji').textContent=word.emoji;
-    document.getElementById('ov-title').textContent=msgs[Math.floor(Math.random()*msgs.length)];
-    document.getElementById('ov-syllables').textContent=word.parts;
-    document.getElementById('ov-claps').textContent='👏'.repeat(word.syllables)+' = '+word.syllables+'!';
-    document.getElementById('ov-sub').textContent=word.word+' has '+word.syllables+' clap'+(word.syllables!==1?'s':'')+'! 🌟';
-    document.getElementById('ov-fact').textContent=word.fact;
-    // play celebratory clap sounds to reinforce the syllable count
-    setTimeout(()=>playClaps(word.syllables),300);
+    document.getElementById('round-btn').onclick=nextRound;
   }
-  document.getElementById('round-btn').onclick=nextRound;
   document.getElementById('round-overlay').classList.add('show');
+}
+
+function showTierOverlay_fn(){
+  document.getElementById('round-overlay').classList.remove('show');
+  const nextTier=getTierIdx(round+1);
+  const tierMsgs=[
+    {emoji:'🌸',title:'Easy Done! 🎉',sub:'Now try Medium — longer words! 💎'},
+    {emoji:'⭐',title:'Medium Done! 🎉',sub:'Now try Hard — the trickiest words! 👑'},
+  ];
+  const tm=tierMsgs[nextTier-1];
+  document.getElementById('to-emoji').textContent=tm.emoji;
+  document.getElementById('to-title').textContent=tm.title;
+  document.getElementById('to-sub').textContent=tm.sub;
+  document.getElementById('tier-btn').onclick=nextRound;
+  document.getElementById('tier-overlay').classList.add('show');
+  playTierUp();confetti(42);
 }
 
 function endGame(){
@@ -398,8 +424,8 @@ function confetti(count){
 
 function makeBgStars(){
   document.querySelectorAll('.bg-star').forEach(e=>e.remove());
-  const icons=['⭐','✨','💫','🌟','👏','💎','🌸','🎵','👑','🦋','🌈','🐱','🌙','🎀','🌺','🪄'];
-  for(let i=0;i<16;i++){
+  const icons=['⭐','✨','💫','🌟','👏','💎','🌸','🎵','👑','🦋','🌈','🐱','🌙','🎀','🌺','🪄','🎶','🌻'];
+  for(let i=0;i<18;i++){
     const el=document.createElement('div');el.className='bg-star';
     el.textContent=icons[i%icons.length];
     el.style.left=(3+Math.random()*94)+'vw';
