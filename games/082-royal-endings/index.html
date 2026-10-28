@@ -233,6 +233,10 @@ const POOLS = {
      fact:'HAT ends with T! Princess wears her hat with a royal /t/ at the end! 👒'},
     {word:'HEN',  emoji:'🐔', end:'N', opts:['N','T','P'],
      fact:'HEN ends with N! The letter N hums like a bee: /n/ /n/ /n/! 🐝'},
+    {word:'DOT',  emoji:'🎯', end:'T', opts:['T','P','N'],
+     fact:'DOT ends with T! Tap the dot — /t/ /t/ /t/! 🎯'},
+    {word:'BIN',  emoji:'🗑️', end:'N', opts:['N','B','T'],
+     fact:'BIN ends with N! Bin the rubbish with a humming /n/! 🗑️'},
   ],
   medium:[
     {word:'BED',  emoji:'🛏️', end:'D', opts:['D','B','G'],
@@ -247,6 +251,10 @@ const POOLS = {
      fact:'BALL ends with L! The letter L makes a gentle /l/ sound with your tongue! ⚽'},
     {word:'BUG',  emoji:'🐛', end:'G', opts:['G','D','K'],
      fact:'BUG ends with G! The letter G sounds like K but deeper in your throat: /g/! 🐛'},
+    {word:'MASK', emoji:'🎭', end:'K', opts:['K','G','S'],
+     fact:'MASK ends with K! The sharp /k/ closes the word: mas-/k/! 🎭'},
+    {word:'CURL', emoji:'🌀', end:'L', opts:['L','R','N'],
+     fact:'CURL ends with L! Your tongue curls up for /l/: cur-/l/! 🌀'},
   ],
   hard:[
     {word:'FOX',   emoji:'🦊', end:'X', opts:['X','S','K'],
@@ -261,6 +269,10 @@ const POOLS = {
      fact:'SWIM ends with M! Your lips hum closed at the end: swi-/mmm/! 🏊'},
     {word:'SHELF', emoji:'📚', end:'F', opts:['F','V','P'],
      fact:'SHELF ends with F! The letter F is a soft hiss through your teeth: /fff/! 📚'},
+    {word:'SCARF',emoji:'🧣', end:'F', opts:['F','V','S'],
+     fact:'SCARF ends with F! Feel the air through your teeth: scar-/fff/! 🧣'},
+    {word:'CHIMP',emoji:'🐒', end:'P', opts:['P','M','B'],
+     fact:'CHIMP ends with P! Lips pop at the end: chim-/p/! 🐒'},
   ],
 };
 
@@ -291,9 +303,9 @@ let round=0,score=0,locked=false,gameRounds=[],promptIdx=0,currentRound=null;
 function buildRounds(){
   const rounds=[];
   TIERS.forEach((tier,ti)=>{
-    POOLS[tier.pool].forEach(item=>{
-      rounds.push({item,tierIdx:ti});
-    });
+    const pool=[...POOLS[tier.pool]];
+    for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]];}
+    pool.slice(0,6).forEach(item=>rounds.push({item,tierIdx:ti}));
   });
   return rounds;
 }
@@ -416,13 +428,13 @@ function endGame(){
 function burst(cx,cy){
   const cols=['#ffd700','#e040fb','#fff','#f48fb1','#80deea','#a5d6a7','#ce93d8','#ffe082'];
   const ems=['✨','💫','⭐','🌟','💎','👑','🌸','💖','🔤','📖','🎵','🎶'];
-  for(let i=0;i<24;i++){
+  for(let i=0;i<26;i++){
     const el=document.createElement('div');el.className='sp';
     const a=Math.random()*Math.PI*2,dist=35+Math.random()*85,sz=7+Math.random()*10;
     el.style.cssText=`left:${cx+Math.cos(a)*dist-sz/2}px;top:${cy+Math.sin(a)*dist-sz/2}px;width:${sz}px;height:${sz}px;background:${cols[i%cols.length]};`;
     document.body.appendChild(el);setTimeout(()=>el.remove(),800);
   }
-  for(let i=0;i<12;i++){
+  for(let i=0;i<14;i++){
     const el=document.createElement('div');el.className='sp-em';
     el.textContent=ems[i%ems.length];
     el.style.cssText=`left:${cx+(Math.random()-.5)*130}px;top:${cy+(Math.random()-.5)*110}px;font-size:${16+Math.random()*12}px;`;
@@ -443,8 +455,8 @@ function confetti(count){
 
 function makeBgGems(){
   document.querySelectorAll('.bg-gem').forEach(e=>e.remove());
-  const icons=['✨','🔤','📖','🌟','👑','🌸','💫','💎','🎵','🎶','🐱','☀️','🐻','☕','🐔','🦆'];
-  for(let i=0;i<16;i++){
+  const icons=['✨','🔤','📖','🌟','👑','🌸','💫','💎','🎵','🎶','🐱','☀️','🐻','☕','🐔','🦆','🎭','🌀'];
+  for(let i=0;i<18;i++){
     const el=document.createElement('div');el.className='bg-gem';
     el.textContent=icons[i%icons.length];
     el.style.left=(4+Math.random()*92)+'vw';

@@ -1,9 +1,9 @@
 # Princess Compendium — Status
 
 ## Last update run
-Date: 2026-10-25
-- Improved: `080-syllable-stars` → v1.1.0 (expanded word pool 18→24 words, 8 per tier; added 6 new words: STAR/FAIRY/TIGER/PELICAN/VOLCANO/HELICOPTER; dedicated full-screen tier-transition overlay with confetti, replacing in-round tier message; celebrate overlay now always shows word facts; bg icons 16→18)
-- Added: `083-teen-tower` — "Princess Teen Tower 🏰" teaching teen number recognition (11-19) via ten-frames; gold gems = base 10, pink gems = extras; 18 rounds (6/tier) across Easy(11-13)/Medium(14-16)/Hard(17-19); celebrate overlay shows "10 + N = total" equation; tier-transition overlay with confetti
+Date: 2026-10-28
+- Improved: `082-royal-endings` → v1.1.0 (expanded pool 6→8 per tier with random 6-of-8 selection per game; 6 new words: DOT/BIN/MASK/CURL/SCARF/CHIMP; sparkle burst 24→26 dots + 12→14 emojis; bg icons 16→18)
+- Added: `084-royal-blends` — "Blend Magic 🪄" teaching consonant blend recognition (BL/CL/FL → GR/ST/TR → DR/SN/SW); 8-word pool per tier, 6 chosen randomly per game; celebrate overlay shows phonics facts; 18 rounds total
 
 ## Improvement history
 
@@ -74,6 +74,7 @@ Date: 2026-10-25
 | 2026-10-19 | 067-alphabet-march | Pool 6→8 per tier (M→N/O→P Easy, P→O/R→Q Medium, R-S-T/W-X-Y Hard), 5th prompt variant, confetti burst on celebrate, sparkle 18→22, bg icons 16→18 | 1.1.0 |
 | 2026-10-22 | 079-royal-map | 9→18 rounds (6/tier), fixed pools (Easy LEFT/RIGHT only, Medium/Hard all 4), word labels on buttons hidden in Hard, sparkle 22→26 dots + 12→14 emoji, bg icons 14→16, 18 deco sets | 1.1.0 |
 | 2026-10-25 | 080-syllable-stars | Pool 18→24 words (8/tier), 6 new words (STAR/FAIRY/TIGER/PELICAN/VOLCANO/HELICOPTER), dedicated tier-transition overlay + confetti, always-show word facts in celebrate, bg icons 16→18 | 1.1.0 |
+| 2026-10-28 | 082-royal-endings | Pool 6→8 per tier (random 6-of-8 per game), 6 new words (DOT/BIN/MASK/CURL/SCARF/CHIMP), sparkle 24→26 dots + 12→14 emojis, bg icons 16→18 | 1.1.0 |
 
 ## Games due for improvement (all at v1.0.0)
 
@@ -146,6 +147,7 @@ See `CLAUDE.md` for the full prioritised list. Top 3 to build next:
 44. **Rainbow colour order (ROYGBIV sequence)** — ✅ covered by `081-rainbow-bridge`
 45. **Ending letter sounds (phonics — final phonemes)** — ✅ covered by `082-royal-endings`
 46. **Teen number recognition (11-19) using ten-frames** — ✅ covered by `083-teen-tower`
+47. **Consonant blend recognition (phonics)** — ✅ covered by `084-royal-blends`
 
 ## Next game ID
-`084-<slug>`
+`085-<slug>`

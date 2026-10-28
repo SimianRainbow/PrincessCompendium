@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Blend Magic 🪄</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+    body{
+      min-height:100vh;
+      background:linear-gradient(160deg,#4a0080 0%,#9c27b0 50%,#e91e63 100%);
+      font-family:'Fredoka One',Georgia,serif;
+      display:flex;flex-direction:column;align-items:center;
+      overflow:hidden;user-select:none;touch-action:manipulation;
+      padding-bottom:12px;
+    }
+
+    .bg-gem{position:fixed;pointer-events:none;animation:bgFloat linear infinite;opacity:.09;font-size:clamp(14px,3.5vw,22px);z-index:0;}
+    @keyframes bgFloat{0%{transform:translateY(110vh) rotate(0deg)}100%{transform:translateY(-15vh) rotate(360deg)}}
+
+    #header{
+      width:100%;display:flex;justify-content:space-between;align-items:center;
+      padding:clamp(10px,2.5vw,16px) clamp(14px,4vw,22px) 0;
+      flex-shrink:0;position:relative;z-index:1;
+    }
+    #tier-badge{font-size:clamp(13px,3.2vw,17px);padding:5px 14px;border-radius:20px;font-weight:bold;border:2px solid rgba(255,255,255,.38);}
+    .tier-easy  {background:linear-gradient(135deg,#66bb6a,#2e7d32);color:#fff;}
+    .tier-medium{background:linear-gradient(135deg,#ffca28,#f57f17);color:#3e2000;}
+    .tier-hard  {background:linear-gradient(135deg,#ce93d8,#6a1b9a);color:#fff;}
+    #score-label{font-size:clamp(16px,4vw,22px);color:#ffd700;text-shadow:0 0 10px rgba(255,215,0,.6);}
+    #round-label{font-size:clamp(13px,3.2vw,17px);color:rgba(255,255,255,.85);}
+
+    #progress-track{
+      width:calc(100% - clamp(28px,7vw,44px));height:7px;
+      background:rgba(255,255,255,.15);border-radius:99px;
+      margin:clamp(5px,1.5vw,9px) auto 0;overflow:hidden;
+      position:relative;z-index:1;
+    }
+    #progress-fill{
+      height:100%;background:linear-gradient(90deg,#ffd700,#e040fb);
+      border-radius:99px;transition:width .4s ease;width:0%;
+      box-shadow:0 0 8px rgba(255,215,0,.45);
+    }
+
+    #prompt{
+      font-size:clamp(16px,4.2vw,24px);color:#fff;
+      text-shadow:0 2px 8px rgba(0,0,0,.55);
+      text-align:center;padding:clamp(6px,1.5vw,10px) 16px clamp(4px,1vw,6px);
+      flex-shrink:0;position:relative;z-index:1;line-height:1.25;
+    }
+
+    #blend-card{
+      background:rgba(255,255,255,.13);
+      border:3px solid rgba(255,215,0,.5);
+      border-radius:28px;
+      padding:clamp(8px,2vw,14px) clamp(16px,4vw,28px);
+      display:flex;flex-direction:column;align-items:center;gap:3px;
+      width:clamp(210px,65vw,290px);
+      box-shadow:0 8px 32px rgba(0,0,0,.4),0 0 0 6px rgba(255,215,0,.08);
+      position:relative;z-index:1;
+      flex-shrink:0;
+    }
+    #blend-label{font-size:clamp(9px,2.2vw,13px);color:rgba(255,255,255,.65);letter-spacing:.12em;text-transform:uppercase;}
+    #blend-text{
+      font-size:clamp(54px,15vw,90px);color:#ffd700;
+      letter-spacing:.1em;
+      text-shadow:0 0 30px rgba(255,215,0,.75),0 2px 12px rgba(0,0,0,.5);
+      animation:blendPulse 2.2s ease-in-out infinite;
+      line-height:1;
+    }
+    @keyframes blendPulse{0%,100%{text-shadow:0 0 30px rgba(255,215,0,.75),0 2px 12px rgba(0,0,0,.5)}50%{text-shadow:0 0 55px rgba(255,215,0,1),0 2px 12px rgba(0,0,0,.5)}}
+    #blend-example{font-size:clamp(13px,3.3vw,18px);color:#f8bbd0;letter-spacing:.04em;}
+
+    #choices{
+      display:flex;gap:clamp(7px,2.2vw,14px);
+      width:clamp(260px,88vw,380px);
+      justify-content:center;
+      flex-shrink:0;position:relative;z-index:1;
+      margin-top:clamp(7px,1.8vw,13px);
+    }
+    .choice-btn{
+      flex:1;
+      min-height:110px;
+      border-radius:22px;
+      border:3px solid rgba(255,255,255,.35);
+      background:linear-gradient(135deg,rgba(255,255,255,.18),rgba(255,255,255,.08));
+      color:#fff;
+      cursor:pointer;touch-action:manipulation;
+      display:flex;flex-direction:column;align-items:center;justify-content:center;
+      gap:4px;
+      box-shadow:0 4px 20px rgba(0,0,0,.3),inset 0 2px 0 rgba(255,255,255,.2);
+      transition:transform .12s;
+      padding:8px 4px;
+    }
+    .choice-btn:active{transform:scale(.91);}
+    .choice-emoji{font-size:clamp(34px,9vw,52px);line-height:1;}
+    .choice-word{font-size:clamp(10px,2.5vw,13px);color:rgba(255,255,255,.85);font-family:'Fredoka One',sans-serif;letter-spacing:.04em;text-align:center;}
+    .choice-btn.correct{border-color:#ffd700;background:linear-gradient(135deg,rgba(255,215,0,.4),rgba(255,140,0,.2));animation:correctPop .55s ease-out;}
+    .choice-btn.wrong  {animation:wobble .45s ease-out;border-color:rgba(255,80,80,.7);}
+    @keyframes correctPop{0%{transform:scale(1)}40%{transform:scale(1.15);box-shadow:0 0 40px rgba(255,215,0,.85)}100%{transform:scale(1)}}
+    @keyframes wobble{0%,100%{transform:translateX(0)}20%{transform:translateX(-12px)}60%{transform:translateX(12px)}80%{transform:translateX(-6px)}}
+
+    .sp{position:fixed;pointer-events:none;z-index:50;border-radius:50%;animation:sparkOut .75s ease-out forwards;}
+    @keyframes sparkOut{0%{transform:scale(0);opacity:1}100%{transform:scale(1.6);opacity:0}}
+    .sp-em{position:fixed;pointer-events:none;z-index:51;animation:spFloat .9s ease-out forwards;}
+    @keyframes spFloat{0%{transform:translateY(0) scale(1);opacity:1}100%{transform:translateY(-90px) scale(0);opacity:0}}
+
+    .overlay{
+      position:fixed;inset:0;
+      display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;
+      z-index:99;opacity:0;pointer-events:none;transition:opacity .35s;
+      padding:24px 20px;background:rgba(10,0,40,.93);
+    }
+    .overlay.show{opacity:1;pointer-events:all;}
+    .ov-emoji{font-size:clamp(52px,14vw,90px);}
+    .ov-title{font-size:clamp(22px,6vw,40px);color:#ffd700;text-align:center;line-height:1.2;}
+    .ov-sub  {font-size:clamp(15px,3.8vw,22px);color:#f8bbd0;text-align:center;max-width:320px;line-height:1.35;}
+    .ov-fact {font-size:clamp(13px,3.4vw,18px);color:#b39ddb;text-align:center;max-width:340px;line-height:1.45;}
+    .btn-next{
+      padding:clamp(14px,4vw,20px) clamp(32px,8vw,54px);font-size:clamp(18px,5vw,26px);
+      border-radius:50px;border:none;background:linear-gradient(135deg,#ffd700,#ff8c00);
+      color:#5d2e00;font-family:inherit;cursor:pointer;
+      min-height:64px;min-width:180px;
+      box-shadow:0 4px 18px rgba(255,180,0,.5);
+      touch-action:manipulation;
+    }
+    .cf{position:fixed;pointer-events:none;z-index:100;border-radius:3px;animation:cfFall linear forwards;}
+    @keyframes cfFall{0%{top:-20px;opacity:1;transform:rotate(0)}100%{top:110vh;opacity:.2;transform:rotate(720deg)}}
+  </style>
+</head>
+<body>
+
+<div id="header">
+  <div id="tier-badge" class="tier-easy">🌱 Easy</div>
+  <div id="score-label">⭐ 0</div>
+  <div id="round-label">1 / 18</div>
+</div>
+<div id="progress-track"><div id="progress-fill"></div></div>
+
+<div id="prompt">Which word starts with this blend? 🪄</div>
+
+<div id="blend-card">
+  <div id="blend-label">Magic Blend</div>
+  <div id="blend-text">BL</div>
+  <div id="blend-example">like BLUE 💙</div>
+</div>
+
+<div id="choices">
+  <button class="choice-btn" id="opt-0"><div class="choice-emoji">🧱</div><div class="choice-word">BLOCK</div></button>
+  <button class="choice-btn" id="opt-1"><div class="choice-emoji">🐱</div><div class="choice-word">CAT</div></button>
+  <button class="choice-btn" id="opt-2"><div class="choice-emoji">☀️</div><div class="choice-word">SUN</div></button>
+</div>
+
+<div class="overlay" id="cel-overlay">
+  <div class="ov-emoji" id="cel-emoji">✨</div>
+  <div class="ov-title" id="cel-title">BLOCK starts with BL!</div>
+  <div class="ov-sub"   id="cel-sub">Amazing! 👑</div>
+  <div class="ov-fact"  id="cel-fact"></div>
+  <button class="btn-next" id="cel-btn">Next ➡️</button>
+</div>
+
+<div class="overlay" id="tier-overlay">
+  <div class="ov-emoji" id="t-emoji">🌸</div>
+  <div class="ov-title" id="t-title">Level up! 🌟</div>
+  <div class="ov-sub"   id="t-sub">Ready for more? ✨</div>
+  <button class="btn-next" id="t-btn">Let's go! ✨</button>
+</div>
+
+<div class="overlay" id="win-overlay">
+  <div class="ov-emoji">🪄</div>
+  <div class="ov-title">Blend Wizard! 👑</div>
+  <div class="ov-sub" id="win-sub">You found all the blends!</div>
+  <div class="ov-fact">Knowing consonant blends helps you read bigger words — you're a reading star! 📖</div>
+  <button class="btn-next" onclick="startGame()">Play Again 🌸</button>
+</div>
+
+<script>
+// ── Audio ──────────────────────────────────────────────────────────────────────
+let audioCtx=null;
+function getAudio(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();return audioCtx;}
+function tone(f,type,d,v,del){
+  v=v||.18;del=del||0;
+  try{
+    const c=getAudio();
+    setTimeout(()=>{
+      try{
+        const o=c.createOscillator(),g=c.createGain();
+        o.connect(g);g.connect(c.destination);
+        o.type=type;o.frequency.value=f;
+        g.gain.setValueAtTime(v,c.currentTime);
+        g.gain.exponentialRampToValueAtTime(.001,c.currentTime+d);
+        o.start();o.stop(c.currentTime+d);
+      }catch(e){}
+    },del);
+  }catch(e){}
+}
+function playCorrect(){[523,659,784,1047].forEach((f,i)=>tone(f,'sine',.18,.2,i*70));}
+function playWrong()  {tone(260,'sawtooth',.18,.13);tone(210,'sawtooth',.14,.1,160);}
+function playTierUp() {[523,659,784,880,1047,1319].forEach((f,i)=>tone(f,'triangle',.28,.2,i*90));}
+function playWin()    {[523,659,784,1047,784,1047,1319,1047,1319,1568].forEach((f,i)=>tone(f,'sine',.3,.22,i*90));}
+
+// ── Word pools ─────────────────────────────────────────────────────────────────
+// item: blend letters, example (word+emoji for context), correct word+emoji, 2 wrong options, phonics fact
+const POOLS = {
+  easy:[
+    {blend:'BL',example:'BLUE 💙',    word:'BLOCK',    emoji:'🧱',others:[{w:'CAT',e:'🐱'},{w:'SUN',e:'☀️'}],   fact:'BLOCK starts with BL! Blue, Block, Bloom — all begin with BL! 🪄'},
+    {blend:'BL',example:'BLUE 💙',    word:'BLUEBERRY',emoji:'🫐',others:[{w:'FISH',e:'🐟'},{w:'BEE',e:'🐝'}],  fact:'BLUEBERRY starts with BL! Two letters blending together: B + L = BL! 🫐'},
+    {blend:'BL',example:'BLUE 💙',    word:'BLOSSOM',  emoji:'🌸',others:[{w:'DUCK',e:'🦆'},{w:'MOON',e:'🌙'}], fact:'BLOSSOM starts with BL! Flowers blossom — BL BL BL! 🌸'},
+    {blend:'CL',example:'CLOUD ☁️',  word:'CLOCK',    emoji:'⏰',others:[{w:'STAR',e:'⭐'},{w:'BEAR',e:'🐻'}], fact:'CLOCK starts with CL! Clap, Cloud, Clock — all begin with CL! ⏰'},
+    {blend:'CL',example:'CLOUD ☁️',  word:'CLOWN',    emoji:'🤡',others:[{w:'TREE',e:'🌳'},{w:'BIRD',e:'🐦'}], fact:'CLOWN starts with CL! Clowns make us laugh — CL CL CL! 🤡'},
+    {blend:'CL',example:'CLOUD ☁️',  word:'CLAP',     emoji:'👏',others:[{w:'HAT',e:'🎩'},{w:'FROG',e:'🐸'}],  fact:'CLAP starts with CL! Clap your hands for CL! 👏'},
+    {blend:'FL',example:'FLOWER 🌻', word:'FLAMINGO', emoji:'🦩',others:[{w:'DOG',e:'🐶'},{w:'HEN',e:'🐔'}],  fact:'FLAMINGO starts with FL! Flower, Fly, Flamingo — all begin with FL! 🦩'},
+    {blend:'FL',example:'FLOWER 🌻', word:'FLAG',     emoji:'🚩',others:[{w:'LION',e:'🦁'},{w:'CAKE',e:'🎂'}], fact:'FLAG starts with FL! Flags fly in the breeze — FL FL FL! 🚩'},
+  ],
+  medium:[
+    {blend:'GR',example:'GRAPES 🍇', word:'GRASS',   emoji:'🌿',others:[{w:'DRUM',e:'🥁'},{w:'BALL',e:'⚽'}],   fact:'GRASS starts with GR! Grapes, Grass, Grow — all begin with GR! 🌿'},
+    {blend:'GR',example:'GRAPES 🍇', word:'GRILL',   emoji:'🔥',others:[{w:'MILK',e:'🥛'},{w:'HORSE',e:'🐴'}],  fact:'GRILL starts with GR! Two letters blend: G + R = GR! 🔥'},
+    {blend:'GR',example:'GRAPES 🍇', word:'GROWL',   emoji:'🐻',others:[{w:'APPLE',e:'🍎'},{w:'MOON',e:'🌙'}],  fact:'GROWL starts with GR! Bears growl — GR GR GR! 🐻'},
+    {blend:'ST',example:'STAR ⭐',   word:'STONE',   emoji:'🪨',others:[{w:'RAIN',e:'🌧️'},{w:'WHALE',e:'🐳'}], fact:'STONE starts with ST! Star, Stone, Stick — all begin with ST! 🪨'},
+    {blend:'ST',example:'STAR ⭐',   word:'STAMP',   emoji:'📮',others:[{w:'HEART',e:'❤️'},{w:'SNAIL',e:'🐌'}],fact:'STAMP starts with ST! You stamp a letter to send it — ST! 📮'},
+    {blend:'ST',example:'STAR ⭐',   word:'STRAW',   emoji:'🥤',others:[{w:'TIGER',e:'🐯'},{w:'BOAT',e:'⛵'}],   fact:'STRAW starts with ST! Sip through a straw — ST ST ST! 🥤'},
+    {blend:'TR',example:'TRAIN 🚂',  word:'TREE',    emoji:'🌳',others:[{w:'LEAF',e:'🍃'},{w:'BELL',e:'🔔'}],   fact:'TREE starts with TR! Train, Tree, Truck — all begin with TR! 🌳'},
+    {blend:'TR',example:'TRAIN 🚂',  word:'TRUCK',   emoji:'🚛',others:[{w:'OWL',e:'🦉'},{w:'FISH',e:'🐟'}],   fact:'TRUCK starts with TR! Big trucks roll down the road — TR TR TR! 🚛'},
+  ],
+  hard:[
+    {blend:'DR',example:'DRUM 🥁',   word:'DRAGON',  emoji:'🐉',others:[{w:'PLANE',e:'✈️'},{w:'HORSE',e:'🐴'}], fact:'DRAGON starts with DR! Drum, Dragon, Drop — all begin with DR! 🐉'},
+    {blend:'DR',example:'DRUM 🥁',   word:'DROP',    emoji:'💧',others:[{w:'LEAF',e:'🍃'},{w:'FROG',e:'🐸'}],   fact:'DROP starts with DR! Raindrops fall — DR DR DR! 💧'},
+    {blend:'DR',example:'DRUM 🥁',   word:'DRESS',   emoji:'👗',others:[{w:'BEE',e:'🐝'},{w:'DUCK',e:'🦆'}],    fact:'DRESS starts with DR! Princess dresses are beautiful — DR! 👗'},
+    {blend:'SN',example:'SNAKE 🐍',  word:'SNOW',    emoji:'❄️',others:[{w:'TIGER',e:'🐯'},{w:'CAKE',e:'🎂'}],  fact:'SNOW starts with SN! Snake, Snow, Snail — all begin with SN! ❄️'},
+    {blend:'SN',example:'SNAKE 🐍',  word:'SNAIL',   emoji:'🐌',others:[{w:'FIRE',e:'🔥'},{w:'BIRD',e:'🐦'}],   fact:'SNAIL starts with SN! Slow snails go sn-sn-sn! 🐌'},
+    {blend:'SN',example:'SNAKE 🐍',  word:'SNEAKER', emoji:'👟',others:[{w:'HAT',e:'🎩'},{w:'APPLE',e:'🍎'}],   fact:'SNEAKER starts with SN! Tip-toe in your sneakers — SN! 👟'},
+    {blend:'SW',example:'SWAN 🦢',   word:'SWIM',    emoji:'🏊',others:[{w:'MONKEY',e:'🐒'},{w:'BEAR',e:'🐻'}], fact:'SWIM starts with SW! Swan, Swim, Sweet — all begin with SW! 🏊'},
+    {blend:'SW',example:'SWAN 🦢',   word:'SWEET',   emoji:'🍬',others:[{w:'OWL',e:'🦉'},{w:'LION',e:'🦁'}],   fact:'SWEET starts with SW! Sweet things taste delicious — SW! 🍬'},
+  ],
+};
+
+const TIERS=[
+  {label:'🌱 Easy',  cls:'tier-easy',   pool:'easy',
+   toastEmoji:'🌸',toastTitle:'More blends! 🌟',
+   toastSub:'You found BL, CL and FL words! Now try GR, ST and TR blends! 🎵'},
+  {label:'🌸 Medium',cls:'tier-medium', pool:'medium',
+   toastEmoji:'⭐', toastTitle:'Blend Superstar! ✨',
+   toastSub:'Incredible! Now the trickiest blends — DR, SN and SW! 🪄'},
+  {label:'⭐ Hard',  cls:'tier-hard',   pool:'hard'},
+];
+
+const PROMPTS=[
+  'Which word starts with this blend? 🪄',
+  'Tap the one that begins with these letters! ✨',
+  'Find the word that starts like the magic blend! 👑',
+  'Which picture starts with these two letters? 🌟',
+  'The blend is on the card — tap the matching word! 💫',
+  'Tap the word that begins with the magic blend! 🎵',
+  'Which one starts the same way? 🔤',
+];
+
+const TOTAL=18;
+let round=0,score=0,locked=false,gameRounds=[],promptIdx=0,currentRound=null;
+
+function buildRounds(){
+  const rounds=[];
+  TIERS.forEach((tier,ti)=>{
+    const pool=[...POOLS[tier.pool]];
+    for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]];}
+    pool.slice(0,6).forEach(item=>rounds.push({item,tierIdx:ti}));
+  });
+  return rounds;
+}
+
+function startGame(){
+  ['win-overlay','tier-overlay','cel-overlay'].forEach(id=>document.getElementById(id).classList.remove('show'));
+  round=0;score=0;locked=false;
+  promptIdx=Math.floor(Math.random()*PROMPTS.length);
+  gameRounds=buildRounds();
+  makeBgGems();
+  nextRound();
+}
+
+function nextRound(){
+  document.getElementById('cel-overlay').classList.remove('show');
+  if(round>=TOTAL){endGame();return;}
+  const prevTierIdx=round===0?-1:gameRounds[round-1].tierIdx;
+  round++;
+  const rd=gameRounds[round-1];
+  if(rd.tierIdx>prevTierIdx&&prevTierIdx>=0){
+    showTierOverlay(TIERS[rd.tierIdx],()=>renderRound(rd));
+  } else {
+    renderRound(rd);
+  }
+}
+
+function renderRound(rd){
+  locked=false;
+  currentRound=rd;
+  promptIdx=(promptIdx+1)%PROMPTS.length;
+  document.getElementById('prompt').textContent=PROMPTS[promptIdx];
+
+  const tier=TIERS[rd.tierIdx];
+  const badge=document.getElementById('tier-badge');
+  badge.textContent=tier.label;badge.className='tier-badge '+tier.cls;
+  document.getElementById('score-label').textContent='⭐ '+score;
+  document.getElementById('round-label').textContent=round+' / '+TOTAL;
+  document.getElementById('progress-fill').style.width=((round-1)/TOTAL*100)+'%';
+
+  const item=rd.item;
+  document.getElementById('blend-text').textContent=item.blend;
+  document.getElementById('blend-example').textContent='like '+item.example;
+
+  const options=[
+    {w:item.word,e:item.emoji,correct:true},
+    {w:item.others[0].w,e:item.others[0].e,correct:false},
+    {w:item.others[1].w,e:item.others[1].e,correct:false},
+  ];
+  for(let i=options.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[options[i],options[j]]=[options[j],options[i]];}
+
+  for(let i=0;i<3;i++){
+    const btn=document.getElementById('opt-'+i);
+    btn.querySelector('.choice-emoji').textContent=options[i].e;
+    btn.querySelector('.choice-word').textContent=options[i].w;
+    const isCorrect=options[i].correct;
+    btn.className='choice-btn';
+    btn.onclick=()=>handleChoice(isCorrect,btn);
+  }
+
+  setTimeout(()=>{try{getAudio().resume();}catch(e){}tone(880,'sine',.1,.07);},150);
+}
+
+function handleChoice(isCorrect,btn){
+  if(locked)return;
+  try{getAudio().resume();}catch(e){}
+  if(isCorrect){
+    locked=true;score++;
+    btn.classList.add('correct');
+    playCorrect();
+    const rect=btn.getBoundingClientRect();
+    const cx=rect.left+rect.width/2,cy=rect.top+rect.height/2;
+    burst(cx,cy);
+    document.getElementById('score-label').textContent='⭐ '+score;
+    setTimeout(showCelebrate,800);
+  } else {
+    btn.classList.add('wrong');
+    playWrong();
+    setTimeout(()=>btn.classList.remove('wrong'),460);
+  }
+}
+
+const CEL_MSGS=['Brilliant! 🌟','You found it! 👑','Amazing! ✨','Superstar! ⭐','Perfect! 💎','Wonderful! 🌸','Exactly right! 🎉','Great eye! 🪄','You got it! 🏆'];
+
+function showCelebrate(){
+  const item=currentRound.item;
+  document.getElementById('cel-emoji').textContent=item.emoji;
+  document.getElementById('cel-title').textContent=item.word+' starts with '+item.blend+'! 🪄';
+  document.getElementById('cel-sub').textContent=CEL_MSGS[Math.floor(Math.random()*CEL_MSGS.length)];
+  document.getElementById('cel-fact').textContent=item.fact;
+  document.getElementById('cel-btn').onclick=nextRound;
+  document.getElementById('cel-overlay').classList.add('show');
+}
+
+function showTierOverlay(tier,cb){
+  document.getElementById('t-emoji').textContent=tier.toastEmoji;
+  document.getElementById('t-title').textContent=tier.toastTitle;
+  document.getElementById('t-sub').textContent=tier.toastSub||'Get ready! 🌟';
+  document.getElementById('t-btn').onclick=()=>{
+    document.getElementById('tier-overlay').classList.remove('show');
+    cb();
+  };
+  document.getElementById('tier-overlay').classList.add('show');
+  playTierUp();confetti(42);
+}
+
+function endGame(){
+  playWin();confetti(60);setTimeout(()=>confetti(40),700);
+  document.getElementById('win-sub').textContent='You scored ⭐ '+score+' out of '+TOTAL+'! ✨';
+  document.getElementById('win-overlay').classList.add('show');
+  document.getElementById('progress-fill').style.width='100%';
+  document.getElementById('score-label').textContent='⭐ '+score;
+}
+
+function burst(cx,cy){
+  const cols=['#ffd700','#e040fb','#fff','#f48fb1','#80deea','#a5d6a7','#ce93d8','#ffe082'];
+  const ems=['✨','💫','⭐','🌟','💎','👑','🌸','💖','🪄','📖','🎵','🎶','🔤','🫐'];
+  for(let i=0;i<26;i++){
+    const el=document.createElement('div');el.className='sp';
+    const a=Math.random()*Math.PI*2,dist=35+Math.random()*85,sz=7+Math.random()*10;
+    el.style.cssText=`left:${cx+Math.cos(a)*dist-sz/2}px;top:${cy+Math.sin(a)*dist-sz/2}px;width:${sz}px;height:${sz}px;background:${cols[i%cols.length]};`;
+    document.body.appendChild(el);setTimeout(()=>el.remove(),800);
+  }
+  for(let i=0;i<14;i++){
+    const el=document.createElement('div');el.className='sp-em';
+    el.textContent=ems[i%ems.length];
+    el.style.cssText=`left:${cx+(Math.random()-.5)*130}px;top:${cy+(Math.random()-.5)*110}px;font-size:${16+Math.random()*12}px;`;
+    el.style.animationDelay=(Math.random()*.2)+'s';
+    document.body.appendChild(el);setTimeout(()=>el.remove(),1100);
+  }
+}
+
+function confetti(count){
+  const cols=['#e040fb','#ffd700','#fff','#f48fb1','#ce93d8','#b2ebf2','#a5d6a7','#ff8a65'];
+  for(let i=0;i<count;i++){
+    const el=document.createElement('div');el.className='cf';
+    const sz=6+Math.random()*10;
+    el.style.cssText=`left:${Math.random()*100}vw;top:-20px;width:${sz}px;height:${sz}px;background:${cols[i%cols.length]};animation-duration:${1.4+Math.random()*2}s;animation-delay:${Math.random()*.5}s`;
+    document.body.appendChild(el);setTimeout(()=>el.remove(),3500);
+  }
+}
+
+function makeBgGems(){
+  document.querySelectorAll('.bg-gem').forEach(e=>e.remove());
+  const icons=['✨','🪄','📖','🌟','👑','🌸','💫','💎','🎵','🎶','🔤','💙','☁️','🌻','🍇','⭐','🥁','🦢'];
+  for(let i=0;i<18;i++){
+    const el=document.createElement('div');el.className='bg-gem';
+    el.textContent=icons[i%icons.length];
+    el.style.left=(4+Math.random()*92)+'vw';
+    el.style.animationDuration=(10+Math.random()*14)+'s';
+    el.style.animationDelay=-(Math.random()*16)+'s';
+    document.body.appendChild(el);
+  }
+}
+
+startGame();
+</script>
+</body>
+</html>

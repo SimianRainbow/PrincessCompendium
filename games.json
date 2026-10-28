@@ -980,7 +980,7 @@
     "ageMin": 3,
     "ageMax": 6,
     "skill": "phonics — ending letter sounds",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "category": "letters",
     "path": "games/082-royal-endings/index.html"
   },
@@ -995,5 +995,17 @@
     "version": "1.0.0",
     "category": "numbers",
     "path": "games/083-teen-tower/index.html"
+  },
+  {
+    "id": "084-royal-blends",
+    "title": "Blend Magic",
+    "description": "Tap the picture whose name starts with the magic consonant blend! BL/CL/FL (Easy) → GR/ST/TR (Medium) → DR/SN/SW (Hard). 18 rounds, 8-word pool per tier, phonics facts on every correct answer.",
+    "icon": "🪄",
+    "ageMin": 3,
+    "ageMax": 6,
+    "skill": "consonant blend recognition (phonics)",
+    "version": "1.0.0",
+    "category": "letters",
+    "path": "games/084-royal-blends/index.html"
   }
 ]
