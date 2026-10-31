@@ -718,8 +718,7 @@
     "version": "1.0.0",
     "category": "numbers",
     "path": "games/060-princess-fractions/index.html"
-  }
-,
+  },
   {
     "id": "061-sink-or-float",
     "title": "Princess Pond",
@@ -987,12 +986,12 @@
   {
     "id": "083-teen-tower",
     "title": "Princess Teen Tower",
-    "description": "Count Princess's gems in the royal tower! A ten-frame shows 10 gold gems + extra pink ones — tap the total. Easy: 11-13, Medium: 14-16, Hard: 17-19. Learn that teen numbers = TEN + some more!",
+    "description": "Count Princess's gems in the royal tower! A ten-frame shows 10 gold gems + extra pink ones — tap the total teen number. Easy: 11-13, Medium: 14-16, Hard: 17-19. Celebrate overlay now shows the number word (ELEVEN, TWELVE…)!",
     "icon": "🏰",
     "ageMin": 3,
     "ageMax": 6,
     "skill": "teen number recognition (11-19) using ten-frames",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "category": "numbers",
     "path": "games/083-teen-tower/index.html"
   },
@@ -1007,5 +1006,17 @@
     "version": "1.0.0",
     "category": "letters",
     "path": "games/084-royal-blends/index.html"
+  },
+  {
+    "id": "085-compound-castle",
+    "title": "Compound Castle",
+    "description": "Join two magic words to build a compound word! See two picture clues (sun + flower) and tap the word they make together (SUNFLOWER). Easy: common pairs, Medium: longer words, Hard: tricky combos.",
+    "icon": "🏰",
+    "ageMin": 3,
+    "ageMax": 6,
+    "skill": "compound word recognition",
+    "version": "1.0.0",
+    "category": "letters",
+    "path": "games/085-compound-castle/index.html"
   }
 ]

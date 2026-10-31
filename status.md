@@ -1,9 +1,9 @@
 # Princess Compendium — Status
 
 ## Last update run
-Date: 2026-10-28
-- Improved: `082-royal-endings` → v1.1.0 (expanded pool 6→8 per tier with random 6-of-8 selection per game; 6 new words: DOT/BIN/MASK/CURL/SCARF/CHIMP; sparkle burst 24→26 dots + 12→14 emojis; bg icons 16→18)
-- Added: `084-royal-blends` — "Blend Magic 🪄" teaching consonant blend recognition (BL/CL/FL → GR/ST/TR → DR/SN/SW); 8-word pool per tier, 6 chosen randomly per game; celebrate overlay shows phonics facts; 18 rounds total
+Date: 2026-10-31
+- Improved: `083-teen-tower` → v1.1.0 (number word ELEVEN/TWELVE…NINETEEN shown in celebrate overlay; pool 8→10 per tier with 6 new fact variants; prompts 5→8; sparkle 20→22 emoji + 18→20 dots)
+- Added: `085-compound-castle` — "Compound Castle 🏰" teaching compound word recognition (sun+flower=SUNFLOWER); 24-word pool (8/tier), 6 chosen per game; celebrate overlay shows compound breakdown (w1 + w2 = answer); 3 tiers Easy/Medium/Hard
 
 ## Improvement history
 
@@ -75,6 +75,7 @@ Date: 2026-10-28
 | 2026-10-22 | 079-royal-map | 9→18 rounds (6/tier), fixed pools (Easy LEFT/RIGHT only, Medium/Hard all 4), word labels on buttons hidden in Hard, sparkle 22→26 dots + 12→14 emoji, bg icons 14→16, 18 deco sets | 1.1.0 |
 | 2026-10-25 | 080-syllable-stars | Pool 18→24 words (8/tier), 6 new words (STAR/FAIRY/TIGER/PELICAN/VOLCANO/HELICOPTER), dedicated tier-transition overlay + confetti, always-show word facts in celebrate, bg icons 16→18 | 1.1.0 |
 | 2026-10-28 | 082-royal-endings | Pool 6→8 per tier (random 6-of-8 per game), 6 new words (DOT/BIN/MASK/CURL/SCARF/CHIMP), sparkle 24→26 dots + 12→14 emojis, bg icons 16→18 | 1.1.0 |
+| 2026-10-31 | 083-teen-tower | Number word display (ELEVEN…NINETEEN) in celebrate overlay, pool 8→10 per tier, prompts 5→8, sparkle 20→22 emoji + 18→20 dots | 1.1.0 |
 
 ## Games due for improvement (all at v1.0.0)
 
@@ -148,6 +149,7 @@ See `CLAUDE.md` for the full prioritised list. Top 3 to build next:
 45. **Ending letter sounds (phonics — final phonemes)** — ✅ covered by `082-royal-endings`
 46. **Teen number recognition (11-19) using ten-frames** — ✅ covered by `083-teen-tower`
 47. **Consonant blend recognition (phonics)** — ✅ covered by `084-royal-blends`
+48. **Compound word recognition** — ✅ covered by `085-compound-castle`
 
 ## Next game ID
-`085-<slug>`
+`086-<slug>`
