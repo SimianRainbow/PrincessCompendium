@@ -109,7 +109,7 @@
 <div id="header">
   <div id="tier-badge" class="tier-easy">🌱 Easy</div>
   <div id="score-display">0 ⭐</div>
-  <div id="round-label">1 / 9</div>
+  <div id="round-label">1 / 12</div>
 </div>
 <div id="progress-wrap">
   <div id="progress-track"><div id="progress-fill"></div></div>
@@ -157,7 +157,6 @@ function playWrong()    { tone(260,'sawtooth',.18,.13); setTimeout(()=>tone(210,
 function playTierUp()   { [523,659,784,880,1047,1319].forEach((f,i)=>setTimeout(()=>tone(f,'triangle',.28,.2),i*90)); }
 function playFinalWin() { [523,659,784,1047,784,1047,1319].forEach((f,i)=>setTimeout(()=>tone(f,'sine',.32,.22),i*95)); }
 
-// SVG cake generator — draws a circle divided into 'den' equal slices
 function polarXY(cx, cy, r, deg) {
   const rad = (deg - 90) * Math.PI / 180;
   return [cx + r * Math.cos(rad), cy + r * Math.sin(rad)];
@@ -170,16 +169,13 @@ function slicePath(cx, cy, r, startDeg, endDeg) {
   return `M${cx},${cy} L${x1.toFixed(1)},${y1.toFixed(1)} A${r},${r},0,${large},1,${x2.toFixed(1)},${y2.toFixed(1)} Z`;
 }
 
-// Pastel slice colours cycling per piece
 const SLICE_COLORS = ['#ff4081','#f06292','#e91e63','#f48fb1','#ad1457','#ff80ab'];
 const PLATE_COLOR  = '#fff9e6';
 
 function makeCakeSVG(den) {
   const cx=50, cy=50, r=40;
   let body = `<circle cx="${cx}" cy="${cy}" r="47" fill="${PLATE_COLOR}" stroke="#ffd700" stroke-width="1.5"/>`;
-
   if (den === 1) {
-    // Whole cake — solid with subtle swirl decoration
     body += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="#ff4081"/>`;
     body += `<circle cx="${cx}" cy="${cy}" r="${r-10}" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="2" stroke-dasharray="5,4"/>`;
     body += `<circle cx="${cx}" cy="${cy}" r="8" fill="rgba(255,255,255,0.25)"/>`;
@@ -189,47 +185,51 @@ function makeCakeSVG(den) {
       body += `<path d="${slicePath(cx,cy,r,s,e)}" fill="${SLICE_COLORS[i%SLICE_COLORS.length]}" stroke="white" stroke-width="2.5" stroke-linejoin="round"/>`;
     }
   }
-
-  // Frosted rim
   body += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/>`;
-  // Cherry on top
   body += `<circle cx="${cx}" cy="14" r="5.5" fill="#b71c1c"/>`;
   body += `<line x1="${cx}" y1="19.5" x2="${cx}" y2="27" stroke="#388e3c" stroke-width="2" stroke-linecap="round"/>`;
-
   return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">${body}</svg>`;
 }
 
-// piece-count indicators: N cake-slice emoji
 const PIECE_DOTS = ['','🍰','🍰🍰','🍰🍰🍰','🍰🍰🍰🍰'];
 const FRACTION_NAMES = ['','Whole','Half','Thirds','Quarters'];
+const FRACTION_FACTS = {
+  1: 'WHOLE means the full cake — nothing cut yet! 🎂',
+  2: 'HALF means 2 EQUAL pieces — cut right down the middle! ✂️',
+  3: 'THIRDS means 3 EQUAL pieces — shared with 3 friends! 🎊',
+  4: 'QUARTERS means 4 EQUAL pieces — every slice is the same size! 🤚',
+};
 
-// Round pool — 6 per tier, 3 randomly chosen each game
-// correct = denominator (1=whole, 2=half, 3=thirds, 4=quarters)
-// opts = denominators to show as choices
 const POOL = {
   easy: [
-    { q:"Which cake is cut in 2? ✌️",     pEmoji:'✌️',  correct:2, opts:[1,2] },
-    { q:"Tap the WHOLE cake! 🎂",           pEmoji:'🎂',  correct:1, opts:[1,2] },
-    { q:"Which cake has MORE pieces? 🔢",  pEmoji:'🔢',  correct:4, opts:[2,4] },
-    { q:"Which cake has FEWER pieces? 🎂", pEmoji:'🎂',  correct:2, opts:[2,4] },
-    { q:"Which is NOT cut? (1 piece!) 🎂", pEmoji:'🎂',  correct:1, opts:[1,4] },
-    { q:"Which has 2 equal pieces? ✂️",    pEmoji:'✂️',  correct:2, opts:[1,2] },
+    { q:'Which cake is cut in 2? ✌️',      pEmoji:'✌️',  correct:2, opts:[1,2] },
+    { q:'Tap the WHOLE cake! 🎂',           pEmoji:'🎂',  correct:1, opts:[1,2] },
+    { q:'Which cake has MORE pieces? 🔢',   pEmoji:'🔢',  correct:4, opts:[2,4] },
+    { q:'Which cake has FEWER pieces? 🎂',  pEmoji:'🎂',  correct:2, opts:[2,4] },
+    { q:'Which is NOT cut? (1 piece!) 🎂',  pEmoji:'🎂',  correct:1, opts:[1,4] },
+    { q:'Which has 2 equal pieces? ✂️',     pEmoji:'✂️',  correct:2, opts:[1,2] },
+    { q:'Find the HALF cake! 🌸',           pEmoji:'🌸',  correct:2, opts:[1,2] },
+    { q:'Tap the cake that is whole! 👑',   pEmoji:'👑',  correct:1, opts:[1,2] },
   ],
   medium: [
-    { q:"Which cake has 2 equal pieces? ✌️",   pEmoji:'✌️',  correct:2, opts:[1,2,4] },
-    { q:"Which cake has 4 equal pieces? 🤚",   pEmoji:'🤚',  correct:4, opts:[1,2,4] },
-    { q:"Tap the WHOLE cake! 🎂",               pEmoji:'🎂',  correct:1, opts:[1,2,4] },
-    { q:"Which has the MOST pieces? 🔢",       pEmoji:'🔢',  correct:4, opts:[1,2,4] },
-    { q:"Which has FEWEST pieces? 🎂",         pEmoji:'🎂',  correct:1, opts:[1,2,4] },
-    { q:"Tap the HALF! (2 equal pieces) ✌️",   pEmoji:'✌️',  correct:2, opts:[1,2,4] },
+    { q:'Which cake has 2 equal pieces? ✌️',   pEmoji:'✌️',  correct:2, opts:[1,2,4] },
+    { q:'Which cake has 4 equal pieces? 🤚',   pEmoji:'🤚',  correct:4, opts:[1,2,4] },
+    { q:'Tap the WHOLE cake! 🎂',               pEmoji:'🎂',  correct:1, opts:[1,2,4] },
+    { q:'Which has the MOST pieces? 🔢',        pEmoji:'🔢',  correct:4, opts:[1,2,4] },
+    { q:'Which has FEWEST pieces? 🎂',          pEmoji:'🎂',  correct:1, opts:[1,2,4] },
+    { q:'Tap the HALF! (2 equal pieces) ✌️',   pEmoji:'✌️',  correct:2, opts:[1,2,4] },
+    { q:'Which cake has 4 slices? 🍕',          pEmoji:'🍕',  correct:4, opts:[2,3,4] },
+    { q:'Tap the cake cut in 2! ✌️',            pEmoji:'✌️',  correct:2, opts:[1,2,4] },
   ],
   hard: [
-    { q:"Tap the cake with 2 equal pieces! ✌️",   pEmoji:'✌️',  correct:2, opts:[1,2,3,4] },
-    { q:"Tap the cake with 4 equal pieces! 🤚",   pEmoji:'🤚',  correct:4, opts:[1,2,3,4] },
-    { q:"Tap the cake with 3 equal pieces! 3️⃣",  pEmoji:'3️⃣', correct:3, opts:[1,2,3,4] },
-    { q:"Tap the WHOLE cake! (1 big piece) 🎂",   pEmoji:'🎂',  correct:1, opts:[1,2,3,4] },
-    { q:"Which has the MOST pieces? 🔢",          pEmoji:'🔢',  correct:4, opts:[1,2,3,4] },
-    { q:"Tap the cake cut in HALF! ✌️",           pEmoji:'✌️',  correct:2, opts:[1,2,3,4] },
+    { q:'Tap the cake with 2 equal pieces! ✌️',   pEmoji:'✌️',  correct:2, opts:[1,2,3,4] },
+    { q:'Tap the cake with 4 equal pieces! 🤚',   pEmoji:'🤚',  correct:4, opts:[1,2,3,4] },
+    { q:'Tap the cake with 3 equal pieces! 3️⃣',  pEmoji:'3️⃣', correct:3, opts:[1,2,3,4] },
+    { q:'Tap the WHOLE cake! (1 big piece) 🎂',   pEmoji:'🎂',  correct:1, opts:[1,2,3,4] },
+    { q:'Which has the MOST pieces? 🔢',           pEmoji:'🔢',  correct:4, opts:[1,2,3,4] },
+    { q:'Tap the cake cut in HALF! ✌️',            pEmoji:'✌️',  correct:2, opts:[1,2,3,4] },
+    { q:'Tap the cake cut in THIRDS! 3️⃣',         pEmoji:'3️⃣', correct:3, opts:[2,3,4] },
+    { q:'Which is cut in QUARTERS? 🤚',            pEmoji:'🤚',  correct:4, opts:[1,3,4] },
   ],
 };
 
@@ -238,22 +238,21 @@ const TIERS = [
   { label:'🌸 Medium', cls:'tier-medium', pool:'medium', choices:3 },
   { label:'🌺 Hard',   cls:'tier-hard',   pool:'hard',   choices:4 },
 ];
-const TOTAL = 9;
+const TOTAL = 12;
 
 let round=0, score=0, locked=false, currentQ=null, tierOrders={};
 
 function shuffle(a){ const b=[...a]; for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];} return b; }
-function getTierIdx(r){ return r<=3?0:r<=6?1:2; }
+function getTierIdx(r){ return r<=4?0:r<=8?1:2; }
 
 function startGame(){
   document.getElementById('end-overlay').classList.remove('show');
   document.getElementById('round-overlay').classList.remove('show');
   round=0; score=0; locked=false;
-  // Pre-shuffle each tier pool
   tierOrders = {
-    easy:   shuffle([0,1,2,3,4,5]).slice(0,3),
-    medium: shuffle([0,1,2,3,4,5]).slice(0,3),
-    hard:   shuffle([0,1,2,3,4,5]).slice(0,3),
+    easy:   shuffle([0,1,2,3,4,5,6,7]).slice(0,4),
+    medium: shuffle([0,1,2,3,4,5,6,7]).slice(0,4),
+    hard:   shuffle([0,1,2,3,4,5,6,7]).slice(0,4),
   };
   makeBgGems();
   nextRound();
@@ -267,14 +266,13 @@ function nextRound(){
 
   const tierIdx = getTierIdx(round);
   const tier = TIERS[tierIdx];
-  const posInTier = ((round-1) % 3); // 0,1,2 within this tier
+  const posInTier = ((round-1) % 4);
   const qIdx = tierOrders[tier.pool][posInTier];
   currentQ = POOL[tier.pool][qIdx];
 
   document.getElementById('princess-emoji').textContent = currentQ.pEmoji;
   document.getElementById('prompt-text').textContent = currentQ.q;
 
-  // Build option buttons
   const grid = document.getElementById('choices');
   grid.className = tier.choices===4?'cols-4':tier.choices===3?'cols-3':'cols-2';
   grid.innerHTML = '';
@@ -321,8 +319,8 @@ function showRoundOverlay(correctDen){
   } else {
     const msgs=['Amazing! 🌟','You got it! 👑','Brilliant! ✨','Yes! 💎','Wonderful! 🌸','Perfect! 🎀'];
     document.getElementById('ov-emoji').textContent=PIECE_DOTS[correctDen];
-    document.getElementById('ov-title').textContent=msgs[Math.floor(Math.random()*msgs.length)];
-    document.getElementById('ov-sub').textContent=FRACTION_NAMES[correctDen]+'! That\'s '+correctDen+(correctDen===1?' piece!':' equal pieces!');
+    document.getElementById('ov-title').textContent=FRACTION_NAMES[correctDen]+'! '+msgs[Math.floor(Math.random()*msgs.length)];
+    document.getElementById('ov-sub').textContent=FRACTION_FACTS[correctDen];
   }
 
   document.getElementById('round-btn').onclick=nextRound;
@@ -346,11 +344,11 @@ function updateHUD(){
 
 function burst(cx,cy){
   const cols=['#ffd700','#f48fb1','#fff','#ce93d8','#e040fb','#ff8fab'];
-  const icons=['✨','💫','⭐','🍰','🌟'];
-  for(let i=0;i<18;i++){
+  const icons=['✨','💫','⭐','🍰','🌟','🎉'];
+  for(let i=0;i<22;i++){
     const el=document.createElement('div'); el.className='sp';
     const a=Math.random()*Math.PI*2, dist=30+Math.random()*75, sz=7+Math.random()*10;
-    if(i<5){
+    if(i<6){
       el.style.cssText=`left:${cx+Math.cos(a)*dist}px;top:${cy+Math.sin(a)*dist}px;font-size:${18+Math.random()*10}px;background:none;border-radius:0;`;
       el.textContent=icons[i%icons.length];
     } else {
@@ -375,7 +373,7 @@ function confetti(count){
 function makeBgGems(){
   document.querySelectorAll('.bg-gem').forEach(e=>e.remove());
   const icons=['✨','💫','🍰','⭐','🌟','💎','🎂'];
-  for(let i=0;i<10;i++){
+  for(let i=0;i<12;i++){
     const el=document.createElement('div'); el.className='bg-gem';
     el.textContent=icons[i%icons.length];
     el.style.left=(4+Math.random()*92)+'vw';

@@ -715,7 +715,7 @@
     "ageMin": 4,
     "ageMax": 6,
     "skill": "basic fractions — whole, half, thirds, quarters",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "category": "numbers",
     "path": "games/060-princess-fractions/index.html"
   },
@@ -1018,5 +1018,17 @@
     "version": "1.0.0",
     "category": "letters",
     "path": "games/085-compound-castle/index.html"
+  },
+  {
+    "id": "086-digraph-discovery",
+    "title": "Digraph Discovery 🔤",
+    "description": "Tap the two-letter sound (CH, SH, TH, WH) that starts the word",
+    "icon": "🔤",
+    "ageMin": 4,
+    "ageMax": 6,
+    "skill": "digraph recognition (CH, SH, TH, WH)",
+    "version": "1.0.0",
+    "category": "letters",
+    "path": "games/086-digraph-discovery/index.html"
   }
 ]
