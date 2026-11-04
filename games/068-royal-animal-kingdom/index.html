@@ -197,36 +197,41 @@ function makePrompt(name, choiceKeys){
   return variants[Math.floor(Math.random()*variants.length)];
 }
 
-// ── Animal pool ────────────────────────────────────────────────────────────────
-// 6 per tier (Easy: mammal vs bird, Medium: +fish, Hard: +reptile +insect)
+// ── Animal pool (8 per tier) ───────────────────────────────────────────────────
 const POOL = [
-  // EASY — mammal vs bird (2 choices)
-  { e:'🐘', n:'Elephant',  cls:'mammal',  fact:'Elephants are the biggest land animals — and they never forget! 🧠' },
-  { e:'🦅', n:'Eagle',     cls:'bird',    fact:'Eagles can spot tiny prey from 2 kilometres in the sky! 👁️' },
-  { e:'🐭', n:'Mouse',     cls:'mammal',  fact:'Mice have very strong little teeth that never stop growing!' },
-  { e:'🦜', n:'Parrot',    cls:'bird',    fact:'Parrots can copy sounds — even human words! 🗣️' },
-  { e:'🐬', n:'Dolphin',   cls:'mammal',  fact:'Dolphins are super smart — they recognise themselves in mirrors! 🪞' },
-  { e:'🐧', n:'Penguin',   cls:'bird',    fact:'Penguins cannot fly, but they zoom through water! 🏊' },
-  // MEDIUM — mammal vs bird vs fish (3 choices)
-  { e:'🦈', n:'Shark',     cls:'fish',    fact:'Sharks have been swimming in the ocean since before the dinosaurs! 🦖' },
-  { e:'🐻', n:'Bear',      cls:'mammal',  fact:'Bears sleep all winter in a cosy den — that is called hibernation! 😴' },
-  { e:'🦩', n:'Flamingo',  cls:'bird',    fact:'Flamingos get their pink colour from the pink shrimps they eat! 🦐' },
-  { e:'🐠', n:'Clownfish', cls:'fish',    fact:'Clownfish live inside spiky sea anemones for protection! 🌊' },
-  { e:'🦊', n:'Fox',       cls:'mammal',  fact:'Foxes are very clever — they can even open locks!' },
-  { e:'🦢', n:'Swan',      cls:'bird',    fact:'Swans stay with the same partner for their whole life! 💕' },
-  // HARD — mammal / bird / reptile / insect (4 choices)
-  { e:'🦎', n:'Lizard',    cls:'reptile', fact:'Lizards bask in the sun to warm up their cold blood! ☀️' },
-  { e:'🐝', n:'Bee',       cls:'insect',  fact:'One bee visits 5,000 flowers to make just one jar of honey! 🍯' },
-  { e:'🐊', n:'Crocodile', cls:'reptile', fact:'Crocodiles have been around for over 200 million years!' },
-  { e:'🦋', n:'Butterfly', cls:'insect',  fact:'A butterfly tastes things with the tiny sensors on its feet! 🦶' },
-  { e:'🐢', n:'Turtle',    cls:'reptile', fact:'Turtles carry their home on their back wherever they go! 🏡' },
-  { e:'🐞', n:'Ladybug',   cls:'insect',  fact:'Ladybugs eat tiny pests to help protect flowers and plants! 🌸' },
+  // EASY (0-7) — mammal vs bird
+  { e:'🐘', n:'Elephant',   cls:'mammal',  fact:'Elephants are the biggest land animals — and they never forget! 🧠' },
+  { e:'🦅', n:'Eagle',      cls:'bird',    fact:'Eagles can spot tiny prey from 2 kilometres in the sky! 👁️' },
+  { e:'🐭', n:'Mouse',      cls:'mammal',  fact:'Mice have very strong little teeth that never stop growing!' },
+  { e:'🦜', n:'Parrot',     cls:'bird',    fact:'Parrots can copy sounds — even human words! 🗣️' },
+  { e:'🐬', n:'Dolphin',    cls:'mammal',  fact:'Dolphins are super smart — they recognise themselves in mirrors! 🪞' },
+  { e:'🐧', n:'Penguin',    cls:'bird',    fact:'Penguins cannot fly, but they zoom through water! 🏊' },
+  { e:'🐱', n:'Cat',        cls:'mammal',  fact:'Cats sleep up to 16 hours a day — they love cosy naps! 😴' },
+  { e:'🦚', n:'Peacock',    cls:'bird',    fact:'A peacock can spread its tail into a giant fan of 200 feathers! 🌈' },
+  // MEDIUM (8-15) — mammal vs bird vs fish
+  { e:'🦈', n:'Shark',      cls:'fish',    fact:'Sharks have been swimming in the ocean since before the dinosaurs! 🦖' },
+  { e:'🐻', n:'Bear',       cls:'mammal',  fact:'Bears sleep all winter in a cosy den — that is called hibernation! 😴' },
+  { e:'🦩', n:'Flamingo',   cls:'bird',    fact:'Flamingos get their pink colour from the pink shrimps they eat! 🦐' },
+  { e:'🐠', n:'Clownfish',  cls:'fish',    fact:'Clownfish live inside spiky sea anemones for protection! 🌊' },
+  { e:'🦊', n:'Fox',        cls:'mammal',  fact:'Foxes are very clever — they can even open locks!' },
+  { e:'🦢', n:'Swan',       cls:'bird',    fact:'Swans stay with the same partner for their whole life! 💕' },
+  { e:'🐳', n:'Whale',      cls:'mammal',  fact:'Blue whales are the biggest animals that have ever lived on Earth! 🌍' },
+  { e:'🐡', n:'Pufferfish', cls:'fish',    fact:'Pufferfish can puff up like a spiky balloon to scare away danger! 🎈' },
+  // HARD (16+) — mammal / bird / reptile / insect
+  { e:'🦎', n:'Lizard',     cls:'reptile', fact:'Lizards bask in the sun to warm up their cold blood! ☀️' },
+  { e:'🐝', n:'Bee',        cls:'insect',  fact:'One bee visits 5,000 flowers to make just one jar of honey! 🍯' },
+  { e:'🐊', n:'Crocodile',  cls:'reptile', fact:'Crocodiles have been around for over 200 million years!' },
+  { e:'🦋', n:'Butterfly',  cls:'insect',  fact:'A butterfly tastes things with the tiny sensors on its feet! 🦶' },
+  { e:'🐢', n:'Turtle',     cls:'reptile', fact:'Turtles carry their home on their back wherever they go! 🏡' },
+  { e:'🐞', n:'Ladybug',    cls:'insect',  fact:'Ladybugs eat tiny pests to help protect flowers and plants! 🌸' },
+  { e:'🐍', n:'Snake',      cls:'reptile', fact:'Snakes flick their tongue to smell the air around them! 👅' },
+  { e:'🦗', n:'Cricket',    cls:'insect',  fact:'Crickets make music by rubbing their wings together! 🎵' },
 ];
 
 const TIERS = [
-  { label:'🌱 Easy',   cls:'tier-easy',   pool:POOL.slice(0,6),  choiceClasses:['mammal','bird'] },
-  { label:'🌸 Medium', cls:'tier-medium', pool:POOL.slice(6,12), choiceClasses:['mammal','bird','fish'] },
-  { label:'🌺 Hard',   cls:'tier-hard',   pool:POOL.slice(12),   choiceClasses:['mammal','bird','reptile','insect'] },
+  { label:'🌱 Easy',   cls:'tier-easy',   pool:POOL.slice(0,8),  choiceClasses:['mammal','bird'] },
+  { label:'🌸 Medium', cls:'tier-medium', pool:POOL.slice(8,16), choiceClasses:['mammal','bird','fish'] },
+  { label:'🌺 Hard',   cls:'tier-hard',   pool:POOL.slice(16),   choiceClasses:['mammal','bird','reptile','insect'] },
 ];
 const TOTAL=9;
 
@@ -350,10 +355,10 @@ function updateHUD(){
 function burst(cx,cy){
   const cols=['#ffd700','#a5d6a7','#fff','#ce93d8','#80deea','#ffe082'];
   const icons=['✨','💫','⭐','🌟','🦁','🐾','🌿','🦋'];
-  for(let i=0;i<20;i++){
+  for(let i=0;i<22;i++){
     const el=document.createElement('div'); el.className='sp';
     const a=Math.random()*Math.PI*2, dist=30+Math.random()*85, sz=7+Math.random()*10;
-    if(i<6){
+    if(i<8){
       el.style.cssText='left:'+(cx+Math.cos(a)*dist)+'px;top:'+(cy+Math.sin(a)*dist)+'px;font-size:'+(18+Math.random()*10)+'px;background:none;border-radius:0;';
       el.textContent=icons[i%icons.length];
     } else {
@@ -377,8 +382,8 @@ function confetti(count){
 
 function makeBgGems(){
   document.querySelectorAll('.bg-gem').forEach(e=>e.remove());
-  const icons=['🦁','🦅','🐟','🦎','🐝','✨','💫','🌿','⭐','🐾','🦋','🐠'];
-  for(let i=0;i<12;i++){
+  const icons=['🦁','🦅','🐟','🦎','🐝','✨','💫','🌿','⭐','🐾','🦋','🐠','🌸','👑'];
+  for(let i=0;i<14;i++){
     const el=document.createElement('div'); el.className='bg-gem';
     el.textContent=icons[i%icons.length];
     el.style.left=(4+Math.random()*92)+'vw';

@@ -806,12 +806,12 @@
   {
     "id": "068-royal-animal-kingdom",
     "title": "Royal Animal Kingdom",
-    "description": "Is it a Mammal, Bird, Fish, Reptile or Insect? Sort animals into the right royal group! 18-animal pool, fun facts on every answer, score counter ⭐, 9 rounds across 3 tiers.",
+    "description": "Is it a Mammal, Bird, Fish, Reptile or Insect? Sort animals into the right royal group! 24-animal pool (8 per tier), fun facts on every answer, score counter ⭐, 9 rounds across 3 tiers.",
     "icon": "🦁",
     "ageMin": 3,
     "ageMax": 6,
     "skill": "animal classification — mammal, bird, reptile, fish, insect",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "category": "animals",
     "path": "games/068-royal-animal-kingdom/index.html"
   },
@@ -1030,5 +1030,17 @@
     "version": "1.0.0",
     "category": "letters",
     "path": "games/086-digraph-discovery/index.html"
+  },
+  {
+    "id": "087-vowel-quest",
+    "title": "Vowel Quest",
+    "description": "Tap the missing vowel to complete the princess word! C_T → CAT 🐱 — learn short vowel sounds A/E/I/O/U across 3 tiers, 18 rounds.",
+    "icon": "🔮",
+    "ageMin": 4,
+    "ageMax": 6,
+    "skill": "short vowel recognition (a/e/i/o/u)",
+    "version": "1.0.0",
+    "category": "letters",
+    "path": "games/087-vowel-quest/index.html"
   }
 ]

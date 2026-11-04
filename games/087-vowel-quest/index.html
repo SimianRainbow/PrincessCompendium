@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Vowel Quest 🌸</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+    body {
+      min-height:100vh;
+      background:linear-gradient(160deg,#2d0045 0%,#6a1b9a 50%,#c2185b 100%);
+      font-family:'Fredoka One',Georgia,serif;
+      display:flex; flex-direction:column; align-items:center;
+      overflow:hidden; user-select:none; padding-bottom:12px;
+    }
+
+    .bg-float { position:fixed; pointer-events:none; opacity:.12;
+      font-size:clamp(16px,4vw,26px); animation:floatUp linear infinite; z-index:0; }
+    @keyframes floatUp { 0%{transform:translateY(110vh) rotate(0)} 100%{transform:translateY(-15vh) rotate(360deg)} }
+
+    /* ── Header ── */
+    #header {
+      width:100%; display:flex; justify-content:space-between; align-items:center;
+      padding:clamp(10px,2.5vw,16px) clamp(14px,4vw,22px) 0;
+      flex-shrink:0; position:relative; z-index:1;
+    }
+    #tier-badge { font-size:clamp(13px,3.2vw,18px); padding:5px 14px; border-radius:20px;
+      font-weight:bold; border:2px solid rgba(255,255,255,.3); transition:background .35s; }
+    .tier-easy   { background:linear-gradient(135deg,#f06292,#c2185b); color:#fff; }
+    .tier-medium { background:linear-gradient(135deg,#ffca28,#f57f17); color:#3e2000; }
+    .tier-hard   { background:linear-gradient(135deg,#ce93d8,#6a1b9a); color:#fff; }
+    #score-label { font-size:clamp(14px,3.5vw,19px); color:#ffd700; font-weight:bold;
+      text-shadow:0 1px 4px rgba(0,0,0,.4); position:relative; z-index:1; }
+    #round-label { font-size:clamp(13px,3.2vw,17px); color:rgba(255,255,255,.9); position:relative; z-index:1; }
+
+    /* ── Progress bar ── */
+    #progress-wrap { width:100%; padding:6px clamp(14px,4vw,22px) 0; flex-shrink:0; position:relative; z-index:1; }
+    #progress-track { background:rgba(255,255,255,.18); border-radius:20px; height:clamp(8px,2vw,12px); overflow:hidden; }
+    #progress-fill  { height:100%; border-radius:20px; background:linear-gradient(90deg,#f48fb1,#ce93d8);
+      transition:width .35s ease; width:0%; box-shadow:0 0 8px rgba(244,143,177,.4); }
+
+    /* ── Word card ── */
+    #scene-wrap {
+      flex-shrink:0; display:flex; flex-direction:column; align-items:center;
+      padding:clamp(8px,2vw,14px) 16px clamp(4px,1vw,8px);
+      position:relative; z-index:1;
+    }
+    #scene-card {
+      background:rgba(255,255,255,.95); border-radius:28px;
+      padding:clamp(10px,2.5vw,18px) clamp(20px,5vw,36px);
+      display:flex; flex-direction:column; align-items:center; gap:8px;
+      box-shadow:0 6px 30px rgba(0,0,0,.28), 0 0 0 3px rgba(244,143,177,.45);
+      min-width:clamp(220px,70vw,340px);
+    }
+    #scene-card.pop { animation:cardPop .45s cubic-bezier(.34,1.56,.64,1); }
+    @keyframes cardPop { from{transform:scale(.65);opacity:0} to{transform:scale(1);opacity:1} }
+
+    #word-emoji { font-size:clamp(60px,15vw,90px); line-height:1.1; }
+    #blank-word {
+      display:flex; align-items:center; gap:clamp(4px,1.5vw,8px);
+      font-size:clamp(32px,9vw,52px); color:#4a148c; letter-spacing:2px; line-height:1.1;
+    }
+    .letter-fixed { color:#4a148c; }
+    .letter-blank {
+      display:inline-flex; align-items:center; justify-content:center;
+      min-width:clamp(36px,9vw,52px); min-height:clamp(38px,9.5vw,54px);
+      background:linear-gradient(135deg,#fce4ec,#f8bbd0);
+      border-radius:10px; border:3px dashed #e91e63;
+      color:#c2185b; font-size:clamp(32px,9vw,52px);
+    }
+
+    #prompt {
+      font-size:clamp(15px,4vw,21px); color:#fff;
+      text-align:center; padding:0 16px;
+      margin-bottom:clamp(4px,1vw,8px);
+      position:relative; z-index:1; text-shadow:0 1px 4px rgba(0,0,0,.5);
+    }
+
+    /* ── Vowel buttons ── */
+    #choices-wrap { flex:1; display:flex; align-items:center; justify-content:center;
+      padding:0 clamp(10px,2.5vw,18px); width:100%; position:relative; z-index:1; }
+    #choices { display:flex; flex-wrap:nowrap; gap:clamp(8px,2vw,12px); width:100%;
+      max-width:460px; justify-content:center; }
+
+    .vowel-btn {
+      flex:1; min-width:clamp(70px,16vw,90px); min-height:clamp(90px,22vw,110px);
+      border-radius:20px; border:3px solid rgba(255,255,255,.4);
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      gap:4px; cursor:pointer;
+      box-shadow:0 4px 16px rgba(0,0,0,.3),inset 0 2px 0 rgba(255,255,255,.25);
+      transition:transform .1s; touch-action:manipulation;
+    }
+    .vowel-btn:active { transform:scale(.90); }
+    .vowel-letter { font-size:clamp(32px,9vw,46px); line-height:1; pointer-events:none; color:#fff;
+      text-shadow:0 2px 6px rgba(0,0,0,.35); }
+    .vowel-hint { font-size:clamp(9px,2.2vw,13px); color:rgba(255,255,255,.85);
+      text-shadow:0 1px 3px rgba(0,0,0,.4); pointer-events:none; text-align:center; }
+
+    .vowel-btn.correct { animation:correctPop .5s ease-out; }
+    .vowel-btn.wrong   { animation:wobble .45s ease-out; }
+    @keyframes correctPop { 0%{transform:scale(1)} 40%{transform:scale(1.14);box-shadow:0 0 40px rgba(255,255,200,.8)} 100%{transform:scale(1)} }
+    @keyframes wobble { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-11px)} 60%{transform:translateX(11px)} 80%{transform:translateX(-6px)} }
+
+    /* ── Sparkles ── */
+    .sp { position:fixed; pointer-events:none; z-index:50; animation:sparkOut .75s ease-out forwards; }
+    @keyframes sparkOut { 0%{transform:scale(0);opacity:1} 100%{transform:scale(1.6);opacity:0} }
+
+    /* ── Overlays ── */
+    .overlay { position:fixed; inset:0; background:rgba(20,0,35,.92);
+      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px;
+      z-index:99; opacity:0; pointer-events:none; transition:opacity .35s; padding:0 22px; }
+    .overlay.show { opacity:1; pointer-events:all; }
+    .ov-emoji { font-size:clamp(60px,17vw,100px); }
+    .ov-title { font-size:clamp(22px,6.5vw,44px); color:#ffd700; text-align:center; }
+    .ov-sub   { font-size:clamp(14px,3.8vw,21px); color:#f8bbd0; text-align:center; opacity:.9; }
+    .ov-word  { font-size:clamp(28px,8vw,46px); color:#ffd700; letter-spacing:4px; text-align:center;
+      background:rgba(255,255,255,.1); border-radius:16px; padding:10px 22px; }
+    .ov-fact  { font-size:clamp(13px,3.2vw,17px); color:#f3e5f5; text-align:center; opacity:.9;
+      background:rgba(255,255,255,.08); border-radius:14px; padding:10px 16px; max-width:360px; }
+    .btn-next {
+      padding:clamp(14px,4vw,20px) clamp(30px,7.5vw,52px); font-size:clamp(18px,5vw,26px);
+      border-radius:50px; border:none; background:linear-gradient(135deg,#ffd700,#ff8c00);
+      color:#5d2e00; font-weight:bold; cursor:pointer; font-family:inherit;
+      min-height:64px; min-width:180px; box-shadow:0 4px 18px rgba(255,180,0,.5);
+      touch-action:manipulation;
+    }
+
+    .cf { position:fixed; pointer-events:none; z-index:100; border-radius:3px;
+      animation:cfFall linear forwards; }
+    @keyframes cfFall { 0%{top:-20px;opacity:1;transform:rotate(0)} 100%{top:110vh;opacity:.2;transform:rotate(720deg)} }
+  </style>
+</head>
+<body>
+
+<div id="header">
+  <div id="tier-badge" class="tier-easy">🌸 Easy</div>
+  <div id="score-label">⭐ 0</div>
+  <div id="round-label">1 / 18</div>
+</div>
+<div id="progress-wrap">
+  <div id="progress-track"><div id="progress-fill"></div></div>
+</div>
+
+<div id="scene-wrap">
+  <div id="scene-card">
+    <div id="word-emoji">🐱</div>
+    <div id="blank-word">
+      <span class="letter-fixed">C</span>
+      <span class="letter-blank" id="blank-slot">_</span>
+      <span class="letter-fixed">T</span>
+    </div>
+  </div>
+</div>
+
+<div id="prompt">What vowel fills the blank? 🌟</div>
+
+<div id="choices-wrap">
+  <div id="choices"></div>
+</div>
+
+<!-- celebrate overlay (per correct answer) -->
+<div class="overlay" id="cel-overlay">
+  <div class="ov-emoji" id="cel-emoji">🌸</div>
+  <div class="ov-title" id="cel-title">Amazing!</div>
+  <div class="ov-word"  id="cel-word">C-A-T</div>
+  <div class="ov-fact"  id="cel-fact">Fun fact here!</div>
+  <button class="btn-next" id="cel-btn">Tap to continue ➡️</button>
+</div>
+
+<!-- tier transition overlay -->
+<div class="overlay" id="tier-overlay">
+  <div class="ov-emoji">🎉</div>
+  <div class="ov-title">Level Up! ✨</div>
+  <div class="ov-sub" id="tier-sub">Next tier!</div>
+  <button class="btn-next" id="tier-btn">Keep going! 🌟</button>
+</div>
+
+<!-- win overlay -->
+<div class="overlay" id="win-overlay">
+  <div class="ov-emoji">👑</div>
+  <div class="ov-title">Vowel Master! 🌸</div>
+  <div class="ov-sub" id="win-sub">You scored 18 ⭐ out of 18!</div>
+  <button class="btn-next" onclick="startGame()">Play Again 🔄</button>
+</div>
+
+<script>
+// ── Audio ─────────────────────────────────────────────────────────────────────
+let audioCtx=null;
+function getAudio(){ if(!audioCtx) audioCtx=new(window.AudioContext||window.webkitAudioContext)(); return audioCtx; }
+function tone(f,type,d,v){
+  v=v||.16;
+  try{
+    const c=getAudio(),o=c.createOscillator(),g=c.createGain();
+    o.connect(g); g.connect(c.destination);
+    o.type=type; o.frequency.value=f;
+    g.gain.setValueAtTime(v,c.currentTime);
+    g.gain.exponentialRampToValueAtTime(.001,c.currentTime+d);
+    o.start(); o.stop(c.currentTime+d);
+  }catch(e){}
+}
+function playCorrect()  { [523,659,784,1047].forEach((f,i)=>setTimeout(()=>tone(f,'sine',.18,.2),i*70)); }
+function playWrong()    { tone(260,'sawtooth',.18,.13); setTimeout(()=>tone(210,'sawtooth',.14,.1),160); }
+function playTierUp()   { [523,659,784,880,1047,1319].forEach((f,i)=>setTimeout(()=>tone(f,'triangle',.28,.2),i*90)); }
+function playFinalWin() { [523,659,784,1047,784,1047,1319].forEach((f,i)=>setTimeout(()=>tone(f,'sine',.32,.22),i*95)); }
+
+// ── Vowel config ──────────────────────────────────────────────────────────────
+const VOWELS = {
+  A: { color:'#e91e63', bg:'rgba(233,30,99,.22)', hint:'Apple' },
+  E: { color:'#f9a825', bg:'rgba(249,168,37,.22)', hint:'Egg' },
+  I: { color:'#1976d2', bg:'rgba(25,118,210,.22)', hint:'Igloo' },
+  O: { color:'#388e3c', bg:'rgba(56,142,60,.22)', hint:'Olive' },
+  U: { color:'#7b1fa2', bg:'rgba(123,31,162,.22)', hint:'Umbrella' },
+};
+
+// ── Word pools (8 per tier, 6 chosen per game) ─────────────────────────────────
+const POOLS = [
+  // EASY (3 vowel choices: A, E, I)
+  [
+    { blank:'C_T', word:'CAT', vowel:'A', emoji:'🐱', fact:'CAT has a short /a/ sound — like in APPLE!' },
+    { blank:'B_T', word:'BAT', vowel:'A', emoji:'🦇', fact:'BAT rhymes with CAT — both have the /a/ sound!' },
+    { blank:'H_N', word:'HEN', vowel:'E', emoji:'🐓', fact:'HEN has a short /e/ sound — like in EGG!' },
+    { blank:'B_D', word:'BED', vowel:'E', emoji:'🛏️', fact:'BED has a short /e/ sound — like in ECHO!' },
+    { blank:'P_G', word:'PIG', vowel:'I', emoji:'🐷', fact:'PIG has a short /i/ sound — like in IGLOO!' },
+    { blank:'F_N', word:'FIN', vowel:'I', emoji:'🐟', fact:'FIN rhymes with PIN — both have the /i/ sound!' },
+    { blank:'T_P', word:'TAP', vowel:'A', emoji:'🚿', fact:'TAP has a short /a/ sound — like in ANT!' },
+    { blank:'N_T', word:'NET', vowel:'E', emoji:'🕸️', fact:'NET has a short /e/ sound — like in ENTER!' },
+  ],
+  // MEDIUM (4 vowel choices: A, E, I, O)
+  [
+    { blank:'D_G', word:'DOG', vowel:'O', emoji:'🐕', fact:'DOG has a short /o/ sound — like in OCTOPUS!' },
+    { blank:'P_T', word:'POT', vowel:'O', emoji:'🪴', fact:'POT has a short /o/ sound — like in OLIVE!' },
+    { blank:'F_X', word:'FOX', vowel:'O', emoji:'🦊', fact:'FOX has a short /o/ sound — rhymes with BOX!' },
+    { blank:'M_P', word:'MAP', vowel:'A', emoji:'🗺️', fact:'MAP has a short /a/ sound — like in APPLE!' },
+    { blank:'G_M', word:'GEM', vowel:'E', emoji:'💎', fact:'GEM has a short /e/ sound — like in EGG!' },
+    { blank:'K_D', word:'KID', vowel:'I', emoji:'🧒', fact:'KID has a short /i/ sound — like in INSECT!' },
+    { blank:'H_T', word:'HOT', vowel:'O', emoji:'🔥', fact:'HOT has a short /o/ sound — rhymes with POT!' },
+    { blank:'S_T', word:'SIT', vowel:'I', emoji:'🪑', fact:'SIT has a short /i/ sound — like in INN!' },
+  ],
+  // HARD (5 vowel choices: A, E, I, O, U)
+  [
+    { blank:'B_N', word:'BUN', vowel:'U', emoji:'🍞', fact:'BUN has a short /u/ sound — like in UMBRELLA!' },
+    { blank:'C_P', word:'CUP', vowel:'U', emoji:'☕', fact:'CUP has a short /u/ sound — rhymes with PUP!' },
+    { blank:'S_N', word:'SUN', vowel:'U', emoji:'☀️', fact:'SUN has a short /u/ sound — rhymes with RUN!' },
+    { blank:'M_D', word:'MUD', vowel:'U', emoji:'💧', fact:'MUD has a short /u/ sound — like in UNDER!' },
+    { blank:'B_G', word:'BUG', vowel:'U', emoji:'🐛', fact:'BUG has a short /u/ sound — rhymes with HUG!' },
+    { blank:'J_G', word:'JUG', vowel:'U', emoji:'🫗', fact:'JUG has a short /u/ sound — like in UP!' },
+    { blank:'R_N', word:'RUN', vowel:'U', emoji:'🏃', fact:'RUN has a short /u/ sound — rhymes with SUN!' },
+    { blank:'T_B', word:'TUB', vowel:'U', emoji:'🛁', fact:'TUB has a short /u/ sound — rhymes with CUB!' },
+  ],
+];
+
+const TIER_VOWELS = [
+  ['A','E','I'],
+  ['A','E','I','O'],
+  ['A','E','I','O','U'],
+];
+const TIER_LABELS = ['🌸 Easy','🌼 Medium','🌟 Hard'];
+const TIER_CLS    = ['tier-easy','tier-medium','tier-hard'];
+const TOTAL = 18;
+
+const PROMPTS = [
+  'What vowel fills the blank? 🌟',
+  'Which vowel is hiding? 👑',
+  'Tap the missing sound! ✨',
+  'Help Princess find the vowel! 🌸',
+  'Which letter belongs in the gap? 💎',
+];
+
+let round=0, score=0, locked=false, currentWord=null, gameOrder=[];
+
+function shuffle(a){ const b=[...a]; for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];} return b; }
+function getTierIdx(r){ return r<=6?0:r<=12?1:2; }
+
+function startGame(){
+  ['win-overlay','cel-overlay','tier-overlay'].forEach(id=>document.getElementById(id).classList.remove('show'));
+  round=0; score=0; locked=false;
+  gameOrder=[
+    ...shuffle(POOLS[0]).slice(0,6),
+    ...shuffle(POOLS[1]).slice(0,6),
+    ...shuffle(POOLS[2]).slice(0,6),
+  ];
+  makeBgFloats();
+  nextRound();
+}
+
+function nextRound(){
+  ['cel-overlay','tier-overlay'].forEach(id=>document.getElementById(id).classList.remove('show'));
+  if(round>=TOTAL){ endGame(); return; }
+  round++; locked=false;
+  updateHUD();
+
+  currentWord=gameOrder[round-1];
+  const tierIdx=getTierIdx(round);
+  const vowelSet=TIER_VOWELS[tierIdx];
+
+  // Update card
+  const card=document.getElementById('scene-card');
+  card.classList.remove('pop'); void card.offsetWidth; card.classList.add('pop');
+  document.getElementById('word-emoji').textContent=currentWord.emoji;
+
+  // Build blank word display
+  const blankEl=document.getElementById('blank-word');
+  blankEl.innerHTML='';
+  currentWord.blank.split('').forEach(ch=>{
+    const span=document.createElement('span');
+    if(ch==='_'){
+      span.className='letter-blank'; span.id='blank-slot'; span.textContent='_';
+    } else {
+      span.className='letter-fixed'; span.textContent=ch;
+    }
+    blankEl.appendChild(span);
+  });
+
+  // Prompt
+  document.getElementById('prompt').textContent=PROMPTS[Math.floor(Math.random()*PROMPTS.length)];
+
+  // Build vowel buttons
+  const choicesEl=document.getElementById('choices');
+  choicesEl.innerHTML='';
+  const shuffledVowels=shuffle([...vowelSet]);
+  shuffledVowels.forEach(v=>{
+    const cfg=VOWELS[v];
+    const btn=document.createElement('button');
+    btn.className='vowel-btn';
+    btn.style.background=cfg.bg;
+    btn.style.borderColor=cfg.color+'88';
+    btn.innerHTML=
+      '<span class="vowel-letter" style="color:'+cfg.color+'">'+v+'</span>'+
+      '<span class="vowel-hint">'+cfg.hint+'</span>';
+    btn.addEventListener('pointerdown',()=>handleTap(btn,v===currentWord.vowel));
+    choicesEl.appendChild(btn);
+  });
+}
+
+function handleTap(btn,ok){
+  if(locked) return;
+  try{getAudio().resume();}catch(e){}
+  if(ok){
+    locked=true; score++;
+    btn.classList.add('correct');
+    playCorrect();
+    updateHUD();
+    // Fill in blank slot
+    const slot=document.getElementById('blank-slot');
+    if(slot){ slot.textContent=currentWord.vowel; slot.style.background='linear-gradient(135deg,#c8e6c9,#a5d6a7)'; slot.style.borderColor='#4caf50'; slot.style.color='#1b5e20'; }
+    const r=btn.getBoundingClientRect();
+    burst(r.left+r.width/2, r.top+r.height/2);
+    setTimeout(()=>{ btn.classList.remove('correct'); showCelebrate(); },550);
+  } else {
+    btn.classList.add('wrong');
+    playWrong();
+    setTimeout(()=>btn.classList.remove('wrong'),450);
+  }
+}
+
+function showCelebrate(){
+  const tierIdx=getTierIdx(round);
+  const nextTierIdx=getTierIdx(round+1);
+  const isTierEnd=(round<TOTAL && nextTierIdx>tierIdx);
+
+  document.getElementById('cel-emoji').textContent=currentWord.emoji;
+  const msgs=['Amazing! 🌟','You got it! 👑','Brilliant! ✨','Yes! 💎','Wonderful! 🌸','Perfect! 🎀'];
+  document.getElementById('cel-title').textContent=msgs[Math.floor(Math.random()*msgs.length)];
+  document.getElementById('cel-word').textContent=currentWord.word.split('').join('-');
+  document.getElementById('cel-fact').textContent=currentWord.fact;
+  document.getElementById('cel-btn').onclick=()=>{
+    document.getElementById('cel-overlay').classList.remove('show');
+    if(isTierEnd) showTierTransition(nextTierIdx);
+    else nextRound();
+  };
+  document.getElementById('cel-overlay').classList.add('show');
+}
+
+function showTierTransition(nextTierIdx){
+  playTierUp(); confetti(42);
+  document.getElementById('tier-sub').textContent=TIER_LABELS[nextTierIdx]+' — more vowels to discover!';
+  document.getElementById('tier-btn').onclick=nextRound;
+  document.getElementById('tier-overlay').classList.add('show');
+}
+
+function endGame(){
+  document.getElementById('win-sub').textContent='You scored '+score+' ⭐ out of '+TOTAL+'! Vowel master! 🌸';
+  document.getElementById('win-overlay').classList.add('show');
+  playFinalWin(); confetti(60); setTimeout(()=>confetti(42),700);
+}
+
+function updateHUD(){
+  const tierIdx=getTierIdx(round);
+  const badge=document.getElementById('tier-badge');
+  badge.textContent=TIER_LABELS[tierIdx]; badge.className=TIER_CLS[tierIdx];
+  document.getElementById('round-label').textContent=round+' / '+TOTAL;
+  document.getElementById('score-label').textContent='⭐ '+score;
+  document.getElementById('progress-fill').style.width=((round-1)/TOTAL*100)+'%';
+}
+
+// ── Particles ─────────────────────────────────────────────────────────────────
+function burst(cx,cy){
+  const cols=['#ffd700','#f48fb1','#fff','#ce93d8','#80deea','#ffe082'];
+  const icons=['✨','💫','⭐','🌟','💎','👑','🌸','🎀'];
+  for(let i=0;i<22;i++){
+    const el=document.createElement('div'); el.className='sp';
+    const a=Math.random()*Math.PI*2, dist=30+Math.random()*85, sz=7+Math.random()*10;
+    if(i<8){
+      el.style.cssText='left:'+(cx+Math.cos(a)*dist)+'px;top:'+(cy+Math.sin(a)*dist)+'px;font-size:'+(18+Math.random()*10)+'px;background:none;border-radius:0;';
+      el.textContent=icons[i%icons.length];
+    } else {
+      el.style.cssText='left:'+(cx+Math.cos(a)*dist-sz/2)+'px;top:'+(cy+Math.sin(a)*dist-sz/2)+'px;width:'+sz+'px;height:'+sz+'px;background:'+cols[i%cols.length]+';border-radius:50%;';
+    }
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(),800);
+  }
+}
+
+function confetti(count){
+  const cols=['#f48fb1','#ffd700','#fff','#f8bbd0','#ce93d8','#80deea','#ffe082','#ff8a65'];
+  for(let i=0;i<count;i++){
+    const el=document.createElement('div'); el.className='cf';
+    const sz=6+Math.random()*10;
+    el.style.cssText='left:'+Math.random()*100+'vw;top:-20px;width:'+sz+'px;height:'+sz+'px;background:'+cols[i%cols.length]+';animation-duration:'+(1.4+Math.random()*2)+'s;animation-delay:'+Math.random()*.5+'s';
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(),3500);
+  }
+}
+
+function makeBgFloats(){
+  document.querySelectorAll('.bg-float').forEach(e=>e.remove());
+  const icons=['🌸','✨','💫','💎','⭐','👑','🎀','🌟','🔮','🦋','🌺','💜','🌈','🪄'];
+  for(let i=0;i<14;i++){
+    const el=document.createElement('div'); el.className='bg-float';
+    el.textContent=icons[i%icons.length];
+    el.style.left=(4+Math.random()*92)+'vw';
+    el.style.animationDuration=(10+Math.random()*14)+'s';
+    el.style.animationDelay=-(Math.random()*14)+'s';
+    document.body.appendChild(el);
+  }
+}
+
+startGame();
+</script>
+</body>
+</html>
