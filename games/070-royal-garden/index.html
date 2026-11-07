@@ -317,7 +317,7 @@
     badge.textContent = tier.label; badge.className = 'tier-badge ' + tier.cls;
     document.getElementById('round-label').textContent = (round+1) + ' / ' + TOTAL;
     document.getElementById('progress-fill').style.width = (round / TOTAL * 100) + '%';
-    document.getElementById('score-label').textContent = score > 0 ? '⭐'.repeat(Math.min(score,9)) : '';
+    document.getElementById('score-label').textContent = score + ' ⭐';
   }
 
   // ── Build round ──────────────────────────────────────────
@@ -445,13 +445,13 @@
     const cx = r.left + r.width/2, cy = r.top + r.height/2;
     const cols = ['#69f0ae','#ffd700','#f48fb1','#80deea','#fff','#a5d6a7'];
     const ems  = ['✨','🌸','🌿','🍃','⭐','💫','🌱','🌷','🍀','🌺','💎','🌟'];
-    for (let i = 0; i < 20; i++) {
+    for (let i = 0; i < 22; i++) {
       const el = document.createElement('div'); el.className='sp';
       const a=Math.random()*Math.PI*2, d=30+Math.random()*80, sz=6+Math.random()*11;
       el.style.cssText=`left:${cx+Math.cos(a)*d-sz/2}px;top:${cy+Math.sin(a)*d-sz/2}px;width:${sz}px;height:${sz}px;background:${cols[i%cols.length]}`;
       document.body.appendChild(el); setTimeout(()=>el.remove(),800);
     }
-    for (let i = 0; i < 12; i++) {
+    for (let i = 0; i < 14; i++) {
       const el = document.createElement('div'); el.className='sp-em';
       el.textContent = ems[i%ems.length];
       el.style.cssText=`left:${cx+(Math.random()-.5)*120}px;top:${cy+(Math.random()-.5)*100}px;animation-delay:${Math.random()*.25}s`;
@@ -472,7 +472,7 @@
   // ── Background floaters ──────────────────────────────────
   function makeBg() {
     const icons = ['🌸','🌿','🍃','🌱','🌷','🍀','🌺','🦋','🐝','🌻'];
-    for (let i=0; i<12; i++) {
+    for (let i=0; i<14; i++) {
       const el=document.createElement('div'); el.className='bg-float';
       el.textContent=icons[i%icons.length];
       el.style.left=(4+Math.random()*92)+'vw';

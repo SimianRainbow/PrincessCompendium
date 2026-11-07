@@ -1,9 +1,9 @@
 # Princess Compendium — Status
 
 ## Last update run
-Date: 2026-11-04
-- Improved: `068-royal-animal-kingdom` → v1.1.0 (pool 6→8 per tier; added Cat/Peacock/Whale/Pufferfish/Snake/Cricket; burst 20→22 + 6→8 emoji; bg gems 12→14)
-- Added: `087-vowel-quest` — "Vowel Quest 🔮" teaching short vowel recognition (A/E/I/O/U); CVC word with blank, tap the missing vowel; 24-word pool (8 per tier); 18 rounds (3 tiers)
+Date: 2026-11-07
+- Improved: `070-royal-garden` → v1.1.0 (score label "X ⭐" format; sparkle 20→22 dots + 12→14 emojis; bg floaters 12→14)
+- Added: `088-action-stars` — "Action Stars ⭐" teaching action verb recognition (RUNNING/JUMPING/DANCING/SWIMMING/SLEEPING/EATING/FLYING/CLIMBING/SINGING/SKIPPING); animated emoji actor + word buttons; 10 actions; 18 rounds (3 tiers)
 
 ## Improvement history
 
@@ -78,6 +78,7 @@ Date: 2026-11-04
 | 2026-10-31 | 083-teen-tower | Number word display (ELEVEN…NINETEEN) in celebrate overlay, pool 8→10 per tier, prompts 5→8, sparkle 20→22 emoji + 18→20 dots | 1.1.0 |
 | 2026-11-01 | 060-princess-fractions | FRACTION_FACTS in celebrate overlay, pool 6→8 per tier, rounds 9→12 (4/tier), sparkle 18→22 + 5→6 emoji, bg gems 10→12 | 1.1.0 |
 | 2026-11-04 | 068-royal-animal-kingdom | Pool 6→8 per tier (Cat/Peacock/Whale/Pufferfish/Snake/Cricket), burst 20→22 + 6→8 emoji, bg gems 12→14 | 1.1.0 |
+| 2026-11-07 | 070-royal-garden | Score label "X ⭐" format, sparkle 20→22 dots + 12→14 emojis, bg floaters 12→14 | 1.1.0 |
 
 ## Games due for improvement (all at v1.0.0)
 
@@ -155,5 +156,8 @@ See `CLAUDE.md` for the full prioritised list. Top 3 to build next:
 49. **Digraph recognition (CH, SH, TH, WH)** — ✅ covered by `086-digraph-discovery`
 50. **Short vowel recognition (a/e/i/o/u)** — ✅ covered by `087-vowel-quest`
 
+50. **Short vowel recognition (a/e/i/o/u)** — ✅ covered by `087-vowel-quest`
+51. **Action verb recognition (running, jumping, dancing…)** — ✅ covered by `088-action-stars`
+
 ## Next game ID
-`088-<slug>`
+`089-<slug>`

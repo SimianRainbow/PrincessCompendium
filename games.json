@@ -835,7 +835,7 @@
     "ageMin": 2,
     "ageMax": 5,
     "skill": "plant parts recognition — seed, root, stem, leaf, flower, fruit",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "category": "other",
     "path": "games/070-royal-garden/index.html"
   },
@@ -1042,5 +1042,17 @@
     "version": "1.0.0",
     "category": "letters",
     "path": "games/087-vowel-quest/index.html"
+  },
+  {
+    "id": "088-action-stars",
+    "title": "Action Stars",
+    "description": "What is Princess doing? See the action and tap the right word — RUNNING, JUMPING, DANCING, SWIMMING and more! 10 actions across 3 tiers, 18 rounds.",
+    "icon": "⭐",
+    "ageMin": 2,
+    "ageMax": 5,
+    "skill": "action verb recognition — running, jumping, dancing, swimming and more",
+    "version": "1.0.0",
+    "category": "other",
+    "path": "games/088-action-stars/index.html"
   }
 ]

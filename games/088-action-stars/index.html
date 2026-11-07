@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Action Stars ⭐</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+    body {
+      min-height:100vh;
+      background:linear-gradient(160deg,#4a148c 0%,#7b1fa2 45%,#9c27b0 100%);
+      font-family:'Fredoka One',Georgia,serif;
+      display:flex; flex-direction:column; align-items:center;
+      overflow:hidden; user-select:none; touch-action:manipulation;
+    }
+
+    .bg-float { position:fixed; pointer-events:none; animation:bgFloat linear infinite; opacity:.12; font-size:clamp(18px,4.5vw,28px); }
+    @keyframes bgFloat { 0%{transform:translateY(110vh) rotate(0deg)} 100%{transform:translateY(-15vh) rotate(360deg)} }
+
+    /* Header */
+    #header {
+      width:100%; display:flex; justify-content:space-between; align-items:center;
+      padding:clamp(10px,2.8vw,16px) clamp(14px,4vw,22px) 0;
+      flex-shrink:0; position:relative; z-index:10;
+    }
+    #tier-badge { font-size:clamp(13px,3.4vw,18px); padding:5px 15px; border-radius:20px; font-weight:bold; }
+    .tier-easy   { background:linear-gradient(135deg,#b39ddb,#7e57c2); color:#fff; }
+    .tier-medium { background:linear-gradient(135deg,#ffe082,#ffd54f); color:#4a148c; }
+    .tier-hard   { background:linear-gradient(135deg,#f48fb1,#e91e63); color:#fff; }
+    #round-label { font-size:clamp(13px,3.2vw,17px); color:rgba(255,255,255,.9); }
+    #score-label { font-size:clamp(16px,4vw,22px); color:#ffd700; text-shadow:0 0 10px rgba(255,215,0,.6); min-width:50px; text-align:right; }
+
+    /* Progress bar */
+    #progress-wrap { width:100%; padding:6px clamp(14px,4vw,22px) 0; flex-shrink:0; position:relative; z-index:10; }
+    #progress-track { background:rgba(255,255,255,.18); border-radius:20px; height:clamp(8px,2vw,12px); overflow:hidden; }
+    #progress-fill  { height:100%; border-radius:20px; background:linear-gradient(90deg,#ce93d8,#ffd700); transition:width .35s ease; width:0%; }
+
+    /* Prompt */
+    #prompt-wrap {
+      width:100%; text-align:center; flex-shrink:0;
+      padding:clamp(8px,2vw,14px) 16px clamp(2px,0.5vw,6px);
+      position:relative; z-index:10;
+    }
+    #prompt-text {
+      font-size:clamp(18px,4.8vw,30px); color:#fff;
+      text-shadow:0 2px 12px rgba(0,0,0,.55); line-height:1.25;
+    }
+
+    /* Action display */
+    #action-wrap {
+      flex-shrink:0; display:flex; flex-direction:column; justify-content:center; align-items:center;
+      position:relative; z-index:10;
+      padding:clamp(4px,1vw,8px) 20px;
+      width:100%;
+    }
+    #action-stage {
+      width:clamp(140px,42vw,200px); height:clamp(140px,42vw,200px);
+      border-radius:50%; display:flex; align-items:center; justify-content:center;
+      position:relative; overflow:visible;
+      box-shadow:0 4px 32px rgba(0,0,0,.35);
+    }
+    #action-emoji {
+      font-size:clamp(72px,20vw,110px); line-height:1;
+      display:block; position:relative; z-index:2;
+    }
+    .fx-particle { position:absolute; pointer-events:none; font-size:clamp(16px,4vw,22px); animation:fxFloat 1.4s ease-out infinite; }
+    @keyframes fxFloat { 0%{transform:translateY(0) scale(1);opacity:1} 100%{transform:translateY(-55px) scale(0);opacity:0} }
+
+    /* Action animations */
+    @keyframes actionRun  { 0%,100%{transform:translateX(-10px) scaleX(1)} 50%{transform:translateX(10px) scaleX(-1)} }
+    @keyframes actionJump { 0%,100%{transform:translateY(0)} 40%{transform:translateY(-24px)} 60%{transform:translateY(-16px)} }
+    @keyframes actionSwim { 0%,100%{transform:translateX(-8px) rotate(-5deg)} 50%{transform:translateX(8px) rotate(5deg)} }
+    @keyframes actionDance{ 0%,100%{transform:rotate(-10deg) scale(1)} 50%{transform:rotate(10deg) scale(1.08)} }
+    @keyframes actionSleep{ 0%,100%{transform:scale(1)} 50%{transform:scale(1.04)} }
+    @keyframes actionEat  { 0%,100%{transform:scale(1)} 25%{transform:scale(1.12) translateY(-6px)} 50%{transform:scale(.95) translateY(2px)} }
+    @keyframes actionFly  { 0%,100%{transform:translateY(0) rotate(-5deg)} 50%{transform:translateY(-18px) rotate(5deg)} }
+    @keyframes actionClimb{ 0%,100%{transform:translateY(6px)} 50%{transform:translateY(-6px)} }
+    @keyframes actionSing { 0%,100%{transform:scale(1)} 50%{transform:scale(1.1)} }
+    @keyframes actionSkip { 0%,100%{transform:translateY(0) translateX(-8px)} 25%{transform:translateY(-18px) translateX(0)} 50%{transform:translateY(0) translateX(8px)} 75%{transform:translateY(-10px) translateX(0)} }
+
+    .anim-run   { animation:actionRun   0.6s ease-in-out infinite; }
+    .anim-jump  { animation:actionJump  0.6s ease-in-out infinite; }
+    .anim-swim  { animation:actionSwim  0.8s ease-in-out infinite; }
+    .anim-dance { animation:actionDance 0.7s ease-in-out infinite; }
+    .anim-sleep { animation:actionSleep 2s ease-in-out infinite; }
+    .anim-eat   { animation:actionEat   0.8s ease-in-out infinite; }
+    .anim-fly   { animation:actionFly   1.2s ease-in-out infinite; }
+    .anim-climb { animation:actionClimb 0.65s ease-in-out infinite; }
+    .anim-sing  { animation:actionSing  0.5s ease-in-out infinite; }
+    .anim-skip  { animation:actionSkip  0.75s ease-in-out infinite; }
+
+    /* Choices */
+    #choices-row {
+      flex:1; display:flex; align-items:center; justify-content:center; flex-wrap:wrap;
+      gap:clamp(8px,2.5vw,14px);
+      padding:clamp(8px,2vw,12px) clamp(10px,2.5vw,16px) clamp(10px,2.5vw,18px);
+      width:100%; max-width:480px; position:relative; z-index:10;
+    }
+    .choice-btn {
+      width:clamp(100px,28vw,130px); height:clamp(90px,24vw,118px);
+      border-radius:22px; border:3px solid rgba(255,255,255,.3);
+      cursor:pointer; display:flex; flex-direction:column;
+      align-items:center; justify-content:center; gap:4px;
+      backdrop-filter:blur(4px);
+      box-shadow:0 4px 22px rgba(0,0,0,.4);
+      transition:transform .1s; touch-action:manipulation;
+      padding:8px 6px;
+    }
+    .choice-btn:active { transform:scale(.9); }
+    .choice-btn .cb-emoji { font-size:clamp(28px,8vw,42px); line-height:1; pointer-events:none; }
+    .choice-btn .cb-name  { font-size:clamp(11px,3vw,16px); color:#fff; text-shadow:0 1px 5px rgba(0,0,0,.55); pointer-events:none; text-align:center; font-weight:bold; letter-spacing:.5px; }
+    .choice-btn.correct { animation:cPop .5s ease-out; border-color:#ffd700; }
+    @keyframes cPop { 0%{transform:scale(1)} 40%{transform:scale(1.14);box-shadow:0 0 55px rgba(255,215,0,.85)} 100%{transform:scale(1)} }
+    .choice-btn.wrong   { animation:wShake .42s ease-out; background:rgba(255,60,60,.22) !important; }
+    @keyframes wShake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-12px)} 60%{transform:translateX(12px)} }
+
+    /* Sparkles */
+    .sp    { position:fixed; pointer-events:none; z-index:50; border-radius:50%; animation:spOut .75s ease-out forwards; }
+    @keyframes spOut { 0%{transform:scale(0);opacity:1} 100%{transform:scale(1.6);opacity:0} }
+    .sp-em { position:fixed; pointer-events:none; z-index:51; font-size:clamp(18px,4.5vw,26px); animation:spFloat .9s ease-out forwards; }
+    @keyframes spFloat { 0%{transform:translateY(0) scale(1);opacity:1} 100%{transform:translateY(-85px) scale(0);opacity:0} }
+
+    /* Celebrate overlay */
+    #cel-overlay {
+      position:fixed; inset:0; background:rgba(20,0,40,.92);
+      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px;
+      z-index:95; opacity:0; pointer-events:none; transition:opacity .35s;
+    }
+    #cel-overlay.show { opacity:1; pointer-events:all; }
+    #cel-icon  { font-size:clamp(68px,17vw,108px); animation:bigPop .4s ease-out; }
+    @keyframes bigPop { 0%{transform:scale(.3)} 60%{transform:scale(1.25)} 100%{transform:scale(1)} }
+    #cel-msg   { font-size:clamp(18px,4.8vw,28px); color:#ce93d8; text-shadow:0 0 12px rgba(206,147,216,.6); }
+    #cel-name  { font-size:clamp(22px,6vw,38px); color:#ffd700; text-align:center; text-shadow:0 0 20px rgba(255,215,0,.7); }
+    #cel-fact  { font-size:clamp(13px,3.4vw,18px); color:rgba(255,255,255,.9); text-align:center;
+                 padding:6px 24px; max-width:360px; line-height:1.45; background:rgba(255,255,255,.1);
+                 border-radius:14px; }
+    #cel-btn {
+      padding:clamp(14px,4vw,20px) clamp(36px,9vw,60px); font-size:clamp(18px,4.8vw,26px);
+      border-radius:50px; border:none; background:linear-gradient(135deg,#ce93d8,#ffd700);
+      color:#4a148c; font-weight:bold; cursor:pointer; font-family:inherit;
+      box-shadow:0 4px 20px rgba(206,147,216,.4); touch-action:manipulation; margin-top:4px;
+    }
+
+    /* Tier overlay */
+    #tier-overlay {
+      position:fixed; inset:0; background:rgba(20,0,40,.82);
+      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px;
+      z-index:99; opacity:0; pointer-events:none; transition:opacity .4s;
+    }
+    #tier-overlay.show { opacity:1; pointer-events:all; }
+    #to-icon  { font-size:clamp(60px,16vw,96px); }
+    #to-title { font-size:clamp(24px,6.5vw,44px); color:#ffd700; text-shadow:0 0 20px rgba(255,215,0,.7); text-align:center; padding:0 20px; }
+    #to-sub   { font-size:clamp(15px,4vw,22px); color:rgba(255,255,255,.9); text-align:center; padding:0 24px; }
+    #to-btn {
+      padding:clamp(14px,4vw,20px) clamp(36px,9vw,60px); font-size:clamp(18px,4.8vw,26px);
+      border-radius:50px; border:none; background:linear-gradient(135deg,#ce93d8,#ffd700);
+      color:#4a148c; font-weight:bold; cursor:pointer; font-family:inherit;
+      box-shadow:0 4px 20px rgba(206,147,216,.4); touch-action:manipulation;
+    }
+
+    /* Win overlay */
+    #win-overlay {
+      position:fixed; inset:0; background:linear-gradient(160deg,#4a148c 0%,#1a237e 100%);
+      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px;
+      z-index:100; opacity:0; pointer-events:none; transition:opacity .4s;
+    }
+    #win-overlay.show { opacity:1; pointer-events:all; }
+    #win-icon  { font-size:clamp(72px,18vw,110px); animation:winBob 1.2s ease-in-out infinite; }
+    @keyframes winBob { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-14px)} }
+    #win-title { font-size:clamp(26px,7vw,46px); color:#ffd700; text-shadow:0 0 24px rgba(255,215,0,.7); text-align:center; padding:0 20px; }
+    #win-sub   { font-size:clamp(15px,4vw,22px); color:rgba(255,255,255,.9); text-align:center; }
+    #win-btn {
+      padding:clamp(14px,4vw,20px) clamp(36px,9vw,60px); font-size:clamp(18px,4.8vw,26px);
+      border-radius:50px; border:none; background:linear-gradient(135deg,#ce93d8,#f06292);
+      color:#fff; font-weight:bold; cursor:pointer; font-family:inherit;
+      box-shadow:0 4px 22px rgba(206,147,216,.4); touch-action:manipulation;
+    }
+
+    .confetti { position:fixed; pointer-events:none; z-index:101; border-radius:3px; animation:cfFall linear forwards; }
+    @keyframes cfFall { 0%{top:-20px;opacity:1;transform:rotate(0deg)} 100%{top:110vh;opacity:.2;transform:rotate(720deg)} }
+  </style>
+</head>
+<body>
+
+  <div id="header">
+    <div id="tier-badge" class="tier-easy">⭐ Easy</div>
+    <div id="round-label">1 / 18</div>
+    <div id="score-label">0 ⭐</div>
+  </div>
+  <div id="progress-wrap"><div id="progress-track"><div id="progress-fill"></div></div></div>
+
+  <div id="prompt-wrap"><div id="prompt-text">What is Princess doing? ⭐</div></div>
+
+  <div id="action-wrap">
+    <div id="action-stage">
+      <span id="action-emoji">🏃‍♀️</span>
+    </div>
+  </div>
+
+  <div id="choices-row"></div>
+
+  <!-- Celebrate overlay -->
+  <div id="cel-overlay">
+    <div id="cel-icon">⭐</div>
+    <div id="cel-msg">Amazing! 🌟</div>
+    <div id="cel-name">That's RUNNING!</div>
+    <div id="cel-fact">Running is great exercise!</div>
+    <button id="cel-btn">Next Action ➡️</button>
+  </div>
+
+  <!-- Tier overlay -->
+  <div id="tier-overlay">
+    <div id="to-icon">⭐</div>
+    <div id="to-title">Action Star! ⭐</div>
+    <div id="to-sub">Ready for more actions?</div>
+    <button id="to-btn">Let's go! ➡️</button>
+  </div>
+
+  <!-- Win overlay -->
+  <div id="win-overlay">
+    <div id="win-icon">🌟</div>
+    <div id="win-title">Super Action Star! 🌟</div>
+    <div id="win-sub">You know all the action words!</div>
+    <button id="win-btn">Play Again ⭐</button>
+  </div>
+
+<script>
+  // ── Audio ────────────────────────────────────────────────
+  let audioCtx = null;
+  function getAudio() { if (!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)(); return audioCtx; }
+  function tone(f, type, d, v=.18) {
+    try {
+      const c=getAudio(), o=c.createOscillator(), g=c.createGain();
+      o.connect(g); g.connect(c.destination); o.type=type; o.frequency.value=f;
+      g.gain.setValueAtTime(v, c.currentTime);
+      g.gain.exponentialRampToValueAtTime(.001, c.currentTime+d);
+      o.start(); o.stop(c.currentTime+d);
+    } catch(e) {}
+  }
+  function playCorrect()  { [523,659,784,1047].forEach((f,i)=>setTimeout(()=>tone(f,'sine',.18,.22),i*65)); }
+  function playWrong()    { tone(280,'sawtooth',.16,.13); setTimeout(()=>tone(240,'sawtooth',.14,.1),160); }
+  function playTierUp()   { [392,494,587,784,988].forEach((f,i)=>setTimeout(()=>tone(f,'sine',.28,.18),i*85)); }
+  function playWin()      { [523,659,784,1047,784,1047,1319].forEach((f,i)=>setTimeout(()=>tone(f,'sine',.32,.22),i*90)); }
+
+  // ── Action definitions ───────────────────────────────────
+  const ACTIONS = {
+    run: {
+      e:'🏃‍♀️', n:'RUNNING', anim:'anim-run',
+      bg:'linear-gradient(135deg,#ef9a9a,#e53935)',
+      fx:['💨','💨','⭐'],
+      prompts:['What is Princess doing? ⭐','Which action word fits? 🌟','Tap the right word! 👑','Which one is Princess doing? ✨','What action do you see? 💫'],
+      facts:['Running is great exercise for strong legs!','Cheetahs are the fastest runners on Earth!','Running helps your heart stay healthy and strong!'],
+    },
+    jump: {
+      e:'🤸‍♀️', n:'JUMPING', anim:'anim-jump',
+      bg:'linear-gradient(135deg,#80deea,#0097a7)',
+      fx:['⭐','✨','💫'],
+      prompts:['What is Princess doing? ⭐','Which action word fits? 🌟','Tap the right word! 👑','Which one is Princess doing? ✨','What action do you see? 💫'],
+      facts:['Jumping builds strong muscles in your legs!','Kangaroos can jump really high and far!','Jumping rope is a fun way to exercise!'],
+    },
+    dance: {
+      e:'💃', n:'DANCING', anim:'anim-dance',
+      bg:'linear-gradient(135deg,#f8bbd0,#c2185b)',
+      fx:['🎵','♪','⭐'],
+      prompts:['What is Princess doing? ⭐','Which action word fits? 🌟','Tap the right word! 👑','Which one is Princess doing? ✨','What action do you see? 💫'],
+      facts:['Dancing is a wonderful way to express feelings!','Ballerinas practise dancing every single day!','Dancing to music is fun for everyone!'],
+    },
+    swim: {
+      e:'🏊‍♀️', n:'SWIMMING', anim:'anim-swim',
+      bg:'linear-gradient(135deg,#b3e5fc,#0288d1)',
+      fx:['💧','🌊','⭐'],
+      prompts:['What is Princess doing? ⭐','Which action word fits? 🌟','Tap the right word! 👑','Which one is Princess doing? ✨','What action do you see? 💫'],
+      facts:['Fish swim by moving their tails back and forth!','Swimming uses almost every muscle in your body!','Ducks love to swim and dive for food!'],
+    },
+    sleep: {
+      e:'😴', n:'SLEEPING', anim:'anim-sleep',
+      bg:'linear-gradient(135deg,#b39ddb,#4527a0)',
+      fx:['💤','💤','⭐'],
+      prompts:['What is Princess doing? ⭐','Which action word fits? 🌟','Tap the right word! 👑','Which one is Princess doing? ✨','What action do you see? 💫'],
+      facts:['Sleep helps your brain grow and remember things!','Babies need about 16 hours of sleep every day!','Bears sleep all winter — it is called hibernation!'],
+    },
+    eat: {
+      e:'🍎', n:'EATING', anim:'anim-eat',
+      bg:'linear-gradient(135deg,#c8e6c9,#388e3c)',
+      fx:['🍎','✨','⭐'],
+      prompts:['What is Princess doing? ⭐','Which action word fits? 🌟','Tap the right word! 👑','Which one is Princess doing? ✨','What action do you see? 💫'],
+      facts:['Eating healthy foods gives you energy to play!','Fruits and vegetables help you grow big and strong!','Cows eat grass all day long!'],
+    },
+    fly: {
+      e:'🧚‍♀️', n:'FLYING', anim:'anim-fly',
+      bg:'linear-gradient(135deg,#ffe082,#f57f17)',
+      fx:['✨','🌟','⭐'],
+      prompts:['What is Princess doing? ⭐','Which action word fits? 🌟','Tap the right word! 👑','Which one is Princess doing? ✨','What action do you see? 💫'],
+      facts:['Birds flap their wings to fly through the sky!','Butterflies fly from flower to flower!','Fairies use their magical wings to fly!'],
+    },
+    climb: {
+      e:'🧗‍♀️', n:'CLIMBING', anim:'anim-climb',
+      bg:'linear-gradient(135deg,#bcaaa4,#4e342e)',
+      fx:['⭐','💫','🌟'],
+      prompts:['What is Princess doing? ⭐','Which action word fits? 🌟','Tap the right word! 👑','Which one is Princess doing? ✨','What action do you see? 💫'],
+      facts:['Monkeys are expert climbers in the treetops!','Rock climbing builds strong arms and hands!','Squirrels can climb trees very fast!'],
+    },
+    sing: {
+      e:'🎤', n:'SINGING', anim:'anim-sing',
+      bg:'linear-gradient(135deg,#fce4ec,#ad1457)',
+      fx:['🎵','♪','🎶'],
+      prompts:['What is Princess doing? ⭐','Which action word fits? 🌟','Tap the right word! 👑','Which one is Princess doing? ✨','What action do you see? 💫'],
+      facts:['Singing is good for your mood and your heart!','Birds sing to talk to each other!','Singing together is called a choir!'],
+    },
+    skip: {
+      e:'🤾‍♀️', n:'SKIPPING', anim:'anim-skip',
+      bg:'linear-gradient(135deg,#dcedc8,#558b2f)',
+      fx:['⭐','✨','💫'],
+      prompts:['What is Princess doing? ⭐','Which action word fits? 🌟','Tap the right word! 👑','Which one is Princess doing? ✨','What action do you see? 💫'],
+      facts:['Skipping is a fun way to get from place to place!','Skipping uses both sides of your body together!','Skip counting by 2s is a bit like skipping!'],
+    },
+  };
+
+  const TIERS = [
+    {
+      label:'⭐ Easy', cls:'tier-easy',
+      icon:'⭐', title:'Action Star! ⭐', sub:'You know run, jump and dance — ready for more?',
+      pool:['run','jump','dance'], choices:3, rounds:6,
+    },
+    {
+      label:'🌟 Medium', cls:'tier-medium',
+      icon:'🌟', title:'Super Mover! 🌟', sub:'Amazing! Now try swimming, sleeping and eating!',
+      pool:['run','jump','dance','swim','sleep','eat'], choices:4, rounds:6,
+    },
+    {
+      label:'💫 Hard', cls:'tier-hard',
+      icon:'💫', title:'Action Champion! 💫', sub:'You\'re incredible — try flying, climbing, singing and skipping!',
+      pool:['run','jump','dance','swim','sleep','eat','fly','climb','sing','skip'], choices:4, rounds:6,
+    },
+  ];
+
+  const CEL_MSGS = ['Amazing! 🌟','Brilliant! 💫','You got it! 👑','Wonderful! 🌈','Perfect! ✨','Yes! 🎉','Super Star! ⭐'];
+
+  const TOTAL = 18;
+  let round = 0, score = 0, locked = false;
+  let curAnswer = '', curPool = [], tierRoundIdx = 0;
+  let fxInterval = null;
+
+  function shuffle(a) {
+    const b=[...a];
+    for(let i=b.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [b[i],b[j]]=[b[j],b[i]]; }
+    return b;
+  }
+  function pick(arr) { return arr[Math.floor(Math.random()*arr.length)]; }
+
+  function getTierIdx() {
+    let acc = 0;
+    for (let t=0; t<TIERS.length; t++) {
+      acc += TIERS[t].rounds;
+      if (round < acc) return t;
+    }
+    return TIERS.length - 1;
+  }
+
+  function updateHUD() {
+    const tIdx = getTierIdx();
+    const tier = TIERS[tIdx];
+    const badge = document.getElementById('tier-badge');
+    badge.textContent = tier.label; badge.className = 'tier-badge ' + tier.cls;
+    document.getElementById('round-label').textContent = (round+1) + ' / ' + TOTAL;
+    document.getElementById('progress-fill').style.width = (round / TOTAL * 100) + '%';
+    document.getElementById('score-label').textContent = score + ' ⭐';
+  }
+
+  function showRound() {
+    locked = false;
+    if (round >= TOTAL) { endGame(); return; }
+    updateHUD();
+
+    const tIdx = getTierIdx();
+    const tier = TIERS[tIdx];
+
+    curAnswer = pick(tier.pool);
+    const all = Object.keys(ACTIONS);
+    const distractors = shuffle(all.filter(k => k !== curAnswer));
+    const numWrong = tier.choices - 1;
+    curPool = shuffle([curAnswer, ...distractors.slice(0, numWrong)]);
+
+    const act = ACTIONS[curAnswer];
+    document.getElementById('prompt-text').textContent = pick(act.prompts);
+
+    // Animate the action display
+    const stage = document.getElementById('action-stage');
+    stage.style.background = act.bg;
+    const emoji = document.getElementById('action-emoji');
+    emoji.className = '';
+    emoji.textContent = act.e;
+    void emoji.offsetWidth; // reflow to restart animation
+    emoji.className = act.anim;
+
+    // Floating fx particles around stage
+    clearFxParticles();
+    startFx(act.fx);
+
+    buildChoices();
+  }
+
+  let fxEls = [];
+  function clearFxParticles() {
+    if (fxInterval) { clearInterval(fxInterval); fxInterval = null; }
+    fxEls.forEach(e => e.remove()); fxEls = [];
+  }
+  function startFx(icons) {
+    const stage = document.getElementById('action-stage');
+    fxInterval = setInterval(() => {
+      const el = document.createElement('span');
+      el.className = 'fx-particle';
+      el.textContent = icons[Math.floor(Math.random()*icons.length)];
+      const angle = Math.random() * Math.PI * 2;
+      const r = 50 + Math.random() * 30;
+      const cx = 50, cy = 50;
+      el.style.left = (cx + Math.cos(angle)*r - 12) + '%';
+      el.style.top  = (cy + Math.sin(angle)*r - 12) + '%';
+      el.style.animationDelay = '0s';
+      stage.appendChild(el);
+      fxEls.push(el);
+      setTimeout(() => { el.remove(); fxEls = fxEls.filter(x=>x!==el); }, 1500);
+    }, 500);
+  }
+
+  function buildChoices() {
+    const row = document.getElementById('choices-row');
+    row.innerHTML = '';
+    curPool.forEach(key => {
+      const a = ACTIONS[key];
+      const btn = document.createElement('button');
+      btn.className = 'choice-btn';
+      btn.style.background = a.bg;
+      btn.innerHTML = `<span class="cb-emoji">${a.e}</span><span class="cb-name">${a.n}</span>`;
+      btn.addEventListener('pointerdown', () => handleTap(btn, key));
+      row.appendChild(btn);
+    });
+  }
+
+  function handleTap(btn, key) {
+    if (locked) return;
+    if (key === curAnswer) {
+      locked = true;
+      score++;
+      clearFxParticles();
+      btn.classList.add('correct');
+      playCorrect();
+      sparkleBurst(btn);
+      updateHUD();
+      setTimeout(() => showCelebrate(), 500);
+    } else {
+      btn.classList.add('wrong');
+      playWrong();
+      setTimeout(() => btn.classList.remove('wrong'), 450);
+    }
+  }
+
+  function showCelebrate() {
+    const a = ACTIONS[curAnswer];
+    document.getElementById('cel-icon').textContent = a.e;
+    document.getElementById('cel-msg').textContent  = pick(CEL_MSGS);
+    document.getElementById('cel-name').textContent = 'That\'s ' + a.n + '!';
+    document.getElementById('cel-fact').textContent = pick(a.facts);
+    document.getElementById('cel-overlay').classList.add('show');
+    confetti(28);
+  }
+
+  document.getElementById('cel-btn').addEventListener('pointerdown', () => {
+    document.getElementById('cel-overlay').classList.remove('show');
+    advanceRound();
+  });
+
+  function advanceRound() {
+    const prevTier = getTierIdx();
+    round++;
+    if (round >= TOTAL) { endGame(); return; }
+    const newTier = getTierIdx();
+    if (newTier !== prevTier) {
+      showTierOverlay(prevTier);
+    } else {
+      showRound();
+    }
+  }
+
+  function showTierOverlay(prevTier) {
+    const t = TIERS[prevTier];
+    document.getElementById('to-icon').textContent  = t.icon;
+    document.getElementById('to-title').textContent = t.title;
+    document.getElementById('to-sub').textContent   = t.sub;
+    document.getElementById('tier-overlay').classList.add('show');
+    playTierUp();
+    confetti(42);
+  }
+
+  document.getElementById('to-btn').addEventListener('pointerdown', () => {
+    document.getElementById('tier-overlay').classList.remove('show');
+    showRound();
+  });
+
+  function endGame() {
+    clearFxParticles();
+    document.getElementById('progress-fill').style.width = '100%';
+    document.getElementById('win-sub').textContent = score + ' / 18 ⭐  You\'re a Super Action Star!';
+    document.getElementById('win-overlay').classList.add('show');
+    playWin();
+    confetti(60);
+    setTimeout(() => confetti(40), 700);
+  }
+
+  document.getElementById('win-btn').addEventListener('pointerdown', () => {
+    document.getElementById('win-overlay').classList.remove('show');
+    round = 0; score = 0;
+    showRound();
+  });
+
+  function sparkleBurst(btn) {
+    const r  = btn.getBoundingClientRect();
+    const cx = r.left + r.width/2, cy = r.top + r.height/2;
+    const cols = ['#ce93d8','#ffd700','#f48fb1','#b39ddb','#fff','#80deea'];
+    const ems  = ['⭐','🌟','💫','✨','👑','🎵','💃','🏃','⭐','🌟','💫','✨','⭐','🌟'];
+    for (let i = 0; i < 22; i++) {
+      const el = document.createElement('div'); el.className='sp';
+      const a=Math.random()*Math.PI*2, d=30+Math.random()*80, sz=6+Math.random()*11;
+      el.style.cssText=`left:${cx+Math.cos(a)*d-sz/2}px;top:${cy+Math.sin(a)*d-sz/2}px;width:${sz}px;height:${sz}px;background:${cols[i%cols.length]}`;
+      document.body.appendChild(el); setTimeout(()=>el.remove(),800);
+    }
+    for (let i = 0; i < 14; i++) {
+      const el = document.createElement('div'); el.className='sp-em';
+      el.textContent = ems[i%ems.length];
+      el.style.cssText=`left:${cx+(Math.random()-.5)*120}px;top:${cy+(Math.random()-.5)*100}px;animation-delay:${Math.random()*.25}s`;
+      document.body.appendChild(el); setTimeout(()=>el.remove(),1200);
+    }
+  }
+
+  function confetti(n) {
+    const cols=['#ce93d8','#ffd700','#f48fb1','#b39ddb','#fff176','#80deea','#dcedc8','#fff'];
+    for (let i=0; i<n; i++) {
+      const el=document.createElement('div'); el.className='confetti';
+      const sz=6+Math.random()*10;
+      el.style.cssText=`left:${Math.random()*100}vw;width:${sz}px;height:${sz}px;background:${cols[i%cols.length]};animation-duration:${1.4+Math.random()*2}s;animation-delay:${Math.random()*.5}s`;
+      document.body.appendChild(el); setTimeout(()=>el.remove(),3500);
+    }
+  }
+
+  function makeBg() {
+    const icons = ['⭐','🌟','💫','✨','👑','🎵','💃','🏃','⭐','🌟','💫','✨','⭐','🌟'];
+    for (let i=0; i<14; i++) {
+      const el=document.createElement('div'); el.className='bg-float';
+      el.textContent=icons[i%icons.length];
+      el.style.left=(4+Math.random()*92)+'vw';
+      el.style.animationDuration=(9+Math.random()*13)+'s';
+      el.style.animationDelay=-(Math.random()*13)+'s';
+      document.body.appendChild(el);
+    }
+  }
+
+  makeBg();
+  showRound();
+</script>
+</body>
+</html>
