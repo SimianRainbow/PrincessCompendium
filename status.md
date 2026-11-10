@@ -1,9 +1,9 @@
 # Princess Compendium — Status
 
 ## Last update run
-Date: 2026-11-07
-- Improved: `070-royal-garden` → v1.1.0 (score label "X ⭐" format; sparkle 20→22 dots + 12→14 emojis; bg floaters 12→14)
-- Added: `088-action-stars` — "Action Stars ⭐" teaching action verb recognition (RUNNING/JUMPING/DANCING/SWIMMING/SLEEPING/EATING/FLYING/CLIMBING/SINGING/SKIPPING); animated emoji actor + word buttons; 10 actions; 18 rounds (3 tiers)
+Date: 2026-11-10
+- Improved: `072-royal-coins` → v1.1.0 (pool expanded 9→18 rounds, 6 per tier; sparkle burst 20→22 emoji + 10→12 dots; bg floaters 12→14; win overlay shows score / 18)
+- Added: `089-animal-sounds` — "Royal Animal Sounds 🐄" teaching animal sound word recognition (MOO/WOOF/MEOW/QUACK/OINK/NEIGH/RIBBIT/BAA/BUZZ/HOOT/HISS/ROAR); 12 animals across 3 tiers; tap sound word → find matching animal; 18 rounds
 
 ## Improvement history
 
@@ -79,6 +79,7 @@ Date: 2026-11-07
 | 2026-11-01 | 060-princess-fractions | FRACTION_FACTS in celebrate overlay, pool 6→8 per tier, rounds 9→12 (4/tier), sparkle 18→22 + 5→6 emoji, bg gems 10→12 | 1.1.0 |
 | 2026-11-04 | 068-royal-animal-kingdom | Pool 6→8 per tier (Cat/Peacock/Whale/Pufferfish/Snake/Cricket), burst 20→22 + 6→8 emoji, bg gems 12→14 | 1.1.0 |
 | 2026-11-07 | 070-royal-garden | Score label "X ⭐" format, sparkle 20→22 dots + 12→14 emojis, bg floaters 12→14 | 1.1.0 |
+| 2026-11-10 | 072-royal-coins | Pool expanded 9→18 rounds (6/tier), sparkle 20→22 emoji + 10→12 dots, bg floaters 12→14 | 1.1.0 |
 
 ## Games due for improvement (all at v1.0.0)
 
@@ -158,6 +159,7 @@ See `CLAUDE.md` for the full prioritised list. Top 3 to build next:
 
 50. **Short vowel recognition (a/e/i/o/u)** — ✅ covered by `087-vowel-quest`
 51. **Action verb recognition (running, jumping, dancing…)** — ✅ covered by `088-action-stars`
+52. **Animal sound word recognition (MOO, WOOF, MEOW…)** — ✅ covered by `089-animal-sounds`
 
 ## Next game ID
-`089-<slug>`
+`090-<slug>`

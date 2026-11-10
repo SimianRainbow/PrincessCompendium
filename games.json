@@ -859,7 +859,7 @@
     "ageMin": 3,
     "ageMax": 6,
     "skill": "coin recognition — penny, nickel, dime, quarter",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "category": "numbers",
     "path": "games/072-royal-coins/index.html"
   },
@@ -1054,5 +1054,17 @@
     "version": "1.0.0",
     "category": "other",
     "path": "games/088-action-stars/index.html"
+  },
+  {
+    "id": "089-animal-sounds",
+    "title": "Royal Animal Sounds",
+    "description": "What animal says MOO? See the sound word and tap the right animal — COW, DOG, CAT, DUCK, PIG, OWL and more! 12 animals across 3 tiers, 18 rounds.",
+    "icon": "🐄",
+    "ageMin": 2,
+    "ageMax": 5,
+    "skill": "animal sound word recognition — MOO, WOOF, MEOW, QUACK and more",
+    "version": "1.0.0",
+    "category": "animals",
+    "path": "games/089-animal-sounds/index.html"
   }
 ]

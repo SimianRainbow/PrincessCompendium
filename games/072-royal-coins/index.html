@@ -328,19 +328,21 @@
     { label:'⭐ Hard',   cls:'tier-hard',   coins:['penny','nickel','dime','quarter'], icon:'👑', title:'Coin Royal!', sub:'' },
   ];
 
-  var ROUND_LIST = [
-    { coin:'penny',   tier:0 },
-    { coin:'quarter', tier:0 },
-    { coin:'penny',   tier:0 },
-    { coin:'nickel',  tier:1 },
-    { coin:'penny',   tier:1 },
-    { coin:'dime',    tier:1 },
-    { coin:'quarter', tier:2 },
-    { coin:'dime',    tier:2 },
-    { coin:'nickel',  tier:2 },
+  var POOL = [
+    [ {coin:'penny',tier:0},{coin:'penny',tier:0},{coin:'penny',tier:0},
+      {coin:'quarter',tier:0},{coin:'quarter',tier:0},{coin:'quarter',tier:0},
+      {coin:'penny',tier:0},{coin:'quarter',tier:0} ],
+    [ {coin:'penny',tier:1},{coin:'penny',tier:1},
+      {coin:'nickel',tier:1},{coin:'nickel',tier:1},
+      {coin:'dime',tier:1},{coin:'dime',tier:1},
+      {coin:'penny',tier:1},{coin:'nickel',tier:1} ],
+    [ {coin:'penny',tier:2},{coin:'nickel',tier:2},
+      {coin:'dime',tier:2},{coin:'quarter',tier:2},
+      {coin:'dime',tier:2},{coin:'quarter',tier:2},
+      {coin:'penny',tier:2},{coin:'nickel',tier:2} ]
   ];
 
-  var TOTAL = 9;
+  var TOTAL = 18;
   var rounds = [], cur = 0, score = 0, locked = false;
 
   // ── Shuffle ───────────────────────────────────────────────────────────────────
@@ -354,11 +356,11 @@
 
   function buildRounds() {
     var out = [];
-    // Shuffle within each tier
-    var easy   = shuffle(ROUND_LIST.filter(function(r){ return r.tier===0; }));
-    var medium = shuffle(ROUND_LIST.filter(function(r){ return r.tier===1; }));
-    var hard   = shuffle(ROUND_LIST.filter(function(r){ return r.tier===2; }));
-    return easy.concat(medium).concat(hard);
+    for (var t = 0; t < 3; t++) {
+      var pool = shuffle(POOL[t].slice()).slice(0, 6);
+      out = out.concat(pool);
+    }
+    return out;
   }
 
   // ── Render HUD ────────────────────────────────────────────────────────────────
@@ -489,7 +491,7 @@
   function showWin() {
     document.getElementById('progress-fill').style.width = '100%';
     document.getElementById('score-display').textContent = score + ' ⭐';
-    document.getElementById('win-sub').textContent = score + ' / 9 ⭐ — You know all the royal coins!';
+    document.getElementById('win-sub').textContent = score + ' / 18 ⭐ — You know all the royal coins!';
     document.getElementById('win-overlay').classList.add('show');
     playCelebrate();
     confettiBurst(60);
@@ -500,11 +502,11 @@
   function sparkleBurst(x, y) {
     var ems  = ['✨','💫','⭐','🪙','🌟','👑','💎'];
     var cols = ['#ffd700','#f48fb1','#ce93d8','#80deea','#a5d6a7','#ffab91','#fff'];
-    for (var i = 0; i < 20; i++) {
+    for (var i = 0; i < 22; i++) {
       var el = document.createElement('span');
       el.className = 'sparkle';
       el.textContent = ems[i % ems.length];
-      var angle = (i / 20) * Math.PI * 2;
+      var angle = (i / 22) * Math.PI * 2;
       var dist  = 50 + Math.random() * 90;
       el.style.left = (x + Math.cos(angle) * dist) + 'px';
       el.style.top  = (y + Math.sin(angle) * dist) + 'px';
@@ -513,7 +515,7 @@
       document.body.appendChild(el);
       setTimeout((function(e){ return function(){ e.remove(); }; })(el), 1200);
     }
-    for (var j = 0; j < 10; j++) {
+    for (var j = 0; j < 12; j++) {
       var dot = document.createElement('div');
       dot.className = 'spark-dot';
       var a2 = Math.random() * Math.PI * 2;
@@ -545,7 +547,7 @@
   // ── Background floaters ───────────────────────────────────────────────────────
   function makeBg() {
     var items = ['🪙','✨','💰','⭐','💫','👑','💎','🌟','🟡','🟠'];
-    for (var i = 0; i < 12; i++) {
+    for (var i = 0; i < 14; i++) {
       var el = document.createElement('div');
       el.className = 'bg-coin';
       el.textContent = items[i % items.length];
