@@ -1,9 +1,9 @@
 # Princess Compendium — Status
 
 ## Last update run
-Date: 2026-11-10
-- Improved: `072-royal-coins` → v1.1.0 (pool expanded 9→18 rounds, 6 per tier; sparkle burst 20→22 emoji + 10→12 dots; bg floaters 12→14; win overlay shows score / 18)
-- Added: `089-animal-sounds` — "Royal Animal Sounds 🐄" teaching animal sound word recognition (MOO/WOOF/MEOW/QUACK/OINK/NEIGH/RIBBIT/BAA/BUZZ/HOOT/HISS/ROAR); 12 animals across 3 tiers; tap sound word → find matching animal; 18 rounds
+Date: 2026-11-13
+- Improved: `071-number-words` → v1.1.0 (added ZERO to pool; expanded 9→12 rounds (4 per tier); sparkle 20→22 emoji + 10→12 dots; bg floaters 12→14; progress bar uses rounds.length; gemStr shows 📦 for zero)
+- Added: `090-farm-magic` — "Princess Farm Magic 🌾" teaching food origins (milk→cow, honey→bee, bread→wheat, silk→silkworm, paper→tree…); 18 items across 3 tiers; 18 rounds; tap source from 3 choices
 
 ## Improvement history
 
@@ -80,6 +80,7 @@ Date: 2026-11-10
 | 2026-11-04 | 068-royal-animal-kingdom | Pool 6→8 per tier (Cat/Peacock/Whale/Pufferfish/Snake/Cricket), burst 20→22 + 6→8 emoji, bg gems 12→14 | 1.1.0 |
 | 2026-11-07 | 070-royal-garden | Score label "X ⭐" format, sparkle 20→22 dots + 12→14 emojis, bg floaters 12→14 | 1.1.0 |
 | 2026-11-10 | 072-royal-coins | Pool expanded 9→18 rounds (6/tier), sparkle 20→22 emoji + 10→12 dots, bg floaters 12→14 | 1.1.0 |
+| 2026-11-13 | 071-number-words | Added ZERO, expanded 9→12 rounds (4/tier), sparkle 20→22 + 10→12 dots, bg 12→14, gemStr for 0 | 1.1.0 |
 
 ## Games due for improvement (all at v1.0.0)
 
@@ -160,6 +161,7 @@ See `CLAUDE.md` for the full prioritised list. Top 3 to build next:
 50. **Short vowel recognition (a/e/i/o/u)** — ✅ covered by `087-vowel-quest`
 51. **Action verb recognition (running, jumping, dancing…)** — ✅ covered by `088-action-stars`
 52. **Animal sound word recognition (MOO, WOOF, MEOW…)** — ✅ covered by `089-animal-sounds`
+53. **Food origins (where everyday foods come from)** — ✅ covered by `090-farm-magic`
 
 ## Next game ID
-`090-<slug>`
+`091-<slug>`

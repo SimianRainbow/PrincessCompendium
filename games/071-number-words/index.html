@@ -285,6 +285,8 @@
 
   // ── Data ──────────────────────────────────────────────────────────────────────
   var POOL = [
+    { word:'ZERO',  num:0,  tier:0,
+      fact:'ZERO 📦 means nothing at all — an empty treasure chest! Every big journey starts from zero! ✨' },
     { word:'ONE',   num:1,  tier:0,
       fact:'ONE ✨ is the very FIRST number of all! Every journey begins with one step! 👣' },
     { word:'TWO',   num:2,  tier:0,
@@ -308,7 +310,7 @@
   ];
 
   var TIER_INFO = [
-    { label:'🌱 Easy',   cls:'tier-easy',   numbers:[1,2,3],       cols:3,
+    { label:'🌱 Easy',   cls:'tier-easy',   numbers:[0,1,2,3],     cols:3,
       icon:'⭐', title:'Level Up!',         sub:'Numbers 4, 5, 6 and 7 coming up! 🔢' },
     { label:'💫 Medium', cls:'tier-medium', numbers:[4,5,6,7],     cols:3,
       icon:'👑', title:'Almost There!',     sub:'Big numbers 8, 9 and 10! 🌟' },
@@ -338,15 +340,14 @@
   // ── Build round list ──────────────────────────────────────────────────────────
   function buildRounds(){
     var out=[];
-    // Easy: ONE, TWO, THREE (exactly 3)
-    var easy = POOL.filter(function(p){ return p.tier===0; });
-    shuffle(easy).forEach(function(p){ out.push(p); });
-    // Medium: pick 3 from FOUR/FIVE/SIX/SEVEN
-    var med = shuffle(POOL.filter(function(p){ return p.tier===1; })).slice(0,3);
-    med.forEach(function(p){ out.push(p); });
-    // Hard: EIGHT, NINE, TEN (exactly 3)
-    var hard = POOL.filter(function(p){ return p.tier===2; });
-    shuffle(hard).forEach(function(p){ out.push(p); });
+    // Easy: ZERO, ONE, TWO, THREE (all 4)
+    shuffle(POOL.filter(function(p){ return p.tier===0; })).forEach(function(p){ out.push(p); });
+    // Medium: all 4 from FOUR/FIVE/SIX/SEVEN
+    shuffle(POOL.filter(function(p){ return p.tier===1; })).forEach(function(p){ out.push(p); });
+    // Hard: EIGHT, NINE, TEN (3), then repeat a random one for 4th round
+    var hard=shuffle(POOL.filter(function(p){ return p.tier===2; }));
+    hard.forEach(function(p){ out.push(p); });
+    out.push(hard[0|Math.random()*hard.length]); // 4th round repeat
     return out;
   }
 
@@ -368,6 +369,7 @@
 
   // ── Gem string helper ─────────────────────────────────────────────────────────
   function gemStr(n){
+    if(n===0) return '📦 (empty!)';
     var s='';
     for(var i=0;i<n&&i<10;i++){
       if(i===5) s+='<br>';
@@ -386,8 +388,8 @@
     var badge=document.getElementById('tier-badge');
     badge.textContent=ti.label; badge.className=ti.cls;
     document.getElementById('score-display').textContent=score+' ⭐';
-    document.getElementById('round-label').textContent=(cur+1)+' / 9';
-    document.getElementById('progress-fill').style.width=((cur/9)*100)+'%';
+    document.getElementById('round-label').textContent=(cur+1)+' / 12';
+    document.getElementById('progress-fill').style.width=((cur/rounds.length)*100)+'%';
   }
 
   // ── Button color palettes ─────────────────────────────────────────────────────
@@ -479,7 +481,7 @@
   function doNext(){
     document.getElementById('celebrate').classList.remove('show');
     var next=cur+1;
-    if(next>=9){ showWin(); return; }
+    if(next>=rounds.length){ showWin(); return; }
     if(rounds[next].tier!==rounds[cur].tier){
       showTierOverlay(rounds[cur].tier);
     } else {
@@ -505,7 +507,7 @@
   // ── Win ───────────────────────────────────────────────────────────────────────
   function showWin(){
     document.getElementById('progress-fill').style.width='100%';
-    document.getElementById('win-sub').textContent=score+' / 9 ⭐ — You know all the number words! 🔢';
+    document.getElementById('win-sub').textContent=score+' / 12 ⭐ — You know all the number words! 🔢';
     document.getElementById('win-overlay').classList.add('show');
     playCelebrate(); confettiBurst(60);
     setTimeout(function(){ confettiBurst(42); },700);
@@ -515,10 +517,10 @@
   function sparkleBurst(x,y){
     var ems=['✨','💫','⭐','💎','🌟','👑','🔢','🌸'];
     var cols=['#ffd700','#f48fb1','#ce93d8','#80deea','#a5d6a7','#ffab91','#fff'];
-    for(var i=0;i<20;i++){
+    for(var i=0;i<22;i++){
       var el=document.createElement('span'); el.className='sparkle';
       el.textContent=ems[i%ems.length];
-      var angle=(i/20)*Math.PI*2, dist=50+Math.random()*90;
+      var angle=(i/22)*Math.PI*2, dist=50+Math.random()*90;
       el.style.left=(x+Math.cos(angle)*dist)+'px';
       el.style.top=(y+Math.sin(angle)*dist)+'px';
       el.style.animationDelay=(Math.random()*.14)+'s';
@@ -526,7 +528,7 @@
       document.body.appendChild(el);
       setTimeout((function(e){ return function(){ e.remove(); }; })(el),1200);
     }
-    for(var j=0;j<10;j++){
+    for(var j=0;j<12;j++){
       var dot=document.createElement('div'); dot.className='spark-dot';
       var a2=Math.random()*Math.PI*2, d2=20+Math.random()*60, sz=5+Math.random()*9;
       dot.style.cssText='width:'+sz+'px;height:'+sz+'px;left:'+(x-sz/2)+'px;top:'+(y-sz/2)+'px;'
@@ -552,8 +554,8 @@
 
   // ── Background ────────────────────────────────────────────────────────────────
   function makeBg(){
-    var items=['💎','✨','⭐','🔢','💫','👑','🌟','1','2','3','4','5'];
-    for(var i=0;i<12;i++){
+    var items=['💎','✨','⭐','🔢','💫','👑','🌟','1','2','3','4','5','0','6','7'];
+    for(var i=0;i<14;i++){
       var el=document.createElement('div'); el.className='bg-gem';
       el.textContent=items[i%items.length];
       el.style.left=(5+Math.random()*90)+'vw';
