@@ -106,7 +106,8 @@
       display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px;
       z-index:98; opacity:0; pointer-events:none; transition:opacity .35s;
     }
-    #celebrate-overlay.show { opacity:1; pointer-events:all; }
+    #celebrate-overlay.show { opacity:1; pointer-events:all; cursor:pointer; }
+    .cel-cont { font-size:clamp(13px,3.2vw,18px); color:rgba(255,255,255,.65); margin-top:4px; }
     .cel-eq   { font-size:clamp(34px,9vw,60px); color:#ffd700; text-shadow:0 0 30px rgba(255,215,0,.7); }
     .cel-fact { font-size:clamp(17px,4.3vw,27px); color:#f8bbd0; text-align:center; padding:0 24px; line-height:1.35; }
     .cel-msg  { font-size:clamp(22px,5.5vw,34px); color:#ff4081; }
@@ -163,6 +164,7 @@
     <div class="cel-eq"   id="cel-eq">1 + 1 = 2</div>
     <div class="cel-fact" id="cel-fact"></div>
     <div class="cel-msg"  id="cel-msg">Brilliant! 🌟</div>
+    <div class="cel-cont">Tap to continue 👆</div>
   </div>
 
   <div class="overlay" id="tier-overlay">
@@ -324,12 +326,14 @@
       document.getElementById('cel-msg').textContent  = CEL_MSGS[Math.floor(Math.random()*CEL_MSGS.length)];
       const cel = document.getElementById('celebrate-overlay');
       cel.classList.add('show');
-      setTimeout(()=>{
+      const advance = () => {
         cel.classList.remove('show');
+        cel.removeEventListener('pointerdown', advance);
         btn.classList.remove('correct');
         roundIdx++;
         if (roundIdx>=ROUNDS_PER_TIER) tierComplete(); else showQuestion();
-      }, 1400);
+      };
+      cel.addEventListener('pointerdown', advance);
     } else {
       btn.classList.add('wrong');
       playWrong();
@@ -354,6 +358,7 @@
     } else {
       playWin();
       confetti(42);
+      setTimeout(()=>confetti(40), 400);
       setTimeout(()=>{
         document.getElementById('final-score').textContent = '⭐ '+score+' / 18 — Double Champion!';
         document.getElementById('win-overlay').classList.add('show');
@@ -378,13 +383,13 @@
     const r=el.getBoundingClientRect(), cx=r.left+r.width/2, cy=r.top+r.height/2;
     const cols=['#ffd700','#ff4081','#f48fb1','#fff','#ce93d8','#80deea','#e040fb'];
     const icons=['✨','💫','⭐','🌟','💎','🔮'];
-    for (let i=0; i<20; i++) {
+    for (let i=0; i<22; i++) {
       const s=document.createElement('div'); s.className='sparkle';
       const a=Math.random()*Math.PI*2, dist=30+Math.random()*80, sz=6+Math.random()*10;
       s.style.cssText=`left:${cx+Math.cos(a)*dist-sz/2}px;top:${cy+Math.sin(a)*dist-sz/2}px;width:${sz}px;height:${sz}px;background:${cols[i%cols.length]}`;
       document.body.appendChild(s); setTimeout(()=>s.remove(),750);
     }
-    for (let i=0; i<8; i++) {
+    for (let i=0; i<10; i++) {
       const s=document.createElement('div'); s.className='sparkle-emoji';
       const a=Math.random()*Math.PI*2, dist=44+Math.random()*70;
       s.style.cssText=`left:${cx+Math.cos(a)*dist}px;top:${cy+Math.sin(a)*dist}px;font-size:${20+Math.random()*12}px`;

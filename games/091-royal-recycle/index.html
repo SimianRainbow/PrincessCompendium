@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Princess Recycle Castle 🌿</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+    body {
+      min-height:100vh; width:100vw; overflow:hidden;
+      background:linear-gradient(160deg,#1b5e20 0%,#2e7d32 40%,#1a237e 100%);
+      font-family:'Fredoka One',Georgia,serif; user-select:none;
+      display:flex; flex-direction:column; align-items:center;
+    }
+    .bg-floater { position:fixed; pointer-events:none; opacity:.08; animation:floatUp linear infinite; font-size:clamp(18px,5vw,32px); }
+    @keyframes floatUp { 0%{transform:translateY(110vh) rotate(-15deg)} 100%{transform:translateY(-15vh) rotate(15deg)} }
+
+    #header {
+      width:100%; display:flex; justify-content:space-between; align-items:center;
+      padding:clamp(10px,2.5vw,16px) clamp(14px,4vw,22px) 0;
+      position:relative; z-index:10; flex-shrink:0;
+    }
+    #tier-badge { font-size:clamp(13px,3.2vw,18px); padding:5px 15px; border-radius:20px; font-weight:bold; }
+    .tier-easy   { background:linear-gradient(135deg,#a5d6a7,#66bb6a); color:#1b5e20; }
+    .tier-medium { background:linear-gradient(135deg,#ffe082,#ffd54f); color:#5a3000; }
+    .tier-hard   { background:linear-gradient(135deg,#ce93d8,#ab47bc); color:#fff; }
+    #round-label { font-size:clamp(13px,3.2vw,17px); color:rgba(255,255,255,.85); }
+    #score-label { font-size:clamp(16px,4vw,22px); color:#ffd700; text-shadow:0 0 10px rgba(255,215,0,.6); }
+
+    #progress-wrap { width:100%; padding:6px clamp(14px,4vw,22px) 0; flex-shrink:0; }
+    #progress-track { background:rgba(255,255,255,.15); border-radius:20px; height:clamp(10px,2.5vw,14px); overflow:hidden; }
+    #progress-fill  { height:100%; border-radius:20px; background:linear-gradient(90deg,#69f0ae,#ffd700); transition:width .35s; width:0%; box-shadow:0 0 8px rgba(100,255,150,.5); }
+
+    #prompt-wrap { width:100%; max-width:460px; padding:clamp(6px,1.5vw,10px) 16px 0; text-align:center; flex-shrink:0; }
+    #prompt-text { font-size:clamp(16px,4vw,24px); color:#f8bbd0; text-shadow:0 2px 8px rgba(0,0,0,.5); line-height:1.25; }
+
+    #item-display {
+      display:flex; flex-direction:column; align-items:center; gap:4px;
+      padding:clamp(6px,1.5vw,12px) 0 0;
+      flex-shrink:0; z-index:5; position:relative;
+    }
+    #item-emoji { font-size:clamp(64px,17vw,96px); line-height:1; }
+    #item-name  { font-size:clamp(20px,5vw,30px); color:#fff; text-shadow:0 2px 8px rgba(0,0,0,.5); }
+
+    #bins-grid {
+      display:grid; grid-template-columns:1fr 1fr;
+      gap:clamp(8px,2.5vw,14px); width:100%; max-width:460px;
+      padding:clamp(8px,2vw,14px) clamp(14px,4vw,22px) clamp(10px,2.5vw,18px);
+      flex:1; align-content:center;
+    }
+    .bin-btn {
+      border-radius:20px; border:3px solid rgba(255,255,255,.25);
+      padding:clamp(8px,2vw,14px) 8px;
+      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px;
+      cursor:pointer; min-height:clamp(90px,22vw,120px);
+      font-family:'Fredoka One',Georgia,serif;
+      box-shadow:0 4px 16px rgba(0,0,0,.35); transition:transform .1s;
+      touch-action:manipulation;
+    }
+    .bin-btn:active { transform:scale(.92); }
+    .bin-emoji { font-size:clamp(26px,7vw,42px); line-height:1; pointer-events:none; }
+    .bin-name  { font-size:clamp(14px,3.5vw,20px); color:#fff; text-shadow:0 1px 4px rgba(0,0,0,.5); pointer-events:none; }
+    .bin-btn.correct { animation:binPop .5s ease-out; border-color:rgba(255,215,0,.8); box-shadow:0 0 28px rgba(255,215,0,.5); }
+    .bin-btn.wrong   { animation:wobble .5s ease-out; }
+    @keyframes binPop { 0%{transform:scale(1)} 40%{transform:scale(1.1)} 70%{transform:scale(.97)} 100%{transform:scale(1)} }
+    @keyframes wobble { 0%{transform:translateX(0)} 20%{transform:translateX(-10px)} 40%{transform:translateX(10px)} 60%{transform:translateX(-7px)} 80%{transform:translateX(7px)} 100%{transform:translateX(0)} }
+
+    .sparkle       { position:fixed; pointer-events:none; z-index:50; border-radius:50%; animation:sparkOut .7s ease-out forwards; }
+    .sparkle-emoji { position:fixed; pointer-events:none; z-index:50; animation:sparkOut .8s ease-out forwards; }
+    @keyframes sparkOut { 0%{transform:scale(0);opacity:1} 100%{transform:scale(1.5);opacity:0} }
+
+    #celebrate-overlay {
+      position:fixed; inset:0; background:rgba(10,40,10,.88);
+      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px;
+      z-index:98; opacity:0; pointer-events:none; transition:opacity .35s; cursor:pointer;
+    }
+    #celebrate-overlay.show { opacity:1; pointer-events:all; }
+    .cel-item { font-size:clamp(54px,15vw,88px); line-height:1; }
+    .cel-eq   { font-size:clamp(18px,4.5vw,28px); color:#69f0ae; text-align:center; padding:0 20px; }
+    .cel-fact { font-size:clamp(15px,3.8vw,22px); color:#f8bbd0; text-align:center; padding:0 24px; line-height:1.35; }
+    .cel-msg  { font-size:clamp(20px,5vw,30px); color:#ffd700; }
+    .cel-cont { font-size:clamp(13px,3.2vw,18px); color:rgba(255,255,255,.65); margin-top:4px; }
+
+    .overlay {
+      position:fixed; inset:0; background:rgba(10,40,10,.92);
+      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px;
+      z-index:99; opacity:0; pointer-events:none; transition:opacity .4s;
+    }
+    .overlay.show { opacity:1; pointer-events:all; }
+    .ov-emoji { font-size:clamp(60px,17vw,100px); }
+    .ov-title { font-size:clamp(22px,6vw,42px); color:#ffd700; text-align:center; padding:0 20px; }
+    .ov-sub   { font-size:clamp(14px,3.8vw,22px); color:#f8bbd0; text-align:center; padding:0 20px; }
+    .ov-score { font-size:clamp(18px,4.5vw,26px); color:#ffd700; }
+    .btn-next {
+      padding:clamp(14px,4vw,20px) clamp(28px,7vw,50px); font-size:clamp(18px,4.5vw,26px);
+      border-radius:50px; border:none; background:linear-gradient(135deg,#69f0ae,#ffd700);
+      color:#1b5e20; font-weight:bold; cursor:pointer; font-family:inherit;
+      min-height:64px; min-width:160px; touch-action:manipulation;
+    }
+    .confetti { position:fixed; pointer-events:none; z-index:100; border-radius:3px; animation:cfFall linear forwards; }
+    @keyframes cfFall { 0%{top:-20px;opacity:1;transform:rotate(0deg)} 100%{top:110vh;opacity:.2;transform:rotate(720deg)} }
+  </style>
+</head>
+<body>
+
+  <div id="header">
+    <div id="tier-badge" class="tier-easy">🌱 Easy</div>
+    <div id="round-label">Round 1 / 18</div>
+    <div id="score-label">⭐ 0</div>
+  </div>
+  <div id="progress-wrap">
+    <div id="progress-track"><div id="progress-fill"></div></div>
+  </div>
+  <div id="prompt-wrap"><div id="prompt-text">Which bin does this go in? ♻️</div></div>
+
+  <div id="item-display">
+    <div id="item-emoji">🍾</div>
+    <div id="item-name">Glass Bottle</div>
+  </div>
+
+  <div id="bins-grid"></div>
+
+  <div id="celebrate-overlay">
+    <div class="cel-item" id="cel-item">🍾</div>
+    <div class="cel-eq"   id="cel-eq">Glass Bottle → 🫙 Glass</div>
+    <div class="cel-fact" id="cel-fact"></div>
+    <div class="cel-msg"  id="cel-msg">Great recycling! 🌍</div>
+    <div class="cel-cont">Tap to continue 👆</div>
+  </div>
+
+  <div class="overlay" id="tier-overlay">
+    <div class="ov-emoji" id="ov-emoji">🌿</div>
+    <div class="ov-title" id="ov-title">Great sorting!</div>
+    <div class="ov-sub"   id="ov-sub">Ready for the next bin challenge?</div>
+    <button class="btn-next" id="tier-btn">Next Level ➡️</button>
+  </div>
+
+  <div class="overlay" id="win-overlay">
+    <div class="ov-emoji">🌍</div>
+    <div class="ov-title">Princess Recycler! 🌿</div>
+    <div class="ov-sub">You can sort ALL the rubbish! The planet says thank you! 💚</div>
+    <div class="ov-score" id="final-score">⭐ 0</div>
+    <button class="btn-next" onclick="startGame()">Play Again 🌸</button>
+  </div>
+
+<script>
+  let audioCtx = null;
+  function getAudio() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); return audioCtx; }
+  function tone(f, type, d, v=.18) {
+    try {
+      const c=getAudio(), o=c.createOscillator(), g=c.createGain();
+      o.connect(g); g.connect(c.destination);
+      o.type=type; o.frequency.value=f;
+      g.gain.setValueAtTime(v, c.currentTime);
+      g.gain.exponentialRampToValueAtTime(.001, c.currentTime+d);
+      o.start(); o.stop(c.currentTime+d);
+    } catch(e) {}
+  }
+  function playCorrect() { [523,659,784,1047].forEach((f,i)=>setTimeout(()=>tone(f,'sine',.15,.2),i*65)); }
+  function playWrong()   { tone(280,'sawtooth',.18,.15); setTimeout(()=>tone(230,'sawtooth',.15,.12),160); }
+  function playTierUp()  { [523,659,784,880,1047].forEach((f,i)=>setTimeout(()=>tone(f,'triangle',.25,.2),i*75)); }
+  function playWin()     { [523,659,784,1047,784,1047,1319,1047,1319,1568].forEach((f,i)=>setTimeout(()=>tone(f,'sine',.28,.22),i*90)); }
+
+  const BINS = [
+    { id:'glass',   emoji:'🫙', name:'Glass',   bg:'linear-gradient(135deg,#0288d1,#01579b)' },
+    { id:'paper',   emoji:'📄', name:'Paper',   bg:'linear-gradient(135deg,#43a047,#1b5e20)' },
+    { id:'plastic', emoji:'🧴', name:'Plastic', bg:'linear-gradient(135deg,#fb8c00,#bf360c)' },
+    { id:'metal',   emoji:'🥫', name:'Metal',   bg:'linear-gradient(135deg,#78909c,#37474f)' },
+  ];
+
+  const TIERS = [
+    {
+      label:'🌱 Easy', cls:'tier-easy',
+      items:[
+        { emoji:'🍾', name:'Glass Bottle',   bin:'glass'   },
+        { emoji:'📰', name:'Newspaper',       bin:'paper'   },
+        { emoji:'🧴', name:'Plastic Bottle',  bin:'plastic' },
+        { emoji:'🥫', name:'Tin Can',         bin:'metal'   },
+        { emoji:'🫙', name:'Glass Jar',       bin:'glass'   },
+        { emoji:'📦', name:'Cardboard Box',   bin:'paper'   },
+      ],
+    },
+    {
+      label:'⭐ Medium', cls:'tier-medium',
+      items:[
+        { emoji:'💡', name:'Light Bulb',      bin:'glass'   },
+        { emoji:'🛍️', name:'Plastic Bag',     bin:'plastic' },
+        { emoji:'🍴', name:'Metal Fork',       bin:'metal'   },
+        { emoji:'✉️', name:'Envelope',         bin:'paper'   },
+        { emoji:'🥤', name:'Plastic Cup',      bin:'plastic' },
+        { emoji:'🔑', name:'Metal Key',        bin:'metal'   },
+      ],
+    },
+    {
+      label:'💫 Hard', cls:'tier-hard',
+      items:[
+        { emoji:'🪞', name:'Mirror',           bin:'glass'   },
+        { emoji:'🧻', name:'Paper Roll',       bin:'paper'   },
+        { emoji:'🪣', name:'Plastic Bucket',   bin:'plastic' },
+        { emoji:'📎', name:'Paperclip',        bin:'metal'   },
+        { emoji:'🥂', name:'Glass Cup',        bin:'glass'   },
+        { emoji:'📚', name:'Books',            bin:'paper'   },
+      ],
+    },
+  ];
+  const ROUNDS_PER_TIER = 6;
+
+  const FACTS = {
+    glass:   [
+      'Glass can be recycled forever — it never loses quality! 🫙',
+      'Recycled glass saves lots of energy! ⚡',
+      'Old glass jars can become brand-new bottles! 🍾',
+      'Glass is made from sand, soda and limestone! 🏖️',
+      'Glass takes over a million years to break down in nature! ⏳',
+    ],
+    paper:   [
+      'Recycling paper saves trees! 🌳',
+      'One tree makes about 8,000 sheets of paper! 🌲',
+      'Paper can be recycled up to 7 times! ♻️',
+      'Old newspapers can become new ones in just a few days! 📰',
+      'Recycling paper uses 70% less energy than making new paper! 💚',
+    ],
+    plastic: [
+      'Plastic bottles can be turned into fleece jackets! 🧥',
+      'Recycling plastic helps protect ocean animals! 🐳',
+      'Five plastic bottles make one fleece jacket! 🌊',
+      'Plastic takes 500 years to break down! ♻️',
+      'Recycled plastic can become park benches and playground equipment! 🛝',
+    ],
+    metal:   [
+      'Aluminium cans can be recycled and back on shelves in 60 days! ⚡',
+      'Recycling one can saves enough energy to run a TV for 3 hours! 📺',
+      'Metal can be recycled infinite times without losing strength! 🔄',
+      'Steel is the most recycled material in the world! 🏆',
+      'Recycling aluminium saves 95% of the energy needed to make new metal! 💪',
+    ],
+  };
+
+  const PROMPTS = [
+    'Which bin does this go in? ♻️',
+    'Help Princess sort the rubbish! 🌍',
+    'Which recycling bin is right? 🗑️',
+    'Sort it into the right bin! 🌿',
+    'Princess recycles — which bin? 💚',
+  ];
+  const CEL_MSGS = ['Great recycling! 🌍', 'Super sorter! 🌿', 'The planet thanks you! 💚', 'Recycling hero! ♻️', 'Brilliant! 🌟'];
+  const TIER_MSGS = [
+    { emoji:'🌿', title:'Easy Sorting Done! 🎉', sub:'You sorted 6 items — try trickier ones!' },
+    { emoji:'♻️', title:'Medium Sorted! ⭐',    sub:'Amazing! Ready for the tricky challenge?' },
+  ];
+
+  let tierIdx=0, roundIdx=0, score=0, locked=false, tierOrder=[];
+
+  function makeScene() {
+    const icons=['🌿','♻️','🌱','🌍','💚','🌳','🌾','🍃','⭐','✨'];
+    for (let i=0; i<12; i++) {
+      const el=document.createElement('div');
+      el.className='bg-floater';
+      el.textContent=icons[Math.floor(Math.random()*icons.length)];
+      el.style.left=(Math.random()*100)+'vw';
+      el.style.animationDuration=(14+Math.random()*18)+'s';
+      el.style.animationDelay=-(Math.random()*20)+'s';
+      document.body.appendChild(el);
+    }
+  }
+
+  function buildBins() {
+    const grid=document.getElementById('bins-grid');
+    grid.innerHTML='';
+    BINS.forEach(bin=>{
+      const btn=document.createElement('button');
+      btn.className='bin-btn';
+      btn.id='bin-'+bin.id;
+      btn.style.background=bin.bg;
+      btn.innerHTML=`<div class="bin-emoji">${bin.emoji}</div><div class="bin-name">${bin.name}</div>`;
+      btn.addEventListener('pointerdown',()=>handleTap(btn,bin.id));
+      grid.appendChild(btn);
+    });
+  }
+
+  function startGame() {
+    ['win-overlay','tier-overlay','celebrate-overlay'].forEach(id=>document.getElementById(id).classList.remove('show'));
+    tierIdx=0; score=0; locked=false;
+    updateScore();
+    buildBins();
+    startTier();
+  }
+
+  function startTier() {
+    tierOrder=shuffle([...TIERS[tierIdx].items]);
+    roundIdx=0;
+    showQuestion();
+  }
+
+  function showQuestion() {
+    updateHUD();
+    const item=tierOrder[roundIdx];
+    document.getElementById('prompt-text').textContent=PROMPTS[Math.floor(Math.random()*PROMPTS.length)];
+    const emojiEl=document.getElementById('item-emoji');
+    emojiEl.style.animation='none';
+    void emojiEl.offsetWidth;
+    emojiEl.style.animation='itemPop .4s ease-out';
+    emojiEl.textContent=item.emoji;
+    document.getElementById('item-name').textContent=item.name;
+    locked=false;
+  }
+
+  function handleTap(btn, binId) {
+    if (locked) return;
+    const item=tierOrder[roundIdx];
+    const isCorrect=(binId===item.bin);
+    if (isCorrect) {
+      locked=true;
+      btn.classList.add('correct');
+      playCorrect();
+      burst(btn);
+      score++;
+      updateScore();
+      const bin=BINS.find(b=>b.id===binId);
+      const facts=FACTS[binId];
+      const celItem=document.getElementById('cel-item');
+      celItem.style.animation='none'; void celItem.offsetWidth; celItem.style.animation='itemPop .4s ease-out';
+      celItem.textContent=item.emoji;
+      document.getElementById('cel-eq').textContent=item.name+' → '+bin.emoji+' '+bin.name;
+      document.getElementById('cel-fact').textContent=facts[Math.floor(Math.random()*facts.length)];
+      document.getElementById('cel-msg').textContent=CEL_MSGS[Math.floor(Math.random()*CEL_MSGS.length)];
+      const cel=document.getElementById('celebrate-overlay');
+      cel.classList.add('show');
+      const advance=()=>{
+        cel.classList.remove('show');
+        cel.removeEventListener('pointerdown',advance);
+        btn.classList.remove('correct');
+        roundIdx++;
+        if (roundIdx>=ROUNDS_PER_TIER) tierComplete(); else showQuestion();
+      };
+      cel.addEventListener('pointerdown',advance);
+    } else {
+      btn.classList.add('wrong');
+      playWrong();
+      setTimeout(()=>btn.classList.remove('wrong'),500);
+    }
+  }
+
+  function tierComplete() {
+    playTierUp();
+    confetti(42);
+    if (tierIdx<TIERS.length-1) {
+      const m=TIER_MSGS[tierIdx];
+      document.getElementById('ov-emoji').textContent=m.emoji;
+      document.getElementById('ov-title').textContent=m.title;
+      document.getElementById('ov-sub').textContent=m.sub;
+      document.getElementById('tier-btn').onclick=()=>{
+        document.getElementById('tier-overlay').classList.remove('show');
+        tierIdx++;
+        startTier();
+      };
+      document.getElementById('tier-overlay').classList.add('show');
+    } else {
+      playWin();
+      confetti(42);
+      setTimeout(()=>confetti(40),400);
+      setTimeout(()=>{
+        document.getElementById('final-score').textContent='⭐ '+score+' / 18 — Recycling Hero!';
+        document.getElementById('win-overlay').classList.add('show');
+      },600);
+    }
+  }
+
+  function updateHUD() {
+    const t=TIERS[tierIdx];
+    const badge=document.getElementById('tier-badge');
+    badge.textContent=t.label;
+    badge.className=t.cls;
+    const total=TIERS.length*ROUNDS_PER_TIER;
+    const done=tierIdx*ROUNDS_PER_TIER+roundIdx;
+    document.getElementById('round-label').textContent='Round '+(done+1)+' / '+total;
+    document.getElementById('progress-fill').style.width=(done/total*100)+'%';
+  }
+
+  function updateScore() { document.getElementById('score-label').textContent='⭐ '+score; }
+
+  function burst(el) {
+    const r=el.getBoundingClientRect(), cx=r.left+r.width/2, cy=r.top+r.height/2;
+    const cols=['#69f0ae','#ffd700','#ff4081','#f8bbd0','#80deea','#ce93d8','#fff','#a5d6a7'];
+    const icons=['🌿','♻️','🌱','💚','✨','🌟','⭐','💫','🌍','🌳'];
+    for (let i=0; i<22; i++) {
+      const s=document.createElement('div'); s.className='sparkle';
+      const a=Math.random()*Math.PI*2, dist=30+Math.random()*80, sz=6+Math.random()*10;
+      s.style.cssText=`left:${cx+Math.cos(a)*dist-sz/2}px;top:${cy+Math.sin(a)*dist-sz/2}px;width:${sz}px;height:${sz}px;background:${cols[i%cols.length]}`;
+      document.body.appendChild(s); setTimeout(()=>s.remove(),750);
+    }
+    for (let i=0; i<10; i++) {
+      const s=document.createElement('div'); s.className='sparkle-emoji';
+      const a=Math.random()*Math.PI*2, dist=44+Math.random()*70;
+      s.style.cssText=`left:${cx+Math.cos(a)*dist}px;top:${cy+Math.sin(a)*dist}px;font-size:${18+Math.random()*14}px`;
+      s.textContent=icons[i%icons.length];
+      document.body.appendChild(s); setTimeout(()=>s.remove(),800);
+    }
+  }
+
+  function confetti(n) {
+    const cols=['#69f0ae','#ffd700','#ff4081','#f8bbd0','#ce93d8','#b2ebf2','#a5d6a7','#e040fb'];
+    for (let i=0; i<n; i++) {
+      const el=document.createElement('div'); el.className='confetti';
+      const sz=6+Math.random()*10;
+      el.style.cssText=`left:${Math.random()*100}vw;width:${sz}px;height:${sz}px;background:${cols[i%cols.length]};animation-duration:${1.5+Math.random()*2}s;animation-delay:${Math.random()*.6}s`;
+      document.body.appendChild(el); setTimeout(()=>el.remove(),3600);
+    }
+  }
+
+  function shuffle(arr) {
+    const a=[...arr];
+    for (let i=a.length-1; i>0; i--) { const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
+    return a;
+  }
+
+  makeScene();
+  startGame();
+</script>
+</body>
+</html>
