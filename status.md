@@ -1,9 +1,9 @@
 # Princess Compendium — Status
 
 ## Last update run
-Date: 2026-11-16
-- Improved: `073-royal-doubles` → v1.1.0 (tap-to-continue celebrate overlay; burst 20→22 dots + 8→10 emoji; double confetti burst on win)
-- Added: `091-royal-recycle` — "Princess Recycle Castle 🌿" teaching sorting by material type (glass/paper/plastic/metal); 18 items across 3 tiers; tap-to-continue celebrate with recycling facts; 22-dot + 10-emoji sparkle burst
+Date: 2026-11-19
+- Improved: `074-princess-hops` → v1.1.0 (pool 9→12 per tier for more variety; sparkle 22→24 dots + emoji 10→12; bg gems 12→14)
+- Added: `092-princess-plurals` — "Princess Plurals 👑" teaching plural nouns (regular -s, -es and irregular); 10 items per tier, 6 chosen per game; 18 rounds; celebrate overlay shows singular→plural; 3-tier fun facts
 
 ## Improvement history
 
@@ -82,6 +82,7 @@ Date: 2026-11-16
 | 2026-11-10 | 072-royal-coins | Pool expanded 9→18 rounds (6/tier), sparkle 20→22 emoji + 10→12 dots, bg floaters 12→14 | 1.1.0 |
 | 2026-11-13 | 071-number-words | Added ZERO, expanded 9→12 rounds (4/tier), sparkle 20→22 + 10→12 dots, bg 12→14, gemStr for 0 | 1.1.0 |
 | 2026-11-16 | 073-royal-doubles | Tap-to-continue celebrate overlay, burst 20→22 dots + 8→10 emoji, double confetti on win | 1.1.0 |
+| 2026-11-19 | 074-princess-hops | Pool 9→12 per tier, sparkle 22→24 dots + emoji 10→12, bg gems 12→14 | 1.1.0 |
 
 ## Games due for improvement (all at v1.0.0)
 
@@ -164,6 +165,7 @@ See `CLAUDE.md` for the full prioritised list. Top 3 to build next:
 52. **Animal sound word recognition (MOO, WOOF, MEOW…)** — ✅ covered by `089-animal-sounds`
 53. **Food origins (where everyday foods come from)** — ✅ covered by `090-farm-magic`
 54. **Sorting by material type (recycling)** — ✅ covered by `091-royal-recycle`
+55. **Plural nouns (regular -s/-es and irregular)** — ✅ covered by `092-princess-plurals`
 
 ## Next game ID
-`092-<slug>`
+`093-<slug>`

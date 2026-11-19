@@ -284,6 +284,9 @@
     {start:8,  step:2, missing:2},  // 8,10,?,14,16 → 12
     {start:12, step:2, missing:1},  // 12,?,16,18,20 → 14
     {start:2,  step:2, missing:3},  // 2,4,6,?,10 → 8
+    {start:14, step:2, missing:2},  // 14,16,?,20,22 → 18
+    {start:6,  step:2, missing:4},  // 6,8,10,12,? → 14
+    {start:16, step:2, missing:1},  // 16,?,20,22,24 → 18
   ];
   var MED_POOL = [    // by 5s
     {start:5,  step:5, missing:2},  // 5,10,?,20,25 → 15
@@ -295,6 +298,9 @@
     {start:10, step:5, missing:1},  // 10,?,20,25,30 → 15
     {start:30, step:5, missing:2},  // 30,35,?,45,50 → 40
     {start:5,  step:5, missing:4},  // 5,10,15,20,? → 25
+    {start:35, step:5, missing:2},  // 35,40,?,50,55 → 45
+    {start:40, step:5, missing:1},  // 40,?,50,55,60 → 45
+    {start:20, step:5, missing:4},  // 20,25,30,35,? → 40
   ];
   var HARD_POOL = [   // by 10s
     {start:10, step:10, missing:2}, // 10,20,?,40,50 → 30
@@ -306,6 +312,9 @@
     {start:50, step:10, missing:2}, // 50,60,?,80,90 → 70
     {start:30, step:10, missing:1}, // 30,?,50,60,70 → 40
     {start:60, step:10, missing:2}, // 60,70,?,90,100 → 80
+    {start:70, step:10, missing:2}, // 70,80,?,100,110 → 90
+    {start:10, step:10, missing:4}, // 10,20,30,40,? → 50
+    {start:40, step:10, missing:1}, // 40,?,60,70,80 → 50
   ];
 
   var STONE_COLORS = [
@@ -524,8 +533,8 @@
 
   // ── Sparkles ──────────────────────────────────────────────────────────
   function sparkleBurst(x,y){
-    var ems=['✨','🐸','⭐','💚','🌸','👑','💫','🌟','🍀','💎'];
-    for(var i=0;i<22;i++){
+    var ems=['✨','🐸','⭐','💚','🌸','👑','💫','🌟','🍀','💎','🌿','🫧'];
+    for(var i=0;i<24;i++){
       var el=document.createElement('span');
       el.className='sparkle';
       el.textContent=ems[i%ems.length];
@@ -615,7 +624,7 @@
   // ── Background gems ───────────────────────────────────────────────────
   function makeBg(){
     var items=['🐸','✨','👑','🌸','💚','⭐','💫','🌿','🌟','🔮','🍀','💎'];
-    for(var i=0;i<12;i++){
+    for(var i=0;i<14;i++){
       var el=document.createElement('div'); el.className='bg-gem';
       el.textContent=items[i%items.length];
       el.style.left=(5+Math.random()*90)+'vw';

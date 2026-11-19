@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Princess Plurals 👑</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+    body{
+      min-height:100vh;
+      background:linear-gradient(160deg,#fce4ec 0%,#f3e5f5 50%,#e8eaf6 100%);
+      font-family:'Fredoka One',Georgia,serif;
+      display:flex;flex-direction:column;align-items:center;
+      overflow:hidden;user-select:none;touch-action:manipulation;
+      padding-bottom:12px;
+    }
+    .bg-gem{
+      position:fixed;pointer-events:none;opacity:.09;
+      font-size:clamp(18px,4.5vw,30px);
+      animation:bgFloat linear infinite;z-index:0;
+    }
+    @keyframes bgFloat{
+      0%{transform:translateY(110vh) rotate(0)}
+      100%{transform:translateY(-15vh) rotate(360deg)}
+    }
+    #header{
+      width:100%;display:flex;justify-content:space-between;align-items:center;
+      padding:clamp(10px,2.5vw,16px) clamp(14px,4vw,22px) 0;
+      flex-shrink:0;position:relative;z-index:1;
+    }
+    #tier-badge{
+      font-size:clamp(13px,3.2vw,17px);padding:5px 14px;border-radius:20px;
+      color:#fff;font-weight:bold;border:2px solid rgba(255,255,255,.38);
+      transition:background .4s;
+    }
+    .tier-easy  {background:linear-gradient(135deg,#f06292,#c2185b);}
+    .tier-medium{background:linear-gradient(135deg,#ffca28,#f57f17);color:#3e2000 !important;}
+    .tier-hard  {background:linear-gradient(135deg,#ce93d8,#6a1b9a);}
+    #round-label{font-size:clamp(13px,3.2vw,17px);color:rgba(130,30,80,.7);position:relative;z-index:1;}
+    #score-row  {font-size:clamp(16px,4vw,22px);letter-spacing:1px;position:relative;z-index:1;}
+    #progress-track{
+      width:calc(100% - clamp(28px,7vw,44px));height:7px;
+      background:rgba(180,30,100,.12);border-radius:99px;
+      margin:clamp(7px,1.8vw,11px) auto 0;overflow:hidden;
+      position:relative;z-index:1;
+    }
+    #progress-fill{
+      height:100%;background:linear-gradient(90deg,#f06292,#ab47bc);
+      border-radius:99px;transition:width .4s ease;width:0%;
+    }
+    #prompt{
+      font-size:clamp(16px,4.2vw,24px);color:#880e4f;
+      text-align:center;padding:0 16px;
+      margin:clamp(10px,2.5vw,16px) 0 clamp(4px,1vw,8px);
+      position:relative;z-index:1;line-height:1.35;
+    }
+    #picture-area{
+      display:flex;flex-direction:column;align-items:center;gap:6px;
+      margin:clamp(4px,1vw,8px) 0;position:relative;z-index:1;
+    }
+    #singular-row{
+      display:flex;align-items:center;gap:clamp(8px,2vw,14px);
+      background:rgba(255,255,255,.55);border-radius:20px;
+      padding:clamp(8px,2vw,14px) clamp(16px,4vw,26px);
+      box-shadow:0 3px 12px rgba(180,30,100,.12);
+    }
+    #sing-emoji{font-size:clamp(44px,11vw,70px);line-height:1;}
+    #sing-label{font-size:clamp(22px,5.5vw,36px);color:#880e4f;letter-spacing:1px;}
+    #arrow-row{font-size:clamp(28px,7vw,44px);}
+    #plural-row{
+      display:flex;align-items:center;gap:clamp(6px,1.5vw,10px);
+      background:rgba(255,255,255,.45);border-radius:20px;
+      padding:clamp(6px,1.5vw,10px) clamp(14px,3.5vw,22px);
+      box-shadow:0 3px 12px rgba(180,30,100,.1);
+    }
+    #plural-emojis{font-size:clamp(28px,7vw,44px);letter-spacing:2px;}
+    #choices{
+      display:flex;flex-direction:column;gap:clamp(9px,2.2vw,14px);
+      padding:0 clamp(16px,4vw,28px);
+      width:100%;max-width:400px;
+      position:relative;z-index:1;
+      margin-top:clamp(6px,1.5vw,12px);
+    }
+    .choice-btn{
+      width:100%;min-height:clamp(60px,15vw,80px);
+      border-radius:22px;border:none;cursor:pointer;
+      display:flex;align-items:center;justify-content:center;
+      font-family:inherit;font-size:clamp(22px,5.5vw,34px);
+      color:#fff;letter-spacing:1px;
+      box-shadow:0 5px 18px rgba(0,0,0,.2),inset 0 2px 0 rgba(255,255,255,.35);
+      transition:transform .1s;touch-action:manipulation;
+      text-shadow:0 2px 6px rgba(0,0,0,.3);
+    }
+    .choice-btn:active{transform:scale(.93);}
+    .choice-btn.correct-flash{animation:correctPop .5s ease-out;}
+    @keyframes correctPop{
+      0%{transform:scale(1)}
+      40%{transform:scale(1.08);box-shadow:0 0 36px rgba(255,215,0,.85);}
+      100%{transform:scale(1)}
+    }
+    .choice-btn.wrong-shake{animation:wrongShake .42s ease-out;}
+    @keyframes wrongShake{
+      0%,100%{transform:translateX(0)}
+      20%{transform:translateX(-11px)}
+      60%{transform:translateX(11px)}
+    }
+    .sparkle{
+      position:fixed;pointer-events:none;z-index:90;
+      font-size:clamp(14px,3.5vw,22px);
+      animation:sparkleOut ease-out forwards;
+    }
+    @keyframes sparkleOut{
+      0%{transform:translate(-50%,-50%) scale(0);opacity:1}
+      50%{transform:translate(-50%,-50%) scale(1.4);opacity:1}
+      100%{transform:translate(-50%,-50%) scale(.1);opacity:0}
+    }
+    .confetti-p{
+      position:fixed;pointer-events:none;z-index:90;border-radius:3px;
+      animation:cfFall linear forwards;
+    }
+    @keyframes cfFall{0%{top:-20px;opacity:1}100%{top:110vh;opacity:.1}}
+    #celebrate{
+      position:fixed;inset:0;z-index:80;
+      display:none;flex-direction:column;
+      align-items:center;justify-content:center;gap:clamp(8px,2vw,14px);
+      background:rgba(252,228,236,.94);
+    }
+    #celebrate.show{display:flex;}
+    #cel-big{font-size:clamp(56px,14vw,88px);animation:bigPop .4s ease-out;}
+    @keyframes bigPop{0%{transform:scale(.3)}60%{transform:scale(1.22)}100%{transform:scale(1)}}
+    #cel-word{
+      font-size:clamp(28px,7vw,46px);color:#880e4f;
+      text-align:center;padding:0 16px;
+    }
+    #cel-fact{
+      font-size:clamp(13px,3.2vw,18px);color:#4a148c;
+      text-align:center;padding:0 20px;
+      font-style:italic;line-height:1.4;
+    }
+    #cel-msg{font-size:clamp(16px,4.2vw,26px);color:#c2185b;text-align:center;padding:0 16px;}
+    #next-btn{
+      padding:clamp(14px,4vw,20px) clamp(36px,9vw,60px);
+      font-size:clamp(20px,5.5vw,30px);border-radius:50px;border:none;
+      background:linear-gradient(135deg,#ffd700,#ff9800);color:#5d2e00;
+      font-family:inherit;cursor:pointer;touch-action:manipulation;
+      box-shadow:0 6px 22px rgba(255,180,0,.45);
+    }
+    #tier-overlay{
+      position:fixed;inset:0;z-index:85;
+      display:none;flex-direction:column;
+      align-items:center;justify-content:center;gap:16px;
+      background:rgba(0,0,0,.67);
+    }
+    #tier-overlay.show{display:flex;}
+    #to-icon {font-size:clamp(60px,16vw,96px);}
+    #to-title{font-size:clamp(26px,7vw,46px);color:#ffd700;text-shadow:0 0 20px #ff9800;text-align:center;padding:0 16px;}
+    #to-sub  {font-size:clamp(16px,4.5vw,24px);color:#fff;text-align:center;padding:0 24px;}
+    #to-btn  {
+      padding:clamp(14px,4vw,20px) clamp(32px,8vw,56px);
+      font-size:clamp(20px,5vw,28px);border-radius:50px;border:none;
+      background:linear-gradient(135deg,#ffd700,#ff9800);
+      color:#5d2e00;font-family:inherit;cursor:pointer;
+      box-shadow:0 4px 16px rgba(255,180,0,.5);touch-action:manipulation;
+    }
+    #win-overlay{
+      position:fixed;inset:0;z-index:90;
+      display:none;flex-direction:column;
+      align-items:center;justify-content:center;gap:clamp(12px,3vw,20px);
+      background:linear-gradient(160deg,#880e4f 0%,#4a148c 100%);
+    }
+    #win-overlay.show{display:flex;}
+    #win-emoji{font-size:clamp(72px,18vw,110px);animation:startBob 2.4s ease-in-out infinite;}
+    @keyframes startBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
+    #win-title{font-size:clamp(28px,7.5vw,52px);color:#ffd700;text-shadow:0 0 24px rgba(255,215,0,.7);text-align:center;padding:0 20px;}
+    #win-sub  {font-size:clamp(16px,4.5vw,24px);color:rgba(255,255,255,.85);text-align:center;}
+    #play-again-btn{
+      padding:clamp(14px,4vw,20px) clamp(36px,9vw,64px);
+      font-size:clamp(18px,5vw,28px);border-radius:50px;border:none;
+      background:linear-gradient(135deg,#ffd700,#ff9800);color:#5d2e00;
+      font-family:inherit;cursor:pointer;
+      box-shadow:0 6px 24px rgba(255,180,0,.5);touch-action:manipulation;
+    }
+  </style>
+</head>
+<body>
+
+<div id="header">
+  <div id="tier-badge" class="tier-easy">🌱 Add -s</div>
+  <div id="round-label">1 / 18</div>
+  <div id="score-row">0 ⭐</div>
+</div>
+<div id="progress-track"><div id="progress-fill"></div></div>
+
+<div id="prompt">More than one is called a...?</div>
+
+<div id="picture-area">
+  <div id="singular-row">
+    <div id="sing-emoji">🐱</div>
+    <div id="sing-label">cat</div>
+  </div>
+  <div id="arrow-row">➡️</div>
+  <div id="plural-row">
+    <div id="plural-emojis">🐱🐱</div>
+  </div>
+</div>
+
+<div id="choices"></div>
+
+<div id="celebrate">
+  <div id="cel-big">👑</div>
+  <div id="cel-word">cats</div>
+  <div id="cel-fact">Adding -s makes most words plural! ✨</div>
+  <div id="cel-msg">Amazing! 🌟</div>
+  <button id="next-btn" onclick="doNext()">Next ➡️</button>
+</div>
+
+<div id="tier-overlay">
+  <div id="to-icon">✨</div>
+  <div id="to-title">Add -es now!</div>
+  <div id="to-sub">Great work! Now try words that need -es! 💎</div>
+  <button id="to-btn" onclick="resumeFromTier()">Keep going! ➡️</button>
+</div>
+
+<div id="win-overlay">
+  <div id="win-emoji">👑</div>
+  <div id="win-title">Plural Princess! 🌟</div>
+  <div id="win-sub">0 / 18 ⭐</div>
+  <button id="play-again-btn" onclick="restartGame()">Play Again 🔄</button>
+</div>
+
+<script>
+  // {sing, plural, emoji, wrong1, wrong2}
+  var EASY_POOL = [
+    {sing:'cat',    plural:'cats',    emoji:'🐱', wrong:['cates','catos']},
+    {sing:'dog',    plural:'dogs',    emoji:'🐶', wrong:['doges','dogis']},
+    {sing:'star',   plural:'stars',   emoji:'⭐', wrong:['stares','staris']},
+    {sing:'ball',   plural:'balls',   emoji:'⚽', wrong:['balles','ballis']},
+    {sing:'cake',   plural:'cakes',   emoji:'🎂', wrong:['cakies','cakoes']},
+    {sing:'flower', plural:'flowers', emoji:'🌸', wrong:['floweres','floweris']},
+    {sing:'crown',  plural:'crowns',  emoji:'👑', wrong:['crownes','crownis']},
+    {sing:'gem',    plural:'gems',    emoji:'💎', wrong:['gemes','gemis']},
+    {sing:'bird',   plural:'birds',   emoji:'🐦', wrong:['birdes','birdis']},
+    {sing:'tree',   plural:'trees',   emoji:'🌳', wrong:['treeis','treeos']},
+  ];
+  var MED_POOL = [
+    {sing:'box',    plural:'boxes',   emoji:'📦', wrong:['boxs','boxies']},
+    {sing:'bus',    plural:'buses',   emoji:'🚌', wrong:['buss','busi']},
+    {sing:'fox',    plural:'foxes',   emoji:'🦊', wrong:['foxs','foxis']},
+    {sing:'dish',   plural:'dishes',  emoji:'🍽️', wrong:['dishs','dishis']},
+    {sing:'bench',  plural:'benches', emoji:'🪑', wrong:['benchs','benchis']},
+    {sing:'peach',  plural:'peaches', emoji:'🍑', wrong:['peachs','peachies']},
+    {sing:'brush',  plural:'brushes', emoji:'🪥', wrong:['brusks','brushs']},
+    {sing:'dress',  plural:'dresses', emoji:'👗', wrong:['dressis','dressi']},
+    {sing:'witch',  plural:'witches', emoji:'🧙', wrong:['witchs','witchis']},
+    {sing:'glass',  plural:'glasses', emoji:'🥛', wrong:['glasss','glassis']},
+  ];
+  var HARD_POOL = [
+    {sing:'child',  plural:'children', emoji:'👧', wrong:['childs','childes']},
+    {sing:'mouse',  plural:'mice',     emoji:'🐭', wrong:['mouses','mices']},
+    {sing:'tooth',  plural:'teeth',    emoji:'🦷', wrong:['tooths','toothes']},
+    {sing:'foot',   plural:'feet',     emoji:'🦶', wrong:['foots','footies']},
+    {sing:'leaf',   plural:'leaves',   emoji:'🍃', wrong:['leafs','leafes']},
+    {sing:'wolf',   plural:'wolves',   emoji:'🐺', wrong:['wolfs','wolfes']},
+    {sing:'goose',  plural:'geese',    emoji:'🪿', wrong:['gooses','goosies']},
+    {sing:'calf',   plural:'calves',   emoji:'🐄', wrong:['calfs','calfes']},
+    {sing:'half',   plural:'halves',   emoji:'🍰', wrong:['halfs','halfes']},
+    {sing:'elf',    plural:'elves',    emoji:'🧝', wrong:['elfs','elfes']},
+  ];
+
+  var FACTS_EASY = [
+    'Most words just add -s to make a plural! 🌟',
+    'Plural means more than one! ✨',
+    'Adding -s is the most common plural rule! 👑',
+    'One cat → two CATS — just add -s! 🐱',
+    'Stars, balls, cakes — they all just add -s! 💫',
+  ];
+  var FACTS_MED = [
+    'Words ending in -sh, -ch, -x or -s add -es! 🌟',
+    'BOX → BOXES — the -es makes it easier to say! ✨',
+    'DISH → DISHES — say it aloud, you need that extra sound! 👑',
+    'BUS → BUSES — adding -es stops two S sounds crashing! 💫',
+    'FOX → FOXES — always -es after -x! 🦊',
+  ];
+  var FACTS_HARD = [
+    'Some words change completely in the plural — these are IRREGULAR! 🌟',
+    'MOUSE → MICE — these are hundreds of years old! 🐭',
+    'CHILD → CHILDREN — the -ren ending is very ancient! ✨',
+    'TOOTH → TEETH — the vowel changes inside the word! 🦷',
+    'FOOT → FEET — just like tooth → teeth! 🦶',
+  ];
+
+  var TIER_INFO = [
+    {label:'🌱 Add -s',  cls:'tier-easy',   icon:'🌸', title:'Words that add -es!', sub:'Great! Now some words need -es — let\'s go! 💎',
+     prompt:['More than one is called a...? 🌸','What is the plural? 👑','Tap the right plural! ✨','How do you say more than one? 💎','Plural power — tap it! 🐸']},
+    {label:'⭐ Add -es', cls:'tier-medium',  icon:'✨', title:'Tricky plurals!', sub:'Fantastic! Now the really tricky ones! 👑',
+     prompt:['This word needs -es — which one? 🌟','Add -es to make the plural! 💎','Tap the correct -es plural! ✨','Which plural is right? 👑','Words ending in -sh, -ch, -x need -es! 🌸']},
+    {label:'👑 Tricky!',  cls:'tier-hard',   icon:'👑', title:'Plural Star!', sub:'Amazing — you know ALL the plurals! 🎉',
+     prompt:['Watch out — this plural is tricky! 👑','Irregular plural — which one? 🌟','This one changes shape! Tap it! ✨','Tricky plural alert — tap the right one! 💫','Not all plurals just add -s! 🧝']},
+  ];
+
+  var BTN_COLORS = [
+    'linear-gradient(135deg,#f06292,#c2185b)',
+    'linear-gradient(135deg,#81d4fa,#01579b)',
+    'linear-gradient(135deg,#a5d6a7,#1b5e20)',
+  ];
+
+  var MSGS=['Amazing! 🌟','Brilliant! 💫','You did it! 👑','Wonderful! 🌈','Superstar! 💖','Perfect! ✨'];
+
+  var rounds=[], cur=0, score=0, locked=false, promptVariant=0;
+
+  function au(){if(!_ac)_ac=new(window.AudioContext||window.webkitAudioContext)();return _ac;}
+  var _ac=null;
+  function tone(f,type,d,v){
+    v=v||0.15;
+    try{var c=au(),o=c.createOscillator(),g=c.createGain();
+      o.connect(g);g.connect(c.destination);
+      o.type=type;o.frequency.value=f;
+      g.gain.setValueAtTime(v,c.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001,c.currentTime+d);
+      o.start();o.stop(c.currentTime+d);
+    }catch(e){}
+  }
+  function playCorrect(){[523,659,784,1047].forEach(function(f,i){setTimeout(function(){tone(f,'sine',.2,.18);},i*75);});}
+  function playWrong()  {tone(200,'sawtooth',.22,.12);}
+  function playTierUp() {[392,494,587,784,988].forEach(function(f,i){setTimeout(function(){tone(f,'sine',.28,.17);},i*90);});}
+  function playWin()    {[523,587,659,784,880,1047,1319].forEach(function(f,i){setTimeout(function(){tone(f,'sine',.25,.16);},i*60);});}
+
+  function shuffle(a){
+    var b=a.slice();
+    for(var i=b.length-1;i>0;i--){var j=0|Math.random()*(i+1);var t=b[i];b[i]=b[j];b[j]=t;}
+    return b;
+  }
+
+  function pickRounds(){
+    var e=shuffle(EASY_POOL).slice(0,6);
+    var m=shuffle(MED_POOL).slice(0,6);
+    var h=shuffle(HARD_POOL).slice(0,6);
+    return e.concat(m).concat(h);
+  }
+
+  function updateHUD(){
+    document.getElementById('score-row').textContent=score+' ⭐';
+    document.getElementById('progress-fill').style.width=((cur/18)*100)+'%';
+    document.getElementById('round-label').textContent=(cur+1)+' / 18';
+  }
+
+  function showRound(idx){
+    locked=false;
+    cur=idx;
+    updateHUD();
+
+    var q=rounds[idx];
+    var tIdx=Math.floor(idx/6);
+    var ti=TIER_INFO[tIdx];
+
+    var badge=document.getElementById('tier-badge');
+    badge.textContent=ti.label;badge.className='tier-badge '+ti.cls;
+
+    document.getElementById('prompt').textContent=ti.prompt[promptVariant%5];
+
+    document.getElementById('sing-emoji').textContent=q.emoji;
+    document.getElementById('sing-label').textContent=q.sing;
+
+    // Show 2 or 3 emoji for the plural side depending on tier
+    var pluralEmojiCount = tIdx===2 ? 3 : 2;
+    var emojiStr='';
+    for(var k=0;k<pluralEmojiCount;k++) emojiStr+=q.emoji;
+    document.getElementById('plural-emojis').textContent=emojiStr;
+
+    var opts=shuffle([q.plural, q.wrong[0], q.wrong[1]]);
+    var choicesDiv=document.getElementById('choices');
+    choicesDiv.innerHTML='';
+    opts.forEach(function(word,ci){
+      var btn=document.createElement('button');
+      btn.className='choice-btn';
+      btn.style.background=BTN_COLORS[ci%BTN_COLORS.length];
+      btn.textContent=word;
+      (function(chosen){
+        btn.addEventListener('pointerdown', function(){handleTap(btn, chosen, q);});
+      })(word);
+      choicesDiv.appendChild(btn);
+    });
+  }
+
+  function handleTap(btn, chosen, q){
+    if(locked) return;
+    if(chosen===q.plural){
+      locked=true;
+      btn.classList.add('correct-flash');
+      playCorrect();
+      score++;
+      var rect=btn.getBoundingClientRect();
+      sparkleBurst(rect.left+rect.width/2, rect.top+rect.height/2);
+      setTimeout(function(){showCelebrate(q);}, 500);
+    } else {
+      btn.classList.add('wrong-shake');
+      playWrong();
+      setTimeout(function(){btn.classList.remove('wrong-shake');},420);
+    }
+  }
+
+  function sparkleBurst(x,y){
+    var ems=['✨','👑','🌸','💎','⭐','💖','💫','🌟','🎀','🌷','🦋','🫧'];
+    var dots=['✦','✧','❋','✿'];
+    for(var i=0;i<22;i++){
+      var el=document.createElement('span');el.className='sparkle';
+      el.textContent=i<12 ? ems[i%ems.length] : dots[(i-12)%dots.length];
+      var angle=(i/22)*Math.PI*2;
+      var dist=50+Math.random()*90;
+      el.style.left=(x+Math.cos(angle)*dist)+'px';
+      el.style.top=(y+Math.sin(angle)*dist)+'px';
+      el.style.animationDelay=(Math.random()*.15)+'s';
+      el.style.animationDuration=(.75+Math.random()*.4)+'s';
+      document.body.appendChild(el);
+      setTimeout((function(e){return function(){e.remove();};})(el),1200);
+    }
+  }
+
+  function confettiBurst(n){
+    var cols=['#ffd700','#ff69b4','#b39ddb','#f48fb1','#ce93d8','#80cbc4','#fff','#da70d6'];
+    for(var i=0;i<n;i++){
+      var el=document.createElement('div');el.className='confetti-p';
+      var sz=8+Math.random()*8;
+      el.style.cssText='left:'+Math.random()*100+'vw;width:'+sz+'px;height:'+sz+'px;'
+        +'background:'+cols[i%cols.length]+';'
+        +'animation-duration:'+(1.2+Math.random()*1.6)+'s;animation-delay:'+Math.random()*.4+'s;';
+      document.body.appendChild(el);
+      setTimeout((function(e){return function(){e.remove();};})(el),2900);
+    }
+  }
+
+  function showCelebrate(q){
+    var tIdx=Math.floor(cur/6);
+    var factsList=tIdx===0 ? FACTS_EASY : tIdx===1 ? FACTS_MED : FACTS_HARD;
+    var icons=['🌸','✨','👑'];
+    document.getElementById('cel-big').textContent=icons[tIdx];
+    document.getElementById('cel-word').textContent=q.sing+' → '+q.plural+' ✅';
+    document.getElementById('cel-fact').textContent=factsList[promptVariant%factsList.length];
+    document.getElementById('cel-msg').textContent=MSGS[Math.floor(Math.random()*MSGS.length)];
+    promptVariant++;
+    document.getElementById('celebrate').classList.add('show');
+    playCorrect();
+    confettiBurst(28);
+  }
+
+  function doNext(){
+    document.getElementById('celebrate').classList.remove('show');
+    advanceRound();
+  }
+
+  function advanceRound(){
+    var was=cur;
+    var next=was+1;
+    if(next>=rounds.length){showWin();return;}
+    var prevTier=Math.floor(was/6);
+    var newTier =Math.floor(next/6);
+    if(newTier!==prevTier){
+      playTierUp();confettiBurst(42);
+      var ti=TIER_INFO[prevTier];
+      document.getElementById('to-icon').textContent=ti.icon;
+      document.getElementById('to-title').textContent=ti.title;
+      document.getElementById('to-sub').textContent=ti.sub;
+      document.getElementById('tier-overlay').classList.add('show');
+    } else {
+      showRound(next);
+    }
+    cur=next;
+  }
+
+  function resumeFromTier(){
+    document.getElementById('tier-overlay').classList.remove('show');
+    showRound(cur);
+  }
+
+  function showWin(){
+    document.getElementById('progress-fill').style.width='100%';
+    document.getElementById('win-sub').textContent=score+' / 18 ⭐ — Plural Princess!';
+    document.getElementById('win-overlay').classList.add('show');
+    playWin();
+    confettiBurst(60);
+    setTimeout(function(){confettiBurst(42);},600);
+  }
+
+  function makeBg(){
+    var items=['👑','🌸','✨','💎','⭐','🎀','💫','🌟','🦋','💖','🌷','🫧','🌿','🪄'];
+    for(var i=0;i<14;i++){
+      var el=document.createElement('div');el.className='bg-gem';
+      el.textContent=items[i%items.length];
+      el.style.left=(5+Math.random()*90)+'vw';
+      el.style.animationDuration=(9+Math.random()*14)+'s';
+      el.style.animationDelay=-(Math.random()*16)+'s';
+      document.body.appendChild(el);
+    }
+  }
+
+  function restartGame(){
+    document.getElementById('win-overlay').classList.remove('show');
+    score=0;cur=0;promptVariant=0;
+    rounds=pickRounds();
+    updateHUD();
+    showRound(0);
+  }
+
+  makeBg();
+  rounds=pickRounds();
+  updateHUD();
+  showRound(0);
+</script>
+</body>
+</html>

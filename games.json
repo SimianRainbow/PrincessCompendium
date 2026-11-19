@@ -883,7 +883,7 @@
     "ageMin": 4,
     "ageMax": 6,
     "skill": "skip counting — by 2s, 5s and 10s",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "category": "numbers",
     "path": "games/074-princess-hops/index.html"
   },
@@ -1078,6 +1078,18 @@
     "version": "1.0.0",
     "category": "animals",
     "path": "games/090-farm-magic/index.html"
+  },
+  {
+    "id": "092-princess-plurals",
+    "title": "Princess Plurals",
+    "description": "Tap the correct plural — cats, boxes or children? Easy: add -s, Medium: add -es, Hard: tricky irregular plurals! 18 rounds across 3 tiers.",
+    "icon": "👑",
+    "ageMin": 3,
+    "ageMax": 6,
+    "skill": "plural nouns — regular (-s, -es) and irregular (mice, teeth, children)",
+    "version": "1.0.0",
+    "category": "letters",
+    "path": "games/092-princess-plurals/index.html"
   },
   {
     "id": "091-royal-recycle",
