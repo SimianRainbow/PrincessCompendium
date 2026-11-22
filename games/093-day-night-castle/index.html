@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Princess Day &amp; Night 🌙</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+
+    body {
+      background: linear-gradient(155deg, #1a1a3e 0%, #2d1b69 50%, #0d2080 100%);
+      min-height:100vh; font-family:'Fredoka One',cursive;
+      display:flex; flex-direction:column; align-items:center;
+      overflow:hidden; user-select:none; padding-bottom:10px;
+    }
+
+    .bg-float { position:fixed; pointer-events:none; animation:bgRise linear infinite; opacity:.12;
+                font-size:clamp(14px,3.5vw,22px); }
+    @keyframes bgRise { 0%{transform:translateY(110vh) rotate(0)} 100%{transform:translateY(-10vh) rotate(360deg)} }
+
+    #header {
+      width:100%; max-width:440px;
+      display:flex; justify-content:space-between; align-items:center;
+      padding:14px 18px 0; flex-shrink:0;
+    }
+    #tier-badge {
+      font-size:clamp(13px,3.4vw,17px); padding:5px 14px; border-radius:20px; font-weight:bold;
+    }
+    .easy-badge   { background:linear-gradient(135deg,#ffe082,#ffd54f); color:#5a3000; }
+    .medium-badge { background:linear-gradient(135deg,#80cbc4,#4db6ac); color:#004d40; }
+    .hard-badge   { background:linear-gradient(135deg,#b39ddb,#7e57c2); color:#fff; }
+    #hdr-right { display:flex; gap:10px; align-items:center; }
+    #score-lbl { font-size:clamp(13px,3.2vw,17px); color:#ffd700; text-shadow:0 1px 4px rgba(0,0,0,.5); }
+    #round-lbl { font-size:clamp(13px,3.2vw,17px); color:rgba(255,255,255,.9); }
+
+    #progress-wrap { width:100%; max-width:440px; padding:7px 18px 0; flex-shrink:0; }
+    #progress-bg { background:rgba(255,255,255,.18); border-radius:8px; height:9px; overflow:hidden; }
+    #progress-fill { height:100%; border-radius:8px;
+                     background:linear-gradient(90deg,#ffd700,#ffb300); width:0%;
+                     transition:width .35s ease; }
+
+    #sky-scene { width:100%; max-width:440px; padding:12px 16px 0; flex-shrink:0; }
+    #sky-banner {
+      border-radius:24px; padding:20px 12px 14px;
+      background:linear-gradient(145deg,rgba(255,215,0,.12),rgba(100,149,255,.15));
+      border:2px solid rgba(255,215,0,.35);
+      box-shadow:0 6px 24px rgba(0,0,0,.45);
+      display:flex; flex-direction:column; align-items:center; gap:8px;
+    }
+    #sky-emoji { font-size:clamp(64px,18vw,100px); animation:popIn .4s ease-out; }
+    @keyframes popIn { 0%{transform:scale(.5);opacity:0} 70%{transform:scale(1.1)} 100%{transform:scale(1);opacity:1} }
+    #sky-label { font-size:clamp(18px,5vw,26px); color:#fff; text-shadow:0 2px 6px rgba(0,0,0,.4); text-align:center; }
+
+    #prompt {
+      font-size:clamp(16px,4.3vw,22px); color:rgba(255,255,255,.9);
+      text-align:center; padding:10px 18px 0; flex-shrink:0;
+      text-shadow:0 2px 5px rgba(0,0,0,.4);
+    }
+
+    #choices {
+      width:100%; max-width:440px; padding:14px 14px 0;
+      display:grid; grid-template-columns:1fr 1fr; gap:14px; flex-shrink:0;
+    }
+    .choice-btn {
+      min-height:clamp(90px,24vw,130px); border-radius:24px;
+      border:3px solid rgba(255,255,255,.2);
+      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px;
+      cursor:pointer; transition:transform .1s;
+      box-shadow:0 4px 20px rgba(0,0,0,.35);
+    }
+    .choice-btn:active { transform:scale(.88); }
+    #btn-day {
+      background:linear-gradient(145deg,rgba(255,220,80,.25),rgba(255,165,0,.2));
+      border-color:rgba(255,200,0,.5);
+    }
+    #btn-night {
+      background:linear-gradient(145deg,rgba(100,100,255,.25),rgba(60,0,120,.3));
+      border-color:rgba(150,120,255,.5);
+    }
+    .choice-btn .btn-icon  { font-size:clamp(32px,9vw,52px); pointer-events:none; }
+    .choice-btn .btn-label { font-size:clamp(18px,5.5vw,30px); color:#fff;
+                              text-shadow:0 2px 6px rgba(0,0,0,.5); pointer-events:none; }
+    .choice-btn.correct-flash { animation:correctFlash .5s ease-out; }
+    @keyframes correctFlash {
+      0%{transform:scale(1)} 40%{transform:scale(1.1);box-shadow:0 0 40px rgba(255,215,0,.8)}
+      100%{transform:scale(1)}
+    }
+    .choice-btn.wobble { animation:wobble .42s ease-out; }
+    @keyframes wobble {
+      0%,100%{transform:translateX(0)} 25%{transform:translateX(-10px)}
+      65%{transform:translateX(10px)} 85%{transform:translateX(-5px)}
+    }
+    .choice-btn.locked { opacity:.35; pointer-events:none; }
+
+    .sparkle { position:fixed; pointer-events:none; z-index:50;
+               font-size:clamp(14px,3.5vw,22px); animation:sFly ease-out forwards; }
+    .spark-dot { position:fixed; pointer-events:none; z-index:50; border-radius:50%;
+                 animation:sFly ease-out forwards; }
+    @keyframes sFly {
+      0%{transform:translate(0,0) scale(1.2);opacity:1}
+      100%{transform:translate(var(--tx),var(--ty)) scale(0.1);opacity:0}
+    }
+
+    #celebrate-overlay {
+      position:fixed; inset:0; background:rgba(0,0,0,.7);
+      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px;
+      z-index:99; opacity:0; pointer-events:none; transition:opacity .35s;
+    }
+    #celebrate-overlay.show { opacity:1; pointer-events:all; }
+    #cel-emoji { font-size:clamp(56px,15vw,88px); }
+    #cel-text  { font-size:clamp(18px,5vw,30px); color:#fff;
+                 text-shadow:0 0 20px #ffd700; text-align:center; padding:0 18px; line-height:1.3; }
+    #cel-fact-box {
+      background:rgba(255,215,0,.12); border:2px solid rgba(255,215,0,.35);
+      border-radius:16px; padding:10px 18px; text-align:center; max-width:360px;
+    }
+    #cel-fact { font-size:clamp(14px,3.5vw,18px); color:#ffe082; line-height:1.4; }
+    #cel-next {
+      padding:clamp(14px,4vw,20px) clamp(32px,8vw,52px);
+      font-size:clamp(18px,5vw,26px); border-radius:50px; border:none;
+      background:linear-gradient(135deg,#ffd700,#ff9800);
+      color:#5d2e00; font-weight:bold; cursor:pointer; font-family:inherit;
+      box-shadow:0 4px 16px rgba(255,180,0,.5); min-height:58px; min-width:160px;
+    }
+
+    #tier-overlay {
+      position:fixed; inset:0; background:rgba(0,0,0,.85);
+      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px;
+      z-index:98; opacity:0; pointer-events:none; transition:opacity .35s;
+    }
+    #tier-overlay.show { opacity:1; pointer-events:all; }
+    #tier-ov-emoji { font-size:clamp(60px,16vw,90px); }
+    #tier-ov-title { font-size:clamp(26px,7vw,44px); color:#ffd700;
+                     text-shadow:0 0 20px rgba(255,215,0,.6); text-align:center; padding:0 20px; }
+    #tier-ov-sub   { font-size:clamp(15px,4vw,22px); color:rgba(255,255,255,.85); text-align:center; padding:0 20px; }
+    #tier-ov-btn {
+      padding:clamp(14px,4vw,20px) clamp(32px,8vw,52px); font-size:clamp(18px,5vw,26px);
+      border-radius:50px; border:none; background:linear-gradient(135deg,#ffd700,#ffb300);
+      color:#5d2e00; font-weight:bold; cursor:pointer; font-family:inherit;
+      box-shadow:0 4px 16px rgba(255,180,0,.5); min-height:58px; min-width:160px;
+    }
+
+    #win-overlay {
+      position:fixed; inset:0;
+      background:linear-gradient(160deg,#1a1a3e 0%,#2d1b69 50%,#0d2080 100%);
+      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:18px;
+      z-index:110; opacity:0; pointer-events:none; transition:opacity .4s;
+    }
+    #win-overlay.show { opacity:1; pointer-events:all; }
+    #win-icon  { font-size:clamp(64px,18vw,100px); }
+    #win-title { font-size:clamp(24px,7vw,42px); color:#ffd700;
+                 text-shadow:0 0 24px #ff9800; text-align:center; padding:0 16px; }
+    #win-score { font-size:clamp(18px,5vw,30px); color:#fff; }
+    #win-again {
+      padding:clamp(14px,4vw,20px) clamp(32px,8vw,52px); font-size:clamp(18px,5vw,26px);
+      border-radius:50px; border:none; background:linear-gradient(135deg,#ffd700,#ff9800);
+      color:#5d2e00; font-weight:bold; cursor:pointer; font-family:inherit;
+      box-shadow:0 4px 16px rgba(255,180,0,.5);
+    }
+
+    .confetti-piece {
+      position:fixed; border-radius:50%; pointer-events:none; z-index:100;
+      animation:cFall linear forwards;
+    }
+    @keyframes cFall { 0%{top:-20px;opacity:1} 100%{top:110vh;opacity:.15} }
+  </style>
+</head>
+<body>
+
+<div id="header">
+  <div id="tier-badge" class="easy-badge">☀️ Easy</div>
+  <div id="hdr-right">
+    <div id="score-lbl">0 ⭐</div>
+    <div id="round-lbl">1 / 18</div>
+  </div>
+</div>
+
+<div id="progress-wrap">
+  <div id="progress-bg"><div id="progress-fill"></div></div>
+</div>
+
+<div id="sky-scene">
+  <div id="sky-banner">
+    <div id="sky-emoji">🌅</div>
+    <div id="sky-label">Sunrise</div>
+  </div>
+</div>
+
+<div id="prompt">Is this day or night? 🌙</div>
+
+<div id="choices">
+  <div class="choice-btn" id="btn-day">
+    <span class="btn-icon">☀️</span>
+    <span class="btn-label">DAY</span>
+  </div>
+  <div class="choice-btn" id="btn-night">
+    <span class="btn-icon">🌙</span>
+    <span class="btn-label">NIGHT</span>
+  </div>
+</div>
+
+<!-- celebrate overlay -->
+<div id="celebrate-overlay">
+  <div id="cel-emoji">🌟</div>
+  <div id="cel-text">That's right! 🌟</div>
+  <div id="cel-fact-box">
+    <div id="cel-fact">The sun rises each morning!</div>
+  </div>
+  <button id="cel-next" onclick="nextRound()">Next ➡️</button>
+</div>
+
+<!-- tier overlay -->
+<div id="tier-overlay">
+  <div id="tier-ov-emoji">🌙</div>
+  <div id="tier-ov-title">✨ Medium! ✨</div>
+  <div id="tier-ov-sub">More day and night to discover!</div>
+  <button id="tier-ov-btn" onclick="hideTierOverlay()">Let's go! ➡️</button>
+</div>
+
+<!-- win overlay -->
+<div id="win-overlay">
+  <div id="win-icon">🌙</div>
+  <div id="win-title">Day &amp; Night Expert! 👑</div>
+  <div id="win-score">You got 0 ⭐</div>
+  <button id="win-again" onclick="restartGame()">Play Again 🔄</button>
+</div>
+
+<script>
+  /* ── audio ── */
+  let audioCtx = null;
+  function getAudio() { if (!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)(); return audioCtx; }
+  function tone(f,t,d,v) {
+    try {
+      const ctx=getAudio(), o=ctx.createOscillator(), g=ctx.createGain();
+      o.connect(g); g.connect(ctx.destination);
+      o.type=t||'sine'; o.frequency.value=f;
+      g.gain.setValueAtTime(v||0.15,ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+d);
+      o.start(); o.stop(ctx.currentTime+d);
+    } catch(e) {}
+  }
+  function playCorrect()  { [523,659,784,1047].forEach((f,i) => setTimeout(()=>tone(f,'sine',0.18,0.18),i*80)); }
+  function playWrong()    { tone(200,'sawtooth',0.18,0.12); }
+  function playCelebrate(){ [523,659,784,880,1047,1175].forEach((f,i) => setTimeout(()=>tone(f,'sine',0.22,0.17),i*70)); }
+  function playTierUp()   { [660,880,1047,1320].forEach((f,i) => setTimeout(()=>tone(f,'triangle',0.25,0.18),i*95)); }
+  function playWin()      { [523,659,784,1047,1319,1568].forEach((f,i) => setTimeout(()=>tone(f,'sine',0.28,0.18),i*70)); }
+
+  /* ── activity data ── */
+  const ACTIVITIES = [
+    // Easy (tIdx:0) — very clear day vs night
+    { label:'Sunrise',          e:'🌅',  isDay:true,  fact:'The sun rises every morning to start a new day!',          tIdx:0 },
+    { label:'Stars in the sky', e:'⭐',  isDay:false, fact:'Stars twinkle in the sky all through the night!',          tIdx:0 },
+    { label:'Playing outside',  e:'🌳',  isDay:true,  fact:'We play outside when the sun is shining!',                 tIdx:0 },
+    { label:'Tucked in bed',    e:'🛏️', isDay:false, fact:'We snuggle in bed and sleep all night long!',              tIdx:0 },
+    { label:'Eating breakfast', e:'🥣',  isDay:true,  fact:'Breakfast gives us energy to start the day!',              tIdx:0 },
+    { label:'The moon is up',   e:'🌕',  isDay:false, fact:'The moon glows bright in the night sky!',                  tIdx:0 },
+    // Medium (tIdx:1) — daily routines
+    { label:'Going to school',  e:'🎒',  isDay:true,  fact:'Children go to school during the daytime!',                tIdx:1 },
+    { label:'Bedtime story',    e:'📚',  isDay:false, fact:'Stories at bedtime help our brains get sleepy!',           tIdx:1 },
+    { label:'Butterflies fly',  e:'🦋',  isDay:true,  fact:'Butterflies only fly when the sun is out!',                tIdx:1 },
+    { label:'Owl is awake',     e:'🦉',  isDay:false, fact:'Owls are nocturnal — they hunt at night!',                 tIdx:1 },
+    { label:'Sunflower blooms', e:'🌻',  isDay:true,  fact:'Sunflowers turn to follow the sun all day!',               tIdx:1 },
+    { label:'Sweet dreams',     e:'💭',  isDay:false, fact:'We dream wonderful dreams while we sleep at night!',       tIdx:1 },
+    // Hard (tIdx:2) — animals & less obvious
+    { label:'Fireflies glow',   e:'✨',  isDay:false, fact:'Fireflies light up at night to find each other!',          tIdx:2 },
+    { label:'Bees collect honey',e:'🐝', isDay:true,  fact:'Bees fly from flower to flower during the day!',           tIdx:2 },
+    { label:'Cricket chirping', e:'🦗',  isDay:false, fact:'Crickets rub their legs together to sing at night!',       tIdx:2 },
+    { label:'Rainbow appears',  e:'🌈',  isDay:true,  fact:'Rainbows happen when sunlight shines through raindrops!',  tIdx:2 },
+    { label:'Bat is flying',    e:'🦇',  isDay:false, fact:'Bats sleep all day and hunt for food at night!',           tIdx:2 },
+    { label:'Rooster crows',    e:'🐓',  isDay:true,  fact:'Roosters crow at dawn to wake everyone up!',               tIdx:2 },
+  ];
+
+  const TIER_CONFIG = [
+    { label:'☀️ Easy',   cls:'easy-badge',   emoji:'☀️', name:'Easy',   sub:'Which is day — which is night?' },
+    { label:'🌙 Medium', cls:'medium-badge',  emoji:'🌙', name:'Medium', sub:'Daily routines — when do they happen?' },
+    { label:'⭐ Hard',   cls:'hard-badge',    emoji:'⭐', name:'Hard',   sub:'Tricky day & night animals!' },
+  ];
+
+  const PROMPTS = [
+    () => 'Is this day or night? 🌙',
+    () => 'When does this happen? ☀️',
+    () => 'Day or night — tap the right one! 🌟',
+    () => 'What time is this? Day or night? 👑',
+    () => 'Does this happen in the day or night? ✨',
+  ];
+
+  const CEL_TEXTS_DAY = [
+    l => `Yes! ${l} happens in the ☀️ daytime!`,
+    l => `Correct! ${l} is a daytime thing! 🌟`,
+    l => `Amazing! ${l} happens when the sun shines! ✨`,
+    l => `You got it! ${l} is a ☀️ day activity! 👑`,
+    l => `Brilliant! ${l} is during the day! 💎`,
+  ];
+  const CEL_TEXTS_NIGHT = [
+    l => `Yes! ${l} happens at 🌙 night!`,
+    l => `Correct! ${l} is a nighttime thing! 🌟`,
+    l => `Amazing! ${l} happens after dark! ✨`,
+    l => `You got it! ${l} is a 🌙 night thing! 👑`,
+    l => `Brilliant! ${l} belongs to the night! 💎`,
+  ];
+
+  const TOTAL_ROUNDS = 18;
+  let round = 0, score = 0, locked = false;
+  let rounds = [];
+  let tierOverlayCallback = null;
+
+  function shuffle(a) {
+    const b = [...a];
+    for (let i=b.length-1;i>0;i--) { const j=Math.floor(Math.random()*(i+1)); [b[i],b[j]]=[b[j],b[i]]; }
+    return b;
+  }
+
+  function buildRounds() {
+    const easy   = shuffle(ACTIVITIES.filter(a => a.tIdx === 0));
+    const medium = shuffle(ACTIVITIES.filter(a => a.tIdx === 1));
+    const hard   = shuffle(ACTIVITIES.filter(a => a.tIdx === 2));
+    return [...easy, ...medium, ...hard];
+  }
+
+  function setupBg() {
+    const icons = ['☀️','🌙','⭐','🌟','🌕','✨','🌛','💫','🌠','🌌','🦋','🌻','🦉','🌈'];
+    for (let i = 0; i < 14; i++) {
+      const el = document.createElement('div');
+      el.className = 'bg-float';
+      el.textContent = icons[i % icons.length];
+      el.style.left = (4 + Math.random() * 92) + 'vw';
+      el.style.animationDuration = (10 + Math.random() * 15) + 's';
+      el.style.animationDelay    = -(Math.random() * 15) + 's';
+      document.body.appendChild(el);
+    }
+  }
+
+  function renderRound() {
+    locked = false;
+    const r   = rounds[round - 1];
+    const tier = TIER_CONFIG[r.tIdx];
+
+    const badge = document.getElementById('tier-badge');
+    badge.setAttribute('class', tier.cls);
+    badge.textContent = tier.label;
+
+    document.getElementById('score-lbl').textContent = score + ' ⭐';
+    document.getElementById('round-lbl').textContent = round + ' / ' + TOTAL_ROUNDS;
+    document.getElementById('progress-fill').style.width = ((round - 1) / TOTAL_ROUNDS * 100) + '%';
+
+    const skyEmoji = document.getElementById('sky-emoji');
+    skyEmoji.style.animation = 'none';
+    void skyEmoji.offsetWidth;
+    skyEmoji.style.animation = 'popIn .4s ease-out';
+    skyEmoji.textContent = r.e;
+    document.getElementById('sky-label').textContent = r.label;
+
+    document.getElementById('prompt').textContent = PROMPTS[Math.floor(Math.random() * PROMPTS.length)]();
+
+    ['btn-day','btn-night'].forEach(id => {
+      document.getElementById(id).classList.remove('correct-flash','wobble','locked');
+    });
+  }
+
+  function handleTap(isDay) {
+    if (locked) return;
+    const r = rounds[round - 1];
+    const correct = (isDay === r.isDay);
+    const btn = document.getElementById(isDay ? 'btn-day' : 'btn-night');
+
+    if (correct) {
+      locked = true;
+      score++;
+      document.getElementById('score-lbl').textContent = score + ' ⭐';
+      btn.classList.add('correct-flash');
+      playCorrect();
+      const rect = btn.getBoundingClientRect();
+      sparkleBurst(rect.left + rect.width/2, rect.top + rect.height/2);
+      document.getElementById(isDay ? 'btn-night' : 'btn-day').classList.add('locked');
+      setTimeout(() => {
+        btn.classList.remove('correct-flash');
+        showCelebration(r);
+      }, 560);
+    } else {
+      btn.classList.add('wobble');
+      playWrong();
+      setTimeout(() => btn.classList.remove('wobble'), 450);
+    }
+  }
+
+  function showCelebration(r) {
+    const texts = r.isDay ? CEL_TEXTS_DAY : CEL_TEXTS_NIGHT;
+    const celFn = texts[Math.floor(Math.random() * texts.length)];
+    const emojis = ['🌟','✨','👑','💎','🎀','☀️','🌙','💫'];
+
+    document.getElementById('cel-emoji').textContent = emojis[Math.floor(Math.random() * emojis.length)];
+    document.getElementById('cel-text').textContent  = celFn(r.label);
+    document.getElementById('cel-fact').textContent  = r.fact;
+
+    document.getElementById('celebrate-overlay').classList.add('show');
+    playCelebrate();
+    confettiBurst();
+  }
+
+  function nextRound() {
+    document.getElementById('celebrate-overlay').classList.remove('show');
+
+    if (round >= TOTAL_ROUNDS) {
+      showWin();
+      return;
+    }
+
+    const oldTier = rounds[round - 1].tIdx;
+    round++;
+    const newTier = rounds[round - 1].tIdx;
+
+    if (newTier > oldTier) {
+      showTierOverlay(TIER_CONFIG[newTier], renderRound);
+    } else {
+      renderRound();
+    }
+  }
+
+  function showTierOverlay(tier, callback) {
+    tierOverlayCallback = callback;
+    document.getElementById('tier-ov-emoji').textContent = tier.emoji;
+    document.getElementById('tier-ov-title').textContent = `✨ ${tier.name}! ✨`;
+    document.getElementById('tier-ov-sub').textContent   = tier.sub;
+    document.getElementById('tier-overlay').classList.add('show');
+    playTierUp();
+    confettiBurst();
+  }
+
+  function hideTierOverlay() {
+    document.getElementById('tier-overlay').classList.remove('show');
+    if (tierOverlayCallback) { setTimeout(tierOverlayCallback, 250); tierOverlayCallback = null; }
+  }
+
+  function showWin() {
+    document.getElementById('progress-fill').style.width = '100%';
+    document.getElementById('win-score').textContent = `You got ${score} ⭐`;
+    document.getElementById('win-overlay').classList.add('show');
+    playWin();
+    confettiBurst();
+    setTimeout(confettiBurst, 600);
+  }
+
+  function restartGame() {
+    round = 0; score = 0;
+    document.getElementById('win-overlay').classList.remove('show');
+    rounds = buildRounds();
+    round = 1;
+    renderRound();
+  }
+
+  function sparkleBurst(cx, cy) {
+    const icons = ['✨','🌸','⭐','💫','💖','🌟','🎀','💎','☀️','🌙'];
+    for (let i = 0; i < 26; i++) {
+      const el = document.createElement('div');
+      el.className = 'sparkle';
+      el.textContent = icons[Math.floor(Math.random() * icons.length)];
+      const angle = (i / 26) * Math.PI * 2;
+      const dist  = 50 + Math.random() * 90;
+      el.style.setProperty('--tx', Math.cos(angle) * dist + 'px');
+      el.style.setProperty('--ty', Math.sin(angle) * dist - 20 + 'px');
+      el.style.left = (cx - 10) + 'px';
+      el.style.top  = (cy - 10) + 'px';
+      el.style.animationDuration = (0.45 + Math.random() * 0.45) + 's';
+      el.style.animationDelay    = (Math.random() * 0.08) + 's';
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 1000);
+    }
+    const cols = ['#ffd700','#ff69b4','#c0a0ff','#7fff00','#00cfff'];
+    for (let i = 0; i < 14; i++) {
+      const el = document.createElement('div');
+      el.className = 'spark-dot';
+      const sz = 6 + Math.random() * 7;
+      el.style.width = sz + 'px'; el.style.height = sz + 'px';
+      el.style.background = cols[Math.floor(Math.random() * cols.length)];
+      const angle = Math.random() * Math.PI * 2;
+      const dist  = 40 + Math.random() * 100;
+      el.style.setProperty('--tx', Math.cos(angle) * dist + 'px');
+      el.style.setProperty('--ty', Math.sin(angle) * dist - 10 + 'px');
+      el.style.left = (cx - sz/2) + 'px';
+      el.style.top  = (cy - sz/2) + 'px';
+      el.style.animationDuration = (0.4 + Math.random() * 0.5) + 's';
+      el.style.animationDelay    = (Math.random() * 0.1) + 's';
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 1100);
+    }
+  }
+
+  function confettiBurst() {
+    const cols = ['#ffd700','#ff69b4','#ff99cc','#c0a0ff','#7fff00','#00cfff','#fff','#ffb347'];
+    for (let i = 0; i < 42; i++) {
+      const el = document.createElement('div');
+      el.className = 'confetti-piece';
+      const sz = 7 + Math.random() * 9;
+      el.style.width  = sz + 'px'; el.style.height = sz + 'px';
+      el.style.left   = Math.random() * 100 + 'vw';
+      el.style.background = cols[Math.floor(Math.random() * cols.length)];
+      el.style.animationDuration = (1.2 + Math.random() * 1.8) + 's';
+      el.style.animationDelay    = (Math.random() * 0.5) + 's';
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 3100);
+    }
+  }
+
+  document.getElementById('btn-day').addEventListener('pointerdown',   () => handleTap(true));
+  document.getElementById('btn-night').addEventListener('pointerdown', () => handleTap(false));
+
+  setupBg();
+  rounds = buildRounds();
+  round  = 1;
+  renderRound();
+</script>
+</body>
+</html>

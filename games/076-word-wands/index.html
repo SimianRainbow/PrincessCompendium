@@ -265,6 +265,7 @@
       words: [
         {w:'cat',e:'🐱'}, {w:'bat',e:'🦇'}, {w:'hat',e:'🎩'},
         {w:'mat',e:'🧘'}, {w:'rat',e:'🐀'}, {w:'sat',e:'🪑'},
+        {w:'fat',e:'🍖'}, {w:'pat',e:'🤗'},
       ],
       colour: '#ff6b9d',
     },
@@ -272,27 +273,44 @@
       words: [
         {w:'dog',e:'🐕'}, {w:'frog',e:'🐸'}, {w:'log',e:'🪵'},
         {w:'fog',e:'🌫️'}, {w:'hog',e:'🐗'}, {w:'jog',e:'🏃'},
+        {w:'bog',e:'🌿'}, {w:'cog',e:'⚙️'},
       ],
       colour: '#6bcfff',
+    },
+    '-EN': {
+      words: [
+        {w:'hen',e:'🐔'}, {w:'pen',e:'✏️'}, {w:'ten',e:'🔟'},
+        {w:'men',e:'👨'}, {w:'den',e:'🏠'}, {w:'zen',e:'🧘'},
+      ],
+      colour: '#a8e6cf',
     },
     '-AN': {
       words: [
         {w:'fan',e:'💨'}, {w:'van',e:'🚐'}, {w:'can',e:'🥫'},
         {w:'pan',e:'🍳'}, {w:'man',e:'👨'}, {w:'ran',e:'🌬️'},
+        {w:'tan',e:'☀️'}, {w:'ban',e:'🚫'},
       ],
       colour: '#a0ff80',
     },
     '-UN': {
       words: [
         {w:'sun',e:'☀️'}, {w:'bun',e:'🍞'}, {w:'fun',e:'🎉'},
-        {w:'run',e:'🏃'}, {w:'pup',e:'🐶'}, // intentional -UP intruder handled via pool
+        {w:'run',e:'🏃'}, {w:'nun',e:'🧕'}, {w:'pun',e:'😄'},
       ],
       colour: '#ffe066',
+    },
+    '-IP': {
+      words: [
+        {w:'lip',e:'👄'}, {w:'tip',e:'⬆️'}, {w:'dip',e:'🏊'},
+        {w:'hip',e:'🕺'}, {w:'zip',e:'🤐'}, {w:'sip',e:'☕'},
+      ],
+      colour: '#ffb3de',
     },
     '-IG': {
       words: [
         {w:'pig',e:'🐷'}, {w:'dig',e:'⛏️'}, {w:'big',e:'📦'},
         {w:'wig',e:'💇'}, {w:'fig',e:'🌿'}, {w:'rig',e:'🔧'},
+        {w:'jig',e:'💃'}, {w:'twig',e:'🌳'},
       ],
       colour: '#cc88ff',
     },
@@ -300,18 +318,24 @@
       words: [
         {w:'dot',e:'🔵'}, {w:'pot',e:'🫙'}, {w:'hot',e:'🌡️'},
         {w:'cot',e:'🛏️'}, {w:'got',e:'🎁'}, {w:'lot',e:'🌟'},
+        {w:'rot',e:'🍂'}, {w:'knot',e:'🪢'},
       ],
       colour: '#ff9966',
     },
+    '-ET': {
+      words: [
+        {w:'jet',e:'✈️'}, {w:'net',e:'🕸️'}, {w:'wet',e:'💧'},
+        {w:'bet',e:'🎲'}, {w:'set',e:'⚙️'}, {w:'vet',e:'👩‍⚕️'},
+        {w:'met',e:'🤝'}, {w:'get',e:'🎁'},
+      ],
+      colour: '#80cfff',
+    },
   };
 
-  // Correct pool for -UN is only 4 words (no pup)
-  FAMILIES['-UN'].words = [{w:'sun',e:'☀️'},{w:'bun',e:'🍞'},{w:'fun',e:'🎉'},{w:'run',e:'🏃'}];
-
   const TIER_CONFIG = [
-    { label:'🌱 Easy',   cls:'easy-badge',   families:['-AT','-OG'], emoji:'🌱', name:'Easy',   sub:'Tap the -AT or -OG words!' },
-    { label:'🌸 Medium', cls:'medium-badge',  families:['-AN','-UN'], emoji:'🌸', name:'Medium', sub:'Tap the -AN or -UN words!' },
-    { label:'⭐ Hard',   cls:'hard-badge',    families:['-IG','-OT'], emoji:'⭐', name:'Hard',   sub:'Tap the -IG or -OT words!' },
+    { label:'🌱 Easy',   cls:'easy-badge',   families:['-AT','-OG','-EN'], emoji:'🌱', name:'Easy',   sub:'Tap the right word family!' },
+    { label:'🌸 Medium', cls:'medium-badge',  families:['-AN','-UN','-IP'], emoji:'🌸', name:'Medium', sub:'New word families to find!' },
+    { label:'⭐ Hard',   cls:'hard-badge',    families:['-IG','-OT','-ET'], emoji:'⭐', name:'Hard',   sub:'Three harder word families!' },
   ];
 
   const PROMPTS = [
@@ -346,7 +370,9 @@
   function buildRounds() {
     const seq = [];
     TIER_CONFIG.forEach((tier, tIdx) => {
-      tier.families.forEach(fam => {
+      // Pick 2 of 3 families randomly for replay variety
+      const chosen = shuffle([...tier.families]).slice(0, 2);
+      chosen.forEach(fam => {
         const pool = shuffle(FAMILIES[fam].words);
         pool.slice(0, 3).forEach(correct => {
           seq.push({ tierIdx: tIdx, family: fam, correct });
@@ -380,8 +406,8 @@
 
   /* ── bg floaters ── */
   function setupBg() {
-    const icons = ['🪄','✨','⭐','🌟','💫','👑','💎','🎀','🌸','🔤'];
-    for (let i = 0; i < 12; i++) {
+    const icons = ['🪄','✨','⭐','🌟','💫','👑','💎','🎀','🌸','🔤','🏰','📖','🌈','💡'];
+    for (let i = 0; i < 14; i++) {
       const el = document.createElement('div');
       el.className = 'bg-float';
       el.textContent = icons[i % icons.length];
@@ -468,8 +494,8 @@
     document.getElementById('cel-emoji').textContent = emojis[Math.floor(Math.random() * emojis.length)];
     document.getElementById('cel-text').textContent  = celFn(word.w, fam);
     document.getElementById('cel-family-title').textContent = `The ${fam} family:`;
-    // show up to 4 members of the family
-    const members = famData.words.slice(0, 4);
+    // show up to 6 members of the family
+    const members = famData.words.slice(0, 6);
     document.getElementById('cel-family-words').textContent = members.map(m => `${m.w} ${m.e}`).join('  ');
 
     document.getElementById('celebrate-overlay').classList.add('show');
@@ -535,11 +561,11 @@
   /* ── sparkle burst ── */
   function sparkleBurst(cx, cy) {
     const icons = ['✨','🌸','⭐','💫','💖','🌟','🎀','💎','🪄','👑'];
-    for (let i = 0; i < 22; i++) {
+    for (let i = 0; i < 26; i++) {
       const el  = document.createElement('div');
       el.className = 'sparkle';
       el.textContent = icons[Math.floor(Math.random() * icons.length)];
-      const angle = (i / 22) * Math.PI * 2;
+      const angle = (i / 26) * Math.PI * 2;
       const dist  = 50 + Math.random() * 90;
       el.style.setProperty('--tx', Math.cos(angle) * dist + 'px');
       el.style.setProperty('--ty', Math.sin(angle) * dist - 20 + 'px');

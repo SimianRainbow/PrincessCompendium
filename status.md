@@ -1,9 +1,9 @@
 # Princess Compendium — Status
 
 ## Last update run
-Date: 2026-11-19
-- Improved: `074-princess-hops` → v1.1.0 (pool 9→12 per tier for more variety; sparkle 22→24 dots + emoji 10→12; bg gems 12→14)
-- Added: `092-princess-plurals` — "Princess Plurals 👑" teaching plural nouns (regular -s, -es and irregular); 10 items per tier, 6 chosen per game; 18 rounds; celebrate overlay shows singular→plural; 3-tier fun facts
+Date: 2026-11-22
+- Improved: `076-word-wands` → v1.1.0 (3 families per tier with 2 randomly chosen for replay variety; 3 new families -EN/-IP/-ET; expanded pools 6→8 words; sparkle 22→26; bg floaters 12→14; celebrate shows 6 family words)
+- Added: `093-day-night-castle` — "Princess Day & Night 🌙" teaching day/night sorting (when activities and animals are active); 18 activities across 3 tiers; tap DAY or NIGHT; fun facts per activity; dot particle + emoji sparkle burst
 
 ## Improvement history
 
@@ -83,6 +83,7 @@ Date: 2026-11-19
 | 2026-11-13 | 071-number-words | Added ZERO, expanded 9→12 rounds (4/tier), sparkle 20→22 + 10→12 dots, bg 12→14, gemStr for 0 | 1.1.0 |
 | 2026-11-16 | 073-royal-doubles | Tap-to-continue celebrate overlay, burst 20→22 dots + 8→10 emoji, double confetti on win | 1.1.0 |
 | 2026-11-19 | 074-princess-hops | Pool 9→12 per tier, sparkle 22→24 dots + emoji 10→12, bg gems 12→14 | 1.1.0 |
+| 2026-11-22 | 076-word-wands | 3 families/tier (2 random per game), 3 new families -EN/-IP/-ET, pools 6→8 words, sparkle 22→26, bg floaters 12→14 | 1.1.0 |
 
 ## Games due for improvement (all at v1.0.0)
 
@@ -166,6 +167,7 @@ See `CLAUDE.md` for the full prioritised list. Top 3 to build next:
 53. **Food origins (where everyday foods come from)** — ✅ covered by `090-farm-magic`
 54. **Sorting by material type (recycling)** — ✅ covered by `091-royal-recycle`
 55. **Plural nouns (regular -s/-es and irregular)** — ✅ covered by `092-princess-plurals`
+56. **Day and night sorting (when activities and animals are active)** — ✅ covered by `093-day-night-castle`
 
 ## Next game ID
-`093-<slug>`
+`094-<slug>`
