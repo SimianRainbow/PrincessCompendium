@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Magic Vowel Castle 🔮</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+    body{
+      min-height:100vh;
+      background:linear-gradient(160deg,#1a0040 0%,#5b0096 50%,#c2185b 100%);
+      font-family:'Fredoka One',Georgia,serif;
+      display:flex;flex-direction:column;align-items:center;
+      overflow:hidden;user-select:none;touch-action:manipulation;
+      padding-bottom:12px;
+    }
+
+    .bg-gem{position:fixed;pointer-events:none;animation:bgFloat linear infinite;opacity:.08;font-size:clamp(14px,3.5vw,22px);z-index:0;}
+    @keyframes bgFloat{0%{transform:translateY(110vh) rotate(0)}100%{transform:translateY(-15vh) rotate(360deg)}}
+
+    #header{
+      width:100%;display:flex;justify-content:space-between;align-items:center;
+      padding:clamp(10px,2.5vw,16px) clamp(14px,4vw,22px) 0;
+      flex-shrink:0;position:relative;z-index:1;
+    }
+    #tier-badge{font-size:clamp(13px,3.2vw,17px);padding:5px 14px;border-radius:20px;font-weight:bold;border:2px solid rgba(255,255,255,.35);}
+    .tier-easy  {background:linear-gradient(135deg,#66bb6a,#2e7d32);color:#fff;}
+    .tier-medium{background:linear-gradient(135deg,#ffca28,#f57f17);color:#3e2000;}
+    .tier-hard  {background:linear-gradient(135deg,#ce93d8,#6a1b9a);color:#fff;}
+    #score-label{font-size:clamp(14px,3.5vw,19px);color:#ffd700;text-shadow:0 0 8px rgba(255,215,0,.5);}
+    #round-label{font-size:clamp(13px,3.2vw,17px);color:rgba(255,255,255,.85);}
+
+    #progress-track{
+      width:calc(100% - clamp(28px,7vw,44px));height:7px;
+      background:rgba(255,255,255,.15);border-radius:99px;
+      margin:clamp(6px,1.5vw,10px) auto 0;overflow:hidden;
+      position:relative;z-index:1;
+    }
+    #progress-fill{
+      height:100%;background:linear-gradient(90deg,#ffd700,#e040fb);
+      border-radius:99px;transition:width .4s ease;width:0%;
+      box-shadow:0 0 8px rgba(255,215,0,.45);
+    }
+
+    #prompt{
+      font-size:clamp(16px,4.2vw,24px);color:#fff;
+      text-shadow:0 2px 8px rgba(0,0,0,.55);
+      text-align:center;padding:clamp(6px,1.5vw,10px) 16px clamp(4px,1vw,6px);
+      flex-shrink:0;position:relative;z-index:1;line-height:1.25;
+    }
+
+    #word-card{
+      background:rgba(255,255,255,.1);
+      border:3px solid rgba(255,215,0,.45);
+      border-radius:28px;
+      padding:clamp(10px,2.5vw,16px) clamp(20px,5vw,36px);
+      display:flex;flex-direction:column;align-items:center;gap:clamp(4px,1vw,8px);
+      box-shadow:0 8px 32px rgba(0,0,0,.4),0 0 0 6px rgba(255,215,0,.08);
+      position:relative;z-index:1;flex-shrink:0;
+      animation:cardPop .4s cubic-bezier(.34,1.56,.64,1);
+    }
+    @keyframes cardPop{from{transform:scale(.7);opacity:0}to{transform:scale(1);opacity:1}}
+    #word-emoji{font-size:clamp(56px,15vw,88px);line-height:1;}
+    #word-text{font-size:clamp(38px,10vw,66px);color:rgba(255,255,255,.92);letter-spacing:.08em;line-height:1;text-shadow:0 2px 10px rgba(0,0,0,.5);}
+    .vowel-hl{color:#ffd700;text-shadow:0 0 20px rgba(255,215,0,.9),0 0 40px rgba(255,215,0,.5);animation:vowelPulse 1.6s ease-in-out infinite;}
+    @keyframes vowelPulse{0%,100%{text-shadow:0 0 20px rgba(255,215,0,.9),0 0 40px rgba(255,215,0,.5);}50%{text-shadow:0 0 42px rgba(255,215,0,1),0 0 80px rgba(255,215,0,.8);}}
+
+    #choices{
+      display:flex;flex-wrap:wrap;gap:clamp(7px,2vw,12px);
+      justify-content:center;
+      max-width:min(90vw,420px);
+      position:relative;z-index:1;flex-shrink:0;
+      padding:clamp(6px,1.5vw,10px) 16px;
+    }
+    .vowel-btn{
+      min-width:clamp(80px,19vw,98px);min-height:clamp(90px,21vw,108px);
+      border-radius:20px;font-size:clamp(32px,8.5vw,52px);
+      font-family:inherit;cursor:pointer;touch-action:manipulation;
+      border:3px solid rgba(255,255,255,.3);
+      box-shadow:0 4px 18px rgba(0,0,0,.35),inset 0 2px 0 rgba(255,255,255,.2);
+      transition:transform .1s;color:#fff;
+      display:flex;align-items:center;justify-content:center;
+    }
+    .vowel-btn:active{transform:scale(.91);}
+    .vowel-btn.correct{border-color:#ffd700;animation:correctPop .5s ease-out;}
+    .vowel-btn.wrong  {animation:wobble .45s ease-out;border-color:rgba(255,80,80,.8);}
+    @keyframes correctPop{0%{transform:scale(1)}40%{transform:scale(1.14);box-shadow:0 0 40px rgba(255,215,0,.8)}100%{transform:scale(1)}}
+    @keyframes wobble{0%,100%{transform:translateX(0)}20%{transform:translateX(-12px)}60%{transform:translateX(12px)}80%{transform:translateX(-6px)}}
+
+    .btn-A{background:linear-gradient(135deg,#e91e63,#c2185b);}
+    .btn-E{background:linear-gradient(135deg,#4caf50,#2e7d32);}
+    .btn-I{background:linear-gradient(135deg,#2196f3,#1565c0);}
+    .btn-O{background:linear-gradient(135deg,#ff9800,#e65100);}
+    .btn-U{background:linear-gradient(135deg,#9c27b0,#6a1b9a);}
+
+    .sp{position:fixed;pointer-events:none;z-index:50;border-radius:50%;animation:sparkOut .75s ease-out forwards;}
+    @keyframes sparkOut{0%{transform:scale(0);opacity:1}100%{transform:scale(1.6);opacity:0}}
+    .sp-em{position:fixed;pointer-events:none;z-index:51;animation:spFloat .9s ease-out forwards;}
+    @keyframes spFloat{0%{transform:translateY(0) scale(1);opacity:1}100%{transform:translateY(-90px) scale(0);opacity:0}}
+
+    .overlay{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;z-index:99;opacity:0;pointer-events:none;transition:opacity .35s;padding:24px 20px;}
+    .overlay.show{opacity:1;pointer-events:all;}
+    #cel-overlay{background:rgba(20,0,60,.94);}
+    #tier-overlay{background:rgba(10,0,40,.9);}
+    #win-overlay{background:linear-gradient(160deg,#1a0040 0%,#5b0096 100%);}
+    .ov-emoji{font-size:clamp(52px,14vw,90px);}
+    .ov-title{font-size:clamp(18px,5vw,32px);color:#ffd700;text-align:center;line-height:1.2;}
+    .ov-sub  {font-size:clamp(15px,3.8vw,22px);color:#f8bbd0;text-align:center;max-width:320px;line-height:1.3;}
+    .ov-fact {font-size:clamp(13px,3.4vw,18px);color:#b39ddb;text-align:center;max-width:340px;line-height:1.4;}
+    .btn-next{padding:clamp(14px,4vw,20px) clamp(32px,8vw,54px);font-size:clamp(18px,5vw,26px);border-radius:50px;border:none;background:linear-gradient(135deg,#ffd700,#ff8c00);color:#5d2e00;font-family:inherit;cursor:pointer;min-height:64px;min-width:180px;box-shadow:0 4px 18px rgba(255,180,0,.5);touch-action:manipulation;}
+    .cf{position:fixed;pointer-events:none;z-index:100;border-radius:3px;animation:cfFall linear forwards;}
+    @keyframes cfFall{0%{top:-20px;opacity:1;transform:rotate(0)}100%{top:110vh;opacity:.2;transform:rotate(720deg)}}
+  </style>
+</head>
+<body>
+
+<div id="header">
+  <div id="tier-badge" class="tier-easy">🌱 Easy</div>
+  <div id="score-label">⭐ 0</div>
+  <div id="round-label">1 / 9</div>
+</div>
+<div id="progress-track"><div id="progress-fill"></div></div>
+
+<div id="prompt">What magic vowel do you see? 🔮</div>
+
+<div id="word-card">
+  <div id="word-emoji">🎂</div>
+  <div id="word-text">C<span class="vowel-hl">A</span>KE</div>
+</div>
+
+<div id="choices"></div>
+
+<!-- Celebrate overlay -->
+<div class="overlay" id="cel-overlay">
+  <div class="ov-emoji" id="cel-emoji">✨</div>
+  <div class="ov-title" id="cel-title">Long A! 🌟</div>
+  <div class="ov-sub"   id="cel-sub">Brilliant! 👑</div>
+  <div class="ov-fact"  id="cel-fact"></div>
+  <button class="btn-next" id="cel-btn">Next ➡️</button>
+</div>
+
+<!-- Tier overlay -->
+<div class="overlay" id="tier-overlay">
+  <div class="ov-emoji" id="t-emoji">🌸</div>
+  <div class="ov-title" id="t-title">Medium! 🌟</div>
+  <div class="ov-sub"   id="t-sub">Now try more vowel sounds! ✨</div>
+  <button class="btn-next" id="t-btn">Let's go! ✨</button>
+</div>
+
+<!-- Win overlay -->
+<div class="overlay" id="win-overlay">
+  <div class="ov-emoji">👑</div>
+  <div class="ov-title">Magic Vowel Master! ✨</div>
+  <div class="ov-sub" id="win-sub">Amazing vowel power! 🌟</div>
+  <div class="ov-fact" id="win-fact"></div>
+  <button class="btn-next" onclick="startGame()">Play Again 🌸</button>
+</div>
+
+<script>
+// ── Audio ─────────────────────────────────────────────────────────────────────
+let audioCtx=null;
+function getAudio(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();return audioCtx;}
+function tone(f,type,d,v,del){
+  v=v||.18;del=del||0;
+  try{
+    const c=getAudio();
+    setTimeout(()=>{
+      try{
+        const o=c.createOscillator(),g=c.createGain();
+        o.connect(g);g.connect(c.destination);
+        o.type=type;o.frequency.value=f;
+        g.gain.setValueAtTime(v,c.currentTime);
+        g.gain.exponentialRampToValueAtTime(.001,c.currentTime+d);
+        o.start();o.stop(c.currentTime+d);
+      }catch(e){}
+    },del);
+  }catch(e){}
+}
+function playCorrect(){[523,659,784,1047].forEach((f,i)=>tone(f,'sine',.18,.2,i*70));}
+function playWrong()  {tone(260,'sawtooth',.18,.13);tone(210,'sawtooth',.14,.1,160);}
+function playTierUp() {[523,659,784,880,1047,1319].forEach((f,i)=>tone(f,'triangle',.28,.2,i*90));}
+function playWin()    {[523,659,784,1047,784,1047,1319,1047,1319,1568].forEach((f,i)=>tone(f,'sine',.3,.22,i*90));}
+
+// ── Data ─────────────────────────────────────────────────────────────────────
+const VOWEL_WORDS = {
+  A:[
+    {word:'CAKE',  emoji:'🎂'},
+    {word:'RAIN',  emoji:'🌧️'},
+    {word:'DAY',   emoji:'☀️'},
+    {word:'TRAIN', emoji:'🚂'},
+    {word:'SNAIL', emoji:'🐌'},
+    {word:'WAVE',  emoji:'🌊'},
+  ],
+  E:[
+    {word:'TREE',  emoji:'🌳'},
+    {word:'BEE',   emoji:'🐝'},
+    {word:'FEET',  emoji:'🦶'},
+    {word:'QUEEN', emoji:'👸'},
+    {word:'BEAD',  emoji:'📿'},
+    {word:'LEAF',  emoji:'🍃'},
+  ],
+  I:[
+    {word:'KITE',  emoji:'🪁'},
+    {word:'PIE',   emoji:'🥧'},
+    {word:'BIKE',  emoji:'🚲'},
+    {word:'SMILE', emoji:'😊'},
+    {word:'BRIDE', emoji:'👰'},
+    {word:'SHINE', emoji:'✨'},
+  ],
+  O:[
+    {word:'BONE',  emoji:'🦴'},
+    {word:'BOAT',  emoji:'⛵'},
+    {word:'SNOW',  emoji:'❄️'},
+    {word:'ROSE',  emoji:'🌹'},
+    {word:'HOME',  emoji:'🏠'},
+    {word:'TOAD',  emoji:'🐸'},
+  ],
+  U:[
+    {word:'CUBE',  emoji:'📦'},
+    {word:'BLUE',  emoji:'💙'},
+    {word:'CUTE',  emoji:'🥰'},
+    {word:'TUNE',  emoji:'🎵'},
+    {word:'FLUTE', emoji:'🎶'},
+    {word:'TRUE',  emoji:'✅'},
+  ],
+};
+
+const VOWEL_COLOR = {A:'btn-A', E:'btn-E', I:'btn-I', O:'btn-O', U:'btn-U'};
+
+const VOWEL_FACTS = {
+  A:[
+    'Long A says "AY" — the same as the letter name! Cake, rain and day all have long A! 🎂',
+    'Magic E at the end of CAKE makes A say its name: "AY"! ✨',
+    'The AI in RAIN is a vowel team — two vowels making one long A sound! 🌧️',
+    'Long A appears in cake, rain, day, train, snail and wave! 🌟',
+  ],
+  E:[
+    'Long E says "EE" — the same as the letter name! Tree, bee and leaf all have long E! 🌳',
+    'Two E\'s together (EE) always make the long E sound — like in TREE! 🐝',
+    'The EA in BEAD is a vowel team — two letters making one long E sound! 📿',
+    'Long E is the longest-sounding vowel — listen: "EEEEE"! 👑',
+  ],
+  I:[
+    'Long I says "EYE" — the same as the letter name! Kite, pie and bike all have long I! 🪁',
+    'Magic E at the end of KITE makes I say its name: "EYE"! ✨',
+    'The IE in PIE makes the long I sound — two vowels, one sound! 🥧',
+    'Long I sounds appear in kite, pie, bike, smile, bride and shine! 💎',
+  ],
+  O:[
+    'Long O says "OH" — the same as the letter name! Bone, boat and snow all have long O! 🦴',
+    'Magic E at the end of BONE makes O say its name: "OH"! ✨',
+    'The OA in BOAT is a vowel team — two vowels making one long O sound! ⛵',
+    'Long O sounds appear in bone, boat, snow, rose, home and toad! 🌹',
+  ],
+  U:[
+    'Long U says "YOU" — the same as the letter name! Cube, blue and cute all have long U! 📦',
+    'Magic E at the end of CUBE makes U say its name: "YOU"! ✨',
+    'The UE in BLUE makes the long U sound — two vowels, one sound! 💙',
+    'Long U sounds appear in cube, blue, cute, tune, flute and true! 🎵',
+  ],
+};
+
+const PROMPTS = [
+  'What magic vowel do you see? 🔮',
+  'Which long vowel is glowing? ✨',
+  'Tap the vowel that says its name! 👑',
+  'What long vowel sound does this word have? 🌟',
+  'Find the glowing long vowel! 💎',
+];
+
+const CEL_MSGS = ['Brilliant! 🌟','Amazing! 👑','You got it! ✨','Superstar! ⭐','Perfect! 💎','Wonderful! 🌸'];
+
+// ── Tiers ─────────────────────────────────────────────────────────────────────
+const TIERS = [
+  {
+    label:'🌱 Easy', cls:'tier-easy', vowels:['A','E','I'],
+    toastEmoji:'🌟', toastTitle:'🌟 Medium!',
+    toastSub:'Now add Long O! Choose from A, E, I and O! ✨'
+  },
+  {
+    label:'🌸 Medium', cls:'tier-medium', vowels:['A','E','I','O'],
+    toastEmoji:'👑', toastTitle:'👑 Hard!',
+    toastSub:'All five long vowels — A, E, I, O and U! 🔮'
+  },
+  {label:'👑 Hard', cls:'tier-hard', vowels:['A','E','I','O','U']},
+];
+
+const TOTAL = 9;
+const ROUNDS_PER_TIER = 3;
+
+// ── State ─────────────────────────────────────────────────────────────────────
+let round=0, score=0, locked=false, gameRounds=[], promptIdx=0;
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function shuffle(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];}return b;}
+
+function highlightVowel(word, vowel) {
+  return word.split('').map(c =>
+    c===vowel ? `<span class="vowel-hl">${c}</span>` : c
+  ).join('');
+}
+
+// ── Build rounds ──────────────────────────────────────────────────────────────
+function buildRounds(){
+  const rounds=[];
+  TIERS.forEach((tier,ti)=>{
+    const vowelList=shuffle([...tier.vowels]);
+    for(let i=0;i<ROUNDS_PER_TIER;i++){
+      const v=vowelList[i%vowelList.length];
+      const pool=VOWEL_WORDS[v];
+      const word=pool[Math.floor(Math.random()*pool.length)];
+      rounds.push({...word, correctVowel:v, tierIdx:ti, choices:[...tier.vowels]});
+    }
+  });
+  return rounds;
+}
+
+// ── Game flow ─────────────────────────────────────────────────────────────────
+function startGame(){
+  ['win-overlay','tier-overlay','cel-overlay'].forEach(id=>document.getElementById(id).classList.remove('show'));
+  round=0; score=0; locked=false;
+  promptIdx=Math.floor(Math.random()*PROMPTS.length);
+  gameRounds=buildRounds();
+  makeBgGems();
+  nextRound();
+}
+
+function nextRound(){
+  document.getElementById('cel-overlay').classList.remove('show');
+  if(round>=TOTAL){endGame();return;}
+  const prevTierIdx=round===0?-1:gameRounds[round-1].tierIdx;
+  round++;
+  const rd=gameRounds[round-1];
+  if(rd.tierIdx>prevTierIdx&&prevTierIdx>=0){
+    showTierOverlay(TIERS[rd.tierIdx],()=>renderRound(rd));
+  } else {
+    renderRound(rd);
+  }
+}
+
+function renderRound(rd){
+  locked=false;
+  const tier=TIERS[rd.tierIdx];
+
+  const badge=document.getElementById('tier-badge');
+  badge.textContent=tier.label; badge.className='tier-badge '+tier.cls;
+  document.getElementById('score-label').textContent='⭐ '+score;
+  document.getElementById('round-label').textContent=round+' / '+TOTAL;
+  document.getElementById('progress-fill').style.width=((round-1)/TOTAL*100)+'%';
+
+  promptIdx=(promptIdx+1)%PROMPTS.length;
+  document.getElementById('prompt').textContent=PROMPTS[promptIdx];
+
+  const card=document.getElementById('word-card');
+  card.style.animation='none'; void card.offsetWidth; card.style.animation='';
+  document.getElementById('word-emoji').textContent=rd.emoji;
+  document.getElementById('word-text').innerHTML=highlightVowel(rd.word, rd.correctVowel);
+
+  const choicesEl=document.getElementById('choices');
+  choicesEl.innerHTML='';
+  const opts=shuffle([...rd.choices]);
+  opts.forEach(v=>{
+    const btn=document.createElement('button');
+    btn.className='vowel-btn '+VOWEL_COLOR[v];
+    btn.textContent=v;
+    btn.addEventListener('pointerdown',()=>handleTap(btn,v===rd.correctVowel,rd));
+    choicesEl.appendChild(btn);
+  });
+
+  setTimeout(()=>{try{getAudio().resume();}catch(e){}tone(880,'sine',.1,.08);},150);
+}
+
+function handleTap(btn,ok,rd){
+  if(locked)return;
+  try{getAudio().resume();}catch(e){}
+  if(ok){
+    locked=true; score++;
+    btn.classList.add('correct');
+    playCorrect();
+    const r=btn.getBoundingClientRect();
+    burst(r.left+r.width/2, r.top+r.height/2);
+    document.getElementById('score-label').textContent='⭐ '+score;
+    setTimeout(()=>showCelebrate(rd),550);
+  } else {
+    btn.classList.add('wrong');
+    playWrong();
+    setTimeout(()=>btn.classList.remove('wrong'),460);
+  }
+}
+
+function showCelebrate(rd){
+  const facts=VOWEL_FACTS[rd.correctVowel];
+  const fact=facts[Math.floor(Math.random()*facts.length)];
+  document.getElementById('cel-emoji').textContent='✨✨✨';
+  document.getElementById('cel-title').innerHTML=
+    highlightVowel(rd.word,rd.correctVowel)+
+    ' — Long <span class="vowel-hl">'+rd.correctVowel+'</span>! 🌟';
+  document.getElementById('cel-sub').textContent=CEL_MSGS[Math.floor(Math.random()*CEL_MSGS.length)];
+  document.getElementById('cel-fact').textContent=fact;
+  document.getElementById('cel-btn').onclick=nextRound;
+  document.getElementById('cel-overlay').classList.add('show');
+  confetti(36);
+}
+
+function showTierOverlay(tier,cb){
+  document.getElementById('t-emoji').textContent=tier.toastEmoji;
+  document.getElementById('t-title').textContent=tier.toastTitle;
+  document.getElementById('t-sub').textContent=tier.toastSub||'Get ready! 🌟';
+  document.getElementById('t-btn').onclick=()=>{
+    document.getElementById('tier-overlay').classList.remove('show');
+    cb();
+  };
+  document.getElementById('tier-overlay').classList.add('show');
+  playTierUp(); confetti(42);
+}
+
+function endGame(){
+  playWin(); confetti(60); setTimeout(()=>confetti(40),700);
+  document.getElementById('win-sub').textContent='You scored ⭐ '+score+' out of '+TOTAL+'! 💎';
+  document.getElementById('win-fact').textContent='You can hear long vowel sounds — a real reading superpower! 👑';
+  document.getElementById('win-overlay').classList.add('show');
+  document.getElementById('progress-fill').style.width='100%';
+  document.getElementById('score-label').textContent='⭐ '+score;
+}
+
+// ── Particles ─────────────────────────────────────────────────────────────────
+function burst(cx,cy){
+  const cols=['#ffd700','#e040fb','#fff','#f48fb1','#80deea','#a5d6a7','#ce93d8','#ffe082'];
+  const ems=['✨','💫','⭐','🌟','💎','👑','🌸','💖','🔮','🎉','A','E','I','O','U'];
+  for(let i=0;i<22;i++){
+    const el=document.createElement('div');el.className='sp';
+    const a=Math.random()*Math.PI*2,dist=35+Math.random()*80,sz=7+Math.random()*10;
+    el.style.cssText=`left:${cx+Math.cos(a)*dist-sz/2}px;top:${cy+Math.sin(a)*dist-sz/2}px;width:${sz}px;height:${sz}px;background:${cols[i%cols.length]};`;
+    document.body.appendChild(el); setTimeout(()=>el.remove(),800);
+  }
+  for(let i=0;i<12;i++){
+    const el=document.createElement('div');el.className='sp-em';
+    el.textContent=ems[i%ems.length];
+    el.style.cssText=`left:${cx+(Math.random()-.5)*120}px;top:${cy+(Math.random()-.5)*100}px;font-size:${16+Math.random()*12}px;`;
+    el.style.animationDelay=(Math.random()*.2)+'s';
+    document.body.appendChild(el); setTimeout(()=>el.remove(),1100);
+  }
+}
+
+function confetti(count){
+  const cols=['#e040fb','#ffd700','#fff','#f48fb1','#ce93d8','#b2ebf2','#a5d6a7','#ff8a65'];
+  for(let i=0;i<count;i++){
+    const el=document.createElement('div');el.className='cf';
+    const sz=6+Math.random()*10;
+    el.style.cssText=`left:${Math.random()*100}vw;top:-20px;width:${sz}px;height:${sz}px;background:${cols[i%cols.length]};animation-duration:${1.4+Math.random()*2}s;animation-delay:${Math.random()*.5}s`;
+    document.body.appendChild(el); setTimeout(()=>el.remove(),3500);
+  }
+}
+
+function makeBgGems(){
+  document.querySelectorAll('.bg-gem').forEach(e=>e.remove());
+  const icons=['🔮','✨','💎','⭐','🌟','👑','💜','🌸','A','E','I','O','U','🎵'];
+  for(let i=0;i<14;i++){
+    const el=document.createElement('div');el.className='bg-gem';
+    el.textContent=icons[i%icons.length];
+    el.style.left=(4+Math.random()*92)+'vw';
+    el.style.animationDuration=(10+Math.random()*14)+'s';
+    el.style.animationDelay=-(Math.random()*16)+'s';
+    document.body.appendChild(el);
+  }
+}
+
+startGame();
+</script>
+</body>
+</html>

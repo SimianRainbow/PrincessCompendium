@@ -1,9 +1,9 @@
 # Princess Compendium — Status
 
 ## Last update run
-Date: 2026-11-22
-- Improved: `076-word-wands` → v1.1.0 (3 families per tier with 2 randomly chosen for replay variety; 3 new families -EN/-IP/-ET; expanded pools 6→8 words; sparkle 22→26; bg floaters 12→14; celebrate shows 6 family words)
-- Added: `093-day-night-castle` — "Princess Day & Night 🌙" teaching day/night sorting (when activities and animals are active); 18 activities across 3 tiers; tap DAY or NIGHT; fun facts per activity; dot particle + emoji sparkle burst
+Date: 2026-11-25
+- Improved: `077-princess-tally` → v1.1.0 (Hard pool 5→8 items [3-10]; rounds 9→12 (4/tier); sparkle dots 20→22, emojis 10→12; bg floaters 12→14)
+- Added: `094-magic-vowels` — "Magic Vowel Castle 🔮" teaching long vowel sounds (A/E/I/O/U via magic-e and vowel teams); 6 words per vowel; Easy picks from A/E/I (3 buttons), Medium A/E/I/O (4), Hard all 5; vowel glows gold in the word display; colour-coded vowel buttons; 9 rounds across 3 tiers
 
 ## Improvement history
 
@@ -84,6 +84,7 @@ Date: 2026-11-22
 | 2026-11-16 | 073-royal-doubles | Tap-to-continue celebrate overlay, burst 20→22 dots + 8→10 emoji, double confetti on win | 1.1.0 |
 | 2026-11-19 | 074-princess-hops | Pool 9→12 per tier, sparkle 22→24 dots + emoji 10→12, bg gems 12→14 | 1.1.0 |
 | 2026-11-22 | 076-word-wands | 3 families/tier (2 random per game), 3 new families -EN/-IP/-ET, pools 6→8 words, sparkle 22→26, bg floaters 12→14 | 1.1.0 |
+| 2026-11-25 | 077-princess-tally | Hard pool 5→8 items [3-10], rounds 9→12 (4/tier), sparkle dots 20→22 + emojis 10→12, bg floaters 12→14 | 1.1.0 |
 
 ## Games due for improvement (all at v1.0.0)
 
@@ -169,5 +170,8 @@ See `CLAUDE.md` for the full prioritised list. Top 3 to build next:
 55. **Plural nouns (regular -s/-es and irregular)** — ✅ covered by `092-princess-plurals`
 56. **Day and night sorting (when activities and animals are active)** — ✅ covered by `093-day-night-castle`
 
+56. **Day and night sorting (when activities and animals are active)** — ✅ covered by `093-day-night-castle`
+57. **Long vowel sounds (A/E/I/O/U — magic e and vowel teams)** — ✅ covered by `094-magic-vowels`
+
 ## Next game ID
-`094-<slug>`
+`095-<slug>`
