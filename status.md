@@ -1,9 +1,9 @@
 # Princess Compendium — Status
 
 ## Last update run
-Date: 2026-11-25
-- Improved: `077-princess-tally` → v1.1.0 (Hard pool 5→8 items [3-10]; rounds 9→12 (4/tier); sparkle dots 20→22, emojis 10→12; bg floaters 12→14)
-- Added: `094-magic-vowels` — "Magic Vowel Castle 🔮" teaching long vowel sounds (A/E/I/O/U via magic-e and vowel teams); 6 words per vowel; Easy picks from A/E/I (3 buttons), Medium A/E/I/O (4), Hard all 5; vowel glows gold in the word display; colour-coded vowel buttons; 9 rounds across 3 tiers
+Date: 2026-11-28
+- Improved: `078-place-value-palace` → v1.1.0 (pool 6→8 per tier, rounds 9→12 (4/tier), fixed getTierIdx for 12 rounds, sparkle 22+20→26+22 emoji+dots, win score label uses TOTAL)
+- Added: `095-number-line-quest` — "Number Line Quest 🔢" teaching number line and ordering; 5-box number line with pulsing missing gem; Easy range 1-8 (2 choices), Medium 1-12 (3 choices), Hard teen numbers 10-20 (4 choices); celebrate shows prev→answer→next sequence; 12 rounds across 3 tiers
 
 ## Improvement history
 
@@ -85,6 +85,7 @@ Date: 2026-11-25
 | 2026-11-19 | 074-princess-hops | Pool 9→12 per tier, sparkle 22→24 dots + emoji 10→12, bg gems 12→14 | 1.1.0 |
 | 2026-11-22 | 076-word-wands | 3 families/tier (2 random per game), 3 new families -EN/-IP/-ET, pools 6→8 words, sparkle 22→26, bg floaters 12→14 | 1.1.0 |
 | 2026-11-25 | 077-princess-tally | Hard pool 5→8 items [3-10], rounds 9→12 (4/tier), sparkle dots 20→22 + emojis 10→12, bg floaters 12→14 | 1.1.0 |
+| 2026-11-28 | 078-place-value-palace | Pool 6→8 per tier (random 4), rounds 9→12 (4/tier), fixed getTierIdx for 12 rounds, sparkle 22+20→26+22, win score uses TOTAL | 1.1.0 |
 
 ## Games due for improvement (all at v1.0.0)
 
@@ -172,6 +173,7 @@ See `CLAUDE.md` for the full prioritised list. Top 3 to build next:
 
 56. **Day and night sorting (when activities and animals are active)** — ✅ covered by `093-day-night-castle`
 57. **Long vowel sounds (A/E/I/O/U — magic e and vowel teams)** — ✅ covered by `094-magic-vowels`
+58. **Number line and ordering (finding the missing number in a sequence)** — ✅ covered by `095-number-line-quest`
 
 ## Next game ID
-`095-<slug>`
+`096-<slug>`

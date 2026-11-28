@@ -265,6 +265,8 @@ var ROUNDS_EASY = [
   {tens:1,ones:1,fact:'1 ten and 1 one = 10 + 1 = 11! Eleven — one past ten! 👑'},
   {tens:1,ones:4,fact:'1 ten and 4 ones = 10 + 4 = 14! The left digit is tens, the right is ones! 🌟'},
   {tens:1,ones:7,fact:'1 ten and 7 ones = 10 + 7 = 17! Seventeen gems in two groups! 💎'},
+  {tens:1,ones:3,fact:'1 ten and 3 ones = 10 + 3 = 13! Thirteen — just three past ten! 🌸'},
+  {tens:1,ones:6,fact:'1 ten and 6 ones = 10 + 6 = 16! Sixteen — six extra gems after the bar! ✨'},
 ];
 
 var ROUNDS_MEDIUM = [
@@ -274,6 +276,8 @@ var ROUNDS_MEDIUM = [
   {tens:3,ones:5,fact:'3 tens and 5 ones = 30 + 5 = 35! The tens digit is 3, the ones digit is 5! 🌟'},
   {tens:2,ones:0,fact:'2 tens and 0 ones = 20 + 0 = 20! A round number — zero ones! 👑'},
   {tens:3,ones:8,fact:'3 tens and 8 ones = 30 + 8 = 38! Nearly 40 — so close! 💎'},
+  {tens:2,ones:9,fact:'2 tens and 9 ones = 20 + 9 = 29! One shy of 30! 🌸'},
+  {tens:3,ones:4,fact:'3 tens and 4 ones = 30 + 4 = 34! Three golden bars and four loose gems! ✨'},
 ];
 
 var ROUNDS_HARD = [
@@ -283,6 +287,8 @@ var ROUNDS_HARD = [
   {tens:4,ones:8,fact:'4 tens and 8 ones = 40 + 8 = 48! Nearly fifty! 🌟'},
   {tens:5,ones:3,fact:'5 tens and 3 ones = 50 + 3 = 53! The 5 means five groups of ten! 👑'},
   {tens:6,ones:1,fact:'6 tens and 1 one = 60 + 1 = 61! Just one loose gem past sixty! 💎'},
+  {tens:4,ones:5,fact:'4 tens and 5 ones = 40 + 5 = 45! Halfway to fifty! 🌸'},
+  {tens:6,ones:7,fact:'6 tens and 7 ones = 60 + 7 = 67! That is a big number! ✨'},
 ];
 
 var TIER_DATA = [
@@ -301,19 +307,19 @@ var PROMPTS = [
   'Read the tens and ones — tap the answer! 💎',
 ];
 
-var TOTAL = 9;
+var TOTAL = 12;
 
 // ── State ─────────────────────────────────────────────────────────────────────
 var round=0, score=0, locked=false, roundPlan=[], promptIdx=0;
 
-function getTierIdx(r){return r<=3?0:r<=6?1:2;}
+function getTierIdx(r){return r<=4?0:r<=8?1:2;}
 
 function shuffle(arr){var a=arr.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}return a;}
 
 function buildPlan(){
   var plan=[];
   TIER_DATA.forEach(function(tier){
-    var picks=shuffle(tier.pool).slice(0,3);
+    var picks=shuffle(tier.pool).slice(0,4);
     picks.forEach(function(r){plan.push(r);});
   });
   return plan;
@@ -493,7 +499,7 @@ function showCelebrate(answer,rd){
 
 function endGame(){
   document.getElementById('progress-fill').style.width='100%';
-  document.getElementById('win-score').textContent='⭐ '+score+' / 9';
+  document.getElementById('win-score').textContent='⭐ '+score+' / '+TOTAL;
   document.getElementById('win-overlay').classList.add('show');
   playWin();confetti(60);setTimeout(function(){confetti(40);},700);
 }
@@ -502,14 +508,14 @@ function endGame(){
 function sparkleBurst(cx,cy){
   var ems=['✨','💫','👑','⭐','💎','🌟','🏰','🪄'];
   var cols=['#ffd700','#f48fb1','#fff','#ce93d8','#80deea','#ffab91'];
-  for(var i=0;i<22;i++){
+  for(var i=0;i<26;i++){
     var el=document.createElement('div');el.className='sp';
     el.textContent=ems[i%ems.length];
-    el.style.cssText='font-size:'+(16+Math.random()*14)+'px;left:'+(cx+(Math.random()-.5)*130)+'px;top:'+(cy+(Math.random()-.5)*110)+'px;animation-delay:'+(Math.random()*.15)+'s;';
+    el.style.cssText='font-size:'+(16+Math.random()*14)+'px;left:'+(cx+(Math.random()-.5)*140)+'px;top:'+(cy+(Math.random()-.5)*120)+'px;animation-delay:'+(Math.random()*.15)+'s;';
     document.body.appendChild(el);
     setTimeout((function(e){return function(){e.remove();};})(el),900);
   }
-  for(var j=0;j<20;j++){
+  for(var j=0;j<22;j++){
     var dot=document.createElement('div');dot.className='sp-dot';
     var a=Math.random()*Math.PI*2,dist=30+Math.random()*85,sz=5+Math.random()*10;
     dot.style.cssText='width:'+sz+'px;height:'+sz+'px;left:'+(cx-sz/2)+'px;top:'+(cy-sz/2)+'px;background:'+cols[j%cols.length]+';--tx:'+(Math.cos(a)*dist)+'px;--ty:'+(Math.sin(a)*dist)+'px;';
